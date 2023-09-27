@@ -10,7 +10,7 @@ export interface HTTPRequest<ParamsDictionary = any, RequestBody = any, QueryDic
   method: string;
   path: string;
   headers: IncomingHttpHeaders;
-  account: { id?: string };
+  account?: { id?: string };
 }
 
 interface HTTPResponse {
