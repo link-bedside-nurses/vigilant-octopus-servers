@@ -1,9 +1,11 @@
 import { getModelForClass } from "@typegoose/typegoose";
 
-import { Account } from "./schemas/account";
+import { Customer } from "./schemas/customers";
+import { Caregiver } from "./schemas/caregivers";
 
 export const Database = Object.freeze({
-  accounts: getModelForClass(Account),
+  customers: getModelForClass(Customer),
+  caregivers: getModelForClass(Caregiver),
 });
 
 export type DatabaseType = typeof Database;

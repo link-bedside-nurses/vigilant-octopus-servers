@@ -1,12 +1,14 @@
 import { pre, prop, modelOptions, Severity } from "@typegoose/typegoose";
 import argon from "argon2";
 
-export enum AccountRoleEnum {
-  DEFAULT = "default",
-  ADMIN = "admin",
-}
+@modelOptions({ schemaOptions: { _id: false, versionKey: false } })
+class Avatar {
+  @prop({ type: String })
+  url!: string;
 
-const DEFAULT_PASSWORD = "12345678";
+  @prop({ type: String })
+  publicId!: string;
+}
 
 @modelOptions({
   schemaOptions: {
@@ -18,17 +20,17 @@ const DEFAULT_PASSWORD = "12345678";
   },
   options: { allowMixed: Severity.ALLOW },
 })
-@pre<Account>("save", async function (next) {
+@pre<Customer>("save", async function (next) {
   // Hash password before save
   if (!this.isModified("password") && this.password) next();
-  this.password = await argon.hash(this.password || DEFAULT_PASSWORD, { saltLength: 10 });
+  this.password = await argon.hash(this.password || "", { saltLength: 10 });
 })
-export class Account {
+export class Customer {
   @prop({ type: String, required: true, unique: true })
   email!: string;
 
   @prop({ type: String, required: false, unique: true })
-  handle?: string;
+  username?: string;
 
   @prop({ type: String, required: false })
   password?: string;
@@ -36,11 +38,11 @@ export class Account {
   @prop({ type: String, required: false })
   phone?: string;
 
-  @prop({ enum: AccountRoleEnum, default: AccountRoleEnum.DEFAULT })
-  role?: AccountRoleEnum;
+  @prop({ type: () => Avatar })
+  profileAvatar?: Avatar;
 
   @prop({ type: Boolean, default: false })
-  isActive?: boolean;
+  isEmailVerified?: boolean;
 
   @prop({ type: String })
   verificationCode?: string;
