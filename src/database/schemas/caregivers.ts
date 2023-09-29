@@ -81,3 +81,4 @@ export class Caregiver {
 // working experience details
 // qualifications documents
 // statistics on platform
+// verifiedBy
