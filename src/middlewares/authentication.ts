@@ -7,7 +7,6 @@ import { EnvironmentVars } from "@/constants";
 export default function authenticate(request: Request, _response: Response, next: NextFunction) {
   // get headers
   if (
-    !request.headers ||
     !request.headers.authorization ||
     !request.headers.authorization.split(" ").includes("Bearer")
   ) {
