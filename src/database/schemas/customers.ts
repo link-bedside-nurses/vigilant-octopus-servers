@@ -1,4 +1,4 @@
-import { pre, prop, modelOptions, Severity } from "@typegoose/typegoose";
+import {modelOptions, pre, prop, Severity} from "@typegoose/typegoose";
 import argon from "argon2";
 
 @modelOptions({ schemaOptions: { _id: false, versionKey: false } })
