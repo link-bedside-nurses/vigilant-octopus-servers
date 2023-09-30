@@ -17,8 +17,10 @@ export enum AdminRoleEnum {
 @modelOptions({ schemaOptions: { id: true } })
 @pre<Admin>("save", async function (next) {
   // Hash password before save
-  if (!this.isModified("password") && this.password) next();
-  this.password = await argon.hash(this.password || "", { saltLength: 10 });
+  // if (!this.isModified("password") && this.password) next();
+  // this.password = await argon.hash(this.password || "", { saltLength: 10 });
+  if (!this.isModified("password") && Admin.prototype.password) next();
+  Admin.prototype.password = await argon.hash(Admin.prototype.password || "", { saltLength: 10 });
 })
 export class Admin {
   @prop({ type: String, required: true, unique: true })

@@ -2,10 +2,10 @@ import { Severity, modelOptions, pre, prop } from "@typegoose/typegoose";
 import argon from "argon2";
 
 export enum VerificationStatusEnum {
-  Processing = "processing",
-  Failed = "failed",
-  Rejected = "rejected",
-  Verified = "verified",
+  PROCESSING = "PROCESSING",
+  FAILED = "FAILED",
+  REJECTED = "REJECTED",
+  VERIFIED = "VERIFIED",
 }
 
 @modelOptions({ schemaOptions: { _id: false, versionKey: false } })
@@ -29,8 +29,8 @@ class Avatar {
 })
 @pre<Caregiver>("save", async function (next) {
   // Hash password before save
-  if (!this.isModified("password") && this.password) next();
-  this.password = await argon.hash(this.password || "", { saltLength: 10 });
+  if (!this.isModified("password") && Caregiver.prototype.password) next();
+  Caregiver.prototype.password = await argon.hash(Caregiver.prototype.password || "", { saltLength: 10 });
 })
 export class Caregiver {
   @prop({ type: String, required: true, unique: true })
@@ -57,14 +57,17 @@ export class Caregiver {
   @prop({ type: Boolean, default: false })
   isEmailVerified?: boolean;
 
+  @prop({type:Number})
+  otp?:number
+
   @prop({ type: String })
   verificationCode?: string;
 
   @prop({ type: String })
-  resetPasswordToken?: string;
+  passwordResetToken?: string;
 
   @prop({ type: Date, required: false })
-  resetPasswordTokenExpiration?: Date;
+  passwordResetTokenExpiration?: Date;
 
   @prop({ type: String })
   nationalIdNumber?: string;
@@ -77,7 +80,7 @@ export class Caregiver {
 // license
 // verification status
 // rejection reason
-// registeration contract details
+// registration contract details
 // working experience details
 // qualifications documents
 // statistics on platform
