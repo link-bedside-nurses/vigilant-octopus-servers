@@ -1,7 +1,7 @@
 import "reflect-metadata";
 // import "module-alias/register";
 import { replaceTscAliasPaths } from "tsc-alias";
-replaceTscAliasPaths();
+replaceTscAliasPaths().then(() => logger.info("TSC Aliases Replaced!"));
 
 import "dotenv/config";
 
@@ -17,8 +17,9 @@ import Logger from "@/utils/logger";
 import { EnvironmentVars } from "@/constants";
 import { disconnectFromDatabase, connectToDatabase } from "./database/connection";
 import errorMiddleware from "@/middlewares/error-middleware";
+import logger from "@/utils/logger";
 
-// modules routers
+// modules router
 // import authRouter from "@/modules/authentication";
 
 const app = express();
@@ -52,11 +53,11 @@ process.on("uncaughtException", (exception) => {
   Logger.error("Uncaught Exception", exception);
 });
 
-const server = app.listen(3000, () => {
-  Logger.info("Server now online");
+const server = app.listen(EnvironmentVars.getPort(), () => {
+  Logger.info("Server now online on port: " + EnvironmentVars.getPort());
 
   // connect to database
-  connectToDatabase();
+  connectToDatabase().then(() => logger.debug("Connected to DB"));
 });
 
 // const io = new Server(server);
@@ -66,10 +67,10 @@ const shutdownSignals = ["SIGTERM", "SIGINT"];
 function gracefulShutdown(signal: string) {
   process.on(signal, async () => {
     // close database connection
-    disconnectFromDatabase();
+    await disconnectFromDatabase();
 
     server.close((error) => {
-      Logger.error(error, "Server wasnot open!");
+      Logger.error(error, "Failed to close server. Server was not open!");
     });
 
     // release resources if any or need be.

@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Build typescipt project
+      - name: Build typescript project
         run: yarn build
 
       - name: Lint project
