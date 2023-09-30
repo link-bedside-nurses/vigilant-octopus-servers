@@ -2,10 +2,10 @@ import { Severity, modelOptions, pre, prop } from "@typegoose/typegoose";
 import argon from "argon2";
 
 export enum VerificationStatusEnum {
-  Processing = "processing",
-  Failed = "failed",
-  Rejected = "rejected",
-  Verified = "verified",
+  PROCESSING = "PROCESSING",
+  FAILED = "FAILED",
+  REJECTED = "REJECTED",
+  VERIFIED = "VERIFIED",
 }
 
 @modelOptions({ schemaOptions: { _id: false, versionKey: false } })
