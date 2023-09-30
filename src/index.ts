@@ -1,6 +1,7 @@
 import "reflect-metadata";
 // import "module-alias/register";
 import { replaceTscAliasPaths } from "tsc-alias";
+import { rateLimit } from 'express-rate-limit'
 replaceTscAliasPaths().then(() => logger.info("TSC Aliases Replaced!"));
 
 import "dotenv/config";
@@ -18,6 +19,7 @@ import { EnvironmentVars } from "@/constants";
 import { disconnectFromDatabase, connectToDatabase } from "./database/connection";
 import errorMiddleware from "@/middlewares/error-middleware";
 import logger from "@/utils/logger";
+import EnvVars from "@/constants/env-vars";
 
 // modules router
 // import authRouter from "@/modules/authentication";
@@ -35,9 +37,11 @@ if (EnvironmentVars.getNodeEnv() === "development") {
   app.use(morgan("common", { immediate: true }));
 }
 
-// Rate limiting middleware
-
-// modules router handler middlewares
+const ONE_MINUTE = 60 * 1000
+app.use(rateLimit({
+  windowMs: ONE_MINUTE,
+  max: EnvVars.getNodeEnv() === "production"  ? 10 : Number.MAX_SAFE_INTEGER,
+}))
 
 app.use(`/status`, function (request: express.Request, response: express.Response) {
   return response.status(StatusCodes.OK).send({ message: "Server is online!", requestHeaders: request.headers });

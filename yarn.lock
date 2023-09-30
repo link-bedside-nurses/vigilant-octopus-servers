@@ -2051,6 +2051,11 @@ expect@^29.0.0, expect@^29.6.4:
     jest-message-util "^29.6.3"
     jest-util "^29.6.3"
 
+express-rate-limit@^7.0.2:
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/express-rate-limit/-/express-rate-limit-7.0.2.tgz#0257a823d1547bca35c268d4111e2c7da2473407"
+  integrity sha512-EZoojG9civtJ6GRR7vE0JErow5q/ltbIl0RGbYhrNJKwBC9/kp2HckpdAvQkkE0sRAAtFDBvILvwZSR2kQroDw==
+
 express@^4.18.2:
   version "4.18.2"
   resolved "https://registry.yarnpkg.com/express/-/express-4.18.2.tgz#3fabe08296e930c796c19e3c516979386ba9fd59"
