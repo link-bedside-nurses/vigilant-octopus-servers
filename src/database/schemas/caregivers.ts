@@ -6,6 +6,7 @@ export enum VerificationStatusEnum {
   FAILED = "FAILED",
   REJECTED = "REJECTED",
   VERIFIED = "VERIFIED",
+  PENDING="PENDING"
 }
 
 @modelOptions({ schemaOptions: { _id: false, versionKey: false } })
