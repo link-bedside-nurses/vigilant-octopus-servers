@@ -1,4 +1,4 @@
-import { modelOptions, pre, prop } from "@typegoose/typegoose";
+import {modelOptions, pre, prop, Severity} from "@typegoose/typegoose";
 import argon from "argon2";
 
 @modelOptions({ schemaOptions: { _id: false, versionKey: false } })
@@ -14,29 +14,44 @@ export enum AdminRoleEnum {
   ADMIN = "admin",
 }
 
-@modelOptions({ schemaOptions: { id: true } })
+@modelOptions({
+  schemaOptions: {
+    id: true,
+    virtuals: true,
+    timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true,
+      transform(_doc, ret): void {
+        delete ret.password
+        delete ret.__v
+      },
+    },
+  },
+  options: { allowMixed: Severity.ALLOW },
+})
 @pre<Admin>("save", async function (next) {
-  // Hash password before save
-  // if (!this.isModified("password") && this.password) next();
-  // this.password = await argon.hash(this.password || "", { saltLength: 10 });
   if (!this.isModified("password") && Admin.prototype.password) next();
   Admin.prototype.password = await argon.hash(Admin.prototype.password || "", { saltLength: 10 });
 })
+
 export class Admin {
   @prop({ type: String, required: true, unique: true })
-  email!: string;
+  phone!: string;
+
   @prop({ type: String, required: true })
   password!: string;
+
   @prop({ type: String, required: true })
   firstname!: string;
+
   @prop({ type: String, required: true })
   lastname!: string;
 
-  @prop({ type: String, required: true })
-  username!: string;
+  @prop({ type: String, required: false, unique: true })
+  email?: string;
 
-  @prop({ type: String, enum: AdminRoleEnum, default: AdminRoleEnum.ADMIN, required: true })
-  role!: string;
+  @prop({ type: String, enum: AdminRoleEnum, default: AdminRoleEnum.ADMIN, required: false })
+  role?: string;
 
   @prop({ type: () => Avatar })
   profileAvatar?: Avatar;

@@ -18,6 +18,7 @@ import { EnvironmentVars } from "@/constants";
 import { disconnectFromDatabase, connectToDatabase } from "./database/connection";
 import errorMiddleware from "@/middlewares/error-middleware";
 import logger from "@/utils/logger";
+import {authRouter} from "@/modules/authentication/routes";
 
 // modules router
 // import authRouter from "@/modules/authentication";
@@ -31,18 +32,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 if (EnvironmentVars.getNodeEnv() === "development") {
-  app.use(morgan("common", { immediate: true }));
+  app.use(morgan("combined", { immediate: true }));
 }
 
 const ONE_MINUTE = 60 * 1000
 app.use(rateLimit({
   windowMs: ONE_MINUTE,
-  max: EnvironmentVars.getNodeEnv() === "production"  ? 10 : Number.MAX_SAFE_INTEGER,
+  limit: EnvironmentVars.getNodeEnv() === "production"  ? 10 : Number.MAX_SAFE_INTEGER,
 }))
 
-app.use(`/status`, function (request: express.Request, response: express.Response) {
-  return response.status(StatusCodes.OK).send({ message: "Server is online!", requestHeaders: request.headers });
+
+app.use('/ping/', function (request: express.Request, response: express.Response) {
+  return response.status(StatusCodes.OK).send({ error: "Server is online!", requestHeaders: request.headers });
 });
+
+app.use('/auth', authRouter)
 
 app.use(errorMiddleware);
 

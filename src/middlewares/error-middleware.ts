@@ -15,7 +15,7 @@ export default function errorMiddleware(
   _next: NextFunction
 ): void {
   let status = error.statusCode || 500;
-  let message = error.message;
+  let message = error.error;
 
   // Log error
   // console.error(error);
@@ -35,12 +35,12 @@ export default function errorMiddleware(
   // Custom error, from zod for now
   if (error.errors && error.errors.length > 0) {
     status = 400;
-    message = (error.errors[0].message as string) ?? error.message;
+    message = (error.errors[0].error as string) ?? error.error;
   }
 
-  if (error)
+
     res.status(status).send({
       status,
-      message,
+      message: message,
     });
 }
