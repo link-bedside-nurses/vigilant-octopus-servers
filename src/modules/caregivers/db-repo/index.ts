@@ -1,7 +1,7 @@
-import { Database } from "@/database";
+import { db } from "@/database";
 
 import makeDB from "./make-db";
 
-export const caregiversRepo = makeDB({ database: Database });
+export const caregiversRepo = makeDB({ database: db });
 
 export type CaregiversDBType = typeof caregiversRepo;

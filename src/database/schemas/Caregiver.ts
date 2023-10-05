@@ -38,22 +38,22 @@ export class Caregiver {
   email!: string;
 
   @prop({ type: String })
-  password?: string;
+  password!: string;
 
   @prop({ type: String })
-  phoneContact?: string;
+  phone!: string;
 
   @prop({ type: String })
-  firstname?: string;
+  firstname!: string;
 
   @prop({ type: String })
-  lastname?: string;
+  lastname!: string;
 
   @prop({ type: Date })
   dateOfBirth?: Date;
 
   @prop({ type: () => Avatar })
-  profileAvatar?: Avatar;
+  avatar?: Avatar;
 
   @prop({ type: Boolean, default: false })
   isEmailVerified?: boolean;
@@ -61,20 +61,35 @@ export class Caregiver {
   @prop({type:Number})
   otp?:number
 
-  @prop({ type: String })
+  @prop({ type: String , required:false, default:""})
   verificationCode?: string;
 
-  @prop({ type: String })
+  @prop({ type: String, required:false, default:"" })
   passwordResetToken?: string;
 
   @prop({ type: Date, required: false })
   passwordResetTokenExpiration?: Date;
 
-  @prop({ type: String })
-  nationalIdNumber?: string;
+  @prop({ type: String, required:false, default:"" })
+  nin?: string;
 
-  @prop({ type: String })
+  @prop({ type: String ,required:false,default:""})
   medicalLicenseNumber?: string;
+
+  @prop({type:String, required:false, default:""})
+  workExperience?:string
+
+  @prop({type:String, required:false,default:""})
+  about?:string
+
+  @prop({type:String,required:false, default:""})
+  rating?:string
+
+  @prop({type:String, required:false, default:""})
+  placeOfReception?:string
+
+  @prop({type:String,required:false, default:""})
+  speciality?:string
 }
 
 // date of birth and age

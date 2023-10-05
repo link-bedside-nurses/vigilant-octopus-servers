@@ -12,7 +12,7 @@ export async function connectToDatabase() {
     logger.info(`Connected to Database ~ ${connection.connection.db.databaseName}`);
   } catch (error) {
     logger.error(error);
-    process.exit(1); // Forceful exit due to failure to database connection
+    process.exit(1); // Forceful exit due to failure to db connection
   }
 }
 
@@ -21,6 +21,6 @@ export async function disconnectFromDatabase() {
     if (mongoose.connection.id) await mongoose.connection.close();
     return;
   } catch (error) {
-    logger.error(error, "Error disconnecting database");
+    logger.error(error, "Error disconnecting db");
   }
 }
