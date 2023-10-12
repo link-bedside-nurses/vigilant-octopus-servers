@@ -16,6 +16,9 @@ export class Session {
     @prop({type:String,required:true,})
     reasonForVisit!: string;
 
+    @prop({type:String,required:false,default:""})
+    cancellationReason?: string;
+
     @prop({ type: () => [String],required:false,default:[] })
     symptoms?: string[];
 
@@ -27,9 +30,9 @@ export class Session {
         await this.save();
     }
 
-    public async cancelSession(this:DocumentType<Session>, reason: string): Promise<void> {
+    public async cancelSession(this:DocumentType<Session>, reason?: string): Promise<void> {
         this.status = 'cancelled';
-        this.reasonForVisit = reason;
+        this.cancellationReason = reason;
         await this.save();
     }
 }
