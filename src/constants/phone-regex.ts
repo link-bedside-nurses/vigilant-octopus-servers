@@ -1,0 +1,1 @@
+export default /^256[2-7]\d{8}$/
