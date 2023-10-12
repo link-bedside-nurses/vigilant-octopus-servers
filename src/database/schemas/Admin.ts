@@ -1,6 +1,5 @@
-import { modelOptions, pre, prop, Severity } from "@typegoose/typegoose";
+import {modelOptions, pre, prop, Severity} from "@typegoose/typegoose";
 import argon from "argon2";
-import phoneRegex from "@/constants/phone-regex";
 
 @modelOptions({ schemaOptions: { _id: false, versionKey: false } })
 class Avatar {
@@ -31,27 +30,25 @@ export enum AdminRoleEnum {
   options: { allowMixed: Severity.ALLOW },
 })
 @pre<Admin>("save", async function (next) {
-  if (!this.isModified("password") &&this.password) next();
-  this.password = await argon.hash(Admin.prototype.password || "", { saltLength: 10 });
+  if (!this.isModified("password") && Admin.prototype.password) next();
+  Admin.prototype.password = await argon.hash(Admin.prototype.password || "", { saltLength: 10 });
 })
 
 export class Admin {
-  @prop({ type: String, required: true, unique: true, validate:{
-      validator:function(v: string ){
-         return phoneRegex.test(v);
-      },
-      message: 'Invalid Phone Format!'
-    } })
+  @prop({ type: String, required: true, unique: true })
   phone!: string;
 
   @prop({ type: String, required: true })
   password!: string;
 
-  @prop({ type: String })
+  @prop({ type: String, required: true })
   firstname!: string;
 
-  @prop({ type: String })
+  @prop({ type: String, required: true })
   lastname!: string;
+
+  @prop({ type: String, required: false, unique: true })
+  email?: string;
 
   @prop({ type: String, enum: AdminRoleEnum, default: AdminRoleEnum.ADMIN, required: false })
   role?: string;

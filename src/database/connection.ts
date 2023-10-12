@@ -12,7 +12,7 @@ export async function connectToDatabase() {
     logger.info(`Connected to Database ~ ${connection.connection.db.databaseName}`);
   } catch (error) {
     logger.error(error);
-    process.exit(1);
+    process.exit(1); // Forceful exit due to failure to db connection
   }
 }
 
