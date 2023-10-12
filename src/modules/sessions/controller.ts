@@ -56,7 +56,6 @@ export function confirmSession() {
   };
 }
 
-
 export function cancelSession() {
   return async function (request: HTTPRequest<{ id:string },{
     reason?:string

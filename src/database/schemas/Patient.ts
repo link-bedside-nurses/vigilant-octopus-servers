@@ -1,7 +1,9 @@
-import { modelOptions, pre, prop, Severity } from "@typegoose/typegoose";
+import {DocumentType, modelOptions, pre, prop, Severity} from "@typegoose/typegoose";
 import argon from "argon2";
 import { validateVerificationCode } from "@/utils/validate-verification-code";
 import phoneRegex from "@/constants/phone-regex";
+import {Session} from "@/database/schemas/Session";
+import {db} from "@/database";
 
 @modelOptions({
   schemaOptions: {
@@ -55,4 +57,18 @@ export class Patient {
 
   @prop({ type: Date, required: false })
   resetPasswordTokenExpiration?: Date | null;
+
+  public async getAppointments(this:DocumentType<Patient>): Promise<Session[]> {
+    const appointments = await db.sessions.find({ patientId: this.id});
+    return appointments;
+  }
+
+  public async getAvailableAppointments(this:DocumentType<Patient>, startDate: Date, endDate: Date): Promise<Session[]> {
+    const appointments = await db.sessions.find({
+      patientId: this.id,
+      date: { $gte: startDate, $lte: endDate },
+      status: 'pending',
+    });
+    return appointments;
+  }
 }

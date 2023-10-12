@@ -1,4 +1,4 @@
-import { Severity, modelOptions, pre, prop } from "@typegoose/typegoose";
+import {Severity, modelOptions, pre, prop} from "@typegoose/typegoose";
 import argon from "argon2";
 import phoneRegex from "@/constants/phone-regex";
 
@@ -7,16 +7,7 @@ export enum VerificationStatusEnum {
   FAILED = "FAILED",
   REJECTED = "REJECTED",
   VERIFIED = "VERIFIED",
-  PENDING="PENDING"
-}
-
-@modelOptions({ schemaOptions: { _id: false, versionKey: false } })
-class Avatar {
-  @prop({ type: String })
-  url!: string;
-
-  @prop({ type: String })
-  publicId!: string;
+  PENDING = "PENDING"
 }
 
 @modelOptions({
@@ -55,9 +46,6 @@ export class Caregiver {
   @prop({ type: Date })
   dateOfBirth?: Date;
 
-  @prop({ type: () => Avatar })
-  avatar?: Avatar;
-
   @prop({type:Number})
   otp?:number
 
@@ -76,23 +64,17 @@ export class Caregiver {
   @prop({ type: String ,required:false,default:""})
   medicalLicenseNumber?: string;
 
-  @prop({type:String, required:false, default:""})
-  workExperience?:string
-
   @prop({type:String, required:false,default:""})
-  about?:string
+  description?:string
 
-  @prop({type:String,required:false, default:""})
-  rating?:string
+  @prop({type:Number,required:false, default:1})
+  rating?:number
 
   @prop({type:String, required:false, default:""})
   placeOfReception?:string
 
   @prop({type:String,required:false, default:""})
   speciality?:string
-
-  @prop({type:String,required:false, default:""})
-  description?: string;
 
   @prop({type:String,required:false, default:""})
   location?: string;
@@ -111,23 +93,6 @@ export class Caregiver {
 
   @prop({type:String,required:false, default:""})
   imageUrl?: string;
-
-  // Methods
-  public async getAppointments(): Promise<Session[]> {
-    // Retrieve all appointments for this doctor
-    const appointments = await AppointmentModel.find({ doctor: this._id });
-    return appointments;
-  }
-
-  public async getAvailableAppointments(startDate: Date, endDate: Date): Promise<Session[]> {
-    // Retrieve available appointments for this doctor within the specified date range
-    const appointments = await AppointmentModel.find({
-      doctor: this._id,
-      date: { $gte: startDate, $lte: endDate },
-      status: 'pending', // Filter for pending appointments
-    });
-    return appointments;
-  }
 }
 
 // date of birth and age
