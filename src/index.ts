@@ -1,7 +1,7 @@
 import "reflect-metadata";
 // import "module-alias/register";
 import { replaceTscAliasPaths } from "tsc-alias";
-import { rateLimit } from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit'
 replaceTscAliasPaths().then(() => logger.info("TSC Aliases Replaced!"));
 
 import "dotenv/config";
@@ -18,7 +18,10 @@ import { EnvironmentVars } from "@/constants";
 import { disconnectFromDatabase, connectToDatabase } from "./database/connection";
 import errorMiddleware from "@/middlewares/error-middleware";
 import logger from "@/utils/logger";
-import { authRouter } from "@/modules/authentication/routes";
+import {authRouter} from "@/modules/authentication/routes";
+
+// modules router
+// import authRouter from "@/modules/authentication";
 
 const app = express();
 
@@ -38,6 +41,7 @@ app.use(rateLimit({
   limit: EnvironmentVars.getNodeEnv() === "production"  ? 10 : Number.MAX_SAFE_INTEGER,
 }))
 
+
 app.use('/ping/', function (request: express.Request, response: express.Response) {
   return response.status(StatusCodes.OK).send({ error: "Server is online!", requestHeaders: request.headers });
 });
@@ -56,7 +60,7 @@ process.on("uncaughtException", (exception) => {
 const server = app.listen(EnvironmentVars.getPort(), () => {
   Logger.info("Server now online on port: " + EnvironmentVars.getPort());
 
-  connectToDatabase().then(() => logger.debug("Connected to DB: ", EnvironmentVars.getDatabaseName()));
+  connectToDatabase().then(() => logger.debug("Connected to DB"));
 });
 
 const shutdownSignals = ["SIGTERM", "SIGINT"];

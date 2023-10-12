@@ -1,7 +1,8 @@
-import { modelOptions, pre, prop, Severity } from "@typegoose/typegoose";
+import {modelOptions, pre, prop, Severity} from "@typegoose/typegoose";
 import argon from "argon2";
-import { validateVerificationCode } from "@/utils/validate-verification-code";
-import phoneRegex from "@/constants/phone-regex";
+import {validateUgandanPhoneNumber} from "@/utils/validate-phone";
+import {validateEmail} from "@/utils/validate-email";
+import {validateVerificationCode} from "@/utils/validate-verification-code";
 
 @modelOptions({
   schemaOptions: {
@@ -21,18 +22,12 @@ import phoneRegex from "@/constants/phone-regex";
 
 @pre<Patient>("save", async function (next) {
   // Hash password before save
-  if (!this.isModified("password") && this.password) next();
-  this.password = await argon.hash(this.password || "", { saltLength: 10 });
+  if (!this.isModified("password") && Patient.prototype.password) next();
+  Patient.prototype.password = await argon.hash(Patient.prototype.password || "", { saltLength: 10 });
 })
 
 export class Patient {
-  @prop({ type: String, required: true, unique:true, validate: {
-      validator:function(v: string ){
-         return phoneRegex.test(v);
-      },
-      message: 'Invalid Phone Format!'
-    }
-  })
+  @prop({ type: String, required: true, unique:true, validate:[validateUgandanPhoneNumber, "Not a valid phone UG Phone No"] })
   phone!: string;
 
   @prop({ type: String, required:true, minlength: 3, maxlength:250})
@@ -44,10 +39,13 @@ export class Patient {
   @prop({ type: String, required:true, minlength: 3, maxlength:250})
   password!: string;
 
-  @prop({ type: String, validate:{
-      validator: (v: string ) => !validateVerificationCode(v),
-      message: 'Incorrect verification code!'
-    }})
+  @prop({ type: Boolean, default: false })
+  isEmailVerified?: boolean;
+
+  @prop({ type: String, required: false, unique: true, validate:[validateEmail, "Invalid Email"] })
+  email?: string;
+
+  @prop({ type: String, validate:[validateVerificationCode,"Incorrect Verification Code"]})
   verificationCode?: string;
 
   @prop({ type: String })
