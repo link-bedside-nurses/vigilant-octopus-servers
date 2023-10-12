@@ -12,26 +12,10 @@ import authenticate from "@/middlewares/authentication";
 
 const router = Router();
 
-router.post("/sessions/:id", authenticate, makeCallback(getSession()));
-router.post(
-  "/sessions/confirm/:id",
-  authenticate,
-  makeCallback(confirmSession()),
-);
-router.post(
-  "/sessions/cancel/:id",
-  authenticate,
-  makeCallback(cancelSession()),
-);
-router.post(
-  "/patients/sessions",
-  authenticate,
-  makeCallback(getPatientSessions()),
-);
-router.post(
-  "/caregivers/sessions",
-  authenticate,
-  makeCallback(getCaregiverSessions()),
-);
+router.post("/:id", authenticate, makeCallback(getSession()));
+router.post("/confirm/:id", authenticate, makeCallback(confirmSession()));
+router.post("/cancel/:id", authenticate, makeCallback(cancelSession()));
+router.post("/patients", authenticate, makeCallback(getPatientSessions()));
+router.post("/caregivers", authenticate, makeCallback(getCaregiverSessions()));
 
-export { router as authRouter };
+export { router as sessionRouter };

@@ -1,9 +1,7 @@
 import "reflect-metadata";
 // import "module-alias/register";
 import { replaceTscAliasPaths } from "tsc-alias";
-import { rateLimit } from 'express-rate-limit';
-replaceTscAliasPaths().then(() => logger.info("TSC Aliases Replaced!"));
-
+import { rateLimit } from "express-rate-limit";
 import "dotenv/config";
 
 import cors from "cors";
@@ -14,11 +12,18 @@ import morgan from "morgan";
 import { StatusCodes } from "http-status-codes";
 
 import Logger from "@/utils/logger";
-import { EnvironmentVars } from "@/constants";
-import { disconnectFromDatabase, connectToDatabase } from "./database/connection";
-import errorMiddleware from "@/middlewares/error-middleware";
 import logger from "@/utils/logger";
+import { EnvironmentVars } from "@/constants";
+import {
+  connectToDatabase,
+  disconnectFromDatabase,
+} from "./database/connection";
+import errorMiddleware from "@/middlewares/error-middleware";
 import { authRouter } from "@/modules/authentication/routes";
+import { sessionRouter } from "@/modules/sessions/routes";
+import { profileRouter } from "@/modules/profile/routes";
+
+replaceTscAliasPaths().then(() => logger.info("TSC Aliases Replaced!"));
 
 const app = express();
 
@@ -32,17 +37,29 @@ if (EnvironmentVars.getNodeEnv() === "development") {
   app.use(morgan("combined", { immediate: true }));
 }
 
-const ONE_MINUTE = 60 * 1000
-app.use(rateLimit({
-  windowMs: ONE_MINUTE,
-  limit: EnvironmentVars.getNodeEnv() === "production"  ? 10 : Number.MAX_SAFE_INTEGER,
-}))
+const ONE_MINUTE = 60 * 1000;
+app.use(
+  rateLimit({
+    windowMs: ONE_MINUTE,
+    limit:
+      EnvironmentVars.getNodeEnv() === "production"
+        ? 10
+        : Number.MAX_SAFE_INTEGER,
+  }),
+);
 
-app.use('/ping/', function (request: express.Request, response: express.Response) {
-  return response.status(StatusCodes.OK).send({ error: "Server is online!", requestHeaders: request.headers });
-});
+app.use(
+  "/ping/",
+  function (request: express.Request, response: express.Response) {
+    return response
+      .status(StatusCodes.OK)
+      .send({ error: "Server is online!", requestHeaders: request.headers });
+  },
+);
 
-app.use('/auth', authRouter)
+app.use("/auth", authRouter);
+app.use("/sessions", sessionRouter);
+app.use("/profile", profileRouter);
 
 app.use(errorMiddleware);
 
@@ -56,10 +73,13 @@ process.on("uncaughtException", (exception) => {
 const server = app.listen(EnvironmentVars.getPort(), () => {
   Logger.info("Server now online on port: " + EnvironmentVars.getPort());
 
-  connectToDatabase().then(() => logger.debug("Connected to DB: ", EnvironmentVars.getDatabaseName()));
+  connectToDatabase().then(() =>
+    logger.debug("Connected to DB: ", EnvironmentVars.getDatabaseName()),
+  );
 });
 
 const shutdownSignals = ["SIGTERM", "SIGINT"];
+
 function gracefulShutdown(signal: string) {
   process.on(signal, async () => {
     await disconnectFromDatabase();
@@ -71,6 +91,7 @@ function gracefulShutdown(signal: string) {
     process.exit(0);
   });
 }
+
 for (let counter = 0; counter < shutdownSignals.length; counter++) {
   gracefulShutdown(shutdownSignals[counter]);
 }

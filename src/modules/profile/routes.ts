@@ -9,15 +9,11 @@ import authenticate from "@/middlewares/authentication";
 
 const router = Router();
 
+router.post("/patient", authenticate, makeCallback(completePatientProfile()));
 router.post(
-  "/profile/patient",
-  authenticate,
-  makeCallback(completePatientProfile()),
-);
-router.post(
-  "/profile/caregiver/",
+  "/caregiver/",
   authenticate,
   makeCallback(completeCaregiverProfile()),
 );
 
-export { router as authRouter };
+export { router as profileRouter };
