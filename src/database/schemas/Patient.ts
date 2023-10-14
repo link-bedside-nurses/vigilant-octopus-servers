@@ -51,4 +51,7 @@ export class Patient {
 
   @prop({ type: String, required: false, default: "00000" })
   otp?: string;
+
+  @prop({ type: Date, required: false, default: Date.now() })
+  otpExpiresAt?: Date;
 }
