@@ -2,7 +2,6 @@ import { HTTPRequest } from "@/adapters/express-callback";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/database";
 import { createToken } from "@/token/token";
-import argon2 from "argon2";
 import { Document } from "mongoose";
 
 export function signupPatient() {
@@ -11,7 +10,6 @@ export function signupPatient() {
       object,
       {
         phone: string;
-        password: string;
         firstName: string;
         lastName: string;
       }
@@ -31,7 +29,6 @@ export function signupPatient() {
 
     const newUser = await db.patients.create({
       phone: request.body.phone,
-      password: request.body.password,
       firstName: request.body.firstName,
       lastName: request.body.lastName,
     });
@@ -57,7 +54,6 @@ export function signupAdmin() {
       object,
       {
         phone: string;
-        password: string;
         firstName: string;
         lastName: string;
       }
@@ -79,7 +75,6 @@ export function signupAdmin() {
       firstName: request.body.firstName,
       lastName: request.body.lastName,
       phone: request.body.phone,
-      password: request.body.password,
     });
 
     await newUser.save();
@@ -103,7 +98,6 @@ export function signupCaregiver() {
       object,
       {
         phone: string;
-        password: string;
         firstName: string;
         lastName: string;
       }
@@ -123,7 +117,6 @@ export function signupCaregiver() {
 
     const newUser = await db.caregivers.create({
       phone: request.body.phone,
-      password: request.body.password,
       firstName: request.body.firstName,
       lastName: request.body.lastName,
     });
@@ -144,9 +137,7 @@ export function signupCaregiver() {
 }
 
 export function signinPatient() {
-  return async function (
-    request: HTTPRequest<object, { phone: string; password: string }>,
-  ) {
+  return async function (request: HTTPRequest<object, { phone: string }>) {
     const user = await db.patients.findOne({ phone: request.body.phone });
 
     if (!user) {
@@ -173,9 +164,7 @@ export function signinPatient() {
 }
 
 export function signinAdmin() {
-  return async function (
-    request: HTTPRequest<object, { phone: string; password: string }>,
-  ) {
+  return async function (request: HTTPRequest<object, { phone: string }>) {
     const user = await db.admins.findOne({ phone: request.body.phone });
 
     if (!user) {
@@ -187,22 +176,6 @@ export function signinAdmin() {
         },
       };
     }
-
-    const passwordsMatch = await argon2.verify(
-      user.password,
-      request.body.password,
-    );
-
-    if (!passwordsMatch) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          data: null,
-          message: "Invalid Credentials",
-        },
-      };
-    }
-
     const token = createToken(user as Document & { phone: string });
 
     return {
@@ -217,9 +190,7 @@ export function signinAdmin() {
 }
 
 export function signinCaregiver() {
-  return async function (
-    request: HTTPRequest<object, { phone: string; password: string }>,
-  ) {
+  return async function (request: HTTPRequest<object, { phone: string }>) {
     const user = await db.caregivers.findOne({ phone: request.body.phone });
 
     if (!user) {
