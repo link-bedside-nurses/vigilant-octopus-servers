@@ -143,7 +143,7 @@ export function completeCaregiverProfile() {
       statusCode: StatusCodes.OK,
       body: {
         data: updatedCaregiver,
-        message: "Caregiver profile completed successfully",
+        message: "Location profile completed successfully",
       },
     };
   };
