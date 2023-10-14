@@ -36,7 +36,7 @@ export function completePatientProfile() {
       statusCode: StatusCodes.OK,
       body: {
         data: updatedPatient,
-        message: "Patient's profile completed successfully",
+        message: "Patient's profile completed",
       },
     };
   };
@@ -143,7 +143,7 @@ export function completeCaregiverProfile() {
       statusCode: StatusCodes.OK,
       body: {
         data: updatedCaregiver,
-        message: "Location profile completed successfully",
+        message: "Location profile completed",
       },
     };
   };

@@ -11,6 +11,12 @@ import { modelOptions, prop, Severity } from "@typegoose/typegoose";
   options: { allowMixed: Severity.ALLOW },
 })
 export class Location {
+  @prop({ required: true, ref: "Caregiver" })
+  caregiverId!: string;
+
+  @prop({ required: true, ref: "Patient" })
+  patientId!: string;
+
   @prop({ type: String, required: true })
   lat!: string;
 

@@ -6,7 +6,7 @@ export class Session {
 
     @prop({ required: true, ref: 'Patient' })
     patientId!: string;
-
+    
     @prop({ required: true })
     date!: Date;
 

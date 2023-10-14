@@ -6,12 +6,17 @@ import argon2 from "argon2";
 import { Document } from "mongoose";
 
 export function signupPatient() {
-  return async function (request: HTTPRequest<object, {
-    phone: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }>) {
+  return async function (
+    request: HTTPRequest<
+      object,
+      {
+        phone: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+      }
+    >,
+  ) {
     const user = await db.patients.findOne({ phone: request.body.phone });
 
     if (user) {
@@ -40,19 +45,24 @@ export function signupPatient() {
       body: {
         data: newUser,
         token,
-        message: "Patient account created (:",
+        message: "Patient account created",
       },
     };
   };
 }
 
 export function signupAdmin() {
-  return async function (request: HTTPRequest<object, {
-    phone: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }>) {
+  return async function (
+    request: HTTPRequest<
+      object,
+      {
+        phone: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+      }
+    >,
+  ) {
     const user = await db.admins.findOne({ phone: request.body.phone });
 
     if (user) {
@@ -81,20 +91,24 @@ export function signupAdmin() {
       body: {
         data: newUser,
         token,
-        message: "Admin account created (:",
+        message: "Admin account created",
       },
     };
   };
 }
 
 export function signupCaregiver() {
-  return async function (request: HTTPRequest<object, {
-    phone: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }>) {
-
+  return async function (
+    request: HTTPRequest<
+      object,
+      {
+        phone: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+      }
+    >,
+  ) {
     const user = await db.caregivers.findOne({ phone: request.body.phone });
 
     if (user) {
@@ -123,14 +137,16 @@ export function signupCaregiver() {
       body: {
         data: newUser,
         token,
-        message: "Caregivers account created (:",
+        message: "Caregivers account created",
       },
     };
   };
 }
 
 export function signinPatient() {
-  return async function (request: HTTPRequest<object, { phone: string; password: string }>) {
+  return async function (
+    request: HTTPRequest<object, { phone: string; password: string }>,
+  ) {
     const user = await db.patients.findOne({ phone: request.body.phone });
 
     if (!user) {
@@ -143,7 +159,10 @@ export function signinPatient() {
       };
     }
 
-    const passwordsMatch = await argon2.verify(user.password, request.body.password);
+    const passwordsMatch = await argon2.verify(
+      user.password,
+      request.body.password,
+    );
 
     if (!passwordsMatch) {
       return {
@@ -162,15 +181,16 @@ export function signinPatient() {
       body: {
         data: user,
         token,
-        message: "Signed in (:",
+        message: "Signed in",
       },
     };
   };
 }
 
 export function signinAdmin() {
-  return async function (request: HTTPRequest<object, { phone: string; password: string }>) {
-
+  return async function (
+    request: HTTPRequest<object, { phone: string; password: string }>,
+  ) {
     const user = await db.admins.findOne({ phone: request.body.phone });
 
     if (!user) {
@@ -183,7 +203,10 @@ export function signinAdmin() {
       };
     }
 
-    const passwordsMatch = await argon2.verify(user.password, request.body.password);
+    const passwordsMatch = await argon2.verify(
+      user.password,
+      request.body.password,
+    );
 
     if (!passwordsMatch) {
       return {
@@ -202,15 +225,16 @@ export function signinAdmin() {
       body: {
         data: user,
         token,
-        message: "Signed in (:",
+        message: "Signed in",
       },
     };
   };
 }
 
 export function signinCaregiver() {
-  return async function (request: HTTPRequest<object, { phone: string; password: string }>) {
-
+  return async function (
+    request: HTTPRequest<object, { phone: string; password: string }>,
+  ) {
     const user = await db.caregivers.findOne({ phone: request.body.phone });
 
     if (!user) {
@@ -223,7 +247,10 @@ export function signinCaregiver() {
       };
     }
 
-    const passwordsMatch = await argon2.verify(user.password, request.body.password);
+    const passwordsMatch = await argon2.verify(
+      user.password,
+      request.body.password,
+    );
 
     if (!passwordsMatch) {
       return {
@@ -242,7 +269,7 @@ export function signinCaregiver() {
       body: {
         data: user,
         token,
-        message: "Signed in (:",
+        message: "Signed in",
       },
     };
   };
