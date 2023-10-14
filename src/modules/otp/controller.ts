@@ -1,13 +1,24 @@
 import { HTTPRequest } from "@/adapters/express-callback";
 import { StatusCodes } from "http-status-codes";
-import { generateOTP } from "@/services/otp/generateOTP";
+import { generate } from "@/services/otp/generate";
 import { db } from "@/database";
 import { checkIsOTPExpired, verify } from "@/services/otp/verify";
+import logger from "@/utils/logger";
 
 export function getOTP() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  return async function (_: HTTPRequest<object, object>) {
-    const otp = await generateOTP();
+  return async function (
+    request: HTTPRequest<
+      object,
+      object,
+      {
+        user_type: "patient" | "caregiver";
+      }
+    >,
+  ) {
+    const otp = await generate();
+
+    logger.info(request);
 
     return {
       statusCode: StatusCodes.OK,
@@ -19,7 +30,7 @@ export function getOTP() {
   };
 }
 
-export function verifytOTP() {
+export function verifyOTP() {
   return async function (
     request: HTTPRequest<
       object,
@@ -85,46 +96,6 @@ export function verifytOTP() {
       body: {
         data: true,
         message: "OTP Verified",
-      },
-    };
-  };
-}
-
-export function sendOTPToPatient() {
-  return async function (
-    request: HTTPRequest<
-      object,
-      {
-        phone: string;
-      },
-      object
-    >,
-  ) {
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: request.body.phone,
-        message: "OTP sent",
-      },
-    };
-  };
-}
-
-export function sendOTPToCaregiver() {
-  return async function (
-    request: HTTPRequest<
-      object,
-      {
-        phone: string;
-      },
-      object
-    >,
-  ) {
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: request.body.phone,
-        message: "OTP sent",
       },
     };
   };

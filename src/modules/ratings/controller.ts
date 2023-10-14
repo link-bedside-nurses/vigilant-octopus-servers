@@ -5,15 +5,15 @@ import { db } from "@/database";
 export function getRatings() {
   return async function (
     request: HTTPRequest<
-      {
-        caregiverId: string;
-      },
       object,
+      {
+        id: string;
+      },
       object
     >,
   ) {
     const ratings = await db.ratings.findOne({
-      caregiverId: request.params.caregiverId,
+      caregiverId: request.body.id,
     });
 
     return {
@@ -30,13 +30,13 @@ export function getSingleRating() {
   return async function (
     request: HTTPRequest<
       {
-        ratingId: string;
+        id: string;
       },
       object,
       object
     >,
   ) {
-    const rating = await db.ratings.findById(request.params.ratingId);
+    const rating = await db.ratings.findById(request.params.id);
 
     if (!rating) {
       return {
@@ -63,16 +63,16 @@ export function addRating() {
     request: HTTPRequest<
       object,
       {
-        caregiverId: string;
+        id: string;
         value: number;
         description: string;
       },
       object
     >,
   ) {
-    const { description, value, caregiverId } = request.body;
+    const { description, value, id } = request.body;
 
-    if (!description || !value || !caregiverId) {
+    if (!description || !value || !id) {
       return {
         statusCode: StatusCodes.BAD_REQUEST,
         body: {
@@ -85,7 +85,7 @@ export function addRating() {
     const rating = await db.ratings.create({
       description,
       value,
-      caregiverId,
+      caregiverId: id,
       patientId: request?.account?.id,
     });
 

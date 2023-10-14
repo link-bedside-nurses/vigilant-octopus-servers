@@ -21,4 +21,4 @@ router.get("/caregiver", authenticate, makeCallback(getCaregiverLocation()));
 router.post("/caregiver", authenticate, makeCallback(setCaregiverLocation()));
 router.put("/caregiver", authenticate, makeCallback(updateCaregiverLocation()));
 
-export { router as outer };
+export { router as locationRouter };

@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 
-export const generateOTP = async () => {
+export const generate = async () => {
   try {
     const randomBuffer = await new Promise<Buffer>((resolve, reject) => {
       randomBytes(2, (err, buf) => {
@@ -25,6 +25,6 @@ export const generateOTP = async () => {
   }
 };
 
-generateOTP().then((otp) => {
+generate().then((otp) => {
   console.log("Generated OTP:", otp);
 });
