@@ -2,7 +2,7 @@ import { modelOptions, prop, Severity } from "@typegoose/typegoose";
 import phoneRegex from "@/constants/phone-regex";
 import { Location } from "@/database/schemas/Location";
 
-export enum VerificationStatusEnum {
+export enum VerificationStatus {
   PROCESSING = "PROCESSING",
   FAILED = "FAILED",
   REJECTED = "REJECTED",
@@ -56,6 +56,9 @@ export class Caregiver {
 
   @prop({ type: String, required: false, default: "00000" })
   otp?: string;
+
+  @prop({ type: Date, required: false, default: Date.now() })
+  otpExpiresAt?: Date;
 
   @prop({ type: String, required: false, default: "" })
   nin?: string;

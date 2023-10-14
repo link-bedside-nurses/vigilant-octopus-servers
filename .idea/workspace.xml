@@ -5,23 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="642c37d8-0f09-4846-8b0f-25c0ef705ab3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/modules/otp/routes.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/modules/ratings/routes.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/generate-otp.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/verify-otp.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/sms/init.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/sms/send.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/adapters/express-callback.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/adapters/express-callback.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/database/schemas/Admin.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/schemas/Admin.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/database/schemas/Caregiver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/schemas/Caregiver.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/database/schemas/Location.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/schemas/Location.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/database/schemas/Patient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/schemas/Patient.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/interfaces/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/Ratings/controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/ratings/controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/Ratings/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/otp/controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modules/location/controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/location/controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/token/token.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/token/token.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/typings/index.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/constants/env-vars.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/constants/env-vars.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/authentication/controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/authentication/controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/location/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/location/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/otp/controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/otp/controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/otp/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/otp/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/ratings/controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/ratings/controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/ratings/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/ratings/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/router/engine.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/router/engine.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/otp/generateOTP.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/otp/generate.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/otp/sendOTP.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/otp/send.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +69,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "code.cleanup.on.save": "true",
-    "git-widget-placeholder": "ft/ratings",
+    "git-widget-placeholder": "ft/otp",
     "last_opened_file_path": "C:/Users/HP EliteBook G5/WebstormProjects/vigilant-octopus-servers/src/services",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
@@ -80,7 +80,7 @@
     "nodejs_package_manager_path": "yarn",
     "prettierjs.PrettierConfiguration.Package": "C:\\Users\\HP EliteBook G5\\WebstormProjects\\vigilant-octopus-servers\\node_modules\\prettier",
     "rearrange.code.on.save": "true",
-    "settings.editor.selected.configurable": "configurable.group.tools",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
     "ts.external.directory.path": "C:\\Users\\HP EliteBook G5\\WebstormProjects\\vigilant-octopus-servers\\node_modules\\typescript\\lib",
     "ts.rename.search.for.dynamic.occurrences": "true",
     "vue.rearranger.settings.migration": "true"
@@ -95,6 +95,7 @@
       <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\modules\sessions" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\services\otp" />
       <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\modules" />
       <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\modules\authentication" />
     </key>
@@ -138,7 +139,7 @@
       <workItem from="1697134428473" duration="205000" />
       <workItem from="1697276067339" duration="1364000" />
       <workItem from="1697281479039" duration="184000" />
-      <workItem from="1697281680837" duration="6030000" />
+      <workItem from="1697281680837" duration="16186000" />
     </task>
     <servers />
   </component>

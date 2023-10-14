@@ -1,22 +1,13 @@
-import { db } from "@/database";
+export function verify(storedOTP: string | undefined, otp: string) {
+  return storedOTP === otp;
+}
 
-export async function verify(
-  type: "patient" | "caregiver",
-  otp: string,
-  phone: string,
-) {
-  let user;
-  if (type === "patient") {
-    user = await db.patients.findOne({ phone });
-  } else if (type === "caregiver") {
-    user = await db.caregivers.findOne({ phone });
+export function checkIsOTPExpired(otpExpiresAt: string) {
+  const expiresAt = new Date(otpExpiresAt as string | number | Date);
+
+  if (expiresAt < new Date()) {
+    return true;
   } else {
     return false;
   }
-
-  if (!user) {
-    return false;
-  }
-
-  return user.otp === otp;
 }

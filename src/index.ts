@@ -22,6 +22,9 @@ import errorMiddleware from "@/middlewares/error-middleware";
 import { authRouter } from "@/modules/authentication/routes";
 import { sessionRouter } from "@/modules/sessions/routes";
 import { profileRouter } from "@/modules/profile/routes";
+import { locationRouter } from "@/modules/location/routes";
+import { otpRouter } from "@/modules/otp/routes";
+import { ratingsRouter } from "@/modules/ratings/routes";
 
 replaceTscAliasPaths().then(() => logger.info("TSC Aliases Replaced!"));
 
@@ -60,6 +63,9 @@ app.use(
 app.use("/auth", authRouter);
 app.use("/sessions", sessionRouter);
 app.use("/profile", profileRouter);
+app.use("/location", locationRouter);
+app.use("/otp", otpRouter);
+app.use("/ratings", ratingsRouter);
 
 app.use(errorMiddleware);
 

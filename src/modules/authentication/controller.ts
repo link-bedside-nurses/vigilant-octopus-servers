@@ -159,21 +159,6 @@ export function signinPatient() {
       };
     }
 
-    const passwordsMatch = await argon2.verify(
-      user.password,
-      request.body.password,
-    );
-
-    if (!passwordsMatch) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          data: null,
-          message: "Invalid Credentials",
-        },
-      };
-    }
-
     const token = createToken(user as Document & { phone: string });
 
     return {
@@ -243,21 +228,6 @@ export function signinCaregiver() {
         body: {
           message: "Invalid Credentials",
           data: null,
-        },
-      };
-    }
-
-    const passwordsMatch = await argon2.verify(
-      user.password,
-      request.body.password,
-    );
-
-    if (!passwordsMatch) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          data: null,
-          message: "Invalid Credentials",
         },
       };
     }
