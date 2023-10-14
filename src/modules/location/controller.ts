@@ -2,32 +2,67 @@ import { HTTPRequest } from "@/adapters/express-callback";
 import { db } from "@/database";
 import { StatusCodes } from "http-status-codes";
 
-export function getPatientLocation() {
+export function getLocation() {
   return async function (
     request: HTTPRequest<
-      object,
       {
-        value: number;
-        caregiverId: string;
+        user: "patient" | "caregiver";
       },
       object
     >,
   ) {
-    const location = await db.locations.findOne({
-      patientId: request?.account?.id,
-    });
+    let location;
+    if (request.params.user === "patient") {
+      location = await db.locations.findOne({
+        patientId: request?.account?.id,
+      });
+    } else {
+      location = await db.locations.findOne({
+        caregiverId: request?.account?.id,
+      });
+    }
 
     return {
       statusCode: StatusCodes.OK,
       body: {
         data: location,
-        message: "Patient location retrieved",
+        message: " location retrieved",
       },
     };
   };
 }
 
-export function updatePatientLocation() {
+export function updateLocation() {
+  return async function (
+    request: HTTPRequest<
+      object,
+      {
+        lng: number;
+        lat: number;
+      },
+      object
+    >,
+  ) {
+    const location = await db.locations.findByIdAndUpdate(
+      request?.account?.id,
+      {
+        patientId: request?.account?.id,
+        lng: request.body.lng,
+        lat: request.body.lng,
+      },
+    );
+
+    return {
+      statusCode: StatusCodes.OK,
+      body: {
+        data: location,
+        message: " location updated",
+      },
+    };
+  };
+}
+
+export function setLocation() {
   return async function (request: HTTPRequest<object, object>) {
     const location = await db.locations.findOne({
       patientId: request?.account?.id,
@@ -37,23 +72,7 @@ export function updatePatientLocation() {
       statusCode: StatusCodes.OK,
       body: {
         data: location,
-        message: "Patient location retrieved",
-      },
-    };
-  };
-}
-
-export function setPatientLocation() {
-  return async function (request: HTTPRequest<object, object>) {
-    const location = await db.locations.findOne({
-      patientId: request?.account?.id,
-    });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: location,
-        message: "Patient location retrieved",
+        message: " location retrieved",
       },
     };
   };

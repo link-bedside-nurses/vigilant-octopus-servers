@@ -1,12 +1,12 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Express, { Request } from "express";
+declare module "fawn";
+
+export type DESIGNATION = "PATIENT" | "CAREGIVER" | "ADMIN" | "SUPER-ADMIN";
 
 declare global {
   namespace Express {
     interface Request {
-      account?: { id: string };
+      account?: { id?: string; designation: DESIGNATION; phone: string };
     }
   }
-
   namespace Application {}
 }
