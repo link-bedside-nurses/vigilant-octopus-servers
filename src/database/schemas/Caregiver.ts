@@ -1,13 +1,14 @@
-import {Severity, modelOptions, pre, prop} from "@typegoose/typegoose";
+import { modelOptions, pre, prop, Severity } from "@typegoose/typegoose";
 import argon from "argon2";
 import phoneRegex from "@/constants/phone-regex";
+import { Location } from "@/database/schemas/Location";
 
 export enum VerificationStatusEnum {
   PROCESSING = "PROCESSING",
   FAILED = "FAILED",
   REJECTED = "REJECTED",
   VERIFIED = "VERIFIED",
-  PENDING = "PENDING"
+  PENDING = "PENDING",
 }
 
 @modelOptions({
@@ -51,6 +52,17 @@ export class Caregiver {
   @prop({ type: Date })
   dateOfBirth?: Date;
 
+  @prop({
+    type: Location,
+    required: false,
+    ref: "Location",
+    default: {
+      lng: 0,
+      lat: 0,
+    },
+  })
+  location?: { lng: number; lat: number };
+
   @prop({ type: Number })
   otp?: number;
 
@@ -80,9 +92,6 @@ export class Caregiver {
 
   @prop({ type: String, required: false, default: "" })
   speciality?: string;
-
-  @prop({ type: { String }, required: false, default: "" })
-  location?: string;
 
   @prop({ type: () => [String] })
   languages?: string[];
