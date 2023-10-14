@@ -4,13 +4,15 @@ import { db } from "@/database";
 
 export function getPatientSessions() {
   return async function (request: HTTPRequest<object, object>) {
-    const sessions = await db.sessions.findOne({ patientId: request.account?.id });
+    const sessions = await db.sessions.findOne({
+      patientId: request.account?.id,
+    });
 
     return {
       statusCode: StatusCodes.OK,
       body: {
         data: sessions,
-        message: "Patients sessions retrieved successfully",
+        message: "Patients sessions retrieved",
       },
     };
   };
@@ -18,33 +20,36 @@ export function getPatientSessions() {
 
 export function getCaregiverSessions() {
   return async function (request: HTTPRequest<object, object>) {
-    const sessions = await db.sessions.findOne({ caregiverId: request.account?.id });
+    const sessions = await db.sessions.findOne({
+      caregiverId: request.account?.id,
+    });
 
     return {
       statusCode: StatusCodes.OK,
       body: {
         data: sessions,
-        message: "Patients sessions retrieved successfully",
+        message: "Patients sessions retrieved",
       },
     };
   };
 }
 
 export function confirmSession() {
-  return async function (request: HTTPRequest<{ id:string }, object>) {
-    const session = await db.sessions.findById(request.params.id)
+  return async function (request: HTTPRequest<{ id: string }, object>) {
+    const session = await db.sessions.findById(request.params.id);
 
-    if(!session){
+    if (!session) {
       return {
         statusCode: StatusCodes.NOT_FOUND,
         body: {
           data: null,
-          message: "Could not confirm session. This session has not been setup or initiated by anyone",
+          message:
+            "Could not confirm session. This session has not been setup or initiated by anyone",
         },
       };
     }
 
-    await session.confirmSession()
+    await session.confirmSession();
 
     return {
       statusCode: StatusCodes.OK,
@@ -57,22 +62,28 @@ export function confirmSession() {
 }
 
 export function cancelSession() {
-  return async function (request: HTTPRequest<{ id:string },{
-    reason?:string
-  }>) {
-    const session = await db.sessions.findById(request.params.id)
+  return async function (
+    request: HTTPRequest<
+      { id: string },
+      {
+        reason?: string;
+      }
+    >,
+  ) {
+    const session = await db.sessions.findById(request.params.id);
 
-    if(!session){
+    if (!session) {
       return {
         statusCode: StatusCodes.NOT_FOUND,
         body: {
           data: null,
-          message: "Could not cancel session. This session has not been setup or initiated by anyone",
+          message:
+            "Could not cancel session. This session has not been setup or initiated by anyone",
         },
       };
     }
 
-    await session.cancelSession(request.body.reason)
+    await session.cancelSession(request.body.reason);
 
     return {
       statusCode: StatusCodes.OK,
@@ -84,18 +95,24 @@ export function cancelSession() {
   };
 }
 
-export function getSession(){
-  return async function (request: HTTPRequest<{ id:string },{
-    reason?:string
-  }>) {
-    const session = await db.sessions.findById(request.params.id)
+export function getSession() {
+  return async function (
+    request: HTTPRequest<
+      { id: string },
+      {
+        reason?: string;
+      }
+    >,
+  ) {
+    const session = await db.sessions.findById(request.params.id);
 
-    if(!session){
+    if (!session) {
       return {
         statusCode: StatusCodes.NOT_FOUND,
         body: {
           data: null,
-          message: "Could not get session. This session has not been setup or initiated by anyone",
+          message:
+            "Could not get session. This session has not been setup or initiated by anyone",
         },
       };
     }
