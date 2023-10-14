@@ -1,5 +1,4 @@
-import { modelOptions, pre, prop, Severity } from "@typegoose/typegoose";
-import argon from "argon2";
+import { modelOptions, prop, Severity } from "@typegoose/typegoose";
 import phoneRegex from "@/constants/phone-regex";
 import { Location } from "@/database/schemas/Location";
 
@@ -21,15 +20,7 @@ export enum VerificationStatusEnum {
   },
   options: { allowMixed: Severity.ALLOW },
 })
-@pre<Caregiver>("save", async function (next) {
-  // Hash password before save
-  if (!this.isModified("password") && this.password) next();
-  this.password = await argon.hash(this.password || "", { saltLength: 10 });
-})
 export class Caregiver {
-  @prop({ type: String })
-  password!: string;
-
   @prop({
     type: String,
     required: true,
@@ -63,17 +54,8 @@ export class Caregiver {
   })
   location?: { lng: number; lat: number };
 
-  @prop({ type: Number })
-  otp?: number;
-
-  @prop({ type: String, required: false, default: "" })
-  verificationCode?: string;
-
-  @prop({ type: String, required: false, default: "" })
-  passwordResetToken?: string;
-
-  @prop({ type: Date, required: false })
-  passwordResetTokenExpiration?: Date;
+  @prop({ type: String, required: false, default: "00000" })
+  otp?: string;
 
   @prop({ type: String, required: false, default: "" })
   nin?: string;

@@ -8,8 +8,12 @@ const DATABASE_NAME = EnvironmentVars.getDatabaseName();
 
 export async function connectToDatabase() {
   try {
-    const connection = await mongoose.connect(DATABASE_CONNECTION_URI, { dbName: DATABASE_NAME });
-    logger.info(`Connected to Database ~ ${connection.connection.db.databaseName}`);
+    const connection = await mongoose.connect(DATABASE_CONNECTION_URI, {
+      dbName: DATABASE_NAME,
+    });
+    logger.info(
+      `Connected to Database ~ ${connection.connection.db.databaseName}`,
+    );
   } catch (error) {
     logger.error(error);
     process.exit(1);
