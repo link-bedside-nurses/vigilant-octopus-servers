@@ -3,9 +3,13 @@ import type { NextFunction, Request, Response } from "express";
 
 import { Exception, Logger } from "@/utils";
 import { EnvironmentVars } from "@/constants";
+import { ACCOUNT } from "@/interfaces";
 
-export default function authenticate(request: Request, _response: Response, next: NextFunction) {
-  // get headers
+export default function authenticate(
+  request: Request,
+  _response: Response,
+  next: NextFunction,
+) {
   if (
     !request.headers.authorization ||
     !request.headers.authorization.split(" ").includes("Bearer")
@@ -13,7 +17,6 @@ export default function authenticate(request: Request, _response: Response, next
     return next(new Exception("Unauthorized access"));
   }
 
-  // check authorization for bearer token
   const token = request.headers.authorization.split("Bearer ")[1].trim();
   // TODO: remove this logger later on.
   if (process.env.NODE_ENV === "development") {
@@ -23,11 +26,17 @@ export default function authenticate(request: Request, _response: Response, next
   if (!token || !jwt.verify(token, EnvironmentVars.getAccessTokenSecret()))
     return next(new Exception("Invalid Access Token!"));
 
-  // get decoded info with user id.
-  const decoded = jwt.verify(token, EnvironmentVars.getAccessTokenSecret()) as { id: string };
-  if (!decoded || !decoded.id) return next(new Exception("Invalid Access Token!"));
+  const decoded = jwt.verify(
+    token,
+    EnvironmentVars.getAccessTokenSecret(),
+  ) as ACCOUNT;
+  if (!decoded || !decoded.id)
+    return next(new Exception("Invalid Access Token!"));
 
-  // Attach user to express request object.
-  request.account = { id: decoded.id };
+  request.account = {
+    id: decoded.id,
+    phone: decoded.phone,
+    designation: decoded.designation,
+  };
   next();
 }

@@ -17,9 +17,6 @@ export class Location {
   @prop({ type: Number, required: true })
   lng!: number;
 
-  @prop({ required: false, ref: "Caregiver", default: "" })
-  caregiverId?: string;
-
-  @prop({ required: false, ref: "Patient", default: "" })
-  patientId?: string;
+  @prop({ required: false, ref: "User", default: "" })
+  userId?: string;
 }

@@ -2,33 +2,33 @@ import { HTTPRequest } from "@/adapters/express-callback";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/database";
 
-export function getPatientSessions() {
+export function getSessions() {
   return async function (request: HTTPRequest<object, object>) {
-    const sessions = await db.sessions.findOne({
-      patientId: request.account?.id,
-    });
+    const designation = request.account?.designation;
+    let sessions;
+    if (designation === "PATIENT") {
+      sessions = await db.sessions.findOne({
+        patientId: request.account?.id,
+      });
+    } else if (designation === "CAREGIVER") {
+      sessions = await db.sessions.findOne({
+        patientId: request.account?.id,
+      });
+    } else {
+      return {
+        statusCode: StatusCodes.OK,
+        body: {
+          data: null,
+          message: "Only patients and caregivers can query for sessions",
+        },
+      };
+    }
 
     return {
       statusCode: StatusCodes.OK,
       body: {
         data: sessions,
-        message: "Patients sessions retrieved",
-      },
-    };
-  };
-}
-
-export function getCaregiverSessions() {
-  return async function (request: HTTPRequest<object, object>) {
-    const sessions = await db.sessions.findOne({
-      caregiverId: request.account?.id,
-    });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: sessions,
-        message: "Patients sessions retrieved",
+        message: "sessions retrieved",
       },
     };
   };
