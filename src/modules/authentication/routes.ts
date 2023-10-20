@@ -1,24 +1,11 @@
 import makeCallback from "@/adapters/express-callback";
 import { Router } from "express";
 
-import {
-  signinAdmin,
-  signinCaregiver,
-  signinPatient,
-  signupAdmin,
-  signupCaregiver,
-  signupPatient,
-} from "@/modules/authentication/controller";
+import { signin, signup } from "@/modules/authentication/controller";
 
 const router = Router();
 
-router.post("/patient/signup", makeCallback(signupPatient()));
-router.post("/patient/signin", makeCallback(signinPatient()));
-
-router.post("/caregiver/signin", makeCallback(signinCaregiver()));
-router.post("/caregiver/signup", makeCallback(signupCaregiver()));
-
-router.post("/admin/signin", makeCallback(signinAdmin()));
-router.post("/admin/signup", makeCallback(signupAdmin()));
+router.post("/signup", makeCallback(signup()));
+router.post("/signin", makeCallback(signin()));
 
 export { router as authRouter };

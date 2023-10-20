@@ -1,4 +1,5 @@
 import { randomBytes } from "crypto";
+import logger from "@/utils/logger";
 
 export const generate = async () => {
   try {
@@ -13,18 +14,14 @@ export const generate = async () => {
     });
 
     // Convert the random bytes to a 5-digit number
-    const otp = (randomBuffer.readUInt16BE() % 100000)
-      .toString()
-      .padStart(5, "0");
-
-    return otp;
+    return (randomBuffer.readUInt16BE() % 100000).toString().padStart(5, "0");
   } catch (error) {
-    console.error("Error: ", error);
+    logger.error("Error: ", error);
     // Handle the error or return a default OTP as appropriate
     return "00000"; // Default 5-digit OTP
   }
 };
 
 generate().then((otp) => {
-  console.log("Generated OTP:", otp);
+  logger.info("Generated OTP:", otp);
 });

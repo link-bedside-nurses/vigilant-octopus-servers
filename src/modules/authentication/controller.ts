@@ -1,217 +1,79 @@
-import { HTTPRequest } from "@/adapters/express-callback";
-import { StatusCodes } from "http-status-codes";
-import { db } from "@/database";
-import { createToken } from "@/token/token";
-import { Document } from "mongoose";
+import { HTTPRequest } from '@/adapters/express-callback'
+import { StatusCodes } from 'http-status-codes'
+import { db } from '@/database'
+import { createToken } from '@/token/token'
+import { Document } from 'mongoose'
+import { ACCOUNT, DESIGNATION } from '@/interfaces'
 
-export function signupPatient() {
-  return async function (
-    request: HTTPRequest<
-      object,
-      {
-        phone: string;
-        firstName: string;
-        lastName: string;
-      }
-    >,
-  ) {
-    const user = await db.patients.findOne({ phone: request.body.phone });
+export function signup() {
+	return async function (
+		request: HTTPRequest<
+			object,
+			{
+				phone: string
+				firstName: string
+				lastName: string
+				designation: DESIGNATION
+			}
+		>,
+	) {
+		const user = await db.users.findOne({ phone: request.body.phone })
 
-    if (user) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        body: {
-          message: "Phone number in use",
-          data: null,
-        },
-      };
-    }
+		if (user) {
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					message: 'Phone number in use',
+					data: null,
+				},
+			}
+		}
 
-    const newUser = await db.patients.create({
-      phone: request.body.phone,
-      firstName: request.body.firstName,
-      lastName: request.body.lastName,
-    });
+		const newUser = await db.users.create({
+			phone: request.body.phone,
+			firstName: request.body.firstName,
+			lastName: request.body.lastName,
+			designation: request.body.designation,
+		})
 
-    await newUser.save();
+		await newUser.save()
 
-    const token = createToken(newUser as Document & { phone: string });
+		const token = createToken(newUser as Document & ACCOUNT)
 
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: newUser,
-        token,
-        message: "Patient account created",
-      },
-    };
-  };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: newUser,
+				token,
+				message: 'Account created',
+			},
+		}
+	}
 }
 
-export function signupAdmin() {
-  return async function (
-    request: HTTPRequest<
-      object,
-      {
-        phone: string;
-        firstName: string;
-        lastName: string;
-      }
-    >,
-  ) {
-    const user = await db.admins.findOne({ phone: request.body.phone });
+export function signin() {
+	return async function (request: HTTPRequest<object, { phone: string; designation: DESIGNATION }>) {
+		const user = await db.users.findOne({ phone: request.body.phone })
 
-    if (user) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        body: {
-          message: "Phone number in use",
-          data: null,
-        },
-      };
-    }
+		if (!user) {
+			return {
+				statusCode: StatusCodes.UNAUTHORIZED,
+				body: {
+					message: 'Invalid Credentials',
+					data: null,
+				},
+			}
+		}
 
-    const newUser = await db.admins.create({
-      firstName: request.body.firstName,
-      lastName: request.body.lastName,
-      phone: request.body.phone,
-    });
+		const token = createToken(user as Document & ACCOUNT)
 
-    await newUser.save();
-
-    const token = createToken(newUser as Document & { phone: string });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: newUser,
-        token,
-        message: "Admin account created",
-      },
-    };
-  };
-}
-
-export function signupCaregiver() {
-  return async function (
-    request: HTTPRequest<
-      object,
-      {
-        phone: string;
-        firstName: string;
-        lastName: string;
-      }
-    >,
-  ) {
-    const user = await db.caregivers.findOne({ phone: request.body.phone });
-
-    if (user) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        body: {
-          message: "Phone number in use",
-          data: null,
-        },
-      };
-    }
-
-    const newUser = await db.caregivers.create({
-      phone: request.body.phone,
-      firstName: request.body.firstName,
-      lastName: request.body.lastName,
-    });
-
-    await newUser.save();
-
-    const token = createToken(newUser as Document & { phone: string });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: newUser,
-        token,
-        message: "Caregivers account created",
-      },
-    };
-  };
-}
-
-export function signinPatient() {
-  return async function (request: HTTPRequest<object, { phone: string }>) {
-    const user = await db.patients.findOne({ phone: request.body.phone });
-
-    if (!user) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          message: "Invalid Credentials",
-          data: null,
-        },
-      };
-    }
-
-    const token = createToken(user as Document & { phone: string });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: user,
-        token,
-        message: "Signed in",
-      },
-    };
-  };
-}
-
-export function signinAdmin() {
-  return async function (request: HTTPRequest<object, { phone: string }>) {
-    const user = await db.admins.findOne({ phone: request.body.phone });
-
-    if (!user) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          message: "Invalid Credentials",
-          data: null,
-        },
-      };
-    }
-    const token = createToken(user as Document & { phone: string });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: user,
-        token,
-        message: "Signed in",
-      },
-    };
-  };
-}
-
-export function signinCaregiver() {
-  return async function (request: HTTPRequest<object, { phone: string }>) {
-    const user = await db.caregivers.findOne({ phone: request.body.phone });
-
-    if (!user) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          message: "Invalid Credentials",
-          data: null,
-        },
-      };
-    }
-
-    const token = createToken(user as Document & { phone: string });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: user,
-        token,
-        message: "Signed in",
-      },
-    };
-  };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: user,
+				token,
+				message: 'Signed in',
+			},
+		}
+	}
 }

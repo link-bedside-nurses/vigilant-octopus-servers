@@ -11,7 +11,6 @@ import express from "express";
 import morgan from "morgan";
 import { StatusCodes } from "http-status-codes";
 
-import Logger from "@/utils/logger";
 import logger from "@/utils/logger";
 import { EnvironmentVars } from "@/constants";
 import {
@@ -23,8 +22,8 @@ import { authRouter } from "@/modules/authentication/routes";
 import { sessionRouter } from "@/modules/sessions/routes";
 import { profileRouter } from "@/modules/profile/routes";
 import { locationRouter } from "@/modules/location/routes";
-import { otpRouter } from "@/modules/otp/routes";
 import { ratingsRouter } from "@/modules/ratings/routes";
+import { testRouter } from "@/modules/test/routes";
 
 replaceTscAliasPaths().then(() => logger.info("TSC Aliases Replaced!"));
 
@@ -52,7 +51,7 @@ app.use(
 );
 
 app.use(
-  "/ping/",
+  "/test/",
   function (request: express.Request, response: express.Response) {
     return response
       .status(StatusCodes.OK)
@@ -64,20 +63,21 @@ app.use("/auth", authRouter);
 app.use("/sessions", sessionRouter);
 app.use("/profile", profileRouter);
 app.use("/location", locationRouter);
-app.use("/otp", otpRouter);
 app.use("/ratings", ratingsRouter);
+
+app.use("/test", testRouter);
 
 app.use(errorMiddleware);
 
 process.on("unhandledRejection", (reason, promise) => {
-  Logger.error("Unhandled Rejection at:", { promise: promise, reason: reason });
+  logger.error("Unhandled Rejection at:", { promise: promise, reason: reason });
 });
 process.on("uncaughtException", (exception) => {
-  Logger.error("Uncaught Exception", exception);
+  logger.error("Uncaught Exception", exception);
 });
 
 const server = app.listen(EnvironmentVars.getPort(), () => {
-  Logger.info("Server now online on port: " + EnvironmentVars.getPort());
+  logger.info("Server now online on port: " + EnvironmentVars.getPort());
 
   connectToDatabase().then(() =>
     logger.debug("Connected to DB: ", EnvironmentVars.getDatabaseName()),
@@ -91,7 +91,7 @@ function gracefulShutdown(signal: string) {
     await disconnectFromDatabase();
 
     server.close((error) => {
-      Logger.error(error, "Failed to close server. Server was not open!");
+      logger.error(error, "Failed to close server. Server was not open!");
     });
 
     process.exit(0);
@@ -101,3 +101,5 @@ function gracefulShutdown(signal: string) {
 for (let counter = 0; counter < shutdownSignals.length; counter++) {
   gracefulShutdown(shutdownSignals[counter]);
 }
+
+export { server as app };
