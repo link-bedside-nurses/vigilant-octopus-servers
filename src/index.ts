@@ -23,6 +23,7 @@ import { authRouter } from '@/modules/authentication/routes'
 import { patientRouter } from '@/modules/patients/routes'
 import { caregiverRouter } from '@/modules/caregivers/routes'
 import { meRouter } from '@/modules/me/routes'
+import { paymentsRouter } from '@/modules/payments/routes'
 
 replaceTscAliasPaths().then(() => logger.info('TSC Aliases Replaced!'))
 
@@ -46,7 +47,7 @@ app.use(
 	}),
 )
 
-app.use('/test', function (request: express.Request, response: express.Response) {
+app.use('/status', function (request: express.Request, response: express.Response) {
 	return response.status(StatusCodes.OK).send({ error: 'Server is online!', requestHeaders: request.headers })
 })
 
@@ -56,8 +57,8 @@ app.use('/profile', profileRouter)
 app.use('/ratings', ratingsRouter)
 app.use('/patients', patientRouter)
 app.use('/caregivers', caregiverRouter)
+app.use('/payments', paymentsRouter)
 app.use('/me', meRouter)
-
 app.use('/test', testRouter)
 
 app.use(errorMiddleware)
