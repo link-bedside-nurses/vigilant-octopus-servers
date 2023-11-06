@@ -1,7 +1,4 @@
-import { modelOptions, pre, prop, Severity } from '@typegoose/typegoose'
-import phoneRegex from '@/constants/phone-regex'
-import { Location } from '@/database/schemas/Location'
-import { Password } from '@/services/password/password'
+import { modelOptions, prop, Severity } from '@typegoose/typegoose'
 
 export enum DESIGNATION {
 	PATIENT = 'PATIENT',
@@ -25,10 +22,6 @@ export enum DESIGNATION {
 	},
 	options: { allowMixed: Severity.ALLOW },
 })
-@pre<User>('save', async function (next) {
-	if (!this.isModified('password') && this.password) next()
-	this.password = await Password.toHash(User.prototype.password!)
-})
 export class User {
 	@prop({
 		type: String,
@@ -41,12 +34,7 @@ export class User {
 		type: String,
 		required: true,
 		unique: true,
-		validate: {
-			validator: function (v: string) {
-				return phoneRegex.test(v)
-			},
-			message: 'Invalid Phone Format!',
-		},
+		index: true,
 	})
 	phone!: string
 
@@ -57,21 +45,20 @@ export class User {
 	lastName!: string
 
 	@prop({
-		type: Location,
+		type: Object,
 		required: false,
-		ref: 'Location',
 		default: {
 			lng: 0,
 			lat: 0,
 		},
 	})
+	@prop({ type: String, required: true })
+	password!: string
+
 	location?: { lng: number; lat: number }
 
 	@prop({ type: String, required: false, default: '00000' })
 	otp?: string
-
-	@prop({ type: String, required: false })
-	password?: string
 
 	@prop({ type: Date, required: false, default: Date.now() })
 	otpExpiresAt?: Date
@@ -108,9 +95,6 @@ export class User {
 
 	@prop({ type: () => [String], required: false, default: [] })
 	servicesOffered?: string[]
-
-	@prop({ type: String, required: false, default: '' })
-	imageUrl?: string
 
 	@prop({ type: String, required: false, default: '' })
 	imgUrl?: string

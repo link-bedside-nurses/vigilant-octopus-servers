@@ -1,20 +1,21 @@
-import { randomBytes, scrypt as scryptWithCallBack } from 'crypto'
-import util from 'util'
+import argon2 from 'argon2'
+import { randomBytes } from 'crypto'
 
-const scrypt = util.promisify(scryptWithCallBack)
-
-class Password {
+class Passwd {
 	static async toHash(password: string): Promise<string> {
-		const salt = randomBytes(8).toString('hex')
-		const buf = (await scrypt(password, salt, 64)) as Buffer
-		return `${buf.toString('hex')}.${salt}`
+		const salt = randomBytes(32) // Generate a random salt
+		const hashedPassword = await argon2.hash(password, { salt })
+		return hashedPassword
 	}
 
 	static async compare(storedPassword: string, suppliedPassword: string): Promise<boolean> {
-		const [hash, salt] = storedPassword.split('.')
-		const buf = (await scrypt(suppliedPassword, salt, 64)) as Buffer
-		return buf.toString('hex') === hash
+		try {
+			return await argon2.verify(storedPassword, suppliedPassword)
+		} catch (error) {
+			// Handle verification error (e.g., invalid hash format)
+			return false
+		}
 	}
 }
 
-export { Password }
+export { Passwd }
