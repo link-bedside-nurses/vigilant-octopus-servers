@@ -15,11 +15,12 @@ import logger from '@/utils/logger'
 import { EnvironmentVars } from '@/constants'
 import { connectToDatabase, disconnectFromDatabase } from './database/connection'
 import errorMiddleware from '@/middlewares/error-middleware'
-import { authRouter } from '@/modules/authentication/routes'
 import { appointmentRouter } from '@/modules/appointments/routes'
 import { profileRouter } from '@/modules/profile/routes'
 import { ratingsRouter } from '@/modules/ratings/routes'
 import { testRouter } from '@/modules/test/routes'
+import { authRouter } from '@/modules/authentication/routes'
+import { patientRouter } from '@/modules/patients/routes'
 
 replaceTscAliasPaths().then(() => logger.info('TSC Aliases Replaced!'))
 
@@ -51,6 +52,7 @@ app.use('/auth', authRouter)
 app.use('/appointments', appointmentRouter)
 app.use('/profile', profileRouter)
 app.use('/ratings', ratingsRouter)
+app.use('/patients', patientRouter)
 
 app.use('/test', testRouter)
 
