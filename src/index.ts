@@ -22,6 +22,7 @@ import { testRouter } from '@/modules/test/routes'
 import { authRouter } from '@/modules/authentication/routes'
 import { patientRouter } from '@/modules/patients/routes'
 import { caregiverRouter } from '@/modules/caregivers/routes'
+import { meRouter } from '@/modules/me/routes'
 
 replaceTscAliasPaths().then(() => logger.info('TSC Aliases Replaced!'))
 
@@ -54,7 +55,8 @@ app.use('/appointments', appointmentRouter)
 app.use('/profile', profileRouter)
 app.use('/ratings', ratingsRouter)
 app.use('/patients', patientRouter)
-app.use('/caregiver', caregiverRouter)
+app.use('/caregivers', caregiverRouter)
+app.use('/me', meRouter)
 
 app.use('/test', testRouter)
 

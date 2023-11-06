@@ -1,12 +1,12 @@
-import { prop } from "@typegoose/typegoose";
+import { prop } from '@typegoose/typegoose'
 
 export class Rating {
-  @prop({ required: true, ref: "User" })
-  userId!: string;
+	@prop({ required: true, ref: 'User', index: true })
+	userId!: string
 
-  @prop({ type: String, required: false })
-  description?: string;
+	@prop({ type: String, required: false })
+	description?: string
 
-  @prop({ type: Number, required: false })
-  value?: number;
+	@prop({ type: Number, required: false })
+	value?: number
 }
