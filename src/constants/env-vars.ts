@@ -1,7 +1,10 @@
 import * as envalid from "envalid";
 
 const env = envalid.cleanEnv(process.env, {
-  NODE_ENV: envalid.str({ choices: ["development", "production"], default: "development" }),
+  NODE_ENV: envalid.str({
+    choices: ["development", "production"],
+    default: "development",
+  }),
   PORT: envalid.num({ default: 3000 }),
   DATABASE_URL: envalid.str(),
   DATABASE_NAME: envalid.str(),
@@ -12,6 +15,10 @@ const env = envalid.cleanEnv(process.env, {
   APP_EMAIL_SERVICE_USERNAME: envalid.str(),
   APP_EMAIL_SERVICE_PASSWORD: envalid.str(),
   VERIFICATION_CODE_LENGTH: envalid.num(),
+  FROM_SMS_PHONE: envalid.str(),
+  TO_SMS_PHONE: envalid.str(),
+  TWILIO_ACCOUNT_SID: envalid.str(),
+  TWILIO_AUTH_TOKEN: envalid.str(),
 });
 
 export default Object.freeze({
@@ -29,4 +36,9 @@ export default Object.freeze({
   getEmailServicePassword: () => String(env.APP_EMAIL_SERVICE_PASSWORD),
 
   getVerificationCodeLength: () => Number(env.VERIFICATION_CODE_LENGTH),
+
+  getFromSMSPhone: () => String(env.FROM_SMS_PHONE),
+  getTO_SMS_Phone: () => String(env.TO_SMS_PHONE),
+  getTwilioAccountSID: () => String(env.TWILIO_ACCOUNT_SID),
+  getTwilioAuthToken: () => String(env.TWILIO_AUTH_TOKEN),
 });

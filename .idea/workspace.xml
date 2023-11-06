@@ -4,7 +4,42 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="642c37d8-0f09-4846-8b0f-25c0ef705ab3" name="Changes" comment="" />
+    <list default="true" id="642c37d8-0f09-4846-8b0f-25c0ef705ab3" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/jest.config.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/__test__/setup.test.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/middlewares/validate-objectid.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modules/test/controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/email/email.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/password/password.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jest.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/schemas/Admin.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/schemas/Caregiver.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/schemas/Location.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/schemas/Location.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/schemas/Patient.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/schemas/Rating.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/schemas/Rating.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/schemas/Session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/schemas/Session.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/schemas/User.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/schemas/User.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/index.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/middlewares/authentication.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/middlewares/authentication.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/authentication/controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/authentication/controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/authentication/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/authentication/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/location/controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/location/controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/location/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/location/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/otp/controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/otp/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/test/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/profile/controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/profile/controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/profile/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/profile/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/sessions/controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/sessions/controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/sessions/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/sessions/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/otp/generate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/otp/generate.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/sms/send.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/sms/send.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/token/token.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/token/token.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -45,40 +80,67 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "code.cleanup.on.save": "true",
-    "git-widget-placeholder": "ft/location",
-    "last_opened_file_path": "C:/Users/HP EliteBook G5/WebstormProjects/vigilant-octopus-servers/src/modules",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "yarn",
-    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\HP EliteBook G5\\WebstormProjects\\vigilant-octopus-servers\\node_modules\\prettier",
-    "rearrange.code.on.save": "true",
-    "settings.editor.selected.configurable": "actions.on.save",
-    "ts.external.directory.path": "C:\\Users\\HP EliteBook G5\\WebstormProjects\\vigilant-octopus-servers\\node_modules\\typescript\\lib",
-    "ts.rename.search.for.dynamic.occurrences": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;ft/schema&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/HP EliteBook G5/bun&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\HP EliteBook G5\\WebstormProjects\\vigilant-octopus-servers\\node_modules\\prettier&quot;,
+    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\HP EliteBook G5\\WebstormProjects\\vigilant-octopus-servers\\node_modules\\typescript\\lib&quot;,
+    &quot;ts.rename.search.for.dynamic.occurrences&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\modules" />
-      <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\modules\sessions" />
+      <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\middlewares" />
+      <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\__test__" />
+      <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\services\password" />
+      <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\services" />
+      <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\modules\Ratings" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\services\otp" />
       <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\modules" />
       <recent name="C:\Users\HP EliteBook G5\WebstormProjects\vigilant-octopus-servers\src\modules\authentication" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Vitest.should return a 200 on a GET request">
+    <configuration name="should return a 200 on a GET request" type="JavaScriptTestRunnerVitest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <vitest-package value="$PROJECT_DIR$/node_modules/vitest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <vitest-options value="--run" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/src/__test__/setup.test.ts" />
+      <test-names>
+        <test-name value="should return a 200 on a GET request" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="build" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <configuration name="dev" type="js.build_tools.npm" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -89,6 +151,23 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="test" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Vitest.should return a 200 on a GET request" />
+        <item itemvalue="npm.test" />
+        <item itemvalue="npm.build" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -116,6 +195,13 @@
       <workItem from="1697123033959" duration="11162000" />
       <workItem from="1697134428473" duration="205000" />
       <workItem from="1697276067339" duration="1364000" />
+      <workItem from="1697281479039" duration="184000" />
+      <workItem from="1697281680837" duration="16814000" />
+      <workItem from="1697437606147" duration="661000" />
+      <workItem from="1697556170966" duration="8989000" />
+      <workItem from="1697610572565" duration="2011000" />
+      <workItem from="1697644752043" duration="1493000" />
+      <workItem from="1697698998527" duration="22000" />
     </task>
     <servers />
   </component>

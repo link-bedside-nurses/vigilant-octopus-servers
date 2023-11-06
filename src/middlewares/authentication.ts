@@ -1,33 +1,31 @@
-import * as jwt from "jsonwebtoken";
-import type { NextFunction, Request, Response } from "express";
+import * as jwt from 'jsonwebtoken'
+import type { NextFunction, Request, Response } from 'express'
 
-import { Exception, Logger } from "@/utils";
-import { EnvironmentVars } from "@/constants";
+import { Exception, Logger } from '@/utils'
+import { EnvironmentVars } from '@/constants'
+import { ACCOUNT } from '@/interfaces'
 
 export default function authenticate(request: Request, _response: Response, next: NextFunction) {
-  // get headers
-  if (
-    !request.headers.authorization ||
-    !request.headers.authorization.split(" ").includes("Bearer")
-  ) {
-    return next(new Exception("Unauthorized access"));
-  }
+	if (!request.headers.authorization || !request.headers.authorization.split(' ').includes('Bearer')) {
+		return next(new Exception('Unauthorized access', 401))
+	}
 
-  // check authorization for bearer token
-  const token = request.headers.authorization.split("Bearer ")[1].trim();
-  // TODO: remove this logger later on.
-  if (process.env.NODE_ENV === "development") {
-    Logger.info(token, "Access Token");
-  }
+	const token = request.headers.authorization.split('Bearer ')[1].trim()
+	// TODO: remove this logger later on.
+	if (process.env.NODE_ENV === 'development') {
+		Logger.info(token, 'Access Token')
+	}
 
-  if (!token || !jwt.verify(token, EnvironmentVars.getAccessTokenSecret()))
-    return next(new Exception("Invalid Access Token!"));
+	if (!token || !jwt.verify(token, EnvironmentVars.getAccessTokenSecret()))
+		return next(new Exception('Invalid Access Token!', 401))
 
-  // get decoded info with user id.
-  const decoded = jwt.verify(token, EnvironmentVars.getAccessTokenSecret()) as { id: string };
-  if (!decoded || !decoded.id) return next(new Exception("Invalid Access Token!"));
+	const decoded = jwt.verify(token, EnvironmentVars.getAccessTokenSecret()) as ACCOUNT
+	if (!decoded || !decoded.id) return next(new Exception('Invalid Access Token!', 401))
 
-  // Attach user to express request object.
-  request.account = { id: decoded.id };
-  next();
+	request.account = {
+		id: decoded.id,
+		phone: decoded.phone,
+		designation: decoded.designation,
+	}
+	next()
 }

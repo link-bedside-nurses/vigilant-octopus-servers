@@ -1,249 +1,127 @@
-import { HTTPRequest } from "@/adapters/express-callback";
-import { StatusCodes } from "http-status-codes";
-import { db } from "@/database";
-import { createToken } from "@/token/token";
-import argon2 from "argon2";
-import { Document } from "mongoose";
+import { HTTPRequest } from '@/adapters/express-callback'
+import { StatusCodes } from 'http-status-codes'
+import { db } from '@/database'
+import { createToken } from '@/token/token'
+import { Document } from 'mongoose'
+import { ACCOUNT, DESIGNATION } from '@/interfaces'
+import * as argon2 from 'argon2'
 
-export function signupPatient() {
-  return async function (request: HTTPRequest<object, {
-    phone: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }>) {
-    const user = await db.patients.findOne({ phone: request.body.phone });
-
-    if (user) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        body: {
-          message: "Phone number in use",
-          data: null,
-        },
-      };
-    }
-
-    const newUser = await db.patients.create({
-      phone: request.body.phone,
-      password: request.body.password,
-      firstName: request.body.firstName,
-      lastName: request.body.lastName,
-    });
-
-    await newUser.save();
-
-    const token = createToken(newUser as Document & { phone: string });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: newUser,
-        token,
-        message: "Patient account created (:",
-      },
-    };
-  };
+interface SignUpBody {
+	phone: string
+	firstName: string
+	lastName: string
+	designation: DESIGNATION
+	password: string
+	email?: string
 }
 
-export function signupAdmin() {
-  return async function (request: HTTPRequest<object, {
-    phone: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }>) {
-    const user = await db.admins.findOne({ phone: request.body.phone });
+export function signup() {
+	return async function (request: HTTPRequest<object, SignUpBody>) {
+		const { phone, password, designation, firstName, lastName } = request.body
 
-    if (user) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        body: {
-          message: "Phone number in use",
-          data: null,
-        },
-      };
-    }
+		if (!phone || !password || !designation) {
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					message: 'All fields are required',
+					data: null,
+				},
+			}
+		}
 
-    const newUser = await db.admins.create({
-      firstName: request.body.firstName,
-      lastName: request.body.lastName,
-      phone: request.body.phone,
-      password: request.body.password,
-    });
+		const user = await db.users.findOne({ phone: phone })
 
-    await newUser.save();
+		if (user) {
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					message: 'Phone number in use',
+					data: null,
+				},
+			}
+		}
 
-    const token = createToken(newUser as Document & { phone: string });
+		const hash = await argon2.hash(password, {
+			type: argon2.argon2id,
+		})
+		const newUser = await db.users.create({
+			phone: phone,
+			firstName: firstName,
+			lastName: lastName,
+			designation: designation,
+			password: hash,
+		})
 
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: newUser,
-        token,
-        message: "Admin account created (:",
-      },
-    };
-  };
+		await newUser.save()
+
+		const token = createToken(newUser as Document & ACCOUNT)
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: newUser,
+				token,
+				message: 'Account created',
+			},
+		}
+	}
 }
 
-export function signupCaregiver() {
-  return async function (request: HTTPRequest<object, {
-    phone: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }>) {
-
-    const user = await db.caregivers.findOne({ phone: request.body.phone });
-
-    if (user) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        body: {
-          message: "Phone number in use",
-          data: null,
-        },
-      };
-    }
-
-    const newUser = await db.caregivers.create({
-      phone: request.body.phone,
-      password: request.body.password,
-      firstName: request.body.firstName,
-      lastName: request.body.lastName,
-    });
-
-    await newUser.save();
-
-    const token = createToken(newUser as Document & { phone: string });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: newUser,
-        token,
-        message: "Caregivers account created (:",
-      },
-    };
-  };
+interface SignInBody {
+	phone: string
+	password: string
+	designation: DESIGNATION
 }
 
-export function signinPatient() {
-  return async function (request: HTTPRequest<object, { phone: string; password: string }>) {
-    const user = await db.patients.findOne({ phone: request.body.phone });
+export function signin() {
+	return async function (request: HTTPRequest<object, SignInBody>) {
+		const { phone, password, designation } = request.body
 
-    if (!user) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          message: "Invalid Credentials",
-          data: null,
-        },
-      };
-    }
+		if (!phone || !password || !designation) {
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					message: 'All fields are required',
+					data: null,
+				},
+			}
+		}
 
-    const passwordsMatch = await argon2.verify(user.password, request.body.password);
+		const user = await db.users.findOne({ phone: phone })
 
-    if (!passwordsMatch) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          data: null,
-          message: "Invalid Credentials",
-        },
-      };
-    }
+		if (!user) {
+			return {
+				statusCode: StatusCodes.UNAUTHORIZED,
+				body: {
+					message: 'Invalid Credentials',
+					data: null,
+				},
+			}
+		}
 
-    const token = createToken(user as Document & { phone: string });
+		const match = await argon2.verify(user.password, password, {
+			type: argon2.argon2id,
+		})
 
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: user,
-        token,
-        message: "Signed in (:",
-      },
-    };
-  };
-}
+		if (!match) {
+			return {
+				statusCode: StatusCodes.UNAUTHORIZED,
+				body: {
+					data: null,
+					message: 'Invalid Credentials',
+				},
+			}
+		}
 
-export function signinAdmin() {
-  return async function (request: HTTPRequest<object, { phone: string; password: string }>) {
+		const token = createToken(user as Document & ACCOUNT)
 
-    const user = await db.admins.findOne({ phone: request.body.phone });
-
-    if (!user) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          message: "Invalid Credentials",
-          data: null,
-        },
-      };
-    }
-
-    const passwordsMatch = await argon2.verify(user.password, request.body.password);
-
-    if (!passwordsMatch) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          data: null,
-          message: "Invalid Credentials",
-        },
-      };
-    }
-
-    const token = createToken(user as Document & { phone: string });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: user,
-        token,
-        message: "Signed in (:",
-      },
-    };
-  };
-}
-
-export function signinCaregiver() {
-  return async function (request: HTTPRequest<object, { phone: string; password: string }>) {
-
-    const user = await db.caregivers.findOne({ phone: request.body.phone });
-
-    if (!user) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          message: "Invalid Credentials",
-          data: null,
-        },
-      };
-    }
-
-    const passwordsMatch = await argon2.verify(user.password, request.body.password);
-
-    if (!passwordsMatch) {
-      return {
-        statusCode: StatusCodes.UNAUTHORIZED,
-        body: {
-          data: null,
-          message: "Invalid Credentials",
-        },
-      };
-    }
-
-    const token = createToken(user as Document & { phone: string });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: user,
-        token,
-        message: "Signed in (:",
-      },
-    };
-  };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: user,
+				token,
+				message: 'Signed in',
+			},
+		}
+	}
 }

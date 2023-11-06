@@ -2,46 +2,6 @@ import { HTTPRequest } from "@/adapters/express-callback";
 import { StatusCodes } from "http-status-codes";
 import { db } from "@/database";
 
-export function completePatientProfile() {
-  return async function (
-    request: HTTPRequest<
-      object,
-      {
-        firstName: string;
-        lastName: string;
-        phone: string;
-      }
-    >,
-  ) {
-    const patientId = request?.account?.id;
-    const { firstName, lastName, phone } = request.body;
-
-    if (!patientId || !firstName || !lastName || !phone) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        body: {
-          data: null,
-          message: "Incomplete or invalid request data",
-        },
-      };
-    }
-
-    const updatedPatient = await db.patients.findByIdAndUpdate(patientId, {
-      firstName,
-      lastName,
-      phone,
-    });
-
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: updatedPatient,
-        message: "Patient's profile completed successfully",
-      },
-    };
-  };
-}
-
 export function completeCaregiverProfile() {
   return async function (
     request: HTTPRequest<
@@ -56,8 +16,8 @@ export function completeCaregiverProfile() {
         experience: string;
         description: string;
         location: {
-          lng: string;
-          lat: string;
+          lng: number;
+          lat: number;
         };
         languages: string[];
         affiliations: string;
@@ -83,7 +43,6 @@ export function completeCaregiverProfile() {
       languages,
       affiliations,
       placeOfReception,
-      rating,
       speciality,
       servicesOffered,
       imageUrl,
@@ -103,7 +62,6 @@ export function completeCaregiverProfile() {
       !languages ||
       !affiliations ||
       !placeOfReception ||
-      !rating ||
       !speciality ||
       !servicesOffered ||
       !imageUrl
@@ -117,7 +75,7 @@ export function completeCaregiverProfile() {
       };
     }
 
-    const updatedCaregiver = await db.caregivers.findByIdAndUpdate(
+    const updatedCaregiver = await db.users.findByIdAndUpdate(
       request?.account?.id,
       {
         phone,
@@ -132,7 +90,6 @@ export function completeCaregiverProfile() {
         languages,
         affiliations,
         placeOfReception,
-        rating,
         speciality,
         servicesOffered,
         imageUrl,
@@ -143,7 +100,7 @@ export function completeCaregiverProfile() {
       statusCode: StatusCodes.OK,
       body: {
         data: updatedCaregiver,
-        message: "Location profile completed successfully",
+        message: "Profile completed",
       },
     };
   };
