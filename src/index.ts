@@ -47,7 +47,7 @@ app.use(
 	}),
 )
 
-app.use('/test', function (request: express.Request, response: express.Response) {
+app.use('/status', function (request: express.Request, response: express.Response) {
 	return response.status(StatusCodes.OK).send({ error: 'Server is online!', requestHeaders: request.headers })
 })
 
@@ -59,7 +59,6 @@ app.use('/patients', patientRouter)
 app.use('/caregivers', caregiverRouter)
 app.use('/payments', paymentsRouter)
 app.use('/me', meRouter)
-
 app.use('/test', testRouter)
 
 app.use(errorMiddleware)
