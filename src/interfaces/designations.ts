@@ -1,0 +1,5 @@
+export enum DESIGNATION {
+	PATIENT = 'PATIENT',
+	CAREGIVER = 'CAREGIVER',
+	ADMIN = 'ADMIN',
+}

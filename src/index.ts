@@ -14,7 +14,7 @@ import logger from '@/utils/logger'
 import { EnvironmentVars } from '@/constants'
 import { connectToDatabase, disconnectFromDatabase } from './database/connection'
 import errorMiddleware from '@/middlewares/error-middleware'
-import { appointmentRouter } from '@/modules/appointments/routes'
+import { sessionRouter } from '@/modules/sessions/routes'
 import { profileRouter } from '@/modules/profile/routes'
 import { ratingsRouter } from '@/modules/ratings/routes'
 import { testRouter } from '@/modules/test/routes'
@@ -23,8 +23,11 @@ import { patientRouter } from '@/modules/patients/routes'
 import { caregiverRouter } from '@/modules/caregivers/routes'
 import { meRouter } from '@/modules/me/routes'
 import { paymentsRouter } from '@/modules/payments/routes'
+import { adminRouter } from '@/modules/admins/routes'
 
-replaceTscAliasPaths().then(() => logger.info('TSC Aliases Replaced!'))
+replaceTscAliasPaths()
+	.then(() => logger.info('TSC Aliases Replaced!'))
+	.catch((err: Error) => logger.error(err.message))
 
 const app = express()
 
@@ -53,11 +56,12 @@ app.use('/status', function (request: express.Request, response: express.Respons
 
 app.use('/', testRouter)
 app.use('/auth', authRouter)
-app.use('/appointments', appointmentRouter)
+app.use('/sessions', sessionRouter)
 app.use('/profile', profileRouter)
 app.use('/ratings', ratingsRouter)
 app.use('/patients', patientRouter)
 app.use('/caregivers', caregiverRouter)
+app.use('/admins', adminRouter)
 app.use('/payments', paymentsRouter)
 app.use('/me', meRouter)
 
