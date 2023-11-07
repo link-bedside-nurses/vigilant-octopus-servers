@@ -1,5 +1,4 @@
 import 'reflect-metadata'
-// import "module-alias/register";
 import { replaceTscAliasPaths } from 'tsc-alias'
 import { rateLimit } from 'express-rate-limit'
 import 'dotenv/config'
@@ -31,6 +30,7 @@ const app = express()
 
 app.use(cors())
 app.use(compression())
+app.use(morgan('dev'))
 app.use(helmet())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -51,6 +51,7 @@ app.use('/status', function (request: express.Request, response: express.Respons
 	return response.status(StatusCodes.OK).send({ error: 'Server is online!', requestHeaders: request.headers })
 })
 
+app.use('/', testRouter)
 app.use('/auth', authRouter)
 app.use('/appointments', appointmentRouter)
 app.use('/profile', profileRouter)
@@ -59,7 +60,6 @@ app.use('/patients', patientRouter)
 app.use('/caregivers', caregiverRouter)
 app.use('/payments', paymentsRouter)
 app.use('/me', meRouter)
-app.use('/test', testRouter)
 
 app.use(errorMiddleware)
 

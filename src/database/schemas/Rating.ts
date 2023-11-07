@@ -1,12 +1,30 @@
-import { prop } from '@typegoose/typegoose'
+import { Severity, modelOptions, prop } from '@typegoose/typegoose'
 
+@modelOptions({
+	schemaOptions: {
+		id: true,
+		virtuals: true,
+		timestamps: true,
+		toObject: { virtuals: true },
+		toJSON: {
+			virtuals: true,
+			transform(_doc, ret): void {
+				delete ret.__v
+			},
+		},
+	},
+	options: { allowMixed: Severity.ALLOW },
+})
 export class Rating {
 	@prop({ required: true, ref: 'User', index: true })
-	userId!: string
+	patientId!: string
 
-	@prop({ type: String, required: false })
-	description?: string
+	@prop({ required: true, ref: 'User', index: true })
+	caregiverId!: string
 
-	@prop({ type: Number, required: false })
-	value?: number
+	@prop({ type: String, required: false, default: '' })
+	review?: string
+
+	@prop({ type: Number, required: true })
+	value!: number
 }
