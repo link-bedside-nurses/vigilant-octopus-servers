@@ -1,102 +1,133 @@
-import { HTTPRequest } from "@/adapters/express-callback";
-import { StatusCodes } from "http-status-codes";
-import { db } from "@/database";
+import { HTTPRequest } from '@/adapters/express-callback'
+import { StatusCodes } from 'http-status-codes'
+import { db } from '@/database'
 
-export function getRatings() {
-  return async function (
-    request: HTTPRequest<
-      object,
-      {
-        id: string;
-      },
-      object
-    >,
-  ) {
-    const ratings = await db.ratings.findOne({
-      caregiverId: request.body.id,
-    });
+export function getAllRatings() {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	return async function (_: HTTPRequest<object>) {
+		const ratings = await db.ratings.find({})
 
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: ratings,
-        message: "Rating retrieved",
-      },
-    };
-  };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: ratings,
+				message: 'Rating retrieved',
+			},
+		}
+	}
 }
 
-export function getSingleRating() {
-  return async function (
-    request: HTTPRequest<
-      {
-        id: string;
-      },
-      object,
-      object
-    >,
-  ) {
-    const rating = await db.ratings.findById(request.params.id);
+export function getRating() {
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const rating = await db.ratings.findById(request.params.id)
 
-    if (!rating) {
-      return {
-        statusCode: StatusCodes.NOT_FOUND,
-        body: {
-          data: null,
-          message: "Not Rating found",
-        },
-      };
-    }
+		if (!rating) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'Not Rating found',
+				},
+			}
+		}
 
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: rating,
-        message: "Rating retrieved",
-      },
-    };
-  };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: rating,
+				message: 'Rating retrieved',
+			},
+		}
+	}
+}
+export function getCaregiverRatings() {
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const rating = await db.ratings.find({
+			caregiverId: request.params.id,
+		})
+
+		if (!rating) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'Not Rating found',
+				},
+			}
+		}
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: rating,
+				message: 'Rating retrieved',
+			},
+		}
+	}
+}
+
+export function deleteRating() {
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const rating = await db.ratings.findByIdAndDelete(request.params.id)
+
+		if (!rating) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'Not such rating',
+				},
+			}
+		}
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: rating,
+				message: 'Rating deleted',
+			},
+		}
+	}
 }
 
 export function addRating() {
-  return async function (
-    request: HTTPRequest<
-      object,
-      {
-        id: string;
-        value: number;
-        description: string;
-      },
-      object
-    >,
-  ) {
-    const { description, value, id } = request.body;
+	return async function (
+		request: HTTPRequest<
+			{ id: string },
+			{
+				value: number
+				review: string
+			}
+		>,
+	) {
+		const { review, value } = request.body
+		const { id } = request.params
 
-    if (!description || !value || !id) {
-      return {
-        statusCode: StatusCodes.BAD_REQUEST,
-        body: {
-          data: null,
-          message: "All fields must be sent",
-        },
-      };
-    }
+		if (!review || !value || !id) {
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					data: null,
+					message: 'All fields must be sent',
+				},
+			}
+		}
 
-    const rating = await db.ratings.create({
-      description,
-      value,
-      caregiverId: id,
-      patientId: request?.account?.id,
-    });
+		const rating = await db.ratings.create({
+			review,
+			value,
+			caregiverId: id,
+			patientId: request?.account?.id,
+		})
 
-    await rating.save();
+		await rating.save()
 
-    return {
-      statusCode: StatusCodes.OK,
-      body: {
-        data: rating,
-        message: "Rating retrieved",
-      },
-    };
-  };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: rating,
+				message: 'Rating Posted',
+			},
+		}
+	}
 }
