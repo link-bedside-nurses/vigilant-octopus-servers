@@ -5,7 +5,7 @@ import { db } from '@/database'
 export function getAllPatients() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function (_: HTTPRequest<object>) {
-		const patients = await db.users.find({ designation: 'PATIENT' })
+		const patients = await db.patients.find({ designation: 'PATIENT' })
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
@@ -22,7 +22,7 @@ export function getPatient() {
 			id: string
 		}>,
 	) {
-		const patient = await db.users.findById(request.params.id)
+		const patient = await db.patients.findById(request.params.id)
 
 		if (!patient) {
 			return {
@@ -50,7 +50,7 @@ export function deletePatient() {
 			id: string
 		}>,
 	) {
-		const patient = await db.users.findByIdAndDelete(request.params.id)
+		const patient = await db.patients.findByIdAndDelete(request.params.id)
 
 		if (!patient) {
 			return {
@@ -87,7 +87,7 @@ export function updatePatient() {
 			UpdateBody
 		>,
 	) {
-		const patient = await db.users.findByIdAndUpdate(request.params.id, { ...request.body }, { new: true })
+		const patient = await db.patients.findByIdAndUpdate(request.params.id, { ...request.body }, { new: true })
 
 		if (!patient) {
 			return {

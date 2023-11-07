@@ -1,4 +1,4 @@
-import { APPOINTMENT_STATUSES } from '@/interfaces/appointment-statuses'
+import { SESSION_STATUSES } from '@/interfaces/session-statuses'
 import { DocumentType, Severity, modelOptions, prop } from '@typegoose/typegoose'
 
 @modelOptions({
@@ -16,19 +16,19 @@ import { DocumentType, Severity, modelOptions, prop } from '@typegoose/typegoose
 	},
 	options: { allowMixed: Severity.ALLOW },
 })
-export class Appointment {
-	@prop({ required: true, ref: 'User', index: true })
+export class Session {
+	@prop({ required: true, ref: 'Patient', index: true })
 	patientId!: string
 
-	@prop({ required: true, ref: 'User', index: true })
+	@prop({ required: true, ref: 'Caregiver', index: true })
 	caregiverId!: string
 
 	@prop({ required: true })
 	date!: Date
 
 	@prop({
-		enum: APPOINTMENT_STATUSES,
-		default: APPOINTMENT_STATUSES.PENDING,
+		enum: SESSION_STATUSES,
+		default: SESSION_STATUSES.PENDING,
 		index: true,
 	})
 	status!: string
@@ -45,13 +45,13 @@ export class Appointment {
 	@prop({ type: String, required: false })
 	notes?: string
 
-	public async confirmAppointment(this: DocumentType<Appointment>): Promise<void> {
-		this.status = 'confirmed'
+	public async confirmSession(this: DocumentType<Session>): Promise<void> {
+		this.status = SESSION_STATUSES.CONFIRMED
 		await this.save()
 	}
 
-	public async cancelAppointment(this: DocumentType<Appointment>, reason?: string): Promise<void> {
-		this.status = 'cancelled'
+	public async cancelSession(this: DocumentType<Session>, reason?: string): Promise<void> {
+		this.status = SESSION_STATUSES.CANCELLED
 		this.cancellationReason = reason
 		await this.save()
 	}

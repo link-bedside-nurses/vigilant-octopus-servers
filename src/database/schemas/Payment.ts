@@ -16,13 +16,13 @@ import { Severity, modelOptions, prop } from '@typegoose/typegoose'
 	options: { allowMixed: Severity.ALLOW },
 })
 export class Payment {
-	@prop({ required: true, ref: 'Appointment', index: true })
-	appointmentId!: string
+	@prop({ required: true, ref: 'Session', index: true })
+	sessionId!: string
 
-	@prop({ required: true, ref: 'User', index: true })
+	@prop({ required: true, ref: 'Patient', index: true })
 	patientId!: string
 
-	@prop({ required: true, ref: 'User', index: true })
+	@prop({ required: true, ref: 'Caregiver', index: true })
 	caregiverId!: string
 
 	@prop({ type: String, required: true })
