@@ -3,18 +3,9 @@ import { StatusCodes } from 'http-status-codes'
 import { db } from '@/database'
 
 export function getAllRatings() {
-	return async function (
-		request: HTTPRequest<
-			object,
-			{
-				id: string
-			},
-			object
-		>,
-	) {
-		const ratings = await db.ratings.findOne({
-			caregiverId: request.body.id,
-		})
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	return async function (_: HTTPRequest<object>) {
+		const ratings = await db.ratings.find({})
 
 		return {
 			statusCode: StatusCodes.OK,
@@ -27,15 +18,7 @@ export function getAllRatings() {
 }
 
 export function getRating() {
-	return async function (
-		request: HTTPRequest<
-			{
-				id: string
-			},
-			object,
-			object
-		>,
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const rating = await db.ratings.findById(request.params.id)
 
 		if (!rating) {
@@ -58,21 +41,44 @@ export function getRating() {
 	}
 }
 
+export function deleteRating() {
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const rating = await db.ratings.findByIdAndDelete(request.params.id)
+
+		if (!rating) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'Not such rating',
+				},
+			}
+		}
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: rating,
+				message: 'Rating deleted',
+			},
+		}
+	}
+}
+
 export function addRating() {
 	return async function (
 		request: HTTPRequest<
-			object,
+			{ id: string },
 			{
-				id: string
 				value: number
-				description: string
-			},
-			object
+				review: string
+			}
 		>,
 	) {
-		const { description, value, id } = request.body
+		const { review, value } = request.body
+		const { id } = request.params
 
-		if (!description || !value || !id) {
+		if (!review || !value || !id) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
@@ -83,7 +89,7 @@ export function addRating() {
 		}
 
 		const rating = await db.ratings.create({
-			description,
+			review,
 			value,
 			caregiverId: id,
 			patientId: request?.account?.id,
@@ -95,7 +101,7 @@ export function addRating() {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: rating,
-				message: 'Rating retrieved',
+				message: 'Rating Posted',
 			},
 		}
 	}

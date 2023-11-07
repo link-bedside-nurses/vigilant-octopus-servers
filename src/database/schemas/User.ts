@@ -55,13 +55,27 @@ export class User {
 	@prop({ type: String, required: true })
 	password!: string
 
-	location?: { lng: number; lat: number }
+	@prop({
+		type: Object,
+		required: false,
+		default: {
+			place: '',
+			coordinates: {
+				lng: 0,
+				lat: 0,
+			},
+		},
+	})
+	location?: {
+		place: string
+		coordinates: {
+			lng: number
+			lat: number
+		}
+	}
 
-	@prop({ type: String, required: false, default: '00000' })
-	otp?: string
-
-	@prop({ type: Date, required: false, default: Date.now() })
-	otpExpiresAt?: Date
+	@prop({ type: Boolean, required: false, default: false })
+	isPhoneVerified?: boolean
 
 	@prop({ type: Date })
 	dateOfBirth?: Date

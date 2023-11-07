@@ -1,5 +1,21 @@
-import { DocumentType, prop } from '@typegoose/typegoose'
+import { APPOINTMENT_STATUSES } from '@/interfaces/appointment-statuses'
+import { DocumentType, Severity, modelOptions, prop } from '@typegoose/typegoose'
 
+@modelOptions({
+	schemaOptions: {
+		id: true,
+		virtuals: true,
+		timestamps: true,
+		toObject: { virtuals: true },
+		toJSON: {
+			virtuals: true,
+			transform(_doc, ret): void {
+				delete ret.__v
+			},
+		},
+	},
+	options: { allowMixed: Severity.ALLOW },
+})
 export class Appointment {
 	@prop({ required: true, ref: 'User', index: true })
 	patientId!: string
@@ -11,8 +27,8 @@ export class Appointment {
 	date!: Date
 
 	@prop({
-		enum: ['pending', 'confirmed', 'cancelled', 'In progress'],
-		default: 'pending',
+		enum: APPOINTMENT_STATUSES,
+		default: APPOINTMENT_STATUSES.PENDING,
 		index: true,
 	})
 	status!: string
