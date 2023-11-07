@@ -40,6 +40,31 @@ export function getRating() {
 		}
 	}
 }
+export function getCaregiverRatings() {
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const rating = await db.ratings.find({
+			caregiverId: request.params.id,
+		})
+
+		if (!rating) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'Not Rating found',
+				},
+			}
+		}
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: rating,
+				message: 'Rating retrieved',
+			},
+		}
+	}
+}
 
 export function deleteRating() {
 	return async function (request: HTTPRequest<{ id: string }>) {
