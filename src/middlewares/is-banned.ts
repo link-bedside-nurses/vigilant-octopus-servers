@@ -19,5 +19,5 @@ export default async function isBanned(request: Request, _response: Response, ne
 		return next(new Exception('You have been banned from accessing the system', StatusCodes.FORBIDDEN))
 	}
 
-	return next(new Exception('Invalid user designation', StatusCodes.FORBIDDEN))
+	return next()
 }

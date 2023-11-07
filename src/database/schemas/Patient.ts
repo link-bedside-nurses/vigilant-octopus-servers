@@ -65,5 +65,8 @@ export class Patient {
 	isPhoneVerified?: boolean
 
 	@prop({ type: Boolean, required: false, default: false })
-	isBanned!: boolean
+	isBanned?: boolean
+
+	@prop({ type: Boolean, required: false, default: false })
+	isVerified?: boolean
 }

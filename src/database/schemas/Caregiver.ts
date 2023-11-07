@@ -111,5 +111,8 @@ export class Caregiver {
 	imgUrl?: string
 
 	@prop({ type: Boolean, required: false, default: false })
-	isBanned!: boolean
+	isBanned?: boolean
+
+	@prop({ type: Boolean, required: false, default: false })
+	isVerified?: boolean
 }

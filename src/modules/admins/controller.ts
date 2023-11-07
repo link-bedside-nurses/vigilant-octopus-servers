@@ -6,7 +6,6 @@ export function getAllAdmins() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function (_: HTTPRequest<object>) {
 		const admins = await db.admins.find({})
-		console.log('admins: ', admins)
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
@@ -51,6 +50,16 @@ export function banAdmin() {
 			id: string
 		}>,
 	) {
+		if (request.account?.id === request.params.id) {
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					message: 'You cannot ban yourself, Please select a different admin to ban',
+					data: null,
+				},
+			}
+		}
+
 		const updatedAmin = await db.admins.findByIdAndUpdate(request.params.id, { isBanned: true }, { new: true })
 		if (!updatedAmin) {
 			return {
@@ -71,6 +80,7 @@ export function banAdmin() {
 		}
 	}
 }
+
 export function banCaregiver() {
 	return async function (
 		request: HTTPRequest<{
@@ -123,6 +133,67 @@ export function banPatient() {
 			body: {
 				data: bannedPatient,
 				message: 'Patient Successfully banned from using the application!',
+			},
+		}
+	}
+}
+
+export function verifyCaregiver() {
+	return async function (
+		request: HTTPRequest<{
+			id: string
+		}>,
+	) {
+		const verifiedCaregiver = await db.caregivers.findByIdAndUpdate(
+			request.params.id,
+			{ isVerified: true },
+			{ new: true },
+		)
+		if (!verifiedCaregiver) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					message: 'No such caregiver Found',
+					data: null,
+				},
+			}
+		}
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: verifiedCaregiver,
+				message: 'Caregiver verified',
+			},
+		}
+	}
+}
+export function verifyPatient() {
+	return async function (
+		request: HTTPRequest<{
+			id: string
+		}>,
+	) {
+		const verifiedPatient = await db.patients.findByIdAndUpdate(
+			request.params.id,
+			{ isVerified: true },
+			{ new: true },
+		)
+		if (!verifiedPatient) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					message: 'No such patient Found',
+					data: null,
+				},
+			}
+		}
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: verifiedPatient,
+				message: 'Patient verified!',
 			},
 		}
 	}
