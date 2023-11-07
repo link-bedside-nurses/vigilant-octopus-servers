@@ -1,4 +1,4 @@
-export enum APPOINTMENT_STATUSES {
+export enum SESSION_STATUSES {
 	PENDING = 'pending',
 	CONFIRMED = 'confirmed',
 	CANCELLED = 'cancelled',

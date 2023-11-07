@@ -16,10 +16,10 @@ import { Severity, modelOptions, prop } from '@typegoose/typegoose'
 	options: { allowMixed: Severity.ALLOW },
 })
 export class Rating {
-	@prop({ required: true, ref: 'User', index: true })
+	@prop({ required: true, ref: 'Patient', index: true })
 	patientId!: string
 
-	@prop({ required: true, ref: 'User', index: true })
+	@prop({ required: true, ref: 'Caregiver', index: true })
 	caregiverId!: string
 
 	@prop({ type: String, required: false, default: '' })

@@ -1,10 +1,5 @@
+import { DESIGNATION } from '@/interfaces/designations'
 import { modelOptions, prop, Severity } from '@typegoose/typegoose'
-
-export enum DESIGNATION {
-	PATIENT = 'PATIENT',
-	CAREGIVER = 'CAREGIVER',
-	ADMIN = 'ADMIN',
-}
 
 @modelOptions({
 	schemaOptions: {
@@ -22,10 +17,11 @@ export enum DESIGNATION {
 	},
 	options: { allowMixed: Severity.ALLOW },
 })
-export class User {
+export class Caregiver {
 	@prop({
 		type: String,
 		required: true,
+		trim: true,
 		enum: [DESIGNATION.PATIENT, DESIGNATION.CAREGIVER, DESIGNATION.ADMIN],
 	})
 	designation!: DESIGNATION
@@ -35,13 +31,14 @@ export class User {
 		required: true,
 		unique: true,
 		index: true,
+		trim: true,
 	})
 	phone!: string
 
-	@prop({ type: String, required: true, minlength: 3, maxlength: 250 })
+	@prop({ type: String, required: true, minlength: 3, maxlength: 250, trim: true })
 	firstName!: string
 
-	@prop({ type: String, required: true, minlength: 3, maxlength: 250 })
+	@prop({ type: String, required: true, minlength: 3, maxlength: 250, trim: true })
 	lastName!: string
 
 	@prop({
@@ -77,22 +74,22 @@ export class User {
 	@prop({ type: Boolean, required: false, default: false })
 	isPhoneVerified?: boolean
 
-	@prop({ type: Date })
+	@prop({ type: Date, required: false, default: new Date() })
 	dateOfBirth?: Date
 
-	@prop({ type: String, required: false, default: '' })
+	@prop({ type: String, required: false, default: '', trim: true })
 	nin?: string
 
-	@prop({ type: String, required: false, default: '' })
+	@prop({ type: String, required: false, default: '', trim: true })
 	medicalLicenseNumber?: string
 
-	@prop({ type: String, required: false, default: '' })
+	@prop({ type: String, required: false, default: '', trim: true })
 	description?: string
 
-	@prop({ type: Number, required: false, default: 1 })
+	@prop({ type: Number, required: false, default: 0 })
 	rating?: number
 
-	@prop({ type: String, required: false, default: '' })
+	@prop({ type: String, required: false, default: '', trim: true })
 	placeOfReception?: string
 
 	@prop({ type: () => [String], required: false, default: [] })
@@ -110,6 +107,9 @@ export class User {
 	@prop({ type: () => [String], required: false, default: [] })
 	servicesOffered?: string[]
 
-	@prop({ type: String, required: false, default: '' })
+	@prop({ type: String, required: false, default: '', trim: true })
 	imgUrl?: string
+
+	@prop({ type: Boolean, required: false, default: false })
+	isBanned!: boolean
 }

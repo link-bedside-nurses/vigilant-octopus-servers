@@ -3,8 +3,9 @@ import { Router } from 'express'
 
 import authenticate from '@/middlewares/authentication'
 import { getCurrentUser } from '@/modules/me/controller'
+import isBanned from '@/middlewares/is-banned'
 const router = Router()
 
-router.get('/', authenticate, makeCallback(getCurrentUser()))
+router.get('/', authenticate, isBanned, makeCallback(getCurrentUser()))
 
 export { router as meRouter }
