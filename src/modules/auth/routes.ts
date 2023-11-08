@@ -6,10 +6,13 @@ import {
 	adminSignup,
 	caregiverSignin,
 	caregiverSignup,
+	getAccessToken,
 	passwordReset,
 	patientSignin,
 	patientSignup,
-} from '@/modules/authentication/controller'
+} from '@/modules/auth/controller'
+import authenticate from '@/middlewares/authentication'
+import verifyRefreshTokenMiddleware from '@/middlewares/verify-refresh-token'
 
 const router = Router()
 
@@ -22,5 +25,6 @@ router.post('/patient/signin', makeCallback(patientSignin()))
 router.post('/admin/signin', makeCallback(adminSignin()))
 
 router.post('/reset-password/:id', makeCallback(passwordReset()))
+router.get('/token/refresh', authenticate, verifyRefreshTokenMiddleware, makeCallback(getAccessToken()))
 
 export { router as authRouter }

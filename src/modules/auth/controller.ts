@@ -1,7 +1,7 @@
 import { HTTPRequest } from '@/adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
 import { db } from '@/database'
-import { createToken } from '@/token/token'
+import { createAccessToken, createRefreshToken } from '@/services/token/token'
 import { Document } from 'mongoose'
 import { ACCOUNT } from '@/interfaces'
 import * as argon2 from 'argon2'
@@ -22,7 +22,7 @@ export function patientSignup() {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
-					message: 'All fields are required',
+					message: 'some fields are missing',
 					data: null,
 				},
 			}
@@ -43,7 +43,7 @@ export function patientSignup() {
 		const hash = await argon2.hash(password, {
 			type: argon2.argon2id,
 		})
-		const newUser = await db.patients.create({
+		const user = await db.patients.create({
 			phone,
 			firstName,
 			lastName,
@@ -51,15 +51,17 @@ export function patientSignup() {
 			password: hash,
 		})
 
-		await newUser.save()
+		await user.save()
 
-		const token = createToken(newUser as Document & ACCOUNT)
+		const accessToken = createAccessToken(user as Document & ACCOUNT)
+		const refreshToken = createRefreshToken(user as Document & ACCOUNT)
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
-				data: newUser,
-				token,
+				data: user,
+				accessToken,
+				refreshToken,
 				message: 'Account created',
 			},
 		}
@@ -74,7 +76,7 @@ export function caregiverSignup() {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
-					message: 'All fields are required',
+					message: 'some fields are missing',
 					data: null,
 				},
 			}
@@ -95,7 +97,7 @@ export function caregiverSignup() {
 		const hash = await argon2.hash(password, {
 			type: argon2.argon2id,
 		})
-		const newUser = await db.caregivers.create({
+		const user = await db.caregivers.create({
 			phone,
 			firstName,
 			lastName,
@@ -103,15 +105,17 @@ export function caregiverSignup() {
 			password: hash,
 		})
 
-		await newUser.save()
+		await user.save()
 
-		const token = createToken(newUser as Document & ACCOUNT)
+		const accessToken = createAccessToken(user as Document & ACCOUNT)
+		const refreshToken = createRefreshToken(user as Document & ACCOUNT)
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
-				data: newUser,
-				token,
+				data: user,
+				accessToken,
+				refreshToken,
 				message: 'Account created',
 			},
 		}
@@ -126,7 +130,7 @@ export function adminSignup() {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
-					message: 'All fields are required',
+					message: 'some fields are missing',
 					data: null,
 				},
 			}
@@ -157,7 +161,7 @@ export function adminSignup() {
 
 		await newUser.save()
 
-		const token = createToken(newUser as Document & ACCOUNT)
+		const token = createAccessToken(newUser as Document & ACCOUNT)
 
 		return {
 			statusCode: StatusCodes.OK,
@@ -183,7 +187,7 @@ export function patientSignin() {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
-					message: 'All fields are required',
+					message: 'some fields are missing',
 					data: null,
 				},
 			}
@@ -215,13 +219,15 @@ export function patientSignin() {
 			}
 		}
 
-		const token = createToken(user as Document & ACCOUNT)
+		const accessToken = createAccessToken(user as Document & ACCOUNT)
+		const refreshToken = createRefreshToken(user as Document & ACCOUNT)
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: user,
-				token,
+				accessToken,
+				refreshToken,
 				message: 'Signed in',
 			},
 		}
@@ -236,7 +242,7 @@ export function caregiverSignin() {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
-					message: 'All fields are required',
+					message: 'some fields are missing',
 					data: null,
 				},
 			}
@@ -268,13 +274,15 @@ export function caregiverSignin() {
 			}
 		}
 
-		const token = createToken(user as Document & ACCOUNT)
+		const accessToken = createAccessToken(user as Document & ACCOUNT)
+		const refreshToken = createRefreshToken(user as Document & ACCOUNT)
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: user,
-				token,
+				accessToken,
+				refreshToken,
 				message: 'Signed in',
 			},
 		}
@@ -289,7 +297,7 @@ export function adminSignin() {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
-					message: 'All fields are required',
+					message: 'some fields are missing',
 					data: null,
 				},
 			}
@@ -321,13 +329,15 @@ export function adminSignin() {
 			}
 		}
 
-		const token = createToken(user as Document & ACCOUNT)
+		const accessToken = createAccessToken(user as Document & ACCOUNT)
+		const refreshToken = createRefreshToken(user as Document & ACCOUNT)
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: user,
-				token,
+				accessToken,
+				refreshToken,
 				message: 'Signed in',
 			},
 		}
@@ -397,11 +407,72 @@ export function passwordReset() {
 
 		await user.save()
 
+		const accessToken = createAccessToken(user as Document & ACCOUNT)
+		const refreshToken = createRefreshToken(user as Document & ACCOUNT)
+
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: user,
+				accessToken,
+				refreshToken,
 				message: 'Password has been successfully reset!',
+			},
+		}
+	}
+}
+
+export function getAccessToken() {
+	return async function (request: HTTPRequest) {
+		const designation = request.account?.designation
+
+		if (!designation) {
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					message: 'Designation must be specified as a param',
+					data: null,
+				},
+			}
+		}
+
+		let user
+		if (designation === DESIGNATION.PATIENT) {
+			user = await db.patients.findById(request.account?.id)
+		} else if (designation === DESIGNATION.CAREGIVER) {
+			user = await db.caregivers.findById(request.account?.id)
+		} else if (designation === DESIGNATION.ADMIN) {
+			user = await db.caregivers.findById(request.account?.id)
+		} else {
+			return {
+				statusCode: StatusCodes.UNAUTHORIZED,
+				body: {
+					message: 'Invalid Designation',
+					data: null,
+				},
+			}
+		}
+
+		if (!user) {
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					data: user,
+					message: 'No user found',
+				},
+			}
+		}
+
+		const accessToken = createAccessToken(user as Document & ACCOUNT)
+		const refreshToken = createRefreshToken(user as Document & ACCOUNT)
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: null,
+				accessToken,
+				refreshToken,
+				message: 'Access token has been reset!',
 			},
 		}
 	}
