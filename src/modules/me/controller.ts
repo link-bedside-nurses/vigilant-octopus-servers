@@ -1,6 +1,6 @@
 import { HTTPRequest } from '@/adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { db } from '@/database'
+import { db } from '@/db'
 import { DESIGNATION } from '@/interfaces/designations'
 
 export function getCurrentUser() {

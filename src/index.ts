@@ -13,7 +13,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import logger from '@/utils/logger'
 import { EnvironmentVars } from '@/constants'
-import { connectToDatabase, disconnectFromDatabase } from './database/connection'
+import { connectToDatabase, disconnectFromDatabase } from '@/db/connection'
 import errorMiddleware from '@/middlewares/error-middleware'
 import { sessionRouter } from '@/modules/sessions/routes'
 import { profileRouter } from '@/modules/profile/routes'

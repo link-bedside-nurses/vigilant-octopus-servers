@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { HTTPRequest } from '@/adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { db } from '@/database'
+import { db } from '@/db'
 
 export function getAllSessions() {
 	return async function (_: HTTPRequest<object, object>) {
