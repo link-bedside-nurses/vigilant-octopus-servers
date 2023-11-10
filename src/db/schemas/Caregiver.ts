@@ -41,14 +41,6 @@ export class Caregiver {
 	@prop({ type: String, required: true, minlength: 3, maxlength: 250, trim: true })
 	lastName!: string
 
-	@prop({
-		type: Object,
-		required: false,
-		default: {
-			lng: 0,
-			lat: 0,
-		},
-	})
 	@prop({ type: String, required: true })
 	password!: string
 

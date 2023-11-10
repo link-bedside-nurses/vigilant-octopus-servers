@@ -4,19 +4,19 @@ import { StatusCodes } from 'http-status-codes'
 
 import { Exception } from '@/utils'
 import { EnvironmentVars } from '@/constants'
-import { ACCOUNT } from '@/interfaces'
+import { ITokenPayload } from '@/services/token/token'
 
 export default function authenticate(request: Request, _response: Response, next: NextFunction) {
 	if (!request.headers.authorization || !request.headers.authorization.split(' ').includes('Bearer')) {
-		return next(new Exception('Unauthorized access', StatusCodes.UNAUTHORIZED))
+		return next(new Exception('Unauthorized!', StatusCodes.UNAUTHORIZED))
 	}
 
 	const token = request.headers.authorization.split('Bearer ')[1].trim()
 
-	if (!token || !jwt.verify(token, EnvironmentVars.getAccessTokenSecret()))
-		return next(new Exception('Invalid Access Token!', StatusCodes.UNAUTHORIZED))
+	if (!token) return next(new Exception('Missing token!', StatusCodes.UNAUTHORIZED))
 
-	const decoded = jwt.verify(token, EnvironmentVars.getAccessTokenSecret()) as ACCOUNT
+	const decoded = jwt.verify(token, EnvironmentVars.getAccessTokenSecret()) as ITokenPayload
+
 	if (!decoded || !decoded.id) return next(new Exception('Invalid Access Token!', StatusCodes.UNAUTHORIZED))
 
 	request.account = {
