@@ -1,19 +1,24 @@
+import * as crypto from 'crypto'
 import { EnvironmentVars } from '@/constants'
-import { logger } from '@typegoose/typegoose/lib/logSettings'
 
 import twilio from 'twilio'
 
 const client = twilio(EnvironmentVars.getTwilioAccountSID(), EnvironmentVars.getTwilioAuthToken())
-export default function sendOTP(phone: string, otp: number) {
-	client.messages
-		.create({
-			to: phone,
-			from: EnvironmentVars.getFromSMSPhone(),
-			body: `Your OTP is: ${otp}`,
-		})
-		.then(message => logger.info(message.sid))
+
+export default async function sendOTP(phone: string, otp: string) {
+	const message = await client.messages.create({
+		to: phone,
+		from: EnvironmentVars.getFromSMSPhone(),
+		body: `Your OTP is: ${otp}`,
+	})
+
+	return message
 }
 
 export function generateOTP() {
-	return Math.floor(1000 + Math.random() * 9000).toString()
+	const buffer = crypto.randomBytes(3)
+
+	const numericOTP = Number(parseInt(buffer.toString('hex'), 16).toString().slice(0, 6))
+
+	return numericOTP
 }
