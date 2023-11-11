@@ -70,6 +70,7 @@
 		"nodemailer": "^6.9.6",
 		"pino": "^8.16.0",
 		"pino-pretty": "^10.2.3",
+		"redis": "^4.6.10",
 		"reflect-metadata": "^0.1.13",
 		"sanitize-html": "^2.11.0",
 		"socket.io": "^4.7.2",
