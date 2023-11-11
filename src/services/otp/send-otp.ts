@@ -35,6 +35,5 @@ export async function storeOTP(phoneNumber: string, otp: string): Promise<void> 
 export async function getOTPFromRedis(phoneNumber: string): Promise<string | null> {
 	const client = await redisClient()
 	const otp = await client.get(phoneNumber)
-	await client.disconnect()
 	return otp
 }

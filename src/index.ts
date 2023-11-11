@@ -25,6 +25,7 @@ import { meRouter } from '@/modules/me/routes'
 import { paymentsRouter } from '@/modules/payments/routes'
 import { adminRouter } from '@/modules/admins/routes'
 import { otpRouter } from '@/modules/sms/routes'
+import CreateRedisClient from '@/redis/store'
 
 replaceTscAliasPaths().catch((err: Error) => logger.error(err.message))
 
@@ -82,6 +83,8 @@ const server = app.listen(EnvironmentVars.getPort(), async () => {
 	logger.info(`${'127.0.0.1:'}${EnvironmentVars.getPort()}`)
 
 	await connectToDatabase()
+
+	await CreateRedisClient()
 })
 const shutdownSignals = ['SIGTERM', 'SIGINT']
 
@@ -93,6 +96,7 @@ function gracefulShutdown(signal: string) {
 	process.on(signal, async () => {
 		await disconnectFromDatabase()
 
+		await (await CreateRedisClient()).disconnect()
 		server.close(error => {
 			logger.error(error, 'Failed to close server. Server was not open!')
 		})

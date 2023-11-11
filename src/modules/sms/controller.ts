@@ -13,13 +13,12 @@ export function getOTP() {
 		try {
 			const otp = generateOTP()
 
+			await storeOTP(request.body.toPhone, otp.toString())
 			const message = await client.messages.create({
 				to: request.body.toPhone,
 				from: EnvironmentVars.getFromSMSPhone(),
 				body: `Your OTP is: ${otp}`,
 			})
-
-			storeOTP(request.body.toPhone, otp.toString())
 
 			return {
 				statusCode: StatusCodes.OK,
@@ -44,6 +43,8 @@ export function verifyOTP() {
 	return async function (request: HTTPRequest<object, { phone: string; otp: number; designation: DESIGNATION }>) {
 		const { phone, otp, designation } = request.body
 
+		const phoneNumber = phone.split('+')[1]
+
 		const redisOTP = await getOTPFromRedis(phone)
 
 		if (!redisOTP) {
@@ -51,7 +52,7 @@ export function verifyOTP() {
 				statusCode: StatusCodes.OK,
 				body: {
 					data: null,
-					message: 'This OTP has not been issued before. Try resending the OTP request',
+					message: 'Wrong or Expired OTP. Try resending the OTP request',
 				},
 			}
 		}
@@ -59,9 +60,9 @@ export function verifyOTP() {
 		if (redisOTP === otp.toString()) {
 			let user
 			if (designation === DESIGNATION.CAREGIVER) {
-				user = await db.caregivers.findOne({ phone })
+				user = await db.caregivers.findOne({ phone: phoneNumber })
 			} else if (designation === DESIGNATION.PATIENT) {
-				user = await db.patients.findOne({ phone })
+				user = await db.patients.findOne({ phone: phoneNumber })
 			} else {
 				return {
 					statusCode: StatusCodes.BAD_REQUEST,

@@ -9,7 +9,7 @@ export default async function CreateRedisClient() {
 				err,
 			),
 		)
-		.on('connect', () => logger.info('Initiating a connection to the redis'))
+		.on('connect', () => logger.info('Initialised redis connection'))
 		.on('end', () => logger.info('Connection to redis has been closed'))
 		.on('reconnecting', () => logger.info('Connected to redis'))
 		.connect()
