@@ -1,6 +1,6 @@
 import { HTTPRequest } from '@/adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { db } from '@/database'
+import { db } from '@/db'
 import { createAccessToken, createRefreshToken } from '@/services/token/token'
 import { Document } from 'mongoose'
 import { ACCOUNT } from '@/interfaces'

@@ -1,11 +1,11 @@
 import { getModelForClass } from '@typegoose/typegoose'
 
-import { Session } from '@/database/schemas/Session'
-import { Rating } from '@/database/schemas/Rating'
-import { Caregiver } from '@/database/schemas/Caregiver'
-import { Payment } from '@/database/schemas/Payment'
-import { Patient } from '@/database/schemas/Patient'
-import { Admin } from '@/database/schemas/Admin'
+import { Session } from '@/db/schemas/Session'
+import { Rating } from '@/db/schemas/Rating'
+import { Caregiver } from '@/db/schemas/Caregiver'
+import { Payment } from '@/db/schemas/Payment'
+import { Patient } from '@/db/schemas/Patient'
+import { Admin } from '@/db/schemas/Admin'
 
 export const db = Object.freeze({
 	sessions: getModelForClass(Session),
