@@ -100,3 +100,5 @@ function gracefulShutdown(signal: string) {
 		process.exit(0)
 	})
 }
+
+export { server as app }
