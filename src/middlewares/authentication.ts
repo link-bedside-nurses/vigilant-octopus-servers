@@ -6,18 +6,20 @@ import { Exception } from '@/utils'
 import { EnvironmentVars } from '@/constants'
 import { ITokenPayload } from '@/services/token/token'
 
-export default function authenticate(request: Request, _response: Response, next: NextFunction) {
-	if (!request.headers.authorization || !request.headers.authorization.split(' ').includes('Bearer')) {
-		return next(new Exception('Unauthorized!', StatusCodes.UNAUTHORIZED))
+export default function authenticate( request: Request, _response: Response, next: NextFunction ) {
+	if ( !request.headers.authorization || !request.headers.authorization.split( ' ' ).includes( 'Bearer' ) ) {
+		return next( new Exception( 'Unauthorized!', StatusCodes.UNAUTHORIZED ) )
 	}
 
-	const token = request.headers.authorization.split('Bearer ')[1].trim()
+	const token = request.headers.authorization.split( 'Bearer ' )[1].trim()
 
-	if (!token) return next(new Exception('Missing token!', StatusCodes.UNAUTHORIZED))
+	if ( !token ) return next( new Exception( 'Missing token!', StatusCodes.UNAUTHORIZED ) )
 
-	const decoded = jwt.verify(token, EnvironmentVars.getAccessTokenSecret()) as ITokenPayload
+	const decoded = jwt.verify( token, EnvironmentVars.getAccessTokenSecret() ) as ITokenPayload
 
-	if (!decoded || !decoded.id) return next(new Exception('Invalid Access Token!', StatusCodes.UNAUTHORIZED))
+	console.log( decoded )
+
+	if ( !decoded || !decoded.id ) return next( new Exception( 'Invalid Access Token!', StatusCodes.UNAUTHORIZED ) )
 
 	request.account = {
 		id: decoded.id,

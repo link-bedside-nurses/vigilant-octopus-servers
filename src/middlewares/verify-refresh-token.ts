@@ -17,5 +17,11 @@ export default async function verifyRefreshTokenMiddleware(
 	const decoded = await verifyRefreshToken(refreshToken)
 	if (!decoded || !decoded.id) return next(new Exception('Invalid refresh Token!', StatusCodes.UNAUTHORIZED))
 
+	request.account = {
+		designation: decoded.designation,
+		id: decoded.id,
+		phone: '',
+	}
+
 	next()
 }

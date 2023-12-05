@@ -7,10 +7,10 @@ export interface ITokenPayload extends ACCOUNT {
 	iat: number
 }
 
-export function createAccessToken(user: (Document & ACCOUNT) | null): string {
+export function createAccessToken( user: ( Document & ACCOUNT ) | null ): string {
 	return jwt.sign(
 		{
-			id: user?.id,
+			id: user?._id,
 			phone: user?.phone,
 			designation: user?.designation,
 		},
@@ -21,10 +21,11 @@ export function createAccessToken(user: (Document & ACCOUNT) | null): string {
 	) as string
 }
 
-export function createRefreshToken(user: (Document & ACCOUNT) | null): string {
+export function createRefreshToken( user: ( Document & ACCOUNT ) | null ): string {
 	return jwt.sign(
 		{
-			id: user?.id,
+			id: user?._id,
+			designation: user?.designation,
 		},
 		EnvVars.getRefreshTokenSecret() as jwt.Secret,
 		{
@@ -33,11 +34,11 @@ export function createRefreshToken(user: (Document & ACCOUNT) | null): string {
 	) as string
 }
 
-export async function verifyRefreshToken(token: string): Promise<ITokenPayload> {
-	return new Promise((resolve, reject) => {
-		jwt.verify(token, EnvVars.getRefreshTokenSecret() as jwt.Secret, (err, payload) => {
-			if (err) reject(err)
-			resolve(payload as ITokenPayload)
-		})
-	})
+export async function verifyRefreshToken( token: string ): Promise<ITokenPayload> {
+	return new Promise( ( resolve, reject ) => {
+		jwt.verify( token, EnvVars.getRefreshTokenSecret() as jwt.Secret, ( err, payload ) => {
+			if ( err ) reject( err )
+			resolve( payload as ITokenPayload )
+		} )
+	} )
 }

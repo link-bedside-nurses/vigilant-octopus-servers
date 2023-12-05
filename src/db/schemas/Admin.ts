@@ -3,7 +3,7 @@ import { modelOptions, prop, Severity } from '@typegoose/typegoose'
 
 @modelOptions({
 	schemaOptions: {
-		id: true,
+		id: false,
 		virtuals: true,
 		timestamps: true,
 		toObject: { virtuals: true },
@@ -56,4 +56,7 @@ export class Admin {
 
 	@prop({ type: Boolean, required: false, default: false })
 	isPhoneVerified?: boolean
+
+	@prop({ type: Boolean, required: false, default: false })
+	isDeactivated?: boolean
 }

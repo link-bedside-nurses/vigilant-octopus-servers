@@ -4,8 +4,8 @@ import { db } from '@/db'
 
 export function getAllRatings() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	return async function (_: HTTPRequest<object>) {
-		const ratings = await db.ratings.find({}).populate('patientId').populate('caregiverId')
+	return async function ( _: HTTPRequest<object> ) {
+		const ratings = await db.ratings.find( {} ).populate( 'patientId' ).populate( 'caregiverId' )
 
 		return {
 			statusCode: StatusCodes.OK,
@@ -18,10 +18,10 @@ export function getAllRatings() {
 }
 
 export function getRating() {
-	return async function (request: HTTPRequest<{ id: string }>) {
-		const rating = await db.ratings.findById(request.params.id)
+	return async function ( request: HTTPRequest<{ id: string }> ) {
+		const rating = await db.ratings.findById( request.params.id )
 
-		if (!rating) {
+		if ( !rating ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -40,13 +40,13 @@ export function getRating() {
 		}
 	}
 }
-export function getCaregiverRatings() {
-	return async function (request: HTTPRequest<{ id: string }>) {
-		const rating = await db.ratings.find({
+export function getRatings() {
+	return async function ( request: HTTPRequest<{ id: string }> ) {
+		const rating = await db.ratings.find( {
 			caregiverId: request.params.id,
-		})
+		} )
 
-		if (!rating) {
+		if ( !rating ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -67,10 +67,10 @@ export function getCaregiverRatings() {
 }
 
 export function deleteRating() {
-	return async function (request: HTTPRequest<{ id: string }>) {
-		const rating = await db.ratings.findByIdAndDelete(request.params.id)
+	return async function ( request: HTTPRequest<{ id: string }> ) {
+		const rating = await db.ratings.findByIdAndDelete( request.params.id )
 
-		if (!rating) {
+		if ( !rating ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -103,7 +103,7 @@ export function addRating() {
 		const { review, value } = request.body
 		const { id } = request.params
 
-		if (!review || !value || !id) {
+		if ( !review || !value || !id ) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
@@ -113,12 +113,12 @@ export function addRating() {
 			}
 		}
 
-		const rating = await db.ratings.create({
+		const rating = await db.ratings.create( {
 			review,
 			value,
 			caregiverId: id,
 			patientId: request?.account?.id,
-		})
+		} )
 
 		await rating.save()
 

@@ -5,6 +5,6 @@ module.exports = {
   plugins: ["@typescript-eslint"],
   root: true,
   rules: {
-    "no-console": "warn",
+    "no-console": "off",
   },
 };

@@ -2,7 +2,7 @@ import { Severity, modelOptions, prop } from '@typegoose/typegoose'
 
 @modelOptions({
 	schemaOptions: {
-		id: true,
+		id: false,
 		virtuals: true,
 		timestamps: true,
 		toObject: { virtuals: true },

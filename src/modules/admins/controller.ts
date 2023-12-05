@@ -4,8 +4,8 @@ import { db } from '@/db'
 
 export function getAllAdmins() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	return async function (_: HTTPRequest<object>) {
-		const admins = await db.admins.find({})
+	return async function ( _: HTTPRequest<object> ) {
+		const admins = await db.admins.find( {} )
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
@@ -22,9 +22,9 @@ export function getAdmin() {
 			id: string
 		}>,
 	) {
-		const admin = await db.admins.findById(request.params.id)
+		const admin = await db.admins.findById( request.params.id )
 
-		if (!admin) {
+		if ( !admin ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -50,7 +50,7 @@ export function banAdmin() {
 			id: string
 		}>,
 	) {
-		if (request.account?.id === request.params.id) {
+		if ( request.account?.id === request.params.id ) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
@@ -60,8 +60,12 @@ export function banAdmin() {
 			}
 		}
 
-		const updatedAmin = await db.admins.findByIdAndUpdate(request.params.id, { isBanned: true }, { new: true })
-		if (!updatedAmin) {
+		const updatedAmin = await db.admins.findByIdAndUpdate(
+			request.params.id,
+			{ $set: { isBanned: true } },
+			{ new: true },
+		)
+		if ( !updatedAmin ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -75,7 +79,7 @@ export function banAdmin() {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: updatedAmin,
-				message: 'Admin deleted',
+				message: 'Admin banned',
 			},
 		}
 	}
@@ -89,10 +93,10 @@ export function banCaregiver() {
 	) {
 		const bannedCaregiver = await db.caregivers.findByIdAndUpdate(
 			request.params.id,
-			{ isBanned: true },
+			{ $set: { isBanned: true } },
 			{ new: true },
 		)
-		if (!bannedCaregiver) {
+		if ( !bannedCaregiver ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -117,8 +121,12 @@ export function banPatient() {
 			id: string
 		}>,
 	) {
-		const bannedPatient = await db.patients.findByIdAndUpdate(request.params.id, { isBanned: true }, { new: true })
-		if (!bannedPatient) {
+		const bannedPatient = await db.patients.findByIdAndUpdate(
+			request.params.id,
+			{ $set: { isBanned: true } },
+			{ new: true },
+		)
+		if ( !bannedPatient ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -149,7 +157,7 @@ export function verifyCaregiver() {
 			{ isVerified: true },
 			{ new: true },
 		)
-		if (!verifiedCaregiver) {
+		if ( !verifiedCaregiver ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -168,6 +176,7 @@ export function verifyCaregiver() {
 		}
 	}
 }
+
 export function verifyPatient() {
 	return async function (
 		request: HTTPRequest<{
@@ -179,7 +188,7 @@ export function verifyPatient() {
 			{ isVerified: true },
 			{ new: true },
 		)
-		if (!verifiedPatient) {
+		if ( !verifiedPatient ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -214,9 +223,9 @@ export function updateAdmin() {
 			UpdateBody
 		>,
 	) {
-		const admin = await db.admins.findByIdAndUpdate(request.params.id, { ...request.body }, { new: true })
+		const admin = await db.admins.findByIdAndUpdate( request.params.id, { ...request.body }, { new: true } )
 
-		if (!admin) {
+		if ( !admin ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {

@@ -1,14 +1,14 @@
-import makeCallback from '@/adapters/express-callback'
+import callback from '@/adapters/express-callback'
 import { Router } from 'express'
 
 import authenticate from '@/middlewares/authentication'
-import { deletePayment, getAllPayments, getPayment } from '@/modules/payments/controller'
+import { makeMomoPayement, getAllPayments, getPayment } from '@/modules/payments/controller'
 import isBanned from '@/middlewares/is-banned'
 
 const router = Router()
 
-router.get('/', authenticate, isBanned, makeCallback(getAllPayments()))
-router.get('/:id', authenticate, isBanned, makeCallback(getPayment()))
-router.delete('/:id', authenticate, isBanned, makeCallback(deletePayment()))
+router.get( '/', authenticate, isBanned, callback( getAllPayments() ) )
+router.get( '/:id', authenticate, isBanned, callback( getPayment() ) )
+router.delete( '/:id', authenticate, isBanned, callback( makeMomoPayement() ) )
 
-export { router as paymentsRouter }
+export default router

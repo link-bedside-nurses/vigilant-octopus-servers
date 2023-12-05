@@ -1,4 +1,4 @@
-import makeCallback from '@/adapters/express-callback'
+import callback from '@/adapters/express-callback'
 import { Router } from 'express'
 
 import { completeCaregiverProfile } from '@/modules/profile/controller'
@@ -7,6 +7,6 @@ import isBanned from '@/middlewares/is-banned'
 
 const router = Router()
 
-router.post('/caregivers', authenticate, isBanned, makeCallback(completeCaregiverProfile()))
+router.post( '/caregivers', authenticate, isBanned, callback( completeCaregiverProfile() ) )
 
-export { router as profileRouter }
+export default router

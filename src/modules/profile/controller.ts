@@ -75,23 +75,27 @@ export function completeCaregiverProfile() {
 			}
 		}
 
-		const updatedCaregiver = await db.caregivers.findByIdAndUpdate(request?.account?.id, {
-			phone,
-			firstName,
-			lastName,
-			dateOfBirth,
-			nin,
-			medicalLicenseNumber,
-			experience,
-			description,
-			location,
-			languages,
-			affiliations,
-			placeOfReception,
-			speciality,
-			servicesOffered,
-			imageUrl,
-		})
+		const updatedCaregiver = await db.caregivers.findByIdAndUpdate(
+			request?.account?.id,
+			{
+				phone,
+				firstName,
+				lastName,
+				dateOfBirth,
+				nin,
+				medicalLicenseNumber,
+				experience,
+				description,
+				location,
+				languages,
+				affiliations,
+				placeOfReception,
+				speciality,
+				servicesOffered,
+				imageUrl,
+			},
+			{ new: true },
+		)
 
 		return {
 			statusCode: StatusCodes.OK,

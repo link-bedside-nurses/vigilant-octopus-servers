@@ -12,7 +12,7 @@ export const sendMail = async (
   subject: string,
   text: string,
 ) => {
-  const transporter = nodemailer.createTransport({
+  const transporter = nodemailer.createTransport( {
     host: "smtp.gmail.com",
     port: 587,
     secure: false, // true for 465, false for other ports
@@ -20,10 +20,10 @@ export const sendMail = async (
       user: EnvironmentVars.getEmailServiceUsername(),
       pass: EnvironmentVars.getEmailServicePassword(),
     },
-  });
+  } );
 
-  const info = await transporter.sendMail({
-    from: `"FROM VIGILANT_OCTOPUS 👻" ${EnvironmentVars.getEmailServiceUsername()}`,
+  const info = await transporter.sendMail( {
+    from: `"FROM VIGILANT_OCTOPUS 👻👻👻👻👻👻" ${EnvironmentVars.getEmailServiceUsername()}`,
     to,
     subject,
     text,
@@ -31,9 +31,9 @@ export const sendMail = async (
     bcc,
     cc,
     attachments,
-  });
+  } );
 
-  logger.info("Message sent: %s", info.messageId);
+  logger.info( "Message sent: %s", info.messageId );
 
-  logger.info("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  logger.info( "Preview URL: %s", nodemailer.getTestMessageUrl( info ) );
 };

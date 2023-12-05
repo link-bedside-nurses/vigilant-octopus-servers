@@ -118,3 +118,38 @@ export function updateCaregiver() {
 		}
 	}
 }
+
+export function deactivateCaregiver() {
+	return async function (
+		request: HTTPRequest<
+			{
+				id: string
+			},
+			UpdateBody
+		>,
+	) {
+		const caregiver = await db.caregivers.findByIdAndUpdate(
+			request.params.id,
+			{ $set: { isDeactivated: true } },
+			{ new: true },
+		)
+
+		if (!caregiver) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					message: 'No caregiver Found',
+					data: null,
+				},
+			}
+		}
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: caregiver,
+				message: 'Account successfully deactivated',
+			},
+		}
+	}
+}

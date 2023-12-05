@@ -3,7 +3,7 @@ import { modelOptions, prop, Severity } from '@typegoose/typegoose'
 
 @modelOptions({
 	schemaOptions: {
-		id: true,
+		id: false,
 		virtuals: true,
 		timestamps: true,
 		toObject: { virtuals: true },
@@ -104,6 +104,9 @@ export class Caregiver {
 
 	@prop({ type: Boolean, required: false, default: false })
 	isBanned?: boolean
+
+	@prop({ type: Boolean, required: false, default: false })
+	isDeactivated?: boolean
 
 	@prop({ type: Boolean, required: false, default: false })
 	isVerified?: boolean
