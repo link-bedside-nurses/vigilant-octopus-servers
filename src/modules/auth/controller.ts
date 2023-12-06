@@ -20,11 +20,14 @@ export function patientSignup() {
 		firstName: string
 		lastName: string
 		email: string
-		dob: Date
+		dob: string
 	}> ) {
 		const { phone, dob, firstName, lastName, email } = request.body
 
-		if ( !phone || !dob || !firstName || !lastName || !email ) {
+		console.log( "REQRBODY: ", request.body )
+
+
+		if ( !( phone && dob && firstName && lastName && email ) ) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
@@ -35,6 +38,7 @@ export function patientSignup() {
 		}
 
 		const patient = await db.patients.findOne( { phone } )
+		console.log( "pateint: ", patient )
 
 		if ( patient ) {
 			return {
@@ -55,17 +59,14 @@ export function patientSignup() {
 			dob
 		} )
 
+		console.log( "user1: ", user )
 		await user.save()
-
-		const accessToken = createAccessToken( user as Document & ACCOUNT )
-		const refreshToken = createRefreshToken( user as Document & ACCOUNT )
+		console.log( "user2: ", user )
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: user,
-				accessToken,
-				refreshToken,
 				message: 'Account created',
 			},
 		}
@@ -105,7 +106,7 @@ export function caregiverSignup() {
 			phone,
 			firstName,
 			lastName,
-			designation: DESIGNATION.CAREGIVER,
+			designation: DESIGNATION.NURSE,
 			password: hash,
 		} )
 
@@ -206,16 +207,11 @@ export function patientSignin() {
 			}
 		}
 
-		const accessToken = createAccessToken( user as Document & ACCOUNT )
-		const refreshToken = createRefreshToken( user as Document & ACCOUNT )
-
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
-				data: user,
-				accessToken,
-				refreshToken,
-				message: 'Signed in',
+				data: null,
+				message: 'Success',
 			},
 		}
 	}
@@ -348,7 +344,7 @@ export function getAccessToken() {
 		let user
 		if ( designation === DESIGNATION.PATIENT ) {
 			user = await db.patients.findById( request.account?.id )
-		} else if ( designation === DESIGNATION.CAREGIVER ) {
+		} else if ( designation === DESIGNATION.NURSE ) {
 			user = await db.caregivers.findById( request.account?.id )
 		} else if ( designation === DESIGNATION.ADMIN ) {
 			user = await db.caregivers.findById( request.account?.id )

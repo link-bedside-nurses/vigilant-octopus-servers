@@ -1,6 +1,6 @@
 declare module 'fawn'
 
-export type DESIGNATION = 'PATIENT' | 'CAREGIVER' | 'ADMIN'
+export type DESIGNATION = 'PATIENT' | 'NURSE' | 'ADMIN'
 
 export interface ACCOUNT {
 	id: string
@@ -14,5 +14,5 @@ declare global {
 			account?: ACCOUNT
 		}
 	}
-	namespace Application {}
+	namespace Application { }
 }

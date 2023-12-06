@@ -21,7 +21,7 @@ export class Patient {
 	@prop( {
 		type: String,
 		required: true,
-		enum: [DESIGNATION.PATIENT, DESIGNATION.CAREGIVER, DESIGNATION.ADMIN],
+		enum: [DESIGNATION.PATIENT, DESIGNATION.NURSE, DESIGNATION.ADMIN],
 	} )
 	designation!: DESIGNATION
 
@@ -50,7 +50,7 @@ export class Patient {
 	} )
 	email!: string
 
-	@prop( { type: Date, required: true, default: Date.now() } )
+	@prop( { type: String, required: true, default: new Date().toISOString() } )
 	dob!: string
 
 	@prop( {

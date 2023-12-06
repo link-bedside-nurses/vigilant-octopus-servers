@@ -1,5 +1,5 @@
 export enum DESIGNATION {
 	PATIENT = 'PATIENT',
-	CAREGIVER = 'CAREGIVER',
+	NURSE = 'NURSE',
 	ADMIN = 'ADMIN',
 }
