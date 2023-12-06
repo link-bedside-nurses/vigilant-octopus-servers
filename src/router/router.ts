@@ -22,7 +22,7 @@ import { appendFile } from 'fs/promises'
 
 const ROUTER = express.Router()
 
-ROUTER.use( cors( { origin: "http://localhost:3000" } ) )
+ROUTER.use( cors() )
 ROUTER.use( compression() )
 ROUTER.use( helmet() )
 ROUTER.use( express.json() )

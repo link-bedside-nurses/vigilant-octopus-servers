@@ -30,6 +30,7 @@ export class Patient {
 		required: true,
 		unique: true,
 		index: true,
+		trim: true
 	} )
 	phone!: string
 

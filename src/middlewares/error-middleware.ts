@@ -21,25 +21,25 @@ export default function errorMiddleware(
 	// console.error(error);
 
 	// document uniqueness and duplicates error
-	if (error.code === 11000 && error.keyValue !== undefined) {
-		const key = Object.keys(error.keyValue)[0]
-		message = `${key.charAt(0).toUpperCase() + key.slice(1)}: '${error.keyValue[key]}' is already taken`
+	if ( error.code === 11000 && error.keyValue !== undefined ) {
+		const key = Object.keys( error.keyValue )[0]
+		message = `${key.charAt( 0 ).toUpperCase() + key.slice( 1 )}: '${error.keyValue[key]}' is already taken`
 		status = 400
 	}
 
-	if (error.name === 'CastError' && error.kind === 'ObjectId') {
+	if ( error.name === 'CastError' && error.kind === 'ObjectId' ) {
 		status = 400
 		message = `Provided Id is an invalid ObjectId.`
 	}
 
 	// Custom error, from zod for now
-	if (error.errors && error.errors.length > 0) {
+	if ( error.errors && error.errors.length > 0 ) {
 		status = 400
-		message = (error.errors[0].error as string) ?? error.message
+		message = ( error.errors[0].error as string ) ?? error.message
 	}
 
-	res.status(status).send({
+	res.status( status ).send( {
 		status,
 		message: message,
-	})
+	} )
 }
