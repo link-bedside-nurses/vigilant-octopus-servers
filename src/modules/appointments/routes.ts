@@ -9,6 +9,7 @@ import {
 	getPatientAppointments,
 	getCaregiverAppointments,
 	deleteAppointment,
+	scheduleAppointment,
 } from '@/modules/appointments/controller'
 import authenticate from '@/middlewares/authentication'
 import { validateObjectID } from '@/middlewares/validate-objectid'
@@ -17,6 +18,7 @@ import isBanned from '@/middlewares/is-banned'
 const router = Router()
 
 router.get( '/', authenticate, isBanned, callback( getAllAppointments() ) )
+router.post( '/', authenticate, isBanned, callback( scheduleAppointment() ) )
 router.get( '/:id', authenticate, validateObjectID, isBanned, callback( getAppointment() ) )
 router.get( '/patients/:id', authenticate, validateObjectID, isBanned, callback( getPatientAppointments() ) )
 router.get( '/caregivers/:id', authenticate, validateObjectID, isBanned, callback( getCaregiverAppointments() ) )

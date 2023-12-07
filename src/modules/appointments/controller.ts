@@ -7,6 +7,8 @@ export function getAllAppointments() {
 	return async function ( _: HTTPRequest<object, object> ) {
 		const appointments = await db.appointments.find( {} )
 
+		console.log( "appointments: ", appointments )
+
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
@@ -19,8 +21,9 @@ export function getAllAppointments() {
 
 export function getPatientAppointments() {
 	return async function ( request: HTTPRequest<{ patientId: string }, object> ) {
+
 		const appointments = await db.appointments.find( {
-			patientId: request.params.patientId,
+			patient: request.params.patientId,
 		} )
 
 		return {
@@ -36,7 +39,7 @@ export function getPatientAppointments() {
 export function getCaregiverAppointments() {
 	return async function ( request: HTTPRequest<{ caregiverId: string }, object> ) {
 		const appointments = await db.appointments.find( {
-			caregiverId: request.params.caregiverId,
+			caregiver: request.params.caregiverId,
 		} )
 
 		return {
@@ -44,6 +47,60 @@ export function getCaregiverAppointments() {
 			body: {
 				data: appointments,
 				message: appointments.length === 0 ? 'No appointments scheduled' : 'Appointments fetched',
+			},
+		}
+	}
+}
+
+export function scheduleAppointment() {
+	return async function ( request: HTTPRequest<object, {
+		title: string
+		caregiverId: string
+		description: string
+		notes: string
+	}, object> ) {
+
+		console.log( "data: ", request.body )
+
+		if ( !( request.body.title && request.body.description && request.body.notes ) ) {
+			const missingFields = [];
+
+			if ( !request.body.title ) {
+				missingFields.push( 'title' );
+			}
+
+			if ( !request.body.description ) {
+				missingFields.push( 'description' );
+			}
+
+			if ( !request.body.notes ) {
+				missingFields.push( 'notes' );
+			}
+
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					message: `The following fields are missing: ${missingFields.join( ', ' )}`,
+					data: null,
+				},
+			};
+		}
+
+		const appointments = await db.appointments.create( {
+			title: request.body.title,
+			description: request.body.description,
+			notes: request.body.notes,
+			patient: request.account?.id,
+			caregiver: request.body.caregiverId
+		} )
+
+		await appointments.save()
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: appointments,
+				message: 'Appointment Scheduled',
 			},
 		}
 	}
@@ -58,7 +115,7 @@ export function confirmAppointment() {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
 					data: null,
-					message: 'Could not confirm appointment. This appointment has not been setup or initiated by anyone',
+					message: 'Could not confirm appointment. This appointment has not been scheduled yet',
 				},
 			}
 		}
@@ -91,7 +148,7 @@ export function cancelAppointment() {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
 					data: null,
-					message: 'Could not cancel appointment. This appointment has not been setup or initiated by anyone',
+					message: 'Could not cancel appointment. This appointment has not been scheduled yet',
 				},
 			}
 		}
@@ -110,14 +167,14 @@ export function cancelAppointment() {
 
 export function getAppointment() {
 	return async function ( request: HTTPRequest<{ id: string }> ) {
-		const appointment = await db.appointments.findById( request.params.id )
+		const appointment = await db.appointments.findById( request.params.id ).populate( "caregiver" ).populate( "patient" )
 
 		if ( !appointment ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
 					data: null,
-					message: 'Could not get appointment. This appointment has not been setup or initiated by anyone',
+					message: 'Could not get appointment. This appointment has not been scheduled yet',
 				},
 			}
 		}

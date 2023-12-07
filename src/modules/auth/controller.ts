@@ -22,23 +22,43 @@ export function patientSignup() {
 		email: string
 		dob: string
 	}> ) {
-		const { phone, dob, firstName, lastName, email } = request.body
+		const { phone, dob, firstName, lastName, email } = request.body;
 
-		console.log( "REQRBODY: ", request.body )
+		console.log( "data: ", { phone, dob, firstName, lastName, email } );
 
+		const missingFields = [];
 
-		if ( !( phone && dob && firstName && lastName && email ) ) {
+		if ( !phone ) {
+			missingFields.push( 'phone' );
+		}
+
+		if ( !dob ) {
+			missingFields.push( 'dob' );
+		}
+
+		if ( !firstName ) {
+			missingFields.push( 'firstName' );
+		}
+
+		if ( !lastName ) {
+			missingFields.push( 'lastName' );
+		}
+
+		if ( !email ) {
+			missingFields.push( 'email' );
+		}
+
+		if ( missingFields.length > 0 ) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
-					message: 'Some fields are missing',
+					message: `The following fields are missing: ${missingFields.join( ', ' )}`,
 					data: null,
 				},
-			}
+			};
 		}
 
 		const patient = await db.patients.findOne( { phone } )
-		console.log( "pateint: ", patient )
 
 		if ( patient ) {
 			return {

@@ -15,9 +15,6 @@ export function createAccessToken( user: ( Document & ACCOUNT ) | null ): string
 			designation: user?.designation,
 		},
 		EnvVars.getAccessTokenSecret() as jwt.Secret,
-		{
-			expiresIn: '5m',
-		},
 	) as string
 }
 
@@ -28,9 +25,6 @@ export function createRefreshToken( user: ( Document & ACCOUNT ) | null ): strin
 			designation: user?.designation,
 		},
 		EnvVars.getRefreshTokenSecret() as jwt.Secret,
-		{
-			expiresIn: '10m',
-		},
 	) as string
 }
 

@@ -1,5 +1,7 @@
+import { Caregiver } from '@/db/schemas/Caregiver'
+import { Patient } from '@/db/schemas/Patient'
 import { APPOINTMENT_STATUSES } from '@/interfaces/appointment-statuses'
-import { DocumentType, Severity, modelOptions, prop } from '@typegoose/typegoose'
+import { DocumentType, Ref, Severity, modelOptions, prop } from '@typegoose/typegoose'
 
 @modelOptions( {
 	schemaOptions: {
@@ -20,10 +22,20 @@ export class Appointment {
 	@prop( { required: true, ref: 'Patient', index: true } )
 	patientId!: string
 
+	@prop( { ref: () => Patient, foreignField: "_id", localField: "patientId", justOne: true } )
+	patient?: Ref<Patient>
+
 	@prop( { required: true, ref: 'Caregiver', index: true } )
 	caregiverId!: string
 
-	@prop( { required: true } )
+	@prop( { ref: () => Caregiver, foreignField: "_id", localField: "caregiverId", justOne: true } )
+	caregiver?: Ref<Caregiver>
+
+
+	@prop( { required: true, index: true } )
+	title!: string
+
+	@prop( { required: true, default: Date.now() } )
 	date!: Date
 
 	@prop( {
@@ -33,14 +45,11 @@ export class Appointment {
 	} )
 	status!: string
 
-	@prop( { type: String, required: true } )
-	reasonForVisit!: string
-
 	@prop( { type: String, required: false, default: '' } )
 	cancellationReason?: string
 
-	@prop( { type: () => [String], required: false, default: [] } )
-	symptoms?: string[]
+	@prop( { type: String, required: false } )
+	description?: string
 
 	@prop( { type: String, required: false } )
 	notes?: string
