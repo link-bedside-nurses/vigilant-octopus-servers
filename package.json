@@ -10,7 +10,7 @@
 	],
 	"license": "MIT",
 	"scripts": {
-		"build": "rimraf build && tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
+		"build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
 		"dev": "ts-node-dev -r tsconfig-paths/register --transpile-only src/index.ts",
 		"start": "node build/index",
 		"clean": "rimraf build",
