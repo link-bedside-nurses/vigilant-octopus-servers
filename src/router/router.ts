@@ -68,6 +68,10 @@ ROUTER.use( '/status', function ( request: express.Request, response: express.Re
     return response.status( StatusCodes.OK ).send( { message: 'Server is online!', requestHeaders: request.headers } )
 } )
 
+ROUTER.use( '/', function ( request: express.Request, response: express.Response ) {
+    return response.status( StatusCodes.NOT_FOUND ).send( { message: 'SERVER IS ONLINE!', requestHeaders: request.headers } )
+} )
+
 ROUTER.use( '*', function ( request: express.Request, response: express.Response ) {
     return response.status( StatusCodes.NOT_FOUND ).send( { message: 'NOT FOUND!', requestHeaders: request.headers } )
 } )
