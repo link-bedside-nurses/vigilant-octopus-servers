@@ -115,7 +115,7 @@ export function confirmAppointment() {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
 					data: null,
-					message: 'Could not confirm appointment. This appointment has not been scheduled yet',
+					message: 'Could not confirm appointment.',
 				},
 			}
 		}
@@ -148,7 +148,7 @@ export function cancelAppointment() {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
 					data: null,
-					message: 'Could not cancel appointment. This appointment has not been scheduled yet',
+					message: 'Could not cancel appointment.',
 				},
 			}
 		}
@@ -159,7 +159,7 @@ export function cancelAppointment() {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: appointment,
-				message: 'Appointment has been confirmed and initiated',
+				message: 'Appointment has been confirmed',
 			},
 		}
 	}
@@ -174,7 +174,7 @@ export function getAppointment() {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
 					data: null,
-					message: 'Could not get appointment. This appointment has not been scheduled yet',
+					message: 'Could not get appointment.',
 				},
 			}
 		}
