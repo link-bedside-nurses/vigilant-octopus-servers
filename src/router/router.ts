@@ -43,6 +43,9 @@ ROUTER.use(
     rateLimit( {
         windowMs: ONE_MINUTE,
         limit: EnvironmentVars.getNodeEnv() === 'production' ? 10 : Number.MAX_SAFE_INTEGER,
+        validate: {
+            trustProxy: false
+        }
     } ),
 )
 
