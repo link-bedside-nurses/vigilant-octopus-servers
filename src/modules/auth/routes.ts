@@ -22,7 +22,7 @@ router.post( '/admin/signup', callback( adminSignup() ) )
 router.post( '/caregiver/signin', callback( caregiverSignin() ) )
 router.post( '/patient/signin', callback( patientSignin() ) )
 router.post( '/admin/signin', callback( adminSignin() ) )
-router.delete( '/account/delete', callback( deleteAccount() ) )
+router.delete( '/accounts/deletion', callback( deleteAccount() ) )
 
 // router.post( '/reset-password/:id', callback( passwordReset() ) )
 router.get( '/token/refresh', verifyRefreshTokenMiddleware, callback( getAccessToken() ) )
