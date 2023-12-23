@@ -19,6 +19,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import { appendFile } from 'fs/promises'
+import path from 'node:path'
 
 const ROUTER = express.Router()
 
@@ -27,6 +28,7 @@ ROUTER.use( compression() )
 ROUTER.use( helmet() )
 ROUTER.use( express.json() )
 ROUTER.use( express.urlencoded( { extended: true } ) )
+ROUTER.use( express.static( path.join( __dirname, 'public' ) ) );
 
 ROUTER.use( morgan( 'combined', {
     stream: {
@@ -63,6 +65,10 @@ ROUTER.use( '/otp', otpRouter )
 ROUTER.use( '/me', meRouter )
 
 ROUTER.use( errorMiddleware )
+
+ROUTER.get( '/privacy', ( _, res ) => {
+    res.sendFile( path.resolve( __dirname, "..", "..", "public", 'privacy.html' ) );
+} );
 
 ROUTER.use( '/status', function ( request: express.Request, response: express.Response ) {
     return response.status( StatusCodes.OK ).send( { message: 'Server is online!', requestHeaders: request.headers } )

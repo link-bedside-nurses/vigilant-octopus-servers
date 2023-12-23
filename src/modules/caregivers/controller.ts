@@ -1,11 +1,14 @@
 import { HTTPRequest } from '@/adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
 import { db } from '@/db'
+import mongoose from 'mongoose'
+import { Caregiver } from '@/db/schemas/Caregiver'
+import { Exception } from '@/utils'
 
 export function getAllCaregivers() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	return async function (_: HTTPRequest<object>) {
-		const caregivers = await db.caregivers.find({})
+	return async function ( _: HTTPRequest<object> ) {
+		const caregivers = await db.caregivers.find( {} )
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
@@ -22,9 +25,9 @@ export function getCaregiver() {
 			id: string
 		}>,
 	) {
-		const caregiver = await db.caregivers.findById(request.params.id)
+		const caregiver = await db.caregivers.findById( request.params.id )
 
-		if (!caregiver) {
+		if ( !caregiver ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -50,9 +53,9 @@ export function deleteCaregiver() {
 			id: string
 		}>,
 	) {
-		const caregiver = await db.caregivers.findByIdAndDelete(request.params.id)
+		const caregiver = await db.caregivers.findByIdAndDelete( request.params.id )
 
-		if (!caregiver) {
+		if ( !caregiver ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -97,9 +100,9 @@ export function updateCaregiver() {
 			UpdateBody
 		>,
 	) {
-		const caregiver = await db.caregivers.findByIdAndUpdate(request.params.id, { ...request.body }, { new: true })
+		const caregiver = await db.caregivers.findByIdAndUpdate( request.params.id, { ...request.body }, { new: true } )
 
-		if (!caregiver) {
+		if ( !caregiver ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -134,7 +137,7 @@ export function deactivateCaregiver() {
 			{ new: true },
 		)
 
-		if (!caregiver) {
+		if ( !caregiver ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -149,6 +152,78 @@ export function deactivateCaregiver() {
 			body: {
 				data: caregiver,
 				message: 'Account successfully deactivated',
+			},
+		}
+	}
+}
+
+
+const locationBasedSearch = async ( params: {
+	location: { lat: number; lng: number };
+	distance?: number; // in kilometres
+	criteria?: string;
+} ) => {
+	console.log( params );
+	const { location: coords, distance: radiusInKm = 8.8 } = params;
+
+	// validating search criteria query option
+
+	// get location coords
+	const searchRadius = radiusInKm / 1.60934 / 3963.2;
+	const longitude = coords.lng;
+	const latitude = coords.lat;
+
+	// query filter ...
+	let queryFilter: mongoose.FilterQuery<Caregiver> = {};
+
+	queryFilter = {
+		...queryFilter,
+		location: {
+			$geoWithin: {
+				$centerSphere: [[longitude, latitude], searchRadius],
+			},
+		},
+	};
+
+	// search through the database
+	const resultingCaregivers = await db.caregivers.find( {
+		...queryFilter,
+	} );
+
+	return resultingCaregivers;
+};
+
+export function searchCaregiversByLocation() {
+	return async function (
+		req: HTTPRequest<object, object,
+			{
+				lat: string; lng: string; distance: string
+			}
+		>,
+	) {
+		const queryParams = req.query
+
+		console.log( queryParams )
+
+		if ( !queryParams.lat || !queryParams.lng ) {
+			throw new Exception( `Provide both 'lat' and 'lng' as query params` );
+		}
+		const latitude: number = parseFloat( queryParams.lat );
+		const longitude: number = parseFloat( queryParams.lng );
+
+		// filters
+		let filter: Partial<{ distance: number }> = {};
+		if ( queryParams.distance ) {
+			filter = { ...filter, distance: parseFloat( queryParams.distance ) };
+		}
+
+		const caregivers = await locationBasedSearch( { location: { lat: latitude, lng: longitude }, ...filter } );
+
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: caregivers || [],
+				message: caregivers.length > 0 ? `Found ${caregivers.length} result(s)` : "No results found",
 			},
 		}
 	}

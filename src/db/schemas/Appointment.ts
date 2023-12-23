@@ -31,7 +31,6 @@ export class Appointment {
 	@prop( { ref: () => Caregiver, foreignField: "_id", localField: "caregiverId", justOne: true } )
 	caregiver?: Ref<Caregiver>
 
-
 	@prop( { required: true, index: true } )
 	title!: string
 

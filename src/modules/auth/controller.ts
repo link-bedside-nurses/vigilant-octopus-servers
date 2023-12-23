@@ -347,6 +347,19 @@ export function adminSignin() {
 	}
 }
 
+export function deleteAccount() {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	return async function ( _: HTTPRequest<object, object, object> ) {
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: null,
+				message: 'account deleted',
+			},
+		}
+	}
+}
+
 export function getAccessToken() {
 	return async function ( request: HTTPRequest<object, object, { designation: DESIGNATION }> ) {
 		const designation = request.query.designation

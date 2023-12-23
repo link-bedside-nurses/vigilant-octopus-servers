@@ -7,7 +7,7 @@ class Coordinates {
 	lat!: number
 
 	@prop( { type: Number } )
-	lon!: number
+	lng!: number
 }
 
 @modelOptions( { schemaOptions: { _id: false, versionKey: false }, options: { allowMixed: Severity.ALLOW } } )
