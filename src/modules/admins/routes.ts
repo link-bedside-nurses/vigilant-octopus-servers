@@ -1,6 +1,5 @@
 import callback from '@/adapters/express-callback'
 import { Router } from 'express'
-
 import authenticate from '@/middlewares/authentication'
 import {
 	getAllAdmins,

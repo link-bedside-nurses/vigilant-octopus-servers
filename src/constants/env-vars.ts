@@ -18,6 +18,9 @@ const env = envalid.cleanEnv( process.env, {
 
   VERIFICATION_CODE_LENGTH: envalid.num(),
 
+  REDIS_URL: envalid.str(),
+  REDISCLI_AUTH: envalid.str(),
+
   FROM_SMS_PHONE: envalid.str(),
   TO_SMS_PHONE: envalid.str(),
   TWILIO_ACCOUNT_SID: envalid.str(),
@@ -51,6 +54,9 @@ export default Object.freeze( {
   getEmailServicePassword: () => String( env.APP_EMAIL_SERVICE_PASSWORD ),
 
   getVerificationCodeLength: () => Number( env.VERIFICATION_CODE_LENGTH ),
+
+  getRedisURL: () => String( env.REDIS_URL ),
+  getRedisCLIAuth: () => String( env.REDISCLI_AUTH ),
 
   getFromSMSPhone: () => String( env.FROM_SMS_PHONE ),
   getTO_SMS_Phone: () => String( env.TO_SMS_PHONE ),
