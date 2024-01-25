@@ -59,6 +59,7 @@ async function seedDatabase() {
 				description: faker.person.bio(),
 				rating: i % 5 + 1,
 				placeOfReception: faker.location.city(),
+				address: faker.location.city(),
 				speciality: faker.helpers.arrayElements( ['elderly', 'infant', 'dental', 'women'], 2 ),
 				languages: faker.helpers.arrayElement( ['English', 'Luganda', 'kiswahili'] ),
 				affiliations: faker.helpers.arrayElements( ['Affiliation1', 'Affiliation2', 'Affiliation3', 'Affiliation1'], 2 ),
@@ -78,9 +79,7 @@ async function seedDatabase() {
 		console.log( 'Seed data inserted successfully!' );
 	} catch ( error ) {
 		console.error( 'Error seeding database:', error );
-	} finally {
 
-		mongoose.disconnect();
 	}
 }
 

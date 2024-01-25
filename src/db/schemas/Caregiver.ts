@@ -90,6 +90,9 @@ export class Caregiver {
 	@prop( { type: String, required: false, default: '', trim: true } )
 	placeOfReception?: string
 
+	@prop( { type: String, required: false, default: '', trim: true } )
+	address?: string
+
 	@prop( { type: () => [String], required: false, default: [] } )
 	speciality?: string[]
 

@@ -33,7 +33,7 @@ const server = app.listen( EnvironmentVars.getPort(), async () => {
 
 	await connectToDatabase()
 
-	await createRedisClient()
+	createRedisClient()
 } )
 const shutdownSignals = ['SIGTERM', 'SIGINT']
 
@@ -45,7 +45,7 @@ function gracefulShutdown( signal: string ) {
 	process.on( signal, async () => {
 		await disconnectFromDatabase()
 
-		await ( await createRedisClient() ).disconnect()
+		await ( createRedisClient() ).disconnect()
 		server.close( error => {
 			logger.error( error, 'Failed to close server. Server was not open!' )
 		} )
