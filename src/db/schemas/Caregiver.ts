@@ -45,6 +45,7 @@ export class Caregiver {
 		required: true,
 		trim: true,
 		enum: [DESIGNATION.PATIENT, DESIGNATION.NURSE, DESIGNATION.ADMIN],
+		default: DESIGNATION.NURSE
 	} )
 	designation!: DESIGNATION
 
@@ -57,10 +58,10 @@ export class Caregiver {
 	} )
 	phone!: string
 
-	@prop( { type: String, required: true, minlength: 3, maxlength: 250, trim: true } )
+	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
 	firstName!: string
 
-	@prop( { type: String, required: true, minlength: 3, maxlength: 250, trim: true } )
+	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
 	lastName!: string
 
 	@prop( { type: String, required: true } )

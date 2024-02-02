@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { HTTPRequest } from '@/adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
 import { db } from '@/db'
@@ -6,10 +7,31 @@ export function getAllAdmins() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function ( _: HTTPRequest<object> ) {
 		const admins = await db.admins.find( {} )
+
+		const t: unknown[] = []
+		admins.forEach( admin => {
+
+			const c = {
+				_id: admin._id,
+				designation: admin.designation,
+				phone: admin.phone,
+				firstName: admin.firstName,
+				lastName: admin.lastName,
+				isBanned: admin.isBanned === true ? "TRUE" : "FALSE",
+				isPhoneVerified: admin.isPhoneVerified === true ? "TRUE" : "FALSE",
+				isDeactivated: admin.isDeactivated === true ? "TRUE" : "FALSE",
+				// @ts-ignore
+				createdAt: admin.createdAt,
+				// @ts-ignore
+				updatedAt: admin.updatedAt,
+			}
+
+			t.push( c )
+		} )
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
-				data: admins,
+				data: t,
 				message: 'Admins Retrieved',
 			},
 		}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { HTTPRequest } from '@/adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
 import { db } from '@/db'
@@ -9,10 +10,45 @@ export function getAllCaregivers() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function ( _: HTTPRequest<object> ) {
 		const caregivers = await db.caregivers.find( {} )
+		// @ts-ignore
+		const t: unknown[] = []
+		caregivers.forEach( caregiver => {
+
+			const c = {
+				_id: caregiver._id,
+				designation: caregiver.designation,
+				phone: caregiver.phone,
+				firstName: caregiver.firstName,
+				lastName: caregiver.lastName,
+				// email: caregiver.email,
+				lat: caregiver.location.coords.lat,
+				lng: caregiver.location.coords.lng,
+				isPhoneVerified: caregiver.isPhoneVerified === true ? "TRUE" : "FALSE",
+				isBanned: caregiver.isBanned === true ? "TRUE" : "FALSE",
+				isVerified: caregiver.isVerified === true ? "TRUE" : "FALSE",
+				isDeactivated: caregiver.isDeactivated === true ? "TRUE" : "FALSE",
+				// @ts-ignore
+				createdAt: caregiver?.createdAt,
+				// @ts-ignore
+				updatedAt: caregiver?.updatedAt,
+				dateOfBirth: caregiver.dateOfBirth,
+				nin: caregiver.nin,
+				medicalLicenseNumber: caregiver.medicalLicenseNumber,
+				description: caregiver.description,
+				rating: caregiver.rating,
+				placeOfReception: caregiver.placeOfReception,
+				address: caregiver.address,
+				experience: caregiver.experience,
+				imgUrl: caregiver.imgUrl,
+			}
+
+			t.push( c )
+		} )
+
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
-				data: caregivers,
+				data: t,
 				message: 'caregivers Retrieved',
 			},
 		}

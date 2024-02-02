@@ -1,6 +1,28 @@
 import { DESIGNATION } from '@/interfaces/designations'
 import { modelOptions, prop, Severity } from '@typegoose/typegoose'
 
+
+@modelOptions( { schemaOptions: { _id: false, versionKey: false } } )
+class Coordinates {
+	@prop( { type: Number } )
+	lat!: number
+
+	@prop( { type: Number } )
+	lng!: number
+}
+
+@modelOptions( { schemaOptions: { _id: false, versionKey: false }, options: { allowMixed: Severity.ALLOW } } )
+class Location {
+	@prop( { type: () => Coordinates } )
+	coords!: Coordinates
+
+	@prop( { type: String, default: 'Point', enum: ['Point'] } )
+	type?: string
+
+	@prop( { type: [Number] } )
+	coordinates!: number[]
+}
+
 @modelOptions( {
 	schemaOptions: {
 		id: false,
@@ -34,10 +56,10 @@ export class Patient {
 	} )
 	phone!: string
 
-	@prop( { type: String, required: true, minlength: 3, maxlength: 250, trim: true } )
+	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
 	firstName!: string
 
-	@prop( { type: String, required: true, minlength: 3, maxlength: 250, trim: true } )
+	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
 	lastName!: string
 
 	@prop( {
@@ -53,24 +75,8 @@ export class Patient {
 	@prop( { type: String, required: true, default: new Date().toISOString() } )
 	dob!: string
 
-	@prop( {
-		type: Object,
-		required: false,
-		default: {
-			place: '',
-			coordinates: {
-				lng: 0,
-				lat: 0,
-			},
-		},
-	} )
-	location?: {
-		place: string
-		coordinates: {
-			lng: number
-			lat: number
-		}
-	}
+	@prop( { type: () => Location, index: '2dsphere' } )
+	location!: Location
 
 	@prop( { type: Boolean, required: false, default: false } )
 	isPhoneVerified?: boolean

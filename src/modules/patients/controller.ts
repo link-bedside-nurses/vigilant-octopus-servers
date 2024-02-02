@@ -1,15 +1,42 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { HTTPRequest } from '@/adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
 import { db } from '@/db'
 
 export function getAllPatients() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	return async function (_: HTTPRequest<object>) {
-		const patients = await db.patients.find({ designation: 'PATIENT' })
+	return async function ( _: HTTPRequest<object> ) {
+		const patients = await db.patients.find( { designation: 'PATIENT' } )
+		// @ts-ignore
+		const t: unknown[] = []
+		patients.forEach( patient => {
+
+			const p = {
+				_id: patient._id,
+				designation: patient.designation,
+				phone: patient.phone,
+				firstName: patient.firstName,
+				lastName: patient.lastName,
+				email: patient.email,
+				dob: patient.dob,
+				lat: patient.location.coords.lat,
+				lng: patient.location.coords.lng,
+				isPhoneVerified: patient.isPhoneVerified === true ? "TRUE" : "FALSE",
+				isBanned: patient.isBanned === true ? "TRUE" : "FALSE",
+				isVerified: patient.isVerified === true ? "TRUE" : "FALSE",
+				isDeactivated: patient.isDeactivated === true ? "TRUE" : "FALSE",
+				// @ts-ignore
+				createdAt: patient?.createdAt,
+				// @ts-ignore
+				updatedAt: patient?.updatedAt,
+			}
+			t.push( p )
+		} )
+
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
-				data: patients,
+				data: t,
 				message: 'Patients Retrieved',
 			},
 		}
@@ -22,9 +49,9 @@ export function getPatient() {
 			id: string
 		}>,
 	) {
-		const patient = await db.patients.findById(request.params.id)
+		const patient = await db.patients.findById( request.params.id )
 
-		if (!patient) {
+		if ( !patient ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -50,9 +77,9 @@ export function deletePatient() {
 			id: string
 		}>,
 	) {
-		const patient = await db.patients.findByIdAndDelete(request.params.id)
+		const patient = await db.patients.findByIdAndDelete( request.params.id )
 
-		if (!patient) {
+		if ( !patient ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -87,9 +114,9 @@ export function updatePatient() {
 			UpdateBody
 		>,
 	) {
-		const patient = await db.patients.findByIdAndUpdate(request.params.id, { ...request.body }, { new: true })
+		const patient = await db.patients.findByIdAndUpdate( request.params.id, { ...request.body }, { new: true } )
 
-		if (!patient) {
+		if ( !patient ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
@@ -124,7 +151,7 @@ export function deactivatePatient() {
 			{ new: true },
 		)
 
-		if (!patient) {
+		if ( !patient ) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {

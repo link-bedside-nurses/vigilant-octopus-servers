@@ -16,7 +16,7 @@ import isBanned from '@/middlewares/is-banned'
 
 const router = Router()
 
-router.get( '/', authenticate, isAdmin, isBanned, callback( getAllAdmins() ) )
+router.get( '/', authenticate, isBanned, callback( getAllAdmins() ) )
 router.get( '/:id', authenticate, isAdmin, isBanned, callback( getAdmin() ) )
 router.patch( '/:id', authenticate, isAdmin, isBanned, callback( updateAdmin() ) )
 
