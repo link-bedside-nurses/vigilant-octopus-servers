@@ -31,7 +31,7 @@ export function getAllAdmins() {
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
-				data: t,
+				data: t.reverse(),
 				message: 'Admins Retrieved',
 			},
 		}

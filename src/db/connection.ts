@@ -32,7 +32,7 @@ export async function disconnectFromDatabase() {
 	}
 }
 
-async function seedDatabase() {
+export async function seedDatabase() {
 	try {
 		await seedCaregivers()
 		await seedPatients()
@@ -40,6 +40,7 @@ async function seedDatabase() {
 		await seedAppointments()
 		await seedRatings()
 		await seedPayments()
+
 
 		console.log( 'Seed data inserted successfully!' );
 	} catch ( error ) {

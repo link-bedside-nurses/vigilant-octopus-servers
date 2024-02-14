@@ -5,7 +5,7 @@ import { db } from '@/db'
 export function getAllRatings() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function ( _: HTTPRequest<object> ) {
-		const ratings = await db.ratings.find( {} ).populate( 'patientId' ).populate( 'caregiverId' )
+		const ratings = await db.ratings.find( {} ).populate( 'patient', )
 
 		return {
 			statusCode: StatusCodes.OK,

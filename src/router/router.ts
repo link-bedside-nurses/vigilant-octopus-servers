@@ -21,7 +21,7 @@ import morgan from 'morgan'
 import { appendFile } from 'fs/promises'
 import path from 'node:path'
 
-const ROUTER = express.Router()
+const ROUTER = express.Router();
 
 ROUTER.use( cors() )
 ROUTER.use( compression() )

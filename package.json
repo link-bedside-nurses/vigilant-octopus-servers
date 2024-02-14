@@ -50,6 +50,7 @@
 		"vitest": "^0.34.6"
 	},
 	"dependencies": {
+		"@ngrok/ngrok": "^1.0.0",
 		"@typegoose/typegoose": "^11.4.1",
 		"@types/uuid": "^9.0.7",
 		"argon2": "^0.31.0",

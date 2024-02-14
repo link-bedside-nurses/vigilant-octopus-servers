@@ -1,7 +1,6 @@
 import { DESIGNATION } from '@/interfaces/designations'
 import { modelOptions, prop, Severity } from '@typegoose/typegoose'
 
-
 @modelOptions( { schemaOptions: { _id: false, versionKey: false } } )
 class Coordinates {
 	@prop( { type: Number } )
@@ -18,9 +17,6 @@ class Location {
 
 	@prop( { type: String, default: 'Point', enum: ['Point'] } )
 	type?: string
-
-	@prop( { type: [Number] } )
-	coordinates!: number[]
 }
 
 @modelOptions( {
