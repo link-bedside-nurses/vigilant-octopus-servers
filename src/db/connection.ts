@@ -43,7 +43,6 @@ export async function seedDatabase() {
 		await seedRatings()
 		await seedPayments()
 
-
 		console.log( 'Seed data inserted successfully!' );
 	} catch ( error ) {
 		console.error( 'Error seeding database:', error );
