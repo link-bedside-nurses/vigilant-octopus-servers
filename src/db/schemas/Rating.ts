@@ -17,7 +17,7 @@ import { Severity, modelOptions, prop } from '@typegoose/typegoose'
 } )
 export class Rating {
 	@prop( { required: true, ref: 'Patient', index: true } )
-	patient!: string
+	patientId!: string
 
 	@prop( { required: true, ref: 'Caregiver', index: true } )
 	caregiverId!: string

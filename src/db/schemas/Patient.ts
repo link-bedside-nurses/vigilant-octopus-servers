@@ -11,7 +11,7 @@ class Coordinates {
 }
 
 @modelOptions( { schemaOptions: { _id: false, versionKey: false }, options: { allowMixed: Severity.ALLOW } } )
-class Location {
+export class Location {
 	@prop( { type: () => Coordinates } )
 	coords!: Coordinates
 
@@ -71,8 +71,24 @@ export class Patient {
 	@prop( { type: String, required: true, default: new Date().toISOString() } )
 	dob!: string
 
-	@prop( { type: () => Location, index: '2dsphere' } )
-	location!: Location
+	@prop( {
+		type: Object,
+		required: false,
+		default: {
+			place: '',
+			coordinates: {
+				lng: 0,
+				lat: 0,
+			},
+		},
+	} )
+	location?: {
+		place: string
+		coordinates: {
+			lng: number
+			lat: number
+		}
+	}
 
 	@prop( { type: Boolean, required: false, default: false } )
 	isPhoneVerified?: boolean

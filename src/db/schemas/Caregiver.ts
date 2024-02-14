@@ -10,6 +10,7 @@ class Coordinates {
 	lng!: number
 }
 
+
 @modelOptions( { schemaOptions: { _id: false, versionKey: false }, options: { allowMixed: Severity.ALLOW } } )
 class Location {
 	@prop( { type: () => Coordinates } )

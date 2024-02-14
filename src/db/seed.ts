@@ -12,7 +12,7 @@ export async function seedPayments() {
 	const appointmentIds = ( await db.appointments.find( {} ) ).map( a => a._id )
 
 	const payments = []
-	for ( let i = 0; i < 1500; i++ ) {
+	for ( let i = 0; i < 100; i++ ) {
 		const payment: Payment = {
 			patientId: faker.helpers.arrayElement( patientIds ) as unknown as string,
 			appointmentId: faker.helpers.arrayElement( appointmentIds ) as unknown as string,
@@ -33,7 +33,7 @@ export async function seedAppointments() {
 	const patientIds = ( await db.patients.find( {} ) ).map( p => p._id )
 
 	const appointments = []
-	for ( let i = 0; i < 1500; i++ ) {
+	for ( let i = 0; i < 100; i++ ) {
 		const appointment = {
 			patientId: faker.helpers.arrayElement( patientIds ) as unknown as string,
 			caregiverId: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
@@ -57,7 +57,7 @@ export async function seedRatings() {
 	const patientIds = ( await db.patients.find( {} ) ).map( p => p._id )
 
 	const ratings = []
-	for ( let i = 0; i < 1500; i++ ) {
+	for ( let i = 0; i < 100; i++ ) {
 		const rating = {
 			patientId: faker.helpers.arrayElement( patientIds ) as unknown as string,
 			caregiverId: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
@@ -80,7 +80,7 @@ export async function seedCaregivers() {
 	};
 
 	const caregivers = [];
-	for ( let i = 0; i < 1500; i++ ) {
+	for ( let i = 0; i < 20; i++ ) {
 		const caregiver = {
 			designation: DESIGNATION.NURSE,
 			phone: `256456789${i.toString().padStart( 2, '0' )}`,
@@ -120,7 +120,7 @@ export async function seedPatients() {
 	};
 	await db.patients.deleteMany( {}, { maxTimeMS: 30000 } )
 	const patients = []
-	for ( let i = 0; i < 1500; i++ ) {
+	for ( let i = 0; i < 100; i++ ) {
 		const patient = {
 			designation: DESIGNATION.PATIENT,
 			phone: `256456789${i.toString().padStart( 2, '0' )}`,

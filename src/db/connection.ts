@@ -8,7 +8,7 @@ import { seedCaregivers, seedPatients, seedAdmins, seedPayments, seedAppointment
 const DATABASE_CONNECTION_URI = EnvironmentVars.getDatabaseUrl()
 const DATABASE_NAME = EnvironmentVars.getDatabaseName()
 
-console.log( "DRBRBRB::", DATABASE_CONNECTION_URI, DATABASE_NAME )
+// console.log( "DRBRBRB::", DATABASE_CONNECTION_URI, DATABASE_NAME )
 
 export async function connectToDatabase() {
 	try {
@@ -37,8 +37,8 @@ export async function disconnectFromDatabase() {
 export async function seedDatabase() {
 	try {
 		await seedCaregivers()
-		await seedPatients()
 		await seedAdmins()
+		await seedPatients()
 		await seedAppointments()
 		await seedRatings()
 		await seedPayments()
@@ -49,6 +49,5 @@ export async function seedDatabase() {
 		console.error( 'Error seeding database:', error );
 	}
 }
-
 
 // seedDatabase();
