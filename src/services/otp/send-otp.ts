@@ -1,20 +1,29 @@
-import * as crypto from 'crypto'
-import { EnvironmentVars } from '@/constants'
+import * as crypto from 'crypto';
 
-import twilio from 'twilio'
-
-import redis from '@/redis/client'
-
-const client = twilio( EnvironmentVars.getTwilioAccountSID(), EnvironmentVars.getTwilioAuthToken() )
+import redis from '@/redis/client';
+import axios from 'axios';
 
 export default async function sendOTP( phone: string, otp: string ) {
-	const message = await client.messages.create( {
-		to: phone,
-		from: EnvironmentVars.getFromSMSPhone(),
-		body: `Your OTP is: ${otp}`,
-	} )
+	const response = await axios.post( "https://k24n8x.api.infobip.com//sms/2/text/advanced",
+		{
+			"messages": [
+				{
+					"destinations": [{ "to": phone }],
+					"from": "ServiceSMS",
+					"text": "LINKBEDSIDES::Your OTP is " + otp,
+				}
+			]
+		}
+		, {
+			headers: {
+				Authorization: `App 6425cb63cf8f4bbc854a39fa6fc4987d-56bd56ad-d2ff-474a-aa0a-e8092a2a9f89`,
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			},
+			maxRedirects: 20
+		} )
 
-	return message
+	return response
 }
 
 export function generateOTP() {
@@ -26,14 +35,14 @@ export function generateOTP() {
 }
 
 export async function storeOTP( phone: string, otp: string ): Promise<void> {
-	const client = await redis()
+	const client = redis()
 	await client.set( phone, otp )
 	const TWO_MINUTES = 2 * 60
 	await client.expire( phone, TWO_MINUTES )
 }
 
 export async function getOTPFromRedis( phone: string ): Promise<string | null> {
-	const client = await redis()
+	const client = redis()
 	const otp = await client.get( phone )
 	return otp
 }

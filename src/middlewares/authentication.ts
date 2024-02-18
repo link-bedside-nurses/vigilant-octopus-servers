@@ -22,6 +22,7 @@ export default function authenticate( request: Request, _response: Response, nex
 	request.account = {
 		id: decoded.id,
 		phone: decoded.phone,
+		email: decoded.email,
 		designation: decoded.designation,
 	}
 	next()

@@ -5,7 +5,8 @@ export type DESIGNATION = 'PATIENT' | 'NURSE' | 'ADMIN'
 export interface ACCOUNT {
 	id: string
 	designation: DESIGNATION
-	phone: string
+	phone?: string,
+	email?: string
 }
 
 declare global {

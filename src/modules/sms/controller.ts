@@ -1,29 +1,20 @@
 import { HTTPRequest } from '@/adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { generateOTP, getOTPFromRedis, storeOTP } from '@/services/otp/send-otp'
-import { EnvironmentVars } from '@/constants'
-import twilio from 'twilio'
 import { DESIGNATION } from '@/interfaces/designations'
 import { db } from '@/db'
 import { ACCOUNT } from '@/interfaces'
-import { createAccessToken, createRefreshToken } from '@/services/token/token'
+import { createAccessToken } from '@/services/token/token'
 import { Document } from 'mongoose'
-
-const client = twilio( EnvironmentVars.getTwilioAccountSID(), EnvironmentVars.getTwilioAuthToken() )
+import sendOTP, { generateOTP, storeOTP, getOTPFromRedis } from '@/services/otp/send-otp'
 
 export function getOTP() {
 	return async function ( request: HTTPRequest<object, object, { toPhone: string }> ) {
-		console.log( "request: ", request )
-
 		try {
 			const otp = generateOTP()
 
 			await storeOTP( request.query.toPhone, otp.toString() )
-			const message = await client.messages.create( {
-				to: `+${request.query.toPhone}`,
-				from: EnvironmentVars.getFromSMSPhone(),
-				body: `Your OTP is: ${otp}`,
-			} )
+
+			const message = await sendOTP( request.query.toPhone, String( otp ) )
 
 			return {
 				statusCode: StatusCodes.OK,
@@ -33,8 +24,6 @@ export function getOTP() {
 				},
 			}
 		} catch ( error ) {
-			console.log( "error: ", error )
-
 			return {
 				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
 				body: {
@@ -94,14 +83,12 @@ export function verifyOTP() {
 				user = await user.save()
 
 				const accessToken = createAccessToken( user as Document & ACCOUNT )
-				const refreshToken = createRefreshToken( user as Document & ACCOUNT )
 
 				return {
 					statusCode: StatusCodes.OK,
 					body: {
 						data: user,
 						accessToken,
-						refreshToken,
 						message: 'OTP has been Verified',
 					},
 				}

@@ -11,44 +11,44 @@ export function getAllCaregivers() {
 	return async function ( _: HTTPRequest<object> ) {
 		const caregivers = await db.caregivers.find( {} )
 		// @ts-ignore
-		const t: unknown[] = []
-		caregivers.forEach( caregiver => {
+		// const t: unknown[] = []
+		// caregivers.forEach( caregiver => {
 
-			const c = {
-				_id: caregiver._id,
-				designation: caregiver.designation,
-				phone: caregiver.phone,
-				firstName: caregiver.firstName,
-				lastName: caregiver.lastName,
-				// email: caregiver.email,
-				lat: caregiver.location.coords.lat,
-				lng: caregiver.location.coords.lng,
-				isPhoneVerified: caregiver.isPhoneVerified === true ? "TRUE" : "FALSE",
-				isBanned: caregiver.isBanned === true ? "TRUE" : "FALSE",
-				isVerified: caregiver.isVerified === true ? "TRUE" : "FALSE",
-				isDeactivated: caregiver.isDeactivated === true ? "TRUE" : "FALSE",
-				// @ts-ignore
-				createdAt: caregiver?.createdAt,
-				// @ts-ignore
-				updatedAt: caregiver?.updatedAt,
-				dateOfBirth: caregiver.dateOfBirth,
-				nin: caregiver.nin,
-				medicalLicenseNumber: caregiver.medicalLicenseNumber,
-				description: caregiver.description,
-				rating: caregiver.rating,
-				placeOfReception: caregiver.placeOfReception,
-				address: caregiver.address,
-				experience: caregiver.experience,
-				imgUrl: caregiver.imgUrl,
-			}
+		// 	const c = {
+		// 		_id: caregiver._id,
+		// 		designation: caregiver.designation,
+		// 		phone: caregiver.phone,
+		// 		firstName: caregiver.firstName,
+		// 		lastName: caregiver.lastName,
+		// 		// email: caregiver.email,
+		// 		lat: caregiver.location.coords.lat,
+		// 		lng: caregiver.location.coords.lng,
+		// 		isPhoneVerified: caregiver.isPhoneVerified === true ? "TRUE" : "FALSE",
+		// 		isBanned: caregiver.isBanned === true ? "TRUE" : "FALSE",
+		// 		isVerified: caregiver.isVerified === true ? "TRUE" : "FALSE",
+		// 		isDeactivated: caregiver.isDeactivated === true ? "TRUE" : "FALSE",
+		// 		// @ts-ignore
+		// 		createdAt: caregiver?.createdAt,
+		// 		// @ts-ignore
+		// 		updatedAt: caregiver?.updatedAt,
+		// 		dateOfBirth: caregiver.dateOfBirth,
+		// 		nin: caregiver.nin,
+		// 		medicalLicenseNumber: caregiver.medicalLicenseNumber,
+		// 		description: caregiver.description,
+		// 		rating: caregiver.rating,
+		// 		placeOfReception: caregiver.placeOfReception,
+		// 		address: caregiver.address,
+		// 		experience: caregiver.experience,
+		// 		imgUrl: caregiver.imgUrl,
+		// 	}
 
-			t.push( c )
-		} )
+		// 	t.push( c )
+		// } )
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
-				data: t,
+				data: caregivers,
 				message: 'caregivers Retrieved',
 			},
 		}

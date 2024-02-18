@@ -12,6 +12,7 @@ export function createAccessToken( user: ( Document & ACCOUNT ) | null ): string
 		{
 			id: user?._id,
 			phone: user?.phone,
+			email: user?.email,
 			designation: user?.designation,
 		},
 		EnvVars.getAccessTokenSecret() as jwt.Secret,

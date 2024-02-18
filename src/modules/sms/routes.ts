@@ -8,4 +8,4 @@ const router = Router()
 router.get( '/', callback( getOTP() ) )
 router.post( '/verify', callback( verifyOTP() ) )
 
-export default router
+export { router as otpRouter }

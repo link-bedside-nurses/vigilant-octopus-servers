@@ -8,7 +8,6 @@ import caregiverRouter from '@/modules/caregivers/routes'
 import meRouter from '@/modules/me/routes'
 import paymentsRouter from '@/modules/payments/routes'
 import adminRouter from '@/modules/admins/routes'
-import otpRouter from '@/modules/sms/routes'
 import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 import errorMiddleware from '@/middlewares/error-middleware'
@@ -20,6 +19,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import { appendFile } from 'fs/promises'
 import path from 'node:path'
+import { otpRouter } from '@/modules/sms/routes'
 
 const ROUTER = express.Router();
 
