@@ -14,16 +14,17 @@ export function getOTP() {
 
 			await storeOTP( request.query.toPhone, otp.toString() )
 
-			const message = await sendOTP( request.query.toPhone, String( otp ) )
+			const response = await sendOTP( request.query.toPhone, String( otp ) )
 
 			return {
 				statusCode: StatusCodes.OK,
 				body: {
-					data: message,
+					data: JSON.parse( response.config.data ),
 					message: 'OTP generated successfully!',
 				},
 			}
 		} catch ( error ) {
+			console.log( "error: ", error )
 			return {
 				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
 				body: {

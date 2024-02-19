@@ -8,8 +8,6 @@ import { seedCaregivers, seedPatients, seedAdmins, seedPayments, seedAppointment
 const DATABASE_CONNECTION_URI = EnvironmentVars.getDatabaseUrl()
 const DATABASE_NAME = EnvironmentVars.getDatabaseName()
 
-// console.log( "DRBRBRB::", DATABASE_CONNECTION_URI, DATABASE_NAME )
-
 export async function connectToDatabase() {
 	try {
 		const connection = await mongoose.connect( DATABASE_CONNECTION_URI, {

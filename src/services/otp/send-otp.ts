@@ -1,5 +1,4 @@
 import * as crypto from 'crypto';
-
 import redis from '@/redis/client';
 import axios from 'axios';
 
@@ -28,9 +27,7 @@ export default async function sendOTP( phone: string, otp: string ) {
 
 export function generateOTP() {
 	const buffer = crypto.randomBytes( 3 )
-
 	const otp = Number( parseInt( buffer.toString( 'hex' ), 16 ).toString().slice( 0, 6 ) )
-
 	return otp
 }
 

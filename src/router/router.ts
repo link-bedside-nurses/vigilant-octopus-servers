@@ -70,10 +70,6 @@ ROUTER.get( '/privacy', ( _, res ) => {
     res.sendFile( path.resolve( __dirname, "..", "..", "public", 'privacy.html' ) );
 } );
 
-ROUTER.use( '/status', function ( request: express.Request, response: express.Response ) {
-    return response.status( StatusCodes.OK ).send( { message: 'Server is online!', requestHeaders: request.headers } )
-} )
-
 ROUTER.use( '/', function ( request: express.Request, response: express.Response ) {
     return response.status( StatusCodes.NOT_FOUND ).send( { message: 'SERVER IS ONLINE!', requestHeaders: request.headers } )
 } )
