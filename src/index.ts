@@ -5,15 +5,18 @@ import "dotenv/config";
 import express from "express";
 import { EnvironmentVars } from "./constants";
 import { connectToDatabase, disconnectFromDatabase } from "./db/connection";
-import ROUTER from "./router/router";
+import router from "./router/router";
 import logger from "./utils/logger";
+import morganBody from "morgan-body";
 
 replaceTscAliasPaths().catch( ( err: Error ) => logger.info( err.message ) );
 
 const app = express();
 
+morganBody( app );
+
 app.set( "trust proxy", false );
-app.use( ROUTER );
+app.use( router );
 
 process.on( "unhandledRejection", ( reason, promise ) => {
 	logger.error( "Unhandled Rejection at:", {

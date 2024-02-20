@@ -22,16 +22,16 @@ import errorMiddleware from '../middlewares/error-middleware'
 import { otpRouter } from '../modules/sms/routes'
 import { html } from '../privacy'
 
-const ROUTER = express.Router();
+const router = express.Router();
 
-ROUTER.use( cors() )
-ROUTER.use( compression() )
-ROUTER.use( helmet() )
-ROUTER.use( express.json() )
-ROUTER.use( express.urlencoded( { extended: true } ) )
-ROUTER.use( express.static( path.join( __dirname, 'public' ) ) );
+router.use( cors() )
+router.use( compression() )
+router.use( helmet() )
+router.use( express.json() )
+router.use( express.urlencoded( { extended: true } ) )
+router.use( express.static( path.join( __dirname, 'public' ) ) );
 
-ROUTER.use( morgan( 'combined', {
+router.use( morgan( 'combined', {
     stream: {
         async write( str ) {
             const log = new Uint8Array( Buffer.from( str ) );
@@ -42,7 +42,7 @@ ROUTER.use( morgan( 'combined', {
 } ) )
 
 const ONE_MINUTE = 1 * 60 * 1000
-ROUTER.use(
+router.use(
     rateLimit( {
         windowMs: ONE_MINUTE,
         limit: EnvironmentVars.getNodeEnv() === 'production' ? 10 : Number.MAX_SAFE_INTEGER,
@@ -53,32 +53,32 @@ ROUTER.use(
     } ),
 )
 
-ROUTER.use( '/test', testRouter )
-ROUTER.use( '/auth', authRouter )
-ROUTER.use( '/appointments', appointmentRouter )
-ROUTER.use( '/profile', profileRouter )
-ROUTER.use( '/ratings', ratingsRouter )
-ROUTER.use( '/patients', patientRouter )
-ROUTER.use( '/caregivers', caregiverRouter )
-ROUTER.use( '/admins', adminRouter )
-ROUTER.use( '/payments', paymentsRouter )
-ROUTER.use( '/otp', otpRouter )
-ROUTER.use( '/me', meRouter )
+router.use( '/test', testRouter )
+router.use( '/auth', authRouter )
+router.use( '/appointments', appointmentRouter )
+router.use( '/profile', profileRouter )
+router.use( '/ratings', ratingsRouter )
+router.use( '/patients', patientRouter )
+router.use( '/caregivers', caregiverRouter )
+router.use( '/admins', adminRouter )
+router.use( '/payments', paymentsRouter )
+router.use( '/otp', otpRouter )
+router.use( '/me', meRouter )
 
-ROUTER.use( errorMiddleware )
+router.use( errorMiddleware )
 
-ROUTER.get( '/privacy', ( _, res ) => {
+router.get( '/privacy', ( _, res ) => {
     res.setHeader( 'Content-Type', 'text/html' );
     res.send( html );
 } );
 
-ROUTER.use( '/', function ( request: express.Request, response: express.Response ) {
+router.use( '/', function ( request: express.Request, response: express.Response ) {
     return response.status( StatusCodes.NOT_FOUND ).send( { message: 'SERVER IS ONLINE!', requestHeaders: request.headers } )
 } )
 
-ROUTER.use( '*', function ( request: express.Request, response: express.Response ) {
+router.use( '*', function ( request: express.Request, response: express.Response ) {
     return response.status( StatusCodes.NOT_FOUND ).send( { message: 'NOT FOUND!', requestHeaders: request.headers } )
 } )
 
-export default ROUTER
+export default router
 
