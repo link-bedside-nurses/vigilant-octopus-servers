@@ -55,8 +55,8 @@ export default Object.freeze( {
 
   getVerificationCodeLength: () => Number( env.VERIFICATION_CODE_LENGTH ),
 
-  getRedisURL: () => String( env.REDIS_URL ),
-  getRedisCLIAuth: () => String( env.REDISCLI_AUTH ),
+  getCacheStoreURL: () => String( env.REDIS_URL ),
+  getCacheStoreCLIAuth: () => String( env.REDISCLI_AUTH ),
 
   getFromSMSPhone: () => String( env.FROM_SMS_PHONE ),
   getTO_SMS_Phone: () => String( env.TO_SMS_PHONE ),

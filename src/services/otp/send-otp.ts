@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
-import redis from '../../redis/client';
 import axios from 'axios';
+import { otpCacheStore } from '../../cache-store/client';
 
 export default async function sendOTP( phone: string, otp: string ) {
 	const response = await axios.post( "https://k24n8x.api.infobip.com//sms/2/text/advanced",
@@ -32,14 +32,9 @@ export function generateOTP() {
 }
 
 export async function storeOTP( phone: string, otp: string ): Promise<void> {
-	const client = redis()
-	await client.set( phone, otp )
-	const TWO_MINUTES = 2 * 60
-	await client.expire( phone, TWO_MINUTES )
+	otpCacheStore.set( phone, otp )
 }
 
-export async function getOTPFromRedis( phone: string ): Promise<string | null> {
-	const client = redis()
-	const otp = await client.get( phone )
-	return otp
+export async function getOTPFromCacheStore( phone: string ): Promise<string | undefined> {
+	return otpCacheStore.get( phone )
 }

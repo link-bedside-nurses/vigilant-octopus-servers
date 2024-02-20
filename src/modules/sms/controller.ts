@@ -5,16 +5,31 @@ import { db } from '../../db'
 import { ACCOUNT } from '../../interfaces'
 import { createAccessToken } from '../../services/token/token'
 import { Document } from 'mongoose'
-import sendOTP, { generateOTP, storeOTP, getOTPFromRedis } from '../../services/otp/send-otp'
+import sendOTP, { generateOTP, storeOTP, getOTPFromCacheStore } from '../../services/otp/send-otp'
+import cron from 'node-cron'
+import { otpCacheStore } from '../../cache-store/client'
 
 export function getOTP() {
+	async function expireOTPCache( phoneNumber: string ) {
+		try {
+			otpCacheStore.expire( phoneNumber );
+		} catch ( error ) {
+			console.error( 'Error expiring OTP from cache:', error );
+		}
+	}
+
 	return async function ( request: HTTPRequest<object, object, { toPhone: string }> ) {
 		try {
-			const otp = generateOTP()
+			const otp = generateOTP();
 
-			await storeOTP( request.query.toPhone, otp.toString() )
+			await storeOTP( request.query.toPhone, otp.toString() );
 
-			const response = await sendOTP( request.query.toPhone, String( otp ) )
+			// Schedule the cron job to expire OTP after 2 minutes
+			cron.schedule( '*/1 * * * *', () => {
+				expireOTPCache( request.query.toPhone );
+			} );
+
+			const response = await sendOTP( request.query.toPhone, String( otp ) );
 
 			return {
 				statusCode: StatusCodes.OK,
@@ -22,7 +37,7 @@ export function getOTP() {
 					data: JSON.parse( response.config.data ),
 					message: 'OTP generated successfully!',
 				},
-			}
+			};
 		} catch ( error ) {
 			return {
 				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
@@ -30,10 +45,11 @@ export function getOTP() {
 					data: error,
 					message: 'Failed to generate OTP',
 				},
-			}
+			};
 		}
-	}
+	};
 }
+
 
 export function verifyOTP() {
 	return async function ( request: HTTPRequest<object, { phone: string; otp: string; designation: DESIGNATION }, object> ) {
@@ -41,9 +57,9 @@ export function verifyOTP() {
 		console.log( "req: ", request.body )
 		try {
 
-			const redisOTP = await getOTPFromRedis( phone )
+			const cacheStoreOTP = await getOTPFromCacheStore( phone )
 
-			if ( !redisOTP ) {
+			if ( !cacheStoreOTP ) {
 				return {
 					statusCode: StatusCodes.BAD_REQUEST,
 					body: {
@@ -53,7 +69,7 @@ export function verifyOTP() {
 				}
 			}
 
-			if ( redisOTP === otp ) {
+			if ( cacheStoreOTP === otp ) {
 				let user
 				if ( designation === DESIGNATION.NURSE ) {
 					user = await db.caregivers.findOne( { phone } )
@@ -83,7 +99,7 @@ export function verifyOTP() {
 				user = await user.save()
 
 				const accessToken = createAccessToken( user as Document & ACCOUNT )
-
+				// otpCacheStore.expire( phone )
 				return {
 					statusCode: StatusCodes.OK,
 					body: {
