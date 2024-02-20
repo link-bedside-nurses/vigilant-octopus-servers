@@ -9,7 +9,7 @@ module.exports = {
 			watch_options: {
 				"followSymlinks": false
 			},
-			instances: "max",
+			instances: 1, // Change "max" to 1 to spawn only one instance
 			exec_mode: "cluster",
 			autorestart: true,
 			env: {
