@@ -1,6 +1,6 @@
-import { Caregiver } from '@/db/schemas/Caregiver'
-import { Patient } from '@/db/schemas/Patient'
-import { APPOINTMENT_STATUSES } from '@/interfaces/appointment-statuses'
+import { Caregiver } from '../../db/schemas/Caregiver'
+import { Patient } from '../../db/schemas/Patient'
+import { APPOINTMENT_STATUSES } from '../../interfaces/appointment-statuses'
 import { DocumentType, Ref, Severity, modelOptions, prop } from '@typegoose/typegoose'
 
 @modelOptions( {

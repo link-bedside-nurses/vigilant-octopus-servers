@@ -1,6 +1,6 @@
-import { HTTPRequest } from '@/adapters/express-callback'
+import { HTTPRequest } from '../../adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { db } from '@/db'
+import { db } from '../../db'
 
 export function completeCaregiverProfile() {
 	return async function (

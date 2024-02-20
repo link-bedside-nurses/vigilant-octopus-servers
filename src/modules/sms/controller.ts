@@ -1,11 +1,11 @@
-import { HTTPRequest } from '@/adapters/express-callback'
+import { HTTPRequest } from '../../adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { DESIGNATION } from '@/interfaces/designations'
-import { db } from '@/db'
-import { ACCOUNT } from '@/interfaces'
-import { createAccessToken } from '@/services/token/token'
+import { DESIGNATION } from '../../interfaces/designations'
+import { db } from '../../db'
+import { ACCOUNT } from '../../interfaces'
+import { createAccessToken } from '../../services/token/token'
 import { Document } from 'mongoose'
-import sendOTP, { generateOTP, storeOTP, getOTPFromRedis } from '@/services/otp/send-otp'
+import sendOTP, { generateOTP, storeOTP, getOTPFromRedis } from '../../services/otp/send-otp'
 
 export function getOTP() {
 	return async function ( request: HTTPRequest<object, object, { toPhone: string }> ) {
@@ -24,7 +24,6 @@ export function getOTP() {
 				},
 			}
 		} catch ( error ) {
-			console.log( "error: ", error )
 			return {
 				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
 				body: {

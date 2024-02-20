@@ -1,4 +1,4 @@
-import callback from '@/adapters/express-callback'
+import callback from '../../adapters/express-callback'
 import { Router } from 'express'
 
 import {
@@ -10,10 +10,10 @@ import {
 	getCaregiverAppointments,
 	deleteAppointment,
 	scheduleAppointment,
-} from '@/modules/appointments/controller'
-import authenticate from '@/middlewares/authentication'
-import { validateObjectID } from '@/middlewares/validate-objectid'
-import isBanned from '@/middlewares/is-banned'
+} from '../../modules/appointments/controller'
+import authenticate from '../../middlewares/authentication'
+import { validateObjectID } from '../../middlewares/validate-objectid'
+import isBanned from '../../middlewares/is-banned'
 
 const router = Router()
 

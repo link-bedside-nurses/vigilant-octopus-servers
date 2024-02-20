@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 import logger from '../utils/logger'
 import { EnvironmentVars } from '../constants'
-import { seedCaregivers, seedPatients, seedAdmins, seedPayments, seedAppointments, seedRatings } from '@/db/seed'
+import { seedCaregivers, seedPatients, seedAdmins, seedPayments, seedAppointments, seedRatings } from '../db/seed'
 
 
 const DATABASE_CONNECTION_URI = EnvironmentVars.getDatabaseUrl()

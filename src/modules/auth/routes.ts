@@ -1,4 +1,4 @@
-import callback from '@/adapters/express-callback'
+import callback from '../../adapters/express-callback'
 import { Router } from 'express'
 
 import {
@@ -10,8 +10,8 @@ import {
 	getAccessToken,
 	patientSignin,
 	patientSignup,
-} from '@/modules/auth/controller'
-import verifyRefreshTokenMiddleware from '@/middlewares/verify-refresh-token'
+} from '../../modules/auth/controller'
+import verifyRefreshTokenMiddleware from '../../middlewares/verify-refresh-token'
 
 const router = Router()
 

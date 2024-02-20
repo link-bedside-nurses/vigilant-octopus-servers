@@ -1,4 +1,4 @@
-import { uris } from '@/constants';
+import { uris } from '../../../constants';
 import axios from 'axios';
 import { v4 as uuid4 } from 'uuid';
 

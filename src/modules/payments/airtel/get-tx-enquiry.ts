@@ -1,4 +1,4 @@
-import { uris } from '@/constants';
+import { uris } from '../../../constants';
 import axios from 'axios';
 
 export default async function getTXEnquiry( id: string, bearer: string ) {

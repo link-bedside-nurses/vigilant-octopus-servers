@@ -1,7 +1,7 @@
-import callback from '@/adapters/express-callback'
+import callback from '../../adapters/express-callback'
 import { Router } from 'express'
 
-import { error, ping } from '@/modules/test/controller'
+import { error, ping } from '../../modules/test/controller'
 
 const router = Router()
 

@@ -1,11 +1,11 @@
-import { HTTPRequest } from '@/adapters/express-callback'
+import { HTTPRequest } from '../../adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { db } from '@/db'
-import { createAccessToken, createRefreshToken } from '@/services/token/token'
+import { db } from '../../db'
+import { createAccessToken, createRefreshToken } from '../../services/token/token'
 import { Document } from 'mongoose'
-import { ACCOUNT } from '@/interfaces'
+import { ACCOUNT } from '../../interfaces'
 import * as argon2 from 'argon2'
-import { DESIGNATION } from '@/interfaces/designations'
+import { DESIGNATION } from '../../interfaces/designations'
 
 interface SignUpBody {
 	phone: string

@@ -1,7 +1,7 @@
-import { db } from '@/db';
-import { Payment } from '@/db/schemas/Payment';
-import { APPOINTMENT_STATUSES } from '@/interfaces/appointment-statuses';
-import { DESIGNATION } from '@/interfaces/designations';
+import { db } from '../db';
+import { Payment } from '../db/schemas/Payment';
+import { APPOINTMENT_STATUSES } from '../interfaces/appointment-statuses';
+import { DESIGNATION } from '../interfaces/designations';
 import { faker } from '@faker-js/faker';
 import * as geolib from "geolib";
 

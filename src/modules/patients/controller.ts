@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { HTTPRequest } from '@/adapters/express-callback'
+import { HTTPRequest } from '../../adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { db } from '@/db'
+import { db } from '../../db'
 
 export function getAllPatients() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars

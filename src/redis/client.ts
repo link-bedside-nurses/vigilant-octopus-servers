@@ -1,6 +1,7 @@
-import { EnvironmentVars } from '@/constants'
-import { __PROD__ } from '@/constants/prod'
-import logger from '@/utils/logger'
+// import { EnvironmentVars } from '../../constants'
+import { EnvironmentVars } from '../constants'
+import { __PROD__ } from '../constants/prod'
+import logger from '../utils/logger'
 import { createClient } from 'redis'
 
 export default function createRedisClient() {

@@ -1,4 +1,4 @@
-import { DESIGNATION } from '@/interfaces/designations'
+import { DESIGNATION } from '../../interfaces/designations'
 import { modelOptions, prop, Severity } from '@typegoose/typegoose'
 
 @modelOptions( {

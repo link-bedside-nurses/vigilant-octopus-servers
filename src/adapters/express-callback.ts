@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import express from 'express'
 import { IncomingHttpHeaders } from 'http'
-import { ACCOUNT } from '@/interfaces'
+import { ACCOUNT } from '../interfaces'
 
 export interface HTTPRequest<ParamsDictionary = any, RequestBody = any, QueryDictionary = any> {
 	body: RequestBody

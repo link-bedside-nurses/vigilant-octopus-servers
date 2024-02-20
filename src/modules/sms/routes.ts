@@ -1,7 +1,7 @@
-import callback from '@/adapters/express-callback'
+import callback from '../../adapters/express-callback'
 import { Router } from 'express'
 
-import { getOTP, verifyOTP } from '@/modules/sms/controller'
+import { getOTP, verifyOTP } from '../../modules/sms/controller'
 
 const router = Router()
 

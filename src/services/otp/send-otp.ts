@@ -1,5 +1,5 @@
 import * as crypto from 'crypto';
-import redis from '@/redis/client';
+import redis from '../../redis/client';
 import axios from 'axios';
 
 export default async function sendOTP( phone: string, otp: string ) {

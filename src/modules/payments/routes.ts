@@ -1,9 +1,9 @@
-import callback from '@/adapters/express-callback'
+import callback from '../../adapters/express-callback'
 import { Router } from 'express'
 
-import authenticate from '@/middlewares/authentication'
-import { makeMomoPayement, getAllPayments, getPayment } from '@/modules/payments/controller'
-import isBanned from '@/middlewares/is-banned'
+import authenticate from '../../middlewares/authentication'
+import { makeMomoPayement, getAllPayments, getPayment } from '../../modules/payments/controller'
+import isBanned from '../../middlewares/is-banned'
 
 const router = Router()
 

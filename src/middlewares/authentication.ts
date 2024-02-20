@@ -2,9 +2,9 @@ import * as jwt from 'jsonwebtoken'
 import type { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 
-import { Exception } from '@/utils'
-import { EnvironmentVars } from '@/constants'
-import { ITokenPayload } from '@/services/token/token'
+import { Exception } from '../utils'
+import { EnvironmentVars } from '../constants'
+import { ITokenPayload } from '../services/token/token'
 
 export default function authenticate( request: Request, _response: Response, next: NextFunction ) {
 	if ( !request.headers.authorization || !request.headers.authorization.split( ' ' ).includes( 'Bearer' ) ) {

@@ -1,7 +1,7 @@
-import { HTTPRequest } from '@/adapters/express-callback'
+import { HTTPRequest } from '../../adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { db } from '@/db'
-import { DESIGNATION } from '@/interfaces/designations'
+import { db } from '../../db'
+import { DESIGNATION } from '../../interfaces/designations'
 
 export function getCurrentUser() {
 	return async function ( request: HTTPRequest<object> ) {

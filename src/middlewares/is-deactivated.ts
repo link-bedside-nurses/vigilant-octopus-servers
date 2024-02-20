@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import { DESIGNATION } from '@/interfaces/designations'
-import { db } from '@/db'
-import { Exception } from '@/utils'
+import { DESIGNATION } from '../interfaces/designations'
+import { db } from '../db'
+import { Exception } from '../utils'
 import { StatusCodes } from 'http-status-codes'
 
 export default async function isDeactivated( request: Request, _response: Response, next: NextFunction ) {

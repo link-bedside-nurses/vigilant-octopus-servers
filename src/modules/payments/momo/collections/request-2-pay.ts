@@ -1,4 +1,4 @@
-import { EnvironmentVars, uris } from '@/constants';
+import { EnvironmentVars, uris } from '../../../../constants';
 import axios from 'axios';
 import { v4 as uuidv4 } from "uuid";
 

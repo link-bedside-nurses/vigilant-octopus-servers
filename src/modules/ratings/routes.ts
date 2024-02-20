@@ -1,9 +1,9 @@
-import callback from '@/adapters/express-callback'
+import callback from '../../adapters/express-callback'
 import { Router } from 'express'
 
-import { addRating, deleteRating, getAllRatings, getRatings, getRating } from '@/modules/ratings/controller'
-import authenticate from '@/middlewares/authentication'
-import isBanned from '@/middlewares/is-banned'
+import { addRating, deleteRating, getAllRatings, getRatings, getRating } from '../../modules/ratings/controller'
+import authenticate from '../../middlewares/authentication'
+import isBanned from '../../middlewares/is-banned'
 
 const router = Router()
 

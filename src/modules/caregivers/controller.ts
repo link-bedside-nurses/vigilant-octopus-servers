@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { HTTPRequest } from '@/adapters/express-callback'
+import { HTTPRequest } from '../../adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
-import { db } from '@/db'
+import { db } from '../../db'
 import mongoose from 'mongoose'
-import { Caregiver } from '@/db/schemas/Caregiver'
-import { Exception } from '@/utils'
+import { Caregiver } from '../../db/schemas/Caregiver'
+import { Exception } from '../../utils'
 
 export function getAllCaregivers() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars

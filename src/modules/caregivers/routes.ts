@@ -1,4 +1,4 @@
-import callback from '@/adapters/express-callback'
+import callback from '../../adapters/express-callback'
 import { Router } from 'express'
 
 import {
@@ -8,9 +8,9 @@ import {
 	getCaregiver,
 	searchCaregiversByLocation,
 	updateCaregiver,
-} from '@/modules/caregivers/controller'
-import authenticate from '@/middlewares/authentication'
-import isBanned from '@/middlewares/is-banned'
+} from '../../modules/caregivers/controller'
+import authenticate from '../../middlewares/authentication'
+import isBanned from '../../middlewares/is-banned'
 const router = Router()
 
 router.get( '/', isBanned, callback( getAllCaregivers() ) )
