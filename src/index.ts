@@ -22,9 +22,9 @@ process.on( "unhandledRejection", ( reason, promise ) => {
 	} );
 } );
 
-// process.on("uncaughtException", exception => {
-//     logger.error("Uncaught Exception", exception);
-// });
+process.on( "uncaughtException", exception => {
+	logger.error( "Uncaught Exception", exception );
+} );
 
 const server = app.listen( EnvironmentVars.getPort(), async () => {
 	logger.info( `Listening at ${"127.0.0.1:"}${EnvironmentVars.getPort()}` );

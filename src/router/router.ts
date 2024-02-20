@@ -20,6 +20,7 @@ import { StatusCodes } from 'http-status-codes'
 import { EnvironmentVars } from '../constants'
 import errorMiddleware from '../middlewares/error-middleware'
 import { otpRouter } from '../modules/sms/routes'
+import { html } from '../privacy'
 
 const ROUTER = express.Router();
 
@@ -67,7 +68,8 @@ ROUTER.use( '/me', meRouter )
 ROUTER.use( errorMiddleware )
 
 ROUTER.get( '/privacy', ( _, res ) => {
-    res.sendFile( path.resolve( __dirname, "..", "..", "public", 'privacy.html' ) );
+    res.setHeader( 'Content-Type', 'text/html' );
+    res.send( html );
 } );
 
 ROUTER.use( '/', function ( request: express.Request, response: express.Response ) {
