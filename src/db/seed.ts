@@ -80,7 +80,7 @@ export async function seedCaregivers() {
 	};
 
 	const caregivers = [];
-	for ( let i = 0; i < 20; i++ ) {
+	for ( let i = 0; i < 10; i++ ) {
 		const caregiver = {
 			designation: DESIGNATION.NURSE,
 			phone: `256456789${i.toString().padStart( 2, '0' )}`,
@@ -148,11 +148,10 @@ export async function seedAdmins() {
 	for ( let i = 0; i < 10; i++ ) {
 		const admin = {
 			designation: DESIGNATION.ADMIN,
-			phone: `256456789${i.toString().padStart( 2, '0' )}`,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),
 			password: "password",
-			isPhoneVerified: faker.datatype.boolean(),
+			isEmailVerified: faker.datatype.boolean(),
 			isBanned: faker.datatype.boolean(),
 			isDeactivated: faker.datatype.boolean(),
 			email: faker.internet.email(),

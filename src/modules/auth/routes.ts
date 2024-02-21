@@ -16,12 +16,14 @@ import verifyRefreshTokenMiddleware from '../../middlewares/verify-refresh-token
 const router = Router()
 
 router.post( '/caregiver/signup', callback( caregiverSignup() ) )
+router.post( '/caregiver/signin', callback( caregiverSignin() ) )
+
 router.post( '/patient/signup', callback( patientSignup() ) )
+router.post( '/patient/signin', callback( patientSignin() ) )
+
+router.post( '/admin/signin', callback( adminSignin() ) )
 router.post( '/admin/signup', callback( adminSignup() ) )
 
-router.post( '/caregiver/signin', callback( caregiverSignin() ) )
-router.post( '/patient/signin', callback( patientSignin() ) )
-router.post( '/admin/signin', callback( adminSignin() ) )
 router.delete( '/accounts/deletion', callback( deleteAccount() ) )
 
 // router.post( '/reset-password/:id', callback( passwordReset() ) )

@@ -1,7 +1,7 @@
 import { HTTPRequest } from '../../adapters/express-callback'
 import { StatusCodes } from 'http-status-codes'
 import { db } from '../../db'
-import { createAccessToken, createRefreshToken } from '../../services/token/token'
+import { createAccessToken } from '../../services/token/token'
 import { Document } from 'mongoose'
 import { ACCOUNT } from '../../interfaces'
 import * as argon2 from 'argon2'
@@ -79,9 +79,7 @@ export function patientSignup() {
 			dob
 		} )
 
-		console.log( "user1: ", user )
 		await user.save()
-		console.log( "user2: ", user )
 
 		return {
 			statusCode: StatusCodes.OK,
@@ -133,14 +131,12 @@ export function caregiverSignup() {
 		await user.save()
 
 		const accessToken = createAccessToken( user as Document & ACCOUNT )
-		const refreshToken = createRefreshToken( user as Document & ACCOUNT )
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: user,
 				accessToken,
-				refreshToken,
 				message: 'Account created',
 			},
 		}
@@ -148,10 +144,15 @@ export function caregiverSignup() {
 }
 
 export function adminSignup() {
-	return async function ( request: HTTPRequest<object, SignUpBody> ) {
-		const { phone, password, firstName, lastName } = request.body
+	return async function ( request: HTTPRequest<object, {
+		email: string
+		firstName: string
+		lastName: string
+		password: string
+	}> ) {
+		const { email, password, firstName, lastName } = request.body
 
-		if ( !phone || !password || !firstName || !lastName ) {
+		if ( !email || !password || !firstName || !lastName ) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
@@ -161,13 +162,13 @@ export function adminSignup() {
 			}
 		}
 
-		const user = await db.admins.findOne( { phone } )
+		const user = await db.admins.findOne( { email } )
 
 		if ( user ) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
-					message: 'Phone number in use',
+					message: 'email number in use',
 					data: null,
 				},
 			}
@@ -177,7 +178,7 @@ export function adminSignup() {
 			type: argon2.argon2id,
 		} )
 		const newUser = await db.admins.create( {
-			phone,
+			email,
 			firstName,
 			lastName,
 			designation: DESIGNATION.ADMIN,
@@ -278,14 +279,12 @@ export function caregiverSignin() {
 		}
 
 		const accessToken = createAccessToken( user as Document & ACCOUNT )
-		const refreshToken = createRefreshToken( user as Document & ACCOUNT )
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: user,
 				accessToken,
-				refreshToken,
 				message: 'Signed in',
 			},
 		}
@@ -293,10 +292,10 @@ export function caregiverSignin() {
 }
 
 export function adminSignin() {
-	return async function ( request: HTTPRequest<object, { phone: string, password: string }> ) {
-		const { phone, password } = request.body
+	return async function ( request: HTTPRequest<object, { email: string, password: string }> ) {
+		const { email, password } = request.body
 
-		if ( !phone || !password ) {
+		if ( !email || !password ) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
@@ -306,7 +305,7 @@ export function adminSignin() {
 			}
 		}
 
-		const user = await db.admins.findOne( { phone } )
+		const user = await db.admins.findOne( { email } )
 
 		if ( !user ) {
 			return {
@@ -333,14 +332,12 @@ export function adminSignin() {
 		}
 
 		const accessToken = createAccessToken( user as Document & ACCOUNT )
-		const refreshToken = createRefreshToken( user as Document & ACCOUNT )
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: user,
 				accessToken,
-				refreshToken,
 				message: 'Signed in',
 			},
 		}
@@ -402,14 +399,12 @@ export function getAccessToken() {
 		}
 
 		const accessToken = createAccessToken( user as Document & ACCOUNT )
-		const refreshToken = createRefreshToken( user as Document & ACCOUNT )
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: null,
 				accessToken,
-				refreshToken,
 				message: 'Access token has been reset!',
 			},
 		}

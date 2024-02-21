@@ -99,6 +99,7 @@ export function verifyOTP() {
 				user = await user.save()
 
 				const accessToken = createAccessToken( user as Document & ACCOUNT )
+
 				// otpCacheStore.expire( phone )
 				return {
 					statusCode: StatusCodes.OK,

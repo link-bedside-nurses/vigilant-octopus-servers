@@ -5,11 +5,11 @@ module.exports = {
 			name: "linkbedsides",
 			script: "dist/src/index.js",
 			watch: true,
-			ignore_watch: ["dist"], // you may need to adjust these paths based on your project structure
+			ignore_watch: ["dist"],
 			watch_options: {
 				"followSymlinks": false
 			},
-			instances: 1, // Change "max" to 1 to spawn only one instance
+			instances: 1,
 			exec_mode: "cluster",
 			autorestart: true,
 			env: {

@@ -21,6 +21,8 @@ import { EnvironmentVars } from '../constants'
 import errorMiddleware from '../middlewares/error-middleware'
 import { otpRouter } from '../modules/sms/routes'
 import { html } from '../privacy'
+import { emailRouter } from '../modules/email/routes'
+import { dashboardRouter } from '../modules/dashboard/routes'
 
 const router = express.Router();
 
@@ -56,6 +58,7 @@ router.use(
 router.use( '/test', testRouter )
 router.use( '/auth', authRouter )
 router.use( '/appointments', appointmentRouter )
+router.use( '/dashboard', dashboardRouter )
 router.use( '/profile', profileRouter )
 router.use( '/ratings', ratingsRouter )
 router.use( '/patients', patientRouter )
@@ -63,6 +66,7 @@ router.use( '/caregivers', caregiverRouter )
 router.use( '/admins', adminRouter )
 router.use( '/payments', paymentsRouter )
 router.use( '/otp', otpRouter )
+router.use( '/mail', emailRouter )
 router.use( '/me', meRouter )
 
 router.use( errorMiddleware )

@@ -43,5 +43,4 @@ class OtpCacheStore<K, V> {
 	}
 }
 
-// Example usage:
 export const otpCacheStore = new OtpCacheStore<string, string>();

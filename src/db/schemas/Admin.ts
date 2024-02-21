@@ -32,7 +32,7 @@ export class Admin {
 		index: true,
 		trim: true,
 	} )
-	phone!: string
+	email!: string
 
 	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
 	firstName!: string
@@ -55,7 +55,7 @@ export class Admin {
 	isBanned!: boolean
 
 	@prop( { type: Boolean, required: false, default: false } )
-	isPhoneVerified?: boolean
+	isEmailVerified?: boolean
 
 	@prop( { type: Boolean, required: false, default: false } )
 	isDeactivated?: boolean

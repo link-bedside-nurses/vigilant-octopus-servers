@@ -76,7 +76,6 @@ export class Patient {
 	@prop( { type: String, required: true, default: new Date().toISOString() } )
 	dob!: string
 
-
 	@prop( { type: () => Location, index: '2dsphere' } )
 	location!: Location
 

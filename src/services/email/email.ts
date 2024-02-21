@@ -21,7 +21,7 @@ export const sendMail = async (
   } );
 
   const info = await transporter.sendMail( {
-    from: `"FROM CEFS 👻" ${process.env.SENDER_EMAIL}`,
+    from: `"FROM LINKBEDSIDE NURSES " ${process.env.SENDER_EMAIL}`,
     to,
     subject,
     text,

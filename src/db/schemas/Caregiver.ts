@@ -13,7 +13,7 @@ class Coordinates {
 
 @modelOptions( { schemaOptions: { _id: false, versionKey: false }, options: { allowMixed: Severity.ALLOW } } )
 class Location {
-	@prop( { type: () => Coordinates } )
+	@prop( { type: Coordinates } )
 	coords!: Coordinates
 
 	@prop( { type: String, default: 'Point', enum: ['Point'] } )
@@ -68,7 +68,7 @@ export class Caregiver {
 	@prop( { type: String, required: true } )
 	password!: string
 
-	@prop( { type: () => Location, index: '2dsphere' } )
+	@prop( { type: Location, index: '2dsphere' } )
 	location!: Location
 
 	@prop( { type: Boolean, required: false, default: false } )
@@ -95,19 +95,19 @@ export class Caregiver {
 	@prop( { type: String, required: false, default: '', trim: true } )
 	address?: string
 
-	@prop( { type: () => [String], required: false, default: [] } )
+	@prop( { type: [String], required: false, default: [] } )
 	speciality?: string[]
 
-	@prop( { type: () => [String], required: false, default: [] } )
+	@prop( { type: [String], required: false, default: [] } )
 	languages?: string[]
 
-	@prop( { type: () => [String], required: false, default: [] } )
+	@prop( { type: [String], required: false, default: [] } )
 	affiliations?: string[]
 
 	@prop( { type: Number, required: false, default: 0 } )
 	experience?: number
 
-	@prop( { type: () => [String], required: false, default: [] } )
+	@prop( { type: [String], required: false, default: [] } )
 	servicesOffered?: string[]
 
 	@prop( { type: String, required: false, default: '', trim: true } )
