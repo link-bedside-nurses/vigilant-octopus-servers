@@ -13,6 +13,7 @@ export async function connectToDatabase() {
 		const connection = await mongoose.connect( DATABASE_CONNECTION_URI, {
 			dbName: DATABASE_NAME,
 		} )
+
 		logger.info( `Connected: ${connection.connection.db.databaseName}` )
 	} catch ( error ) {
 		logger.error( error )

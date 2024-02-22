@@ -1,38 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { HTTPRequest } from '../../adapters/express-callback'
-import { StatusCodes } from 'http-status-codes'
-import { db } from '../../db'
+import { HTTPRequest } from '../../adapters/express-callback';
+import { StatusCodes } from 'http-status-codes';
+import { db } from '../../db';
 
 export function getAllPatients() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function ( _: HTTPRequest<object> ) {
-		const patients = await db.patients.find( { designation: 'PATIENT' } )
-		// @ts-ignore
-		// const t: unknown[] = []
-		// patients.forEach( patient => {
-
-		// 	const p = {
-		// 		_id: patient._id,
-		// 		designation: patient.designation,
-		// 		phone: patient.phone,
-		// 		firstName: patient.firstName,
-		// 		lastName: patient.lastName,
-		// 		email: patient.email,
-		// 		dob: patient.dob,
-		// 		lat: patient.location?.coords.lat,
-		// 		lng: patient.location?.coords.lng,
-		// 		isPhoneVerified: patient.isPhoneVerified === true ? "TRUE" : "FALSE",
-		// 		isBanned: patient.isBanned === true ? "TRUE" : "FALSE",
-		// 		isVerified: patient.isVerified === true ? "TRUE" : "FALSE",
-		// 		isDeactivated: patient.isDeactivated === true ? "TRUE" : "FALSE",
-		// 		// @ts-ignore
-		// 		createdAt: patient?.createdAt,
-		// 		// @ts-ignore
-		// 		updatedAt: patient?.updatedAt,
-		// 	}
-		// 	t.push( p )
-		// } )
-
+		const patients = await db.patients.find( {} ).populate( 'location' );
 		return {
 			statusCode: StatusCodes.OK,
 			body: {

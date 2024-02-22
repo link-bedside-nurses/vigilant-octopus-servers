@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { db } from '../db';
 import { Payment } from '../db/schemas/Payment';
 import { APPOINTMENT_STATUSES } from '../interfaces/appointment-statuses';
@@ -12,7 +13,7 @@ export async function seedPayments() {
 	const appointmentIds = ( await db.appointments.find( {} ) ).map( a => a._id )
 
 	const payments = []
-	for ( let i = 0; i < 100; i++ ) {
+	for ( let i = 0; i < 10; i++ ) {
 		const payment: Payment = {
 			patientId: faker.helpers.arrayElement( patientIds ) as unknown as string,
 			appointmentId: faker.helpers.arrayElement( appointmentIds ) as unknown as string,
@@ -29,14 +30,14 @@ export async function seedPayments() {
 
 export async function seedAppointments() {
 	await db.appointments.deleteMany( {}, { maxTimeMS: 30000 } )
-	const caregiverIds = ( await db.caregivers.find( {} ) ).map( ( c => c._id ) )
-	const patientIds = ( await db.patients.find( {} ) ).map( p => p._id )
+	const caregivers = await db.caregivers.find( {} )
+	const patients = await db.patients.find( {} )
 
 	const appointments = []
-	for ( let i = 0; i < 100; i++ ) {
+	for ( let i = 0; i < 10; i++ ) {
 		const appointment = {
-			patientId: faker.helpers.arrayElement( patientIds ) as unknown as string,
-			caregiverId: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
+			patient: faker.helpers.arrayElement( patients ) as unknown as mongoose.Document,
+			caregiver: faker.helpers.arrayElement( caregivers ) as unknown as mongoose.Document,
 			title: faker.lorem.slug( 5 ),
 			status: faker.helpers.arrayElement( Object.values( APPOINTMENT_STATUSES ) ),
 			date: faker.date.past(),
@@ -44,10 +45,8 @@ export async function seedAppointments() {
 			notes: faker.lorem.lines( 3 ),
 
 		};
-
 		appointments.push( appointment );
 	}
-
 	await db.appointments.insertMany( appointments );
 }
 
@@ -57,7 +56,7 @@ export async function seedRatings() {
 	const patientIds = ( await db.patients.find( {} ) ).map( p => p._id )
 
 	const ratings = []
-	for ( let i = 0; i < 100; i++ ) {
+	for ( let i = 0; i < 10; i++ ) {
 		const rating = {
 			patientId: faker.helpers.arrayElement( patientIds ) as unknown as string,
 			caregiverId: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
@@ -120,7 +119,7 @@ export async function seedPatients() {
 	};
 	await db.patients.deleteMany( {}, { maxTimeMS: 30000 } )
 	const patients = []
-	for ( let i = 0; i < 100; i++ ) {
+	for ( let i = 0; i < 10; i++ ) {
 		const patient = {
 			designation: DESIGNATION.PATIENT,
 			phone: `256456789${i.toString().padStart( 2, '0' )}`,
@@ -174,10 +173,6 @@ function generateRandomLocation( centerCoords: {
 	const newCoords = geolib.computeDestinationPoint( centerCoords, randomDistance, randomBearing );
 
 	return {
-		coords: {
-			lat: newCoords.latitude,
-			lng: newCoords.longitude,
-		},
 		type: 'Point',
 		coordinates: [newCoords.latitude, newCoords.longitude],
 	};

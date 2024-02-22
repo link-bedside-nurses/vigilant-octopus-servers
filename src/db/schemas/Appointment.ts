@@ -1,7 +1,7 @@
 import { Caregiver } from '../../db/schemas/Caregiver'
-import { Patient } from '../../db/schemas/Patient'
 import { APPOINTMENT_STATUSES } from '../../interfaces/appointment-statuses'
-import { DocumentType, Ref, Severity, modelOptions, prop } from '@typegoose/typegoose'
+import { DocumentType, Severity, modelOptions, mongoose, prop } from '@typegoose/typegoose'
+import { Patient } from './Patient'
 
 @modelOptions( {
 	schemaOptions: {
@@ -19,17 +19,19 @@ import { DocumentType, Ref, Severity, modelOptions, prop } from '@typegoose/type
 	options: { allowMixed: Severity.ALLOW },
 } )
 export class Appointment {
-	@prop( { required: true, ref: 'Patient', index: true } )
-	patientId!: string
+	@prop( {
+		required: true,
+		type: mongoose.Document,
+		ref: Patient,
+	} )
+	patient!: string;
 
-	@prop( { ref: () => Patient, foreignField: "_id", localField: "patientId", justOne: true } )
-	patient?: Ref<Patient>
-
-	@prop( { required: true, ref: 'Caregiver', index: true } )
-	caregiverId!: string
-
-	@prop( { ref: () => Caregiver, foreignField: "_id", localField: "caregiverId", justOne: true } )
-	caregiver?: Ref<Caregiver>
+	@prop( {
+		required: true,
+		type: mongoose.Types.ObjectId,
+		ref: Caregiver,
+	} )
+	caregiver!: string;
 
 	@prop( { required: true, index: true } )
 	title!: string

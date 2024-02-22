@@ -1,28 +1,6 @@
 import { DESIGNATION } from '../../interfaces/designations'
-import { modelOptions, prop, Severity } from '@typegoose/typegoose'
-
-
-@modelOptions( { schemaOptions: { _id: false, versionKey: false } } )
-class Coordinates {
-	@prop( { type: Number } )
-	lat!: number
-
-	@prop( { type: Number } )
-	lng!: number
-}
-
-
-@modelOptions( { schemaOptions: { _id: false, versionKey: false }, options: { allowMixed: Severity.ALLOW } } )
-class Location {
-	@prop( { type: () => Coordinates } )
-	coords!: Coordinates
-
-	@prop( { type: String, default: 'Point', enum: ['Point'] } )
-	type?: string
-
-	@prop( { type: [Number] } )
-	coordinates!: number[]
-}
+import { modelOptions, index, prop, Severity } from '@typegoose/typegoose'
+import { Location } from "./Location"
 
 @modelOptions( {
 	schemaOptions: {
@@ -40,13 +18,14 @@ class Location {
 	},
 	options: { allowMixed: Severity.ALLOW },
 } )
+@index( { title: 'text', location: '2dsphere' } )
 export class Patient {
 	@prop( {
 		type: String,
 		required: true,
 		enum: [DESIGNATION.PATIENT, DESIGNATION.NURSE, DESIGNATION.ADMIN],
 	} )
-	designation!: DESIGNATION
+	designation!: DESIGNATION.PATIENT
 
 	@prop( {
 		type: String,
@@ -76,7 +55,7 @@ export class Patient {
 	@prop( { type: String, required: true, default: new Date().toISOString() } )
 	dob!: string
 
-	@prop( { type: () => Location, index: '2dsphere' } )
+	@prop( { type: Location, index: '2dsphere' } )
 	location!: Location
 
 	@prop( { type: Boolean, required: false, default: false } )

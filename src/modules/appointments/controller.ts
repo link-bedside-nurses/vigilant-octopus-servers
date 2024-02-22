@@ -5,48 +5,14 @@ import { db } from '../../db'
 
 export function getAllAppointments() {
 	return async function ( _: HTTPRequest<object, object> ) {
-		const appointments = await db.appointments.find( {} )
-
-		console.log( "appointments: ", appointments )
+		const appointments = await db.appointments.find( {} ).populate( 'patient' ).populate( 'caregiver' )
+		console.log( "all:", appointments )
 
 		return {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: appointments,
 				message: appointments.length === 0 ? 'No Appointments Scheduled' : 'All appointments retrieved',
-			},
-		}
-	}
-}
-
-export function getPatientAppointments() {
-	return async function ( request: HTTPRequest<{ patientId: string }, object> ) {
-
-		const appointments = await db.appointments.find( {
-			patient: request.params.patientId,
-		} )
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: appointments,
-				message: appointments.length === 0 ? 'No appointments scheduled' : 'Appointments fetched',
-			},
-		}
-	}
-}
-
-export function getCaregiverAppointments() {
-	return async function ( request: HTTPRequest<{ caregiverId: string }, object> ) {
-		const appointments = await db.appointments.find( {
-			caregiver: request.params.caregiverId,
-		} )
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: appointments,
-				message: appointments.length === 0 ? 'No appointments scheduled' : 'Appointments fetched',
 			},
 		}
 	}
@@ -59,14 +25,15 @@ export function scheduleAppointment() {
 		description: string
 		notes: string
 	}, object> ) {
-
-		console.log( "data: ", request.body )
-
 		if ( !( request.body.title && request.body.description && request.body.notes ) ) {
 			const missingFields = [];
 
 			if ( !request.body.title ) {
 				missingFields.push( 'title' );
+
+			}
+			if ( !request.body.caregiverId ) {
+				missingFields.push( 'caregiverId' );
 			}
 
 			if ( !request.body.description ) {
@@ -92,7 +59,7 @@ export function scheduleAppointment() {
 			notes: request.body.notes,
 			patient: request.account?.id,
 			caregiver: request.body.caregiverId
-		} )
+		} ).then( appointment => appointment.populate( "patient" ).then( appointment => appointment.populate( 'caregiver' ) ) )
 
 		await appointments.save()
 
@@ -108,7 +75,7 @@ export function scheduleAppointment() {
 
 export function confirmAppointment() {
 	return async function ( request: HTTPRequest<{ id: string }, object> ) {
-		const appointment = await db.appointments.findById( request.params.id )
+		const appointment = await db.appointments.findById( request.params.id ).populate( 'patient' ).populate( 'caregiver' )
 
 		if ( !appointment ) {
 			return {
@@ -141,7 +108,7 @@ export function cancelAppointment() {
 			}
 		>,
 	) {
-		const appointment = await db.appointments.findById( request.params.id )
+		const appointment = await db.appointments.findById( request.params.id ).populate( 'patient' ).populate( 'caregiver' )
 
 		if ( !appointment ) {
 			return {
@@ -159,7 +126,7 @@ export function cancelAppointment() {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: appointment,
-				message: 'Appointment has been confirmed',
+				message: 'Successfully cancelled appointment',
 			},
 		}
 	}
@@ -183,7 +150,7 @@ export function getAppointment() {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: appointment,
-				message: 'Appointment has been confirmed and initiated',
+				message: 'Successfully fetched appointment',
 			},
 		}
 	}
@@ -197,7 +164,7 @@ export function deleteAppointment() {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: appointment,
-				message: 'Appointment has been deleted',
+				message: 'Successfully deleted appointment',
 			},
 		}
 	}

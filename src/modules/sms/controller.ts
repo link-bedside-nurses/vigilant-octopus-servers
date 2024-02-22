@@ -25,7 +25,7 @@ export function getOTP() {
 			await storeOTP( request.query.toPhone, otp.toString() );
 
 			// Schedule the cron job to expire OTP after 2 minutes
-			cron.schedule( '*/1 * * * *', () => {
+			cron.schedule( '*/2 * * * *', () => {
 				expireOTPCache( request.query.toPhone );
 			} );
 
