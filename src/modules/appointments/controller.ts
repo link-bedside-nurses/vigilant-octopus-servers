@@ -5,7 +5,7 @@ import { db } from '../../db'
 
 export function getAllAppointments() {
 	return async function ( _: HTTPRequest<object, object> ) {
-		const appointments = await db.appointments.find( {} ).populate( 'patient' ).populate( 'caregiver' )
+		const appointments = await db.appointments.find( {} ).sort( { createdAt: "desc" } ).populate( 'patient' ).populate( 'caregiver' )
 		console.log( "all:", appointments )
 
 		return {
@@ -14,6 +14,62 @@ export function getAllAppointments() {
 				data: appointments,
 				message: appointments.length === 0 ? 'No Appointments Scheduled' : 'All appointments retrieved',
 			},
+		}
+	}
+}
+
+export function getCaregiverAppointments() {
+	return async function ( request: HTTPRequest<{ id: string }, object, object> ) {
+		const appointments = await db.appointments.find( {
+			caregiver: {
+				_id: request.params.id
+			}
+		} ).populate( 'patient' ).populate( 'caregiver' )
+
+		if ( appointments.length > 0 ) {
+			return {
+				statusCode: StatusCodes.OK,
+				body: {
+					data: appointments,
+					message: 'Successfully fetched caregiver Appointments',
+				},
+			}
+		} else {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'No Appointment Found',
+				},
+			}
+		}
+	}
+}
+
+export function getPatientAppointments() {
+	return async function ( request: HTTPRequest<{ id: string }, object, object> ) {
+		const appointments = await db.appointments.find( {
+			patient: {
+				_id: request.params.id
+			}
+		} ).populate( 'patient' ).populate( 'caregiver' )
+
+		if ( appointments.length > 0 ) {
+			return {
+				statusCode: StatusCodes.OK,
+				body: {
+					data: appointments,
+					message: 'Successfully fetched patient Appointments',
+				},
+			}
+		} else {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'No Appointment Found',
+				},
+			}
 		}
 	}
 }
@@ -76,6 +132,9 @@ export function scheduleAppointment() {
 export function confirmAppointment() {
 	return async function ( request: HTTPRequest<{ id: string }, object> ) {
 		const appointment = await db.appointments.findById( request.params.id ).populate( 'patient' ).populate( 'caregiver' )
+
+
+		console.log( "params::id--> ", request.params.id )
 
 		if ( !appointment ) {
 			return {

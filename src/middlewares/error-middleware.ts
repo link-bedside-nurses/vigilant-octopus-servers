@@ -18,7 +18,7 @@ export default function errorMiddleware(
 	let message = error.message
 
 	// Log error
-	// console.error(error);
+	console.error( error );
 
 	// document uniqueness and duplicates error
 	if ( error.code === 11000 && error.keyValue !== undefined ) {

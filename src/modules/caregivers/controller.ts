@@ -9,7 +9,7 @@ import { Exception } from '../../utils'
 export function getAllCaregivers() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function ( _: HTTPRequest<object> ) {
-		const caregivers = await db.caregivers.find( {} )
+		const caregivers = await db.caregivers.find( {} ).sort( { createdAt: "desc" } )
 
 		return {
 			statusCode: StatusCodes.OK,

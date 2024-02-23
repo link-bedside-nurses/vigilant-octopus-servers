@@ -5,7 +5,7 @@ import { db } from '../../db'
 export function getAllPayments() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function ( _: HTTPRequest<object> ) {
-		const payments = await db.payments.find( {} )
+		const payments = await db.payments.find( {} ).sort( { createdAt: "desc" } )
 		return {
 			statusCode: StatusCodes.OK,
 			body: {

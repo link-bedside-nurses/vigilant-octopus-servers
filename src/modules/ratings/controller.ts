@@ -5,7 +5,7 @@ import { db } from '../../db'
 export function getAllRatings() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function ( _: HTTPRequest<object> ) {
-		const ratings = await db.ratings.find( {} ).populate( 'patient', )
+		const ratings = await db.ratings.find( {} ).sort( { createdAt: "desc" } ).populate( 'patient' ).populate( 'caregiver' )
 
 		return {
 			statusCode: StatusCodes.OK,
@@ -19,7 +19,7 @@ export function getAllRatings() {
 
 export function getRating() {
 	return async function ( request: HTTPRequest<{ id: string }> ) {
-		const rating = await db.ratings.findById( request.params.id )
+		const rating = await db.ratings.findById( request.params.id ).populate( 'patient' ).populate( 'caregiver' )
 
 		if ( !rating ) {
 			return {
@@ -40,35 +40,39 @@ export function getRating() {
 		}
 	}
 }
-export function getRatings() {
-	return async function ( request: HTTPRequest<{ id: string }> ) {
-		const rating = await db.ratings.find( {
-			caregiverId: request.params.id,
-		} )
 
-		if ( !rating ) {
+export function getCaregiverRatings() {
+	return async function ( request: HTTPRequest<{ id: string }, object, object> ) {
+		const ratings = await db.ratings.find( {
+			caregiver: {
+				_id: request.params.id
+			}
+		} ).populate( 'patient' ).populate( 'caregiver' ).sort( { createdAt: "desc" } )
+
+
+		if ( ratings.length > 0 ) {
+			return {
+				statusCode: StatusCodes.OK,
+				body: {
+					data: ratings,
+					message: 'Successfully fetched caregiver ratings',
+				},
+			}
+		} else {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
-					data: null,
-					message: 'Not Rating found',
+					data: [],
+					message: 'No Rating Found',
 				},
 			}
-		}
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: rating,
-				message: 'Rating retrieved',
-			},
 		}
 	}
 }
 
 export function deleteRating() {
 	return async function ( request: HTTPRequest<{ id: string }> ) {
-		const rating = await db.ratings.findByIdAndDelete( request.params.id )
+		const rating = await db.ratings.findByIdAndDelete( request.params.id ).populate( 'patient' ).populate( 'caregiver' )
 
 		if ( !rating ) {
 			return {
@@ -116,9 +120,9 @@ export function addRating() {
 		const rating = await db.ratings.create( {
 			review,
 			value,
-			caregiverId: id,
-			patientId: request?.account?.id,
-		} )
+			caregiver: id,
+			patient: request?.account?.id,
+		} ).then( r => r.populate( 'patient' ).then( r => r.populate( 'caregiver' ) ) )
 
 		await rating.save()
 

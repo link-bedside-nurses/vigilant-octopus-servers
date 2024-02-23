@@ -7,10 +7,10 @@ export function getOverview() {
 	return async function ( _: HTTPRequest<object, object, object> ) {
 		try {
 
-			const admins = await db.admins.find( {} )
-			const caregivers = await db.caregivers.find( {} )
-			const patients = await db.patients.find( {} )
-			const appointments = await db.appointments.find( {} )
+			const admins = await db.admins.find( {} ).sort( { createdAt: "desc" } )
+			const caregivers = await db.caregivers.find( {} ).sort( { createdAt: "desc" } )
+			const patients = await db.patients.find( {} ).sort( { createdAt: "desc" } )
+			const appointments = await db.appointments.find( {} ).sort( { createdAt: "desc" } )
 
 			return {
 				statusCode: StatusCodes.OK,

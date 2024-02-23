@@ -5,12 +5,13 @@ import { EnvironmentVars } from '../constants'
 import { seedCaregivers, seedPatients, seedAdmins, seedPayments, seedAppointments, seedRatings } from '../db/seed'
 
 
-const DATABASE_CONNECTION_URI = EnvironmentVars.getDatabaseUrl()
+const DATABASE_CONNECTION_URI_DEV = EnvironmentVars.getDevDatabaseUrl()
+const DATABASE_CONNECTION_URI_PROD = EnvironmentVars.getProdDatabaseUrl()
 const DATABASE_NAME = EnvironmentVars.getDatabaseName()
 
 export async function connectToDatabase() {
 	try {
-		const connection = await mongoose.connect( DATABASE_CONNECTION_URI, {
+		const connection = await mongoose.connect( process.env.NODE_ENV === "production" ? DATABASE_CONNECTION_URI_PROD : DATABASE_CONNECTION_URI_DEV, {
 			dbName: DATABASE_NAME,
 		} )
 

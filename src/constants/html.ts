@@ -1,5 +1,5 @@
 export const html = ( otp: string ) => {
-	return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -50,7 +50,7 @@ export const html = ( otp: string ) => {
 <body>
     <div class="container">
         <div class="logo">
-            <img src="https://linkbedsides.vercel.app/logo.png" alt="Company Logo" width="150">
+            <img src=${process.env.NODE_ENV === "production" ? "https://linkbedsides.vercel.app/logo.png" : "http://localhost:3000/logo.png"} alt="Company Logo" width="150">
         </div>
         <h2>Veriry Your Email</h2>
         <p>Please use the following OTP (One-Time Password) to verify your email:</p>

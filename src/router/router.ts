@@ -16,13 +16,13 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import { appendFile } from 'fs/promises'
 import path from 'node:path'
-import { StatusCodes } from 'http-status-codes'
 import { EnvironmentVars } from '../constants'
 import errorMiddleware from '../middlewares/error-middleware'
 import { otpRouter } from '../modules/sms/routes'
 import { html } from '../privacy'
 import { emailRouter } from '../modules/email/routes'
 import { dashboardRouter } from '../modules/dashboard/routes'
+import { StatusCodes } from 'http-status-codes'
 
 const router = express.Router();
 
@@ -81,7 +81,7 @@ router.use( '/', function ( request: express.Request, response: express.Response
 } )
 
 router.use( '*', function ( request: express.Request, response: express.Response ) {
-    return response.status( StatusCodes.NOT_FOUND ).send( { message: 'NOT FOUND!', requestHeaders: request.headers } )
+    return response.status( StatusCodes.NOT_FOUND ).send( { message: 'ROUTE NOT FOUND!', requestHeaders: request.headers } )
 } )
 
 export default router

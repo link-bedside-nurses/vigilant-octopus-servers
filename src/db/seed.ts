@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { db } from '../db';
 import { Payment } from '../db/schemas/Payment';
 import { APPOINTMENT_STATUSES } from '../interfaces/appointment-statuses';
@@ -8,18 +7,16 @@ import * as geolib from "geolib";
 
 export async function seedPayments() {
 	await db.payments.deleteMany( {}, { maxTimeMS: 30000 } )
-	const caregiverIds = ( await db.caregivers.find( {} ) ).map( ( c => c._id ) )
-	const patientIds = ( await db.patients.find( {} ) ).map( p => p._id )
-	const appointmentIds = ( await db.appointments.find( {} ) ).map( a => a._id )
+	const patients = await db.patients.find( {} )
+	const appointments = await db.appointments.find( {} )
 
 	const payments = []
 	for ( let i = 0; i < 10; i++ ) {
 		const payment: Payment = {
-			patientId: faker.helpers.arrayElement( patientIds ) as unknown as string,
-			appointmentId: faker.helpers.arrayElement( appointmentIds ) as unknown as string,
+			patient: faker.helpers.arrayElement( patients ),
+			appointment: faker.helpers.arrayElement( appointments ),
 			amount: faker.helpers.arrayElement( [1200, 15000, 50000, 54000, 25000, 100000, 51000, 32000] ),
-			caregiverId: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
-			comment: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
+			comment: faker.helpers.arrayElement( ["alsdfasdfasd", "asdfasdfasd", "asdfasdasd"] ),
 		};
 
 		payments.push( payment );
@@ -30,14 +27,14 @@ export async function seedPayments() {
 
 export async function seedAppointments() {
 	await db.appointments.deleteMany( {}, { maxTimeMS: 30000 } )
-	const caregivers = await db.caregivers.find( {} )
-	const patients = await db.patients.find( {} )
+	const caregiverIds = ( await db.caregivers.find( {} ) ).map( ( c => c._id ) )
+	const patientIds = ( await db.patients.find( {} ) ).map( p => p._id )
 
 	const appointments = []
 	for ( let i = 0; i < 10; i++ ) {
 		const appointment = {
-			patient: faker.helpers.arrayElement( patients ) as unknown as mongoose.Document,
-			caregiver: faker.helpers.arrayElement( caregivers ) as unknown as mongoose.Document,
+			patient: faker.helpers.arrayElement( patientIds ) as unknown as string,
+			caregiver: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
 			title: faker.lorem.slug( 5 ),
 			status: faker.helpers.arrayElement( Object.values( APPOINTMENT_STATUSES ) ),
 			date: faker.date.past(),
@@ -58,8 +55,8 @@ export async function seedRatings() {
 	const ratings = []
 	for ( let i = 0; i < 10; i++ ) {
 		const rating = {
-			patientId: faker.helpers.arrayElement( patientIds ) as unknown as string,
-			caregiverId: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
+			patient: faker.helpers.arrayElement( patientIds ) as unknown as string,
+			caregiver: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
 			review: faker.lorem.sentence( { max: 20, min: 8 } ),
 			value: faker.number.int( { min: 1, max: 5 } ),
 		};

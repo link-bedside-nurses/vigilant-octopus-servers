@@ -6,7 +6,7 @@ import { db } from '../../db';
 export function getAllPatients() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function ( _: HTTPRequest<object> ) {
-		const patients = await db.patients.find( {} ).populate( 'location' );
+		const patients = await db.patients.find( {} ).sort( { createdAt: "desc" } ).populate( 'location' );
 		return {
 			statusCode: StatusCodes.OK,
 			body: {

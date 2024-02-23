@@ -5,7 +5,8 @@ const env = envalid.cleanEnv( process.env, {
     choices: ["development", "production"],
   } ),
   PORT: envalid.num(),
-  DATABASE_URL: envalid.str(),
+  DATABASE_URL_PROD: envalid.str(),
+  DATABASE_URL_DEV: envalid.str(),
   DATABASE_NAME: envalid.str(),
 
   ACCESS_TOKEN_SECRET: envalid.str(),
@@ -42,7 +43,8 @@ const env = envalid.cleanEnv( process.env, {
 export default Object.freeze( {
   getNodeEnv: () => env.NODE_ENV,
   getPort: () => Number( env.PORT ),
-  getDatabaseUrl: () => String( env.DATABASE_URL ),
+  getProdDatabaseUrl: () => String( env.DATABASE_URL_PROD ),
+  getDevDatabaseUrl: () => String( env.DATABASE_URL_DEV ),
   getDatabaseName: () => String( env.DATABASE_NAME ),
 
   getAccessTokenSecret: () => String( env.ACCESS_TOKEN_SECRET ),

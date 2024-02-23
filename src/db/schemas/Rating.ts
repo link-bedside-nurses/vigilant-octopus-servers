@@ -1,30 +1,33 @@
-import { Severity, modelOptions, prop } from '@typegoose/typegoose'
+import { Severity, modelOptions, prop, Ref, index } from '@typegoose/typegoose';
+import { Caregiver } from './Caregiver';
+import { Patient } from './Patient';
+import mongoose from 'mongoose';
 
 @modelOptions( {
 	schemaOptions: {
 		id: false,
 		virtuals: true,
 		timestamps: true,
-		toObject: { virtuals: true },
 		toJSON: {
 			virtuals: true,
 			transform( _doc, ret ): void {
-				delete ret.__v
+				delete ret.__v;
 			},
 		},
 	},
 	options: { allowMixed: Severity.ALLOW },
 } )
+@index( { caregiver: "text" } )
 export class Rating {
-	@prop( { required: true, ref: 'Patient', index: true } )
-	patientId!: string
+	@prop( { type: mongoose.Types.ObjectId, required: true, ref: Patient } )
+	patient!: Ref<Patient>;
 
-	@prop( { required: true, ref: 'Caregiver', index: true } )
-	caregiverId!: string
+	@prop( { type: mongoose.Types.ObjectId, required: true, ref: Caregiver, index: true } )
+	caregiver!: Ref<Caregiver>;
 
-	@prop( { type: String, required: false, default: '' } )
-	review?: string
+	@prop( { type: String, default: '' } )
+	review?: string;
 
-	@prop( { type: Number, required: true } )
-	value!: number
+	@prop( { required: true, min: 1, max: 5 } )
+	value!: number;
 }

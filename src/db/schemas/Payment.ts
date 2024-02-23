@@ -1,4 +1,6 @@
-import { Severity, modelOptions, prop } from '@typegoose/typegoose'
+import { Severity, modelOptions, mongoose, prop } from '@typegoose/typegoose';
+import { Appointment } from './Appointment';
+import { Patient } from './Patient';
 
 @modelOptions( {
 	schemaOptions: {
@@ -16,14 +18,19 @@ import { Severity, modelOptions, prop } from '@typegoose/typegoose'
 	options: { allowMixed: Severity.ALLOW },
 } )
 export class Payment {
-	@prop( { required: true, ref: 'Appointment', index: true } )
-	appointmentId!: string
+	@prop( {
+		required: true,
+		type: mongoose.Document,
+		ref: Appointment,
+	} )
+	appointment!: Appointment;
 
-	@prop( { required: true, ref: 'Patient', index: true } )
-	patientId!: string
-
-	@prop( { required: true, ref: 'Caregiver', index: true } )
-	caregiverId!: string
+	@prop( {
+		required: true,
+		type: mongoose.Document,
+		ref: Patient,
+	} )
+	patient!: Patient;
 
 	@prop( { type: String, required: true } )
 	amount!: number

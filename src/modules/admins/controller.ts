@@ -6,7 +6,7 @@ import { db } from '../../db'
 export function getAllAdmins() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function ( _: HTTPRequest<object> ) {
-		const admins = await db.admins.find( {} )
+		const admins = await db.admins.find( {} ).sort( { createdAt: "desc" } )
 
 		return {
 			statusCode: StatusCodes.OK,
