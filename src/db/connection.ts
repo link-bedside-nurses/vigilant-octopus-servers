@@ -6,12 +6,12 @@ import { seedCaregivers, seedPatients, seedAdmins, seedPayments, seedAppointment
 
 
 // const DATABASE_CONNECTION_URI_DEV = EnvironmentVars.getDevDatabaseUrl()
-const DATABASE_CONNECTION_URI_PROD = EnvironmentVars.getProdDatabaseUrl()
+const DATABASE_CONNECTION_URI = EnvironmentVars.getDatabaseUrl()
 const DATABASE_NAME = EnvironmentVars.getDatabaseName()
 
 export async function connectToDatabase() {
 	try {
-		const connection = await mongoose.connect( DATABASE_CONNECTION_URI_PROD, {
+		const connection = await mongoose.connect( DATABASE_CONNECTION_URI, {
 			dbName: DATABASE_NAME,
 		} )
 
