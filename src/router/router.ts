@@ -47,7 +47,7 @@ const ONE_MINUTE = 1 * 60 * 1000
 router.use(
     rateLimit( {
         windowMs: ONE_MINUTE,
-        limit: EnvironmentVars.getNodeEnv() === 'production' ? 10 : Number.MAX_SAFE_INTEGER,
+        limit: EnvironmentVars.getNodeEnv() === 'production' ? 60 : Number.MAX_SAFE_INTEGER,
         validate: {
             trustProxy: false,
             xForwardedForHeader: false,
