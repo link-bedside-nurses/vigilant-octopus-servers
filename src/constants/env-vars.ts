@@ -43,8 +43,8 @@ const env = envalid.cleanEnv( process.env, {
 export default Object.freeze( {
   getNodeEnv: () => env.NODE_ENV,
   getPort: () => Number( env.PORT ),
-  getProdDatabaseUrl: () => String( env.DATABASE_URL_PROD ),
   getDevDatabaseUrl: () => String( env.DATABASE_URL_DEV ),
+  getProdDatabaseUrl: () => String( env.DATABASE_URL_PROD ),
   getDatabaseName: () => String( env.DATABASE_NAME ),
 
   getAccessTokenSecret: () => String( env.ACCESS_TOKEN_SECRET ),
