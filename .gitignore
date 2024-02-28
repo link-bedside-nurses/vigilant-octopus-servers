@@ -2,7 +2,7 @@
 
 # .env
 
-/dist
+# /dist
 /build
 
 /logs
