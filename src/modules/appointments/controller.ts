@@ -45,6 +45,7 @@ export function getCaregiverAppointments() {
                 statusCode: StatusCodes.OK,
                 body: {
                     data: appointments,
+                    count: appointments.length,
                     message: "Successfully fetched caregiver Appointments",
                 },
             };
@@ -91,6 +92,7 @@ export function getPatientAppointments() {
                 statusCode: StatusCodes.OK,
                 body: {
                     data: appointments,
+                    count: appointments.length,
                     message: "Successfully fetched patient Appointments",
                 },
             };
