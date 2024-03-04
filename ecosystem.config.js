@@ -3,7 +3,8 @@ module.exports = {
 	apps: [
 		{
 			name: "linkbedsides",
-			script: "dist/src/index.js",
+			script: "npm",
+			args: "start",
 			watch: true,
 			ignore_watch: ["dist"],
 			watch_options: {
