@@ -42,9 +42,9 @@ var db_1 = require("../../db");
 var designations_1 = require("../../interfaces/designations");
 function getCurrentUser() {
     return function (request) {
-        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function () {
             var designation, user;
+            var _a, _b, _c, _d;
             return __generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:

@@ -28,8 +28,10 @@ function makeCallback(controllerCallback) {
             if (httpResponse.headers) {
                 response.set(httpResponse.headers);
             }
-            response.type('application/json');
-            response.status(httpResponse.statusCode || 200).send(__assign({}, httpResponse.body));
+            response.type("application/json");
+            response
+                .status(httpResponse.statusCode || 200)
+                .send(__assign({}, httpResponse.body));
         })
             .catch(function (error) {
             return next(error);

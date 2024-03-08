@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -45,7 +56,11 @@ function getAllAppointments() {
             var appointments;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, db_1.db.appointments.find({}).sort({ createdAt: "desc" }).populate('patient').populate('caregiver')];
+                    case 0: return [4 /*yield*/, db_1.db.appointments
+                            .find({})
+                            .sort({ createdAt: "desc" })
+                            .populate("patient")
+                            .populate("caregiver")];
                     case 1:
                         appointments = _a.sent();
                         console.log("all:", appointments);
@@ -53,7 +68,9 @@ function getAllAppointments() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: appointments,
-                                    message: appointments.length === 0 ? 'No Appointments Scheduled' : 'All appointments retrieved',
+                                    message: appointments.length === 0
+                                        ? "No Appointments Scheduled"
+                                        : "All appointments retrieved",
                                 },
                             }];
                 }
@@ -68,11 +85,14 @@ function getCaregiverAppointments() {
             var appointments;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, db_1.db.appointments.find({
+                    case 0: return [4 /*yield*/, db_1.db.appointments
+                            .find({
                             caregiver: {
-                                _id: request.params.id
-                            }
-                        }).populate('patient').populate('caregiver')];
+                                _id: request.params.id,
+                            },
+                        })
+                            .populate("patient")
+                            .populate("caregiver")];
                     case 1:
                         appointments = _a.sent();
                         if (appointments.length > 0) {
@@ -80,7 +100,8 @@ function getCaregiverAppointments() {
                                     statusCode: http_status_codes_1.StatusCodes.OK,
                                     body: {
                                         data: appointments,
-                                        message: 'Successfully fetched caregiver Appointments',
+                                        count: appointments.length,
+                                        message: "Successfully fetched caregiver Appointments",
                                     },
                                 }];
                         }
@@ -89,7 +110,7 @@ function getCaregiverAppointments() {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,
                                     body: {
                                         data: null,
-                                        message: 'No Appointment Found',
+                                        message: "No Appointment Found",
                                     },
                                 }];
                         }
@@ -103,14 +124,22 @@ exports.getCaregiverAppointments = getCaregiverAppointments;
 function getPatientAppointments() {
     return function (request) {
         return __awaiter(this, void 0, void 0, function () {
-            var appointments;
+            var status, filters, queryOptions, appointments;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, db_1.db.appointments.find({
+                    case 0:
+                        status = request.query.status;
+                        filters = {
                             patient: {
-                                _id: request.params.id
-                            }
-                        }).populate('patient').populate('caregiver')];
+                                _id: request.params.id,
+                            },
+                            status: status,
+                        };
+                        queryOptions = {};
+                        return [4 /*yield*/, db_1.db.appointments
+                                .find(__assign({}, filters), {}, __assign({}, queryOptions))
+                                .populate("patient")
+                                .populate("caregiver")];
                     case 1:
                         appointments = _a.sent();
                         if (appointments.length > 0) {
@@ -118,7 +147,8 @@ function getPatientAppointments() {
                                     statusCode: http_status_codes_1.StatusCodes.OK,
                                     body: {
                                         data: appointments,
-                                        message: 'Successfully fetched patient Appointments',
+                                        count: appointments.length,
+                                        message: "Successfully fetched patient Appointments",
                                     },
                                 }];
                         }
@@ -127,7 +157,7 @@ function getPatientAppointments() {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,
                                     body: {
                                         data: null,
-                                        message: 'No Appointment Found',
+                                        message: "No Appointment Found",
                                     },
                                 }];
                         }
@@ -140,41 +170,49 @@ function getPatientAppointments() {
 exports.getPatientAppointments = getPatientAppointments;
 function scheduleAppointment() {
     return function (request) {
-        var _a;
         return __awaiter(this, void 0, void 0, function () {
             var missingFields, appointments;
+            var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (!(request.body.title && request.body.description && request.body.notes)) {
+                        if (!(request.body.title &&
+                            request.body.description &&
+                            request.body.notes)) {
                             missingFields = [];
                             if (!request.body.title) {
-                                missingFields.push('title');
+                                missingFields.push("title");
                             }
                             if (!request.body.caregiverId) {
-                                missingFields.push('caregiverId');
+                                missingFields.push("caregiverId");
                             }
                             if (!request.body.description) {
-                                missingFields.push('description');
+                                missingFields.push("description");
                             }
                             if (!request.body.notes) {
-                                missingFields.push('notes');
+                                missingFields.push("notes");
                             }
                             return [2 /*return*/, {
                                     statusCode: http_status_codes_1.StatusCodes.BAD_REQUEST,
                                     body: {
-                                        message: "The following fields are missing: ".concat(missingFields.join(', ')),
+                                        message: "The following fields are missing: ".concat(missingFields.join(", ")),
                                         data: null,
                                     },
                                 }];
                         }
-                        return [4 /*yield*/, db_1.db.appointments.create({
+                        return [4 /*yield*/, db_1.db.appointments
+                                .create({
                                 title: request.body.title,
                                 description: request.body.description,
                                 notes: request.body.notes,
                                 patient: (_a = request.account) === null || _a === void 0 ? void 0 : _a.id,
-                                caregiver: request.body.caregiverId
-                            }).then(function (appointment) { return appointment.populate("patient").then(function (appointment) { return appointment.populate('caregiver'); }); })];
+                                caregiver: request.body.caregiverId,
+                            })
+                                .then(function (appointment) {
+                                return appointment
+                                    .populate("patient")
+                                    .then(function (appointment) { return appointment.populate("caregiver"); });
+                            })];
                     case 1:
                         appointments = _b.sent();
                         return [4 /*yield*/, appointments.save()];
@@ -184,7 +222,7 @@ function scheduleAppointment() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: appointments,
-                                    message: 'Appointment Scheduled',
+                                    message: "Appointment Scheduled",
                                 },
                             }];
                 }
@@ -199,7 +237,10 @@ function confirmAppointment() {
             var appointment;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, db_1.db.appointments.findById(request.params.id).populate('patient').populate('caregiver')];
+                    case 0: return [4 /*yield*/, db_1.db.appointments
+                            .findById(request.params.id)
+                            .populate("patient")
+                            .populate("caregiver")];
                     case 1:
                         appointment = _a.sent();
                         console.log("params::id--> ", request.params.id);
@@ -208,7 +249,7 @@ function confirmAppointment() {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,
                                     body: {
                                         data: null,
-                                        message: 'Could not confirm appointment.',
+                                        message: "Could not confirm appointment.",
                                     },
                                 }];
                         }
@@ -219,7 +260,7 @@ function confirmAppointment() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: appointment,
-                                    message: 'Appointment has been confirmed and initiated',
+                                    message: "Appointment has been confirmed and initiated",
                                 },
                             }];
                 }
@@ -234,7 +275,10 @@ function cancelAppointment() {
             var appointment;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, db_1.db.appointments.findById(request.params.id).populate('patient').populate('caregiver')];
+                    case 0: return [4 /*yield*/, db_1.db.appointments
+                            .findById(request.params.id)
+                            .populate("patient")
+                            .populate("caregiver")];
                     case 1:
                         appointment = _a.sent();
                         if (!appointment) {
@@ -242,7 +286,7 @@ function cancelAppointment() {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,
                                     body: {
                                         data: null,
-                                        message: 'Could not cancel appointment.',
+                                        message: "Could not cancel appointment.",
                                     },
                                 }];
                         }
@@ -253,7 +297,7 @@ function cancelAppointment() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: appointment,
-                                    message: 'Successfully cancelled appointment',
+                                    message: "Successfully cancelled appointment",
                                 },
                             }];
                 }
@@ -268,7 +312,10 @@ function getAppointment() {
             var appointment;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, db_1.db.appointments.findById(request.params.id).populate("caregiver").populate("patient")];
+                    case 0: return [4 /*yield*/, db_1.db.appointments
+                            .findById(request.params.id)
+                            .populate("caregiver")
+                            .populate("patient")];
                     case 1:
                         appointment = _a.sent();
                         if (!appointment) {
@@ -276,7 +323,7 @@ function getAppointment() {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,
                                     body: {
                                         data: null,
-                                        message: 'Could not get appointment.',
+                                        message: "Could not get appointment.",
                                     },
                                 }];
                         }
@@ -284,7 +331,7 @@ function getAppointment() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: appointment,
-                                    message: 'Successfully fetched appointment',
+                                    message: "Successfully fetched appointment",
                                 },
                             }];
                 }
@@ -306,7 +353,7 @@ function deleteAppointment() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: appointment,
-                                    message: 'Successfully deleted appointment',
+                                    message: "Successfully deleted appointment",
                                 },
                             }];
                 }
