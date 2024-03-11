@@ -51,19 +51,25 @@ exports.deleteAppointment = exports.getAppointment = exports.cancelAppointment =
 var http_status_codes_1 = require("http-status-codes");
 var db_1 = require("../../db");
 function getAllAppointments() {
-    return function (_) {
+    return function (request) {
         return __awaiter(this, void 0, void 0, function () {
-            var appointments;
+            var status, filters, queryOptions, appointments;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, db_1.db.appointments
-                            .find({})
-                            .sort({ createdAt: "desc" })
-                            .populate("patient")
-                            .populate("caregiver")];
+                    case 0:
+                        status = request.query.status;
+                        filters = {};
+                        if (status) {
+                            filters = __assign(__assign({}, filters), { status: status });
+                        }
+                        queryOptions = {};
+                        return [4 /*yield*/, db_1.db.appointments
+                                .find(__assign({}, filters), {}, __assign({}, queryOptions))
+                                .sort({ createdAt: "desc" })
+                                .populate("patient")
+                                .populate("caregiver")];
                     case 1:
                         appointments = _a.sent();
-                        console.log("all:", appointments);
                         return [2 /*return*/, {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
@@ -71,6 +77,7 @@ function getAllAppointments() {
                                     message: appointments.length === 0
                                         ? "No Appointments Scheduled"
                                         : "All appointments retrieved",
+                                    count: appointments.length,
                                 },
                             }];
                 }

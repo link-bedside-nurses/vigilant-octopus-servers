@@ -6,13 +6,34 @@ import { mongoose } from "@typegoose/typegoose";
 import { Appointment } from "../../db/schemas/Appointment";
 
 export function getAllAppointments() {
-    return async function (_: HTTPRequest<object, object>) {
+    return async function (
+        request: HTTPRequest<{ id: string }, object, { status: string }>,
+    ) {
+        // const appointments = await db.appointments
+        //     .find({})
+        //     .sort({ createdAt: "desc" })
+        //     .populate("patient")
+        //     .populate("caregiver");
+        // console.log("all:", appointments);
+
+        const { status } = request.query;
+
+        let filters: mongoose.FilterQuery<Appointment> = {};
+        if (status) {
+            filters = { ...filters, status };
+        }
+
+        const queryOptions: mongoose.QueryOptions<Appointment> = {};
+
         const appointments = await db.appointments
-            .find({})
+            .find(
+                { ...filters },
+                {},
+                { ...queryOptions }, // options like populating can go here
+            )
             .sort({ createdAt: "desc" })
             .populate("patient")
             .populate("caregiver");
-        console.log("all:", appointments);
 
         return {
             statusCode: StatusCodes.OK,
@@ -22,6 +43,7 @@ export function getAllAppointments() {
                     appointments.length === 0
                         ? "No Appointments Scheduled"
                         : "All appointments retrieved",
+                count: appointments.length,
             },
         };
     };
