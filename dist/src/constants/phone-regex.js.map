@@ -1,0 +1,1 @@
+{"version":3,"file":"phone-regex.js","sourceRoot":"","sources":["../../../src/constants/phone-regex.ts"],"names":[],"mappings":";;AAAA,kBAAe,iBAAiB,CAAA","sourcesContent":["export default /^256[2-7]\\d{8}$/"]}
