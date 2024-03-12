@@ -1,5 +1,5 @@
 {
-    "name": "vigilant-octopus-server",
+    "name": "vigilant-octopus",
     "version": "1.0.0",
     "description": "The monolith server for Caregiver app.",
     "main": "dist/src/index.js",
