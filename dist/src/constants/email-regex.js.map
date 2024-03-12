@@ -1,1 +1,0 @@
-{"version":3,"file":"email-regex.js","sourceRoot":"","sources":["../../../src/constants/email-regex.ts"],"names":[],"mappings":";;AAAA,kBAAe,oCAAoC,CAAA","sourcesContent":["export default /^[A-Za-z0-9._%+-]+@caregiver\\.com$/\r\n"]}
