@@ -10,7 +10,6 @@
     ],
     "license": "MIT",
     "scripts": {
-        "postinstall": "tsc",
         "start": "npm run serve",
         "build": "npm run build-ts",
         "serve": "node dist/src/index.js",
