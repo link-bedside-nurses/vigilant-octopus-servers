@@ -109,7 +109,7 @@
         "zod": "^3.22.3"
     },
     "engines": {
-        "node": "^18"
+        "node": '^20'
     },
     "jest": {
         "preset": "ts-jest",
