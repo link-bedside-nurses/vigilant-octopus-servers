@@ -13,7 +13,7 @@ import authenticate from '../../middlewares/authentication'
 import isBanned from '../../middlewares/is-banned'
 const router = Router()
 
-router.get( '/', isBanned, callback( getAllCaregivers() ) )
+router.get( '/', authenticate, isBanned, callback( getAllCaregivers() ) )
 router.get( '/search', authenticate, isBanned, callback( searchCaregiversByLocation() ) )
 router.get( '/:id', authenticate, isBanned, callback( getCaregiver() ) )
 router.patch( '/:id', authenticate, isBanned, callback( updateCaregiver() ) )
