@@ -121,13 +121,7 @@ export function scheduleAppointment() {
             object
         >,
     ) {
-        if (
-            !(
-                request.body.title &&
-                request.body.description &&
-                request.body.notes
-            )
-        ) {
+        if ( !request.body.title && !request.body.caregiverId ) {
             const missingFields = [];
 
             if ( !request.body.title ) {
