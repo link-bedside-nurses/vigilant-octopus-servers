@@ -10,7 +10,7 @@ import cron from 'node-cron'
 import { otpCacheStore } from '../../cache-store/client'
 
 export function getOTP() {
-	async function expireOTPCache( phoneNumber: string ) {
+	function expireOTPCache( phoneNumber: string ) {
 		try {
 			otpCacheStore.expire( phoneNumber );
 		} catch ( error ) {
@@ -24,8 +24,7 @@ export function getOTP() {
 
 			await storeOTP( request.query.toPhone, otp.toString() );
 
-			// Schedule the cron job to expire OTP after 2 minutes
-			cron.schedule( '*/2 * * * *', () => {
+			cron.schedule( '*/2 * * * *', async () => {
 				expireOTPCache( request.query.toPhone );
 			} );
 
@@ -50,11 +49,9 @@ export function getOTP() {
 	};
 }
 
-
 export function verifyOTP() {
 	return async function ( request: HTTPRequest<object, { phone: string; otp: string; designation: DESIGNATION }, object> ) {
 		const { phone, otp, designation } = request.body
-		console.log( "req: ", request.body )
 		try {
 
 			const cacheStoreOTP = await getOTPFromCacheStore( phone )
@@ -100,7 +97,6 @@ export function verifyOTP() {
 
 				const accessToken = createAccessToken( user as Document & ACCOUNT )
 
-				// otpCacheStore.expire( phone )
 				return {
 					statusCode: StatusCodes.OK,
 					body: {

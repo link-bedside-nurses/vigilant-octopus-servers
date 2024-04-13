@@ -72,21 +72,17 @@ var node_cron_1 = __importDefault(require("node-cron"));
 var client_1 = require("../../cache-store/client");
 function getOTP() {
     function expireOTPCache(phoneNumber) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                try {
-                    client_1.otpCacheStore.expire(phoneNumber);
-                }
-                catch (error) {
-                    console.error('Error expiring OTP from cache:', error);
-                }
-                return [2 /*return*/];
-            });
-        });
+        try {
+            client_1.otpCacheStore.expire(phoneNumber);
+        }
+        catch (error) {
+            console.error('Error expiring OTP from cache:', error);
+        }
     }
     return function (request) {
         return __awaiter(this, void 0, void 0, function () {
             var otp, response, error_1;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -95,10 +91,12 @@ function getOTP() {
                         return [4 /*yield*/, (0, send_otp_1.storeOTP)(request.query.toPhone, otp.toString())];
                     case 1:
                         _a.sent();
-                        // Schedule the cron job to expire OTP after 2 minutes
-                        node_cron_1.default.schedule('*/2 * * * *', function () {
-                            expireOTPCache(request.query.toPhone);
-                        });
+                        node_cron_1.default.schedule('*/2 * * * *', function () { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                expireOTPCache(request.query.toPhone);
+                                return [2 /*return*/];
+                            });
+                        }); });
                         return [4 /*yield*/, (0, send_otp_1.default)(request.query.toPhone, String(otp))];
                     case 2:
                         response = _a.sent();
@@ -133,7 +131,6 @@ function verifyOTP() {
                 switch (_b.label) {
                     case 0:
                         _a = request.body, phone = _a.phone, otp = _a.otp, designation = _a.designation;
-                        console.log("req: ", request.body);
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 10, , 11]);
@@ -184,7 +181,6 @@ function verifyOTP() {
                     case 8:
                         user = _b.sent();
                         accessToken = (0, token_1.createAccessToken)(user);
-                        // otpCacheStore.expire( phone )
                         return [2 /*return*/, {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {

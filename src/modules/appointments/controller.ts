@@ -6,34 +6,13 @@ import { mongoose } from "@typegoose/typegoose";
 import { Appointment } from "../../db/schemas/Appointment";
 
 export function getAllAppointments() {
-    return async function (
-        request: HTTPRequest<{ id: string }, object, { status: string }>,
-    ) {
-        // const appointments = await db.appointments
-        //     .find({})
-        //     .sort({ createdAt: "desc" })
-        //     .populate("patient")
-        //     .populate("caregiver");
-        // console.log("all:", appointments);
-
-        const { status } = request.query;
-
-        let filters: mongoose.FilterQuery<Appointment> = {};
-        if (status) {
-            filters = { ...filters, status };
-        }
-
-        const queryOptions: mongoose.QueryOptions<Appointment> = {};
-
+    return async function (_: HTTPRequest<object, object>) {
         const appointments = await db.appointments
-            .find(
-                { ...filters },
-                {},
-                { ...queryOptions }, // options like populating can go here
-            )
+            .find({})
             .sort({ createdAt: "desc" })
             .populate("patient")
             .populate("caregiver");
+        console.log("all:", appointments);
 
         return {
             statusCode: StatusCodes.OK,
@@ -144,13 +123,7 @@ export function scheduleAppointment() {
             object
         >,
     ) {
-        if (
-            !(
-                request.body.title &&
-                request.body.description &&
-                request.body.notes
-            )
-        ) {
+        if (!request.body.title && !request.body.caregiverId) {
             const missingFields = [];
 
             if (!request.body.title) {
@@ -158,14 +131,6 @@ export function scheduleAppointment() {
             }
             if (!request.body.caregiverId) {
                 missingFields.push("caregiverId");
-            }
-
-            if (!request.body.description) {
-                missingFields.push("description");
-            }
-
-            if (!request.body.notes) {
-                missingFields.push("notes");
             }
 
             return {

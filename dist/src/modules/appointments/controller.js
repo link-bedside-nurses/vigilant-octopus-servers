@@ -177,9 +177,9 @@ function getPatientAppointments() {
 exports.getPatientAppointments = getPatientAppointments;
 function scheduleAppointment() {
     return function (request) {
+        var _a;
         return __awaiter(this, void 0, void 0, function () {
             var missingFields, appointments;
-            var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
