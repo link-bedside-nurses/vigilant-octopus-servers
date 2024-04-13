@@ -89,12 +89,13 @@ export function getPatientAppointments() {
     ) {
         const { status } = request.query;
 
-        const filters: mongoose.FilterQuery<Appointment> = {
-            patient: {
-                _id: request.params.id,
-            },
-            status,
+        let filters: mongoose.FilterQuery<Appointment> = {
+            patient: { _id: request.params.id },
         };
+
+        if (status) {
+            filters = { ...filters, status };
+        }
 
         const queryOptions: mongoose.QueryOptions<Appointment> = {};
 
