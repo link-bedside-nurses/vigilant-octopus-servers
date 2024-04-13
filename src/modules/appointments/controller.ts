@@ -3,16 +3,20 @@ import { HTTPRequest } from "../../adapters/express-callback";
 import { StatusCodes } from "http-status-codes";
 import { db } from "../../db";
 import { mongoose } from "@typegoose/typegoose";
+import {
+    ObjectId
+} from 'mongodb';
+
 import { Appointment } from "../../db/schemas/Appointment";
 
 export function getAllAppointments() {
-    return async function (_: HTTPRequest<object, object>) {
+    return async function ( _: HTTPRequest<object, object> ) {
         const appointments = await db.appointments
-            .find({})
-            .sort({ createdAt: "desc" })
-            .populate("patient")
-            .populate("caregiver");
-        console.log("all:", appointments);
+            .find( {} )
+            .sort( { createdAt: "desc" } )
+            .populate( "patient" )
+            .populate( "caregiver" );
+        console.log( "all:", appointments );
 
         return {
             statusCode: StatusCodes.OK,
@@ -33,15 +37,15 @@ export function getCaregiverAppointments() {
         request: HTTPRequest<{ id: string }, object, object>,
     ) {
         const appointments = await db.appointments
-            .find({
+            .find( {
                 caregiver: {
                     _id: request.params.id,
                 },
-            })
-            .populate("patient")
-            .populate("caregiver");
+            } )
+            .populate( "patient" )
+            .populate( "caregiver" );
 
-        if (appointments.length > 0) {
+        if ( appointments.length > 0 ) {
             return {
                 statusCode: StatusCodes.OK,
                 body: {
@@ -72,73 +76,78 @@ export function getPatientAppointments() {
             patient: { _id: request.params.id },
         };
 
-        if (status) {
+        if ( status ) {
             filters = { ...filters, status };
         }
 
-        const pipeline: mongoose.PipelineStage[] = [
-            {
-                $match: {
-                    patient: request.params.id,
-                },
-            },
-            {
-                $addFields: {
-                    order: {
-                        $switch: {
-                            branches: [
-                                {
-                                    case: {
-                                        $eq: ["$status", "ongoing"],
-                                    },
-                                    then: 1,
-                                },
-                                {
-                                    case: {
-                                        $eq: ["$status", "pending"],
-                                    },
-                                    then: 2,
-                                },
-                                {
-                                    case: {
-                                        $eq: ["$status", "cancelled"],
-                                    },
-                                    then: 3,
-                                },
-                                {
-                                    case: {
-                                        $eq: ["$status", "completed"],
-                                    },
-                                    then: 4,
-                                },
-                            ],
-                            default: 5, // Default case, if status doesn't match any of the above
-                        },
-                    },
-                },
-            },
-            {
-                $sort: {
-                    createdAt: -1,
-                    order: 1,
-                },
-            },
-        ];
+        const pipeline: mongoose.PipelineStage[] =
+            [
+                {
+                    '$match': {
+                        'patient': new ObjectId( request.params.id )
+                    }
+                }, {
+                    '$addFields': {
+                        'order': {
+                            '$switch': {
+                                'branches': [
+                                    {
+                                        'case': {
+                                            '$eq': [
+                                                '$status', 'ongoing'
+                                            ]
+                                        },
+                                        'then': 1
+                                    }, {
+                                        'case': {
+                                            '$eq': [
+                                                '$status', 'pending'
+                                            ]
+                                        },
+                                        'then': 2
+                                    }, {
+                                        'case': {
+                                            '$eq': [
+                                                '$status', 'cancelled'
+                                            ]
+                                        },
+                                        'then': 3
+                                    }, {
+                                        'case': {
+                                            '$eq': [
+                                                '$status', 'completed'
+                                            ]
+                                        },
+                                        'then': 4
+                                    }
+                                ],
+                                'default': 5
+                            }
+                        }
+                    }
+                }, {
+                    '$sort': {
+                        'createdAt': -1,
+                        'order': 1
+                    }
+                }
+            ]
 
-        if (status) {
-            pipeline.push({
-                $match: {
-                    status,
+        if ( status ) {
+            pipeline.push( {
+                '$match': {
+                    'status': status,
                 },
-            });
+            } );
         }
 
-        let appointments = await db.appointments.aggregate(pipeline);
-        appointments = await db.caregivers.populate(appointments, {
-            path: "caregivers",
-        });
+        let appointments = await db.appointments.aggregate( pipeline );
 
-        if (appointments.length > 0) {
+        appointments = await db.caregivers.populate( appointments, {
+            path: "caregiver",
+        } );
+
+        if ( appointments.length > 0 ) {
             return {
                 statusCode: StatusCodes.OK,
                 body: {
@@ -172,14 +181,14 @@ export function scheduleAppointment() {
             object
         >,
     ) {
-        if (!request.body.title && !request.body.caregiverId) {
+        if ( !request.body.title && !request.body.caregiverId ) {
             const missingFields = [];
 
-            if (!request.body.title) {
-                missingFields.push("title");
+            if ( !request.body.title ) {
+                missingFields.push( "title" );
             }
-            if (!request.body.caregiverId) {
-                missingFields.push("caregiverId");
+            if ( !request.body.caregiverId ) {
+                missingFields.push( "caregiverId" );
             }
 
             return {
@@ -194,17 +203,17 @@ export function scheduleAppointment() {
         }
 
         const appointments = await db.appointments
-            .create({
+            .create( {
                 title: request.body.title,
                 description: request.body.description,
                 notes: request.body.notes,
                 patient: request.account?.id,
                 caregiver: request.body.caregiverId,
-            })
-            .then(appointment =>
+            } )
+            .then( appointment =>
                 appointment
-                    .populate("patient")
-                    .then(appointment => appointment.populate("caregiver")),
+                    .populate( "patient" )
+                    .then( appointment => appointment.populate( "caregiver" ) ),
             );
 
         await appointments.save();
@@ -220,15 +229,15 @@ export function scheduleAppointment() {
 }
 
 export function confirmAppointment() {
-    return async function (request: HTTPRequest<{ id: string }, object>) {
+    return async function ( request: HTTPRequest<{ id: string }, object> ) {
         const appointment = await db.appointments
-            .findById(request.params.id)
-            .populate("patient")
-            .populate("caregiver");
+            .findById( request.params.id )
+            .populate( "patient" )
+            .populate( "caregiver" );
 
-        console.log("params::id--> ", request.params.id);
+        console.log( "params::id--> ", request.params.id );
 
-        if (!appointment) {
+        if ( !appointment ) {
             return {
                 statusCode: StatusCodes.NOT_FOUND,
                 body: {
@@ -260,11 +269,11 @@ export function cancelAppointment() {
         >,
     ) {
         const appointment = await db.appointments
-            .findById(request.params.id)
-            .populate("patient")
-            .populate("caregiver");
+            .findById( request.params.id )
+            .populate( "patient" )
+            .populate( "caregiver" );
 
-        if (!appointment) {
+        if ( !appointment ) {
             return {
                 statusCode: StatusCodes.NOT_FOUND,
                 body: {
@@ -274,7 +283,7 @@ export function cancelAppointment() {
             };
         }
 
-        await appointment.cancelAppointment(request.body.reason);
+        await appointment.cancelAppointment( request.body.reason );
 
         return {
             statusCode: StatusCodes.OK,
@@ -287,13 +296,13 @@ export function cancelAppointment() {
 }
 
 export function getAppointment() {
-    return async function (request: HTTPRequest<{ id: string }>) {
+    return async function ( request: HTTPRequest<{ id: string }> ) {
         const appointment = await db.appointments
-            .findById(request.params.id)
-            .populate("caregiver")
-            .populate("patient");
+            .findById( request.params.id )
+            .populate( "caregiver" )
+            .populate( "patient" );
 
-        if (!appointment) {
+        if ( !appointment ) {
             return {
                 statusCode: StatusCodes.NOT_FOUND,
                 body: {
@@ -314,7 +323,7 @@ export function getAppointment() {
 }
 
 export function deleteAppointment() {
-    return async function (request: HTTPRequest<{ id: string }>) {
+    return async function ( request: HTTPRequest<{ id: string }> ) {
         const appointment = await db.appointments.findByIdAndDelete(
             request.params.id,
         );

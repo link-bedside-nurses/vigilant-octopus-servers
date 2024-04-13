@@ -50,6 +50,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteAppointment = exports.getAppointment = exports.cancelAppointment = exports.confirmAppointment = exports.scheduleAppointment = exports.getPatientAppointments = exports.getCaregiverAppointments = exports.getAllAppointments = void 0;
 var http_status_codes_1 = require("http-status-codes");
 var db_1 = require("../../db");
+var mongodb_1 = require("mongodb");
 function getAllAppointments() {
     return function (_) {
         return __awaiter(this, void 0, void 0, function () {
@@ -138,56 +139,59 @@ function getPatientAppointments() {
                         }
                         pipeline = [
                             {
-                                $match: {
-                                    patient: request.params.id,
-                                },
-                            },
-                            {
-                                $addFields: {
-                                    order: {
-                                        $switch: {
-                                            branches: [
+                                '$match': {
+                                    'patient': new mongodb_1.ObjectId(request.params.id)
+                                }
+                            }, {
+                                '$addFields': {
+                                    'order': {
+                                        '$switch': {
+                                            'branches': [
                                                 {
-                                                    case: {
-                                                        $eq: ["$status", "ongoing"],
+                                                    'case': {
+                                                        '$eq': [
+                                                            '$status', 'ongoing'
+                                                        ]
                                                     },
-                                                    then: 1,
-                                                },
-                                                {
-                                                    case: {
-                                                        $eq: ["$status", "pending"],
+                                                    'then': 1
+                                                }, {
+                                                    'case': {
+                                                        '$eq': [
+                                                            '$status', 'pending'
+                                                        ]
                                                     },
-                                                    then: 2,
-                                                },
-                                                {
-                                                    case: {
-                                                        $eq: ["$status", "cancelled"],
+                                                    'then': 2
+                                                }, {
+                                                    'case': {
+                                                        '$eq': [
+                                                            '$status', 'cancelled'
+                                                        ]
                                                     },
-                                                    then: 3,
-                                                },
-                                                {
-                                                    case: {
-                                                        $eq: ["$status", "completed"],
+                                                    'then': 3
+                                                }, {
+                                                    'case': {
+                                                        '$eq': [
+                                                            '$status', 'completed'
+                                                        ]
                                                     },
-                                                    then: 4,
-                                                },
+                                                    'then': 4
+                                                }
                                             ],
-                                            default: 5, // Default case, if status doesn't match any of the above
-                                        },
-                                    },
-                                },
-                            },
-                            {
-                                $sort: {
-                                    createdAt: -1,
-                                    order: 1,
-                                },
-                            },
+                                            'default': 5
+                                        }
+                                    }
+                                }
+                            }, {
+                                '$sort': {
+                                    'createdAt': -1,
+                                    'order': 1
+                                }
+                            }
                         ];
                         if (status) {
                             pipeline.push({
-                                $match: {
-                                    status: status,
+                                '$match': {
+                                    'status': status,
                                 },
                             });
                         }
@@ -195,7 +199,7 @@ function getPatientAppointments() {
                     case 1:
                         appointments = _a.sent();
                         return [4 /*yield*/, db_1.db.caregivers.populate(appointments, {
-                                path: "caregivers",
+                                path: "caregiver",
                             })];
                     case 2:
                         appointments = _a.sent();
@@ -227,9 +231,9 @@ function getPatientAppointments() {
 exports.getPatientAppointments = getPatientAppointments;
 function scheduleAppointment() {
     return function (request) {
+        var _a;
         return __awaiter(this, void 0, void 0, function () {
             var missingFields, appointments;
-            var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:

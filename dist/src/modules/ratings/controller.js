@@ -164,13 +164,13 @@ function deleteRating() {
 exports.deleteRating = deleteRating;
 function addRating() {
     return function (request) {
+        var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var _a, review, value, id, rating;
-            var _b;
+            var _b, review, value, id, rating;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        _a = request.body, review = _a.review, value = _a.value;
+                        _b = request.body, review = _b.review, value = _b.value;
                         id = request.params.id;
                         if (!review || !value || !id) {
                             return [2 /*return*/, {
@@ -185,7 +185,7 @@ function addRating() {
                                 review: review,
                                 value: value,
                                 caregiver: id,
-                                patient: (_b = request === null || request === void 0 ? void 0 : request.account) === null || _b === void 0 ? void 0 : _b.id,
+                                patient: (_a = request === null || request === void 0 ? void 0 : request.account) === null || _a === void 0 ? void 0 : _a.id,
                             }).then(function (r) { return r.populate('patient').then(function (r) { return r.populate('caregiver'); }); })];
                     case 1:
                         rating = _c.sent();

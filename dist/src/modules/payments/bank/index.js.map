@@ -1,1 +1,1 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../../src/modules/payments/bank/index.ts"],"names":[],"mappings":";;AAAA,kBAAe,EAAE,CAAA","sourcesContent":["export default {}\r\n"]}
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../../src/modules/payments/bank/index.ts"],"names":[],"mappings":";;AAAA,kBAAe,EAAE,CAAA","sourcesContent":["export default {}\n"]}
