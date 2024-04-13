@@ -76,18 +76,67 @@ export function getPatientAppointments() {
             filters = { ...filters, status };
         }
 
-        const queryOptions: mongoose.QueryOptions<Appointment> = {};
-
-        const appointments = await db.appointments
-            .find(
-                {
-                    ...filters,
+        const pipeline: mongoose.PipelineStage[] = [
+            {
+                $match: {
+                    patient: request.params.id,
                 },
-                {},
-                { ...queryOptions }, // options like populating can go here
-            )
-            .populate("patient")
-            .populate("caregiver");
+            },
+            {
+                $addFields: {
+                    order: {
+                        $switch: {
+                            branches: [
+                                {
+                                    case: {
+                                        $eq: ["$status", "ongoing"],
+                                    },
+                                    then: 1,
+                                },
+                                {
+                                    case: {
+                                        $eq: ["$status", "pending"],
+                                    },
+                                    then: 2,
+                                },
+                                {
+                                    case: {
+                                        $eq: ["$status", "cancelled"],
+                                    },
+                                    then: 3,
+                                },
+                                {
+                                    case: {
+                                        $eq: ["$status", "completed"],
+                                    },
+                                    then: 4,
+                                },
+                            ],
+                            default: 5, // Default case, if status doesn't match any of the above
+                        },
+                    },
+                },
+            },
+            {
+                $sort: {
+                    createdAt: -1,
+                    order: 1,
+                },
+            },
+        ];
+
+        if (status) {
+            pipeline.push({
+                $match: {
+                    status,
+                },
+            });
+        }
+
+        let appointments = await db.appointments.aggregate(pipeline);
+        appointments = await db.caregivers.populate(appointments, {
+            path: "caregivers",
+        });
 
         if (appointments.length > 0) {
             return {

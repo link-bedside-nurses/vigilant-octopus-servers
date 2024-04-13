@@ -125,7 +125,7 @@ exports.getCaregiverAppointments = getCaregiverAppointments;
 function getPatientAppointments() {
     return function (request) {
         return __awaiter(this, void 0, void 0, function () {
-            var status, filters, queryOptions, appointments;
+            var status, filters, pipeline, appointments;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -136,12 +136,68 @@ function getPatientAppointments() {
                         if (status) {
                             filters = __assign(__assign({}, filters), { status: status });
                         }
-                        queryOptions = {};
-                        return [4 /*yield*/, db_1.db.appointments
-                                .find(__assign({}, filters), {}, __assign({}, queryOptions))
-                                .populate("patient")
-                                .populate("caregiver")];
+                        pipeline = [
+                            {
+                                $match: {
+                                    patient: request.params.id,
+                                },
+                            },
+                            {
+                                $addFields: {
+                                    order: {
+                                        $switch: {
+                                            branches: [
+                                                {
+                                                    case: {
+                                                        $eq: ["$status", "ongoing"],
+                                                    },
+                                                    then: 1,
+                                                },
+                                                {
+                                                    case: {
+                                                        $eq: ["$status", "pending"],
+                                                    },
+                                                    then: 2,
+                                                },
+                                                {
+                                                    case: {
+                                                        $eq: ["$status", "cancelled"],
+                                                    },
+                                                    then: 3,
+                                                },
+                                                {
+                                                    case: {
+                                                        $eq: ["$status", "completed"],
+                                                    },
+                                                    then: 4,
+                                                },
+                                            ],
+                                            default: 5, // Default case, if status doesn't match any of the above
+                                        },
+                                    },
+                                },
+                            },
+                            {
+                                $sort: {
+                                    createdAt: -1,
+                                    order: 1,
+                                },
+                            },
+                        ];
+                        if (status) {
+                            pipeline.push({
+                                $match: {
+                                    status: status,
+                                },
+                            });
+                        }
+                        return [4 /*yield*/, db_1.db.appointments.aggregate(pipeline)];
                     case 1:
+                        appointments = _a.sent();
+                        return [4 /*yield*/, db_1.db.caregivers.populate(appointments, {
+                                path: "caregivers",
+                            })];
+                    case 2:
                         appointments = _a.sent();
                         if (appointments.length > 0) {
                             return [2 /*return*/, {
