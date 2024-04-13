@@ -436,9 +436,9 @@ function deleteAccount() {
 exports.deleteAccount = deleteAccount;
 function getAccessToken() {
     return function (request) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function () {
             var designation, user, accessToken;
+            var _a, _b, _c;
             return __generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:

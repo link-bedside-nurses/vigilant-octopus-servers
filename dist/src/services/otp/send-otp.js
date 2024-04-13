@@ -81,7 +81,7 @@ function sendOTP(phone, otp) {
                         ]
                     }, {
                         headers: {
-                            Authorization: "App 6425cb63cf8f4bbc854a39fa6fc4987d-56bd56ad-d2ff-474a-aa0a-e8092a2a9f89",
+                            Authorization: "App 9fc830f221c28b354b493a57a4ff3f9e-a47fd25f-efa5-42e1-ac24-b8800accd9ca",
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         },

@@ -41,14 +41,14 @@ var http_status_codes_1 = require("http-status-codes");
 var db_1 = require("../../db");
 function completeCaregiverProfile() {
     return function (request) {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
-            var caregiverId, _c, phone, firstName, lastName, dateOfBirth, nin, medicalLicenseNumber, experience, description, location, languages, affiliations, placeOfReception, speciality, servicesOffered, imageUrl, updatedCaregiver;
+            var caregiverId, _a, phone, firstName, lastName, dateOfBirth, nin, medicalLicenseNumber, experience, description, location, languages, affiliations, placeOfReception, speciality, servicesOffered, imageUrl, updatedCaregiver;
+            var _b, _c;
             return __generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:
-                        caregiverId = (_a = request === null || request === void 0 ? void 0 : request.account) === null || _a === void 0 ? void 0 : _a.id;
-                        _c = request.body, phone = _c.phone, firstName = _c.firstName, lastName = _c.lastName, dateOfBirth = _c.dateOfBirth, nin = _c.nin, medicalLicenseNumber = _c.medicalLicenseNumber, experience = _c.experience, description = _c.description, location = _c.location, languages = _c.languages, affiliations = _c.affiliations, placeOfReception = _c.placeOfReception, speciality = _c.speciality, servicesOffered = _c.servicesOffered, imageUrl = _c.imageUrl;
+                        caregiverId = (_b = request === null || request === void 0 ? void 0 : request.account) === null || _b === void 0 ? void 0 : _b.id;
+                        _a = request.body, phone = _a.phone, firstName = _a.firstName, lastName = _a.lastName, dateOfBirth = _a.dateOfBirth, nin = _a.nin, medicalLicenseNumber = _a.medicalLicenseNumber, experience = _a.experience, description = _a.description, location = _a.location, languages = _a.languages, affiliations = _a.affiliations, placeOfReception = _a.placeOfReception, speciality = _a.speciality, servicesOffered = _a.servicesOffered, imageUrl = _a.imageUrl;
                         if (!caregiverId ||
                             !phone ||
                             !firstName ||
@@ -73,7 +73,7 @@ function completeCaregiverProfile() {
                                     },
                                 }];
                         }
-                        return [4 /*yield*/, db_1.db.caregivers.findByIdAndUpdate((_b = request === null || request === void 0 ? void 0 : request.account) === null || _b === void 0 ? void 0 : _b.id, {
+                        return [4 /*yield*/, db_1.db.caregivers.findByIdAndUpdate((_c = request === null || request === void 0 ? void 0 : request.account) === null || _c === void 0 ? void 0 : _c.id, {
                                 phone: phone,
                                 firstName: firstName,
                                 lastName: lastName,

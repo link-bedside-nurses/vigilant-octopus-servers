@@ -41,9 +41,9 @@ var db_1 = require("../db");
 var utils_1 = require("../utils");
 var http_status_codes_1 = require("http-status-codes");
 function isBanned(request, _response, next) {
-    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function () {
         var user;
+        var _a, _b, _c;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
