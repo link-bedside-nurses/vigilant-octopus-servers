@@ -181,10 +181,10 @@ function getPatientAppointments() {
                                         }
                                     }
                                 }
-                            }, {
+                            },
+                            {
                                 '$sort': {
-                                    'createdAt': -1,
-                                    'order': 1
+                                    'createdAt': -1
                                 }
                             }
                         ];
