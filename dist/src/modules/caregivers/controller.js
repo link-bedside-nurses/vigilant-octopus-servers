@@ -74,6 +74,7 @@ function getAllCaregivers() {
                                         'coordinates': [parseFloat(longitude), parseFloat(latitude)],
                                     },
                                     'distanceField': "distance",
+                                    'spherical': true,
                                 },
                             },
                             {
