@@ -83,12 +83,12 @@ function disconnectFromDatabase() {
                     return [4 /*yield*/, mongoose_1.default.connection.close()];
                 case 1:
                     _a.sent();
-                    logger_1.default.info('disconnecting from db');
+                    logger_1.default.info("disconnecting from db");
                     _a.label = 2;
                 case 2: return [2 /*return*/];
                 case 3:
                     error_2 = _a.sent();
-                    logger_1.default.error(error_2, 'Error disconnecting db');
+                    logger_1.default.error(error_2, "Error disconnecting db");
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
             }
@@ -121,11 +121,11 @@ function seedDatabase() {
                     return [4 /*yield*/, (0, seed_1.seedPayments)()];
                 case 6:
                     _a.sent();
-                    console.log('Seed data inserted successfully!');
+                    console.log("Seed data inserted successfully!");
                     return [3 /*break*/, 8];
                 case 7:
                     error_3 = _a.sent();
-                    console.error('Error seeding database:', error_3);
+                    console.error("Error seeding database:", error_3);
                     return [3 /*break*/, 8];
                 case 8: return [2 /*return*/];
             }

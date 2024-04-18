@@ -23,26 +23,34 @@ export function getAllCaregivers() {
                     "Missing either latitude or longitude on the 'latLng' query key",
                 );
             }
-            // prettier-ignore
-            const pipeline: mongoose.PipelineStage[] = [
-                {
-                    '$geoNear': {
-                        'near': {
-                            'type': "Point",
-                            'coordinates': [parseFloat(longitude), parseFloat(latitude)],
-                        },
-                        'distanceField': "distance",
-						'spherical': true,	
-                    },
-                },
-                {
-                    '$sort': {
-                        'distance': 1,
-                    },
-                },
-            ];
 
-            caregivers = await db.appointments.aggregate(pipeline);
+            // prettier-ignore
+            // const pipeline: mongoose.PipelineStage[] = [
+            //     {
+            //         '$geoNear': {
+            //             'near': {
+            //                 'type': "Point",
+            //                 'coordinates': [parseFloat(longitude), parseFloat(latitude)],
+            //             },
+            //             'distanceField': "distance",
+            // 			'spherical': true,
+            // 			'includeLocs': 'location'
+            //         },
+            //     },
+            // ];
+
+            // caregivers = await db.appointments.aggregate(pipeline);
+
+            caregivers = await db.caregivers.find({
+                location: {
+                    $near: {
+                        $geometry: {
+                            type: "Point",
+                            coordinates: [longitude, latitude],
+                        },
+                    },
+                },
+            });
         } else {
             caregivers = await db.caregivers
                 .find({})

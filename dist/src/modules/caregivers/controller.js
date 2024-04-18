@@ -54,7 +54,7 @@ var utils_1 = require("../../utils");
 function getAllCaregivers() {
     return function (request) {
         return __awaiter(this, void 0, void 0, function () {
-            var latLng, caregivers, latitude, longitude, pipeline;
+            var latLng, caregivers, latitude, longitude;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -66,25 +66,32 @@ function getAllCaregivers() {
                         if (!latitude || !longitude) {
                             throw new Error("Missing either latitude or longitude on the 'latLng' query key");
                         }
-                        pipeline = [
-                            {
-                                '$geoNear': {
-                                    'near': {
-                                        'type': "Point",
-                                        'coordinates': [parseFloat(longitude), parseFloat(latitude)],
+                        return [4 /*yield*/, db_1.db.caregivers.find({
+                                location: {
+                                    $near: {
+                                        $geometry: {
+                                            type: "Point",
+                                            coordinates: [longitude, latitude],
+                                        },
                                     },
-                                    'distanceField': "distance",
-                                    'spherical': true,
                                 },
-                            },
-                            {
-                                '$sort': {
-                                    'distance': 1,
-                                },
-                            },
-                        ];
-                        return [4 /*yield*/, db_1.db.appointments.aggregate(pipeline)];
+                            })];
                     case 1:
+                        // prettier-ignore
+                        // const pipeline: mongoose.PipelineStage[] = [
+                        //     {
+                        //         '$geoNear': {
+                        //             'near': {
+                        //                 'type': "Point",
+                        //                 'coordinates': [parseFloat(longitude), parseFloat(latitude)],
+                        //             },
+                        //             'distanceField': "distance",
+                        // 			'spherical': true,
+                        // 			'includeLocs': 'location'
+                        //         },
+                        //     },
+                        // ];
+                        // caregivers = await db.appointments.aggregate(pipeline);
                         caregivers = _a.sent();
                         return [3 /*break*/, 4];
                     case 2: return [4 /*yield*/, db_1.db.caregivers
