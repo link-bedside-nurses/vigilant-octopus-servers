@@ -52,22 +52,50 @@ var http_status_codes_1 = require("http-status-codes");
 var db_1 = require("../../db");
 var utils_1 = require("../../utils");
 function getAllCaregivers() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return function (_) {
+    return function (request) {
         return __awaiter(this, void 0, void 0, function () {
-            var caregivers;
+            var latLng, latitude, longitude, caregivers, pipeline;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, db_1.db.caregivers.find({}).sort({ createdAt: "desc" })];
+                    case 0:
+                        latLng = request.query.latLng;
+                        latitude = latLng.split(",")[0];
+                        longitude = latLng.split(",")[1];
+                        caregivers = [];
+                        if (!(latLng && latitude && longitude)) return [3 /*break*/, 2];
+                        pipeline = [
+                            {
+                                '$geoNear': {
+                                    'near': {
+                                        'type': "Point",
+                                        'coordinates': [parseFloat(longitude), parseFloat(latitude)],
+                                    },
+                                    'distanceField': "distance",
+                                },
+                            },
+                            {
+                                '$sort': {
+                                    'distance': 1,
+                                },
+                            },
+                        ];
+                        return [4 /*yield*/, db_1.db.appointments.aggregate(pipeline)];
                     case 1:
                         caregivers = _a.sent();
-                        return [2 /*return*/, {
-                                statusCode: http_status_codes_1.StatusCodes.OK,
-                                body: {
-                                    data: caregivers,
-                                    message: 'caregivers Retrieved',
-                                },
-                            }];
+                        return [3 /*break*/, 4];
+                    case 2: return [4 /*yield*/, db_1.db.caregivers
+                            .find({})
+                            .sort({ createdAt: "desc" })];
+                    case 3:
+                        caregivers = _a.sent();
+                        _a.label = 4;
+                    case 4: return [2 /*return*/, {
+                            statusCode: http_status_codes_1.StatusCodes.OK,
+                            body: {
+                                data: caregivers,
+                                message: "caregivers Retrieved",
+                            },
+                        }];
                 }
             });
         });
@@ -87,7 +115,7 @@ function getCaregiver() {
                             return [2 /*return*/, {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,
                                     body: {
-                                        message: 'No caregiver Found',
+                                        message: "No caregiver Found",
                                         data: null,
                                     },
                                 }];
@@ -96,7 +124,7 @@ function getCaregiver() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: caregiver,
-                                    message: 'caregiver Retrieved',
+                                    message: "caregiver Retrieved",
                                 },
                             }];
                 }
@@ -118,7 +146,7 @@ function deleteCaregiver() {
                             return [2 /*return*/, {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,
                                     body: {
-                                        message: 'No caregiver Found',
+                                        message: "No caregiver Found",
                                         data: null,
                                     },
                                 }];
@@ -127,7 +155,7 @@ function deleteCaregiver() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: caregiver,
-                                    message: 'caregiver deleted',
+                                    message: "caregiver deleted",
                                 },
                             }];
                 }
@@ -149,7 +177,7 @@ function updateCaregiver() {
                             return [2 /*return*/, {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,
                                     body: {
-                                        message: 'No caregiver Found',
+                                        message: "No caregiver Found",
                                         data: null,
                                     },
                                 }];
@@ -158,7 +186,7 @@ function updateCaregiver() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: caregiver,
-                                    message: 'caregiver updated',
+                                    message: "caregiver updated",
                                 },
                             }];
                 }
@@ -180,7 +208,7 @@ function deactivateCaregiver() {
                             return [2 /*return*/, {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,
                                     body: {
-                                        message: 'No caregiver Found',
+                                        message: "No caregiver Found",
                                         data: null,
                                     },
                                 }];
@@ -189,7 +217,7 @@ function deactivateCaregiver() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: caregiver,
-                                    message: 'Account successfully deactivated',
+                                    message: "Account successfully deactivated",
                                 },
                             }];
                 }
@@ -246,7 +274,9 @@ function searchCaregiversByLocation() {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
                                     data: caregivers || [],
-                                    message: caregivers.length > 0 ? "Found ".concat(caregivers.length, " result(s)") : "No results found",
+                                    message: caregivers.length > 0
+                                        ? "Found ".concat(caregivers.length, " result(s)")
+                                        : "No results found",
                                 },
                             }];
                 }

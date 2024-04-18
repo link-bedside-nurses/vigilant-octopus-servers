@@ -190,6 +190,7 @@ function getPatientAppointments() {
                         ];
                         if (status) {
                             pipeline.push({
+                                // prettier-ignore
                                 '$match': {
                                     'status': status,
                                 },
