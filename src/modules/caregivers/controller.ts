@@ -11,12 +11,18 @@ export function getAllCaregivers() {
         request: HTTPRequest<object, object, { latLng: string }>,
     ) {
         const { latLng } = request.query;
-        const latitude = latLng.split(",")[0];
-        const longitude = latLng.split(",")[1];
 
         let caregivers = [];
 
-        if (latLng && latitude && longitude) {
+        if (latLng) {
+            const latitude = latLng?.split(",")[0];
+            const longitude = latLng?.split(",")[1];
+
+            if (!latitude || !longitude) {
+                throw new Error(
+                    "Missing either latitude or longitude on the 'latLng' query key",
+                );
+            }
             // prettier-ignore
             const pipeline: mongoose.PipelineStage[] = [
                 {

@@ -54,15 +54,18 @@ var utils_1 = require("../../utils");
 function getAllCaregivers() {
     return function (request) {
         return __awaiter(this, void 0, void 0, function () {
-            var latLng, latitude, longitude, caregivers, pipeline;
+            var latLng, caregivers, latitude, longitude, pipeline;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         latLng = request.query.latLng;
-                        latitude = latLng.split(",")[0];
-                        longitude = latLng.split(",")[1];
                         caregivers = [];
-                        if (!(latLng && latitude && longitude)) return [3 /*break*/, 2];
+                        if (!latLng) return [3 /*break*/, 2];
+                        latitude = latLng === null || latLng === void 0 ? void 0 : latLng.split(",")[0];
+                        longitude = latLng === null || latLng === void 0 ? void 0 : latLng.split(",")[1];
+                        if (!latitude || !longitude) {
+                            throw new Error("Missing either latitude or longitude on the 'latLng' query key");
+                        }
                         pipeline = [
                             {
                                 '$geoNear': {
