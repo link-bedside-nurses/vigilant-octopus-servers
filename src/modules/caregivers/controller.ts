@@ -17,19 +17,20 @@ export function getAllCaregivers() {
         let caregivers = [];
 
         if (latLng && latitude && longitude) {
+            // prettier-ignore
             const pipeline: mongoose.PipelineStage[] = [
                 {
-                    $geoNear: {
-                        near: {
-                            type: "Point",
-                            coordinates: [32.553019, 0.303561],
+                    '$geoNear': {
+                        'near': {
+                            'type': "Point",
+                            'coordinates': [parseFloat(longitude), parseFloat(latitude)],
                         },
-                        distanceField: "distance",
+                        'distanceField': "distance",
                     },
                 },
                 {
-                    $sort: {
-                        distance: 1,
+                    '$sort': {
+                        'distance': 1,
                     },
                 },
             ];
