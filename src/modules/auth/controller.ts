@@ -9,22 +9,17 @@ import { DESIGNATION } from '../../interfaces/designations'
 
 interface SignUpBody {
 	phone: string
-	firstName: string
-	lastName: string
+	name: string
 	password: string
 }
 
 export function patientSignup() {
 	return async function ( request: HTTPRequest<object, {
 		phone: string
-		firstName: string
-		lastName: string
+		name: string
 		email: string
-		dob: string
 	}> ) {
-		const { phone, dob, firstName, lastName, email } = request.body;
-
-		console.log( "data: ", { phone, dob, firstName, lastName, email } );
+		const { phone, name, email } = request.body;
 
 		const missingFields = [];
 
@@ -32,16 +27,8 @@ export function patientSignup() {
 			missingFields.push( 'phone' );
 		}
 
-		if ( !dob ) {
-			missingFields.push( 'dob' );
-		}
-
-		if ( !firstName ) {
-			missingFields.push( 'firstName' );
-		}
-
-		if ( !lastName ) {
-			missingFields.push( 'lastName' );
+		if ( !name ) {
+			missingFields.push( 'name' );
 		}
 
 		if ( !email ) {
@@ -72,11 +59,9 @@ export function patientSignup() {
 
 		const user = await db.patients.create( {
 			phone,
-			firstName,
-			lastName,
+			name,
 			email,
 			designation: DESIGNATION.PATIENT,
-			dob
 		} )
 
 		await user.save()
@@ -93,9 +78,9 @@ export function patientSignup() {
 
 export function caregiverSignup() {
 	return async function ( request: HTTPRequest<object, SignUpBody> ) {
-		const { phone, password, firstName, lastName } = request.body
+		const { phone, password, name } = request.body
 
-		if ( !phone || !password || !firstName || !lastName ) {
+		if ( !phone || !password || !name ) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
@@ -122,8 +107,7 @@ export function caregiverSignup() {
 		} )
 		const user = await db.caregivers.create( {
 			phone,
-			firstName,
-			lastName,
+			name,
 			designation: DESIGNATION.NURSE,
 			password: hash,
 		} )
@@ -146,13 +130,13 @@ export function caregiverSignup() {
 export function adminSignup() {
 	return async function ( request: HTTPRequest<object, {
 		email: string
-		firstName: string
+		name: string
 		lastName: string
 		password: string
 	}> ) {
-		const { email, password, firstName, lastName } = request.body
+		const { email, password, name, lastName } = request.body
 
-		if ( !email || !password || !firstName || !lastName ) {
+		if ( !email || !password || !name || !lastName ) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
@@ -179,7 +163,7 @@ export function adminSignup() {
 		} )
 		const newUser = await db.admins.create( {
 			email,
-			firstName,
+			name,
 			lastName,
 			designation: DESIGNATION.ADMIN,
 			password: hash,

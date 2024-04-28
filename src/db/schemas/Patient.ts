@@ -1,6 +1,5 @@
 import { DESIGNATION } from '../../interfaces/designations'
-import { modelOptions, index, prop, Severity } from '@typegoose/typegoose'
-import { Location } from "./Location"
+import { modelOptions, prop, Severity } from '@typegoose/typegoose'
 
 @modelOptions( {
 	schemaOptions: {
@@ -18,7 +17,7 @@ import { Location } from "./Location"
 	},
 	options: { allowMixed: Severity.ALLOW },
 } )
-@index( { title: 'text', location: '2dsphere' } )
+
 export class Patient {
 	@prop( {
 		type: String,
@@ -37,26 +36,7 @@ export class Patient {
 	phone!: string
 
 	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
-	firstName!: string
-
-	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
-	lastName!: string
-
-	@prop( {
-		type: String,
-		required: true,
-		unique: true,
-		index: true,
-		trim: true,
-		default: ""
-	} )
-	email!: string
-
-	@prop( { type: String, required: true, default: new Date().toISOString() } )
-	dob!: string
-
-	@prop( { type: Location, index: '2dsphere' } )
-	location!: Location
+	name!: string
 
 	@prop( { type: Boolean, required: false, default: false } )
 	isPhoneVerified?: boolean

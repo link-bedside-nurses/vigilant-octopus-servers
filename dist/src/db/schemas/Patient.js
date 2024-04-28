@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Patient = void 0;
 var designations_1 = require("../../interfaces/designations");
 var typegoose_1 = require("@typegoose/typegoose");
-var Location_1 = require("./Location");
 var Patient = /** @class */ (function () {
     function Patient() {
     }
@@ -37,30 +36,7 @@ var Patient = /** @class */ (function () {
     __decorate([
         (0, typegoose_1.prop)({ type: String, required: true, minlength: 2, maxlength: 250, trim: true }),
         __metadata("design:type", String)
-    ], Patient.prototype, "firstName", void 0);
-    __decorate([
-        (0, typegoose_1.prop)({ type: String, required: true, minlength: 2, maxlength: 250, trim: true }),
-        __metadata("design:type", String)
-    ], Patient.prototype, "lastName", void 0);
-    __decorate([
-        (0, typegoose_1.prop)({
-            type: String,
-            required: true,
-            unique: true,
-            index: true,
-            trim: true,
-            default: ""
-        }),
-        __metadata("design:type", String)
-    ], Patient.prototype, "email", void 0);
-    __decorate([
-        (0, typegoose_1.prop)({ type: String, required: true, default: new Date().toISOString() }),
-        __metadata("design:type", String)
-    ], Patient.prototype, "dob", void 0);
-    __decorate([
-        (0, typegoose_1.prop)({ type: Location_1.Location, index: '2dsphere' }),
-        __metadata("design:type", Location_1.Location)
-    ], Patient.prototype, "location", void 0);
+    ], Patient.prototype, "name", void 0);
     __decorate([
         (0, typegoose_1.prop)({ type: Boolean, required: false, default: false }),
         __metadata("design:type", Boolean)
@@ -93,8 +69,7 @@ var Patient = /** @class */ (function () {
                 },
             },
             options: { allowMixed: typegoose_1.Severity.ALLOW },
-        }),
-        (0, typegoose_1.index)({ title: 'text', location: '2dsphere' })
+        })
     ], Patient);
     return Patient;
 }());

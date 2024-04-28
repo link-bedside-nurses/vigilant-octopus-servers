@@ -71,7 +71,7 @@ function sendOTP(phone, otp) {
         var response;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, axios_1.default.post("https://k24n8x.api.infobip.com//sms/2/text/advanced", {
+                case 0: return [4 /*yield*/, axios_1.default.post("https://e1wzeq.api.infobip.com//sms/2/text/advanced", {
                         "messages": [
                             {
                                 "destinations": [{ "to": phone }],

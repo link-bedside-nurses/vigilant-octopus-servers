@@ -19,21 +19,6 @@ import { Patient } from './Patient'
 	options: { allowMixed: Severity.ALLOW },
 } )
 export class Appointment {
-	// @prop( {
-	// 	required: true,
-	// 	type: mongoose.Document,
-	// 	ref: Patient,
-	// } )
-	// patient!: string;
-
-	// @prop( {
-	// 	required: true,
-	// 	type: mongoose.Document,
-	// 	ref: Caregiver,
-	// } )
-	// caregiver!: string;
-
-
 	@prop( { type: mongoose.Types.ObjectId, required: true, ref: Patient } )
 	patient!: Ref<Patient>;
 
@@ -41,7 +26,7 @@ export class Appointment {
 	caregiver!: Ref<Caregiver>;
 
 	@prop( { required: true, index: true } )
-	title!: string
+	reason!: string
 
 	@prop( { required: true, default: Date.now() } )
 	date!: Date
@@ -56,20 +41,14 @@ export class Appointment {
 	@prop( { type: String, required: false, default: '' } )
 	cancellationReason?: string
 
-	@prop( { type: String, required: false } )
-	description?: string
-
-	@prop( { type: String, required: false } )
-	notes?: string
-
 	public async confirmAppointment( this: DocumentType<Appointment> ): Promise<void> {
-		this.status = APPOINTMENT_STATUSES.CONFIRMED
+		this.status = APPOINTMENT_STATUSES.IN_PROGRESS
 		await this.save()
 	}
 
-	public async cancelAppointment( this: DocumentType<Appointment>, reason?: string ): Promise<void> {
+	public async cancelAppointment( this: DocumentType<Appointment>, cancellationReason?: string ): Promise<void> {
 		this.status = APPOINTMENT_STATUSES.CANCELLED
-		this.cancellationReason = reason
+		this.cancellationReason = cancellationReason
 		await this.save()
 	}
 }

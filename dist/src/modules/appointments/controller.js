@@ -60,11 +60,10 @@ function getAllAppointments() {
                     case 0: return [4 /*yield*/, db_1.db.appointments
                             .find({})
                             .sort({ createdAt: "desc" })
-                            .populate("patient")
-                            .populate("caregiver")];
+                            .populate("caregiver")
+                            .populate("patient")];
                     case 1:
                         appointments = _a.sent();
-                        console.log("all:", appointments);
                         return [2 /*return*/, {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
                                 body: {
@@ -233,14 +232,14 @@ function scheduleAppointment() {
     return function (request) {
         var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var missingFields, appointments;
+            var missingFields, caregiver, appointments;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (!request.body.title && !request.body.caregiverId) {
+                        if (!request.body.reason && !request.body.caregiverId) {
                             missingFields = [];
-                            if (!request.body.title) {
-                                missingFields.push("title");
+                            if (!request.body.reason) {
+                                missingFields.push("reason");
                             }
                             if (!request.body.caregiverId) {
                                 missingFields.push("caregiverId");
@@ -253,11 +252,21 @@ function scheduleAppointment() {
                                     },
                                 }];
                         }
+                        return [4 /*yield*/, db_1.db.caregivers.findById(request.body.caregiverId)];
+                    case 1:
+                        caregiver = _b.sent();
+                        if (!caregiver) {
+                            return [2 /*return*/, {
+                                    statusCode: http_status_codes_1.StatusCodes.BAD_REQUEST,
+                                    body: {
+                                        message: "No such caregiver with id ".concat(request.body.caregiverId, " found"),
+                                        data: null,
+                                    },
+                                }];
+                        }
                         return [4 /*yield*/, db_1.db.appointments
                                 .create({
-                                title: request.body.title,
-                                description: request.body.description,
-                                notes: request.body.notes,
+                                reason: request.body.reason,
                                 patient: (_a = request.account) === null || _a === void 0 ? void 0 : _a.id,
                                 caregiver: request.body.caregiverId,
                             })
@@ -266,10 +275,10 @@ function scheduleAppointment() {
                                     .populate("patient")
                                     .then(function (appointment) { return appointment.populate("caregiver"); });
                             })];
-                    case 1:
+                    case 2:
                         appointments = _b.sent();
                         return [4 /*yield*/, appointments.save()];
-                    case 2:
+                    case 3:
                         _b.sent();
                         return [2 /*return*/, {
                                 statusCode: http_status_codes_1.StatusCodes.OK,
@@ -296,7 +305,6 @@ function confirmAppointment() {
                             .populate("caregiver")];
                     case 1:
                         appointment = _a.sent();
-                        console.log("params::id--> ", request.params.id);
                         if (!appointment) {
                             return [2 /*return*/, {
                                     statusCode: http_status_codes_1.StatusCodes.NOT_FOUND,

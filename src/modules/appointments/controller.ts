@@ -14,9 +14,8 @@ export function getAllAppointments() {
         const appointments = await db.appointments
             .find( {} )
             .sort( { createdAt: "desc" } )
-            .populate( "patient" )
-            .populate( "caregiver" );
-        console.log( "all:", appointments );
+            .populate( "caregiver" )
+            .populate( "patient" );
 
         return {
             statusCode: StatusCodes.OK,
@@ -173,19 +172,17 @@ export function scheduleAppointment() {
         request: HTTPRequest<
             object,
             {
-                title: string;
+                reason: string;
                 caregiverId: string;
-                description: string;
-                notes: string;
             },
             object
         >,
     ) {
-        if ( !request.body.title && !request.body.caregiverId ) {
+        if ( !request.body.reason && !request.body.caregiverId ) {
             const missingFields = [];
 
-            if ( !request.body.title ) {
-                missingFields.push( "title" );
+            if ( !request.body.reason ) {
+                missingFields.push( "reason" );
             }
             if ( !request.body.caregiverId ) {
                 missingFields.push( "caregiverId" );
@@ -202,11 +199,21 @@ export function scheduleAppointment() {
             };
         }
 
+        const caregiver = await db.caregivers.findById( request.body.caregiverId );
+
+        if ( !caregiver ) {
+            return {
+                statusCode: StatusCodes.BAD_REQUEST,
+                body: {
+                    message: `No such caregiver with id ${request.body.caregiverId} found`,
+                    data: null,
+                },
+            };
+        }
+
         const appointments = await db.appointments
             .create( {
-                title: request.body.title,
-                description: request.body.description,
-                notes: request.body.notes,
+                reason: request.body.reason,
                 patient: request.account?.id,
                 caregiver: request.body.caregiverId,
             } )
@@ -234,8 +241,6 @@ export function confirmAppointment() {
             .findById( request.params.id )
             .populate( "patient" )
             .populate( "caregiver" );
-
-        console.log( "params::id--> ", request.params.id );
 
         if ( !appointment ) {
             return {

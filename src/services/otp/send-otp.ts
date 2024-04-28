@@ -3,7 +3,7 @@ import axios from 'axios';
 import { otpCacheStore } from '../../cache-store/client';
 
 export default async function sendOTP( phone: string, otp: string ) {
-	const response = await axios.post( "https://k24n8x.api.infobip.com//sms/2/text/advanced",
+	const response = await axios.post( "https://e1wzeq.api.infobip.com//sms/2/text/advanced",
 		{
 			"messages": [
 				{

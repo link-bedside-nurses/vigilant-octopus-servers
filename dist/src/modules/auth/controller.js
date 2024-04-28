@@ -68,24 +68,17 @@ var designations_1 = require("../../interfaces/designations");
 function patientSignup() {
     return function (request) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, phone, dob, firstName, lastName, email, missingFields, patient, user;
+            var _a, phone, name, email, missingFields, patient, user;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _a = request.body, phone = _a.phone, dob = _a.dob, firstName = _a.firstName, lastName = _a.lastName, email = _a.email;
-                        console.log("data: ", { phone: phone, dob: dob, firstName: firstName, lastName: lastName, email: email });
+                        _a = request.body, phone = _a.phone, name = _a.name, email = _a.email;
                         missingFields = [];
                         if (!phone) {
                             missingFields.push('phone');
                         }
-                        if (!dob) {
-                            missingFields.push('dob');
-                        }
-                        if (!firstName) {
-                            missingFields.push('firstName');
-                        }
-                        if (!lastName) {
-                            missingFields.push('lastName');
+                        if (!name) {
+                            missingFields.push('name');
                         }
                         if (!email) {
                             missingFields.push('email');
@@ -113,11 +106,9 @@ function patientSignup() {
                         }
                         return [4 /*yield*/, db_1.db.patients.create({
                                 phone: phone,
-                                firstName: firstName,
-                                lastName: lastName,
+                                name: name,
                                 email: email,
                                 designation: designations_1.DESIGNATION.PATIENT,
-                                dob: dob
                             })];
                     case 2:
                         user = _b.sent();
@@ -140,12 +131,12 @@ exports.patientSignup = patientSignup;
 function caregiverSignup() {
     return function (request) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, phone, password, firstName, lastName, caregiver, hash, user, accessToken;
+            var _a, phone, password, name, caregiver, hash, user, accessToken;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _a = request.body, phone = _a.phone, password = _a.password, firstName = _a.firstName, lastName = _a.lastName;
-                        if (!phone || !password || !firstName || !lastName) {
+                        _a = request.body, phone = _a.phone, password = _a.password, name = _a.name;
+                        if (!phone || !password || !name) {
                             return [2 /*return*/, {
                                     statusCode: http_status_codes_1.StatusCodes.BAD_REQUEST,
                                     body: {
@@ -173,8 +164,7 @@ function caregiverSignup() {
                         hash = _b.sent();
                         return [4 /*yield*/, db_1.db.caregivers.create({
                                 phone: phone,
-                                firstName: firstName,
-                                lastName: lastName,
+                                name: name,
                                 designation: designations_1.DESIGNATION.NURSE,
                                 password: hash,
                             })];
@@ -201,12 +191,12 @@ exports.caregiverSignup = caregiverSignup;
 function adminSignup() {
     return function (request) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, email, password, firstName, lastName, user, hash, newUser, token;
+            var _a, email, password, name, lastName, user, hash, newUser, token;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _a = request.body, email = _a.email, password = _a.password, firstName = _a.firstName, lastName = _a.lastName;
-                        if (!email || !password || !firstName || !lastName) {
+                        _a = request.body, email = _a.email, password = _a.password, name = _a.name, lastName = _a.lastName;
+                        if (!email || !password || !name || !lastName) {
                             return [2 /*return*/, {
                                     statusCode: http_status_codes_1.StatusCodes.BAD_REQUEST,
                                     body: {
@@ -234,7 +224,7 @@ function adminSignup() {
                         hash = _b.sent();
                         return [4 /*yield*/, db_1.db.admins.create({
                                 email: email,
-                                firstName: firstName,
+                                name: name,
                                 lastName: lastName,
                                 designation: designations_1.DESIGNATION.ADMIN,
                                 password: hash,

@@ -58,7 +58,7 @@ var Appointment = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.status = appointment_statuses_1.APPOINTMENT_STATUSES.CONFIRMED;
+                        this.status = appointment_statuses_1.APPOINTMENT_STATUSES.IN_PROGRESS;
                         return [4 /*yield*/, this.save()];
                     case 1:
                         _a.sent();
@@ -67,13 +67,13 @@ var Appointment = /** @class */ (function () {
             });
         });
     };
-    Appointment.prototype.cancelAppointment = function (reason) {
+    Appointment.prototype.cancelAppointment = function (cancellationReason) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         this.status = appointment_statuses_1.APPOINTMENT_STATUSES.CANCELLED;
-                        this.cancellationReason = reason;
+                        this.cancellationReason = cancellationReason;
                         return [4 /*yield*/, this.save()];
                     case 1:
                         _a.sent();
@@ -93,7 +93,7 @@ var Appointment = /** @class */ (function () {
     __decorate([
         (0, typegoose_1.prop)({ required: true, index: true }),
         __metadata("design:type", String)
-    ], Appointment.prototype, "title", void 0);
+    ], Appointment.prototype, "reason", void 0);
     __decorate([
         (0, typegoose_1.prop)({ required: true, default: Date.now() }),
         __metadata("design:type", Date)
@@ -110,14 +110,6 @@ var Appointment = /** @class */ (function () {
         (0, typegoose_1.prop)({ type: String, required: false, default: '' }),
         __metadata("design:type", String)
     ], Appointment.prototype, "cancellationReason", void 0);
-    __decorate([
-        (0, typegoose_1.prop)({ type: String, required: false }),
-        __metadata("design:type", String)
-    ], Appointment.prototype, "description", void 0);
-    __decorate([
-        (0, typegoose_1.prop)({ type: String, required: false }),
-        __metadata("design:type", String)
-    ], Appointment.prototype, "notes", void 0);
     Appointment = __decorate([
         (0, typegoose_1.modelOptions)({
             schemaOptions: {
