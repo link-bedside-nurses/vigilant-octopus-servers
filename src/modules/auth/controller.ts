@@ -11,15 +11,12 @@ interface SignUpBody {
 	phone: string
 	name: string
 	password: string
+	email: string
 }
 
 export function patientSignup() {
-	return async function ( request: HTTPRequest<object, {
-		phone: string
-		name: string
-		email: string
-	}> ) {
-		const { phone, name, email } = request.body;
+	return async function ( request: HTTPRequest<object, Omit<SignUpBody, "email">> ) {
+		const { phone, name, } = request.body;
 
 		const missingFields = [];
 
@@ -29,10 +26,6 @@ export function patientSignup() {
 
 		if ( !name ) {
 			missingFields.push( 'name' );
-		}
-
-		if ( !email ) {
-			missingFields.push( 'email' );
 		}
 
 		if ( missingFields.length > 0 ) {
@@ -60,7 +53,6 @@ export function patientSignup() {
 		const user = await db.patients.create( {
 			phone,
 			name,
-			email,
 			designation: DESIGNATION.PATIENT,
 		} )
 

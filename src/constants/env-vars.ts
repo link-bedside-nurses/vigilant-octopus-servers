@@ -33,9 +33,6 @@ const env = envalid.cleanEnv( process.env, {
   AIRTEL_MONEY_CLIENT_ID: envalid.str(),
   AIRTEL_MONEY_CLIENT_SECRET_KEY: envalid.str(),
 
-  AWS_ACCESS_KEY_ID: envalid.str(),
-  AWS_SECRET_KEY_ID: envalid.str(),
-
   GOOGLE_MAPS_API_KEY: envalid.str(),
 } );
 
@@ -69,9 +66,6 @@ export default Object.freeze( {
 
   getAirtelMoneyClientId: () => String( env.AIRTEL_MONEY_CLIENT_ID ),
   getAirtelMoneyClientSecretKey: () => String( env.AIRTEL_MONEY_CLIENT_SECRET_KEY ),
-
-  getAwsAccessKeyId: () => String( env.AWS_ACCESS_KEY_ID ),
-  getAwsSecretKeyId: () => String( env.AWS_SECRET_KEY_ID ),
 
   getGoogleMapsApiKey: () => String( env.GOOGLE_MAPS_API_KEY ),
 } );
