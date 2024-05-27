@@ -1,4 +1,23 @@
-semi: true
-trailingComma: all
-tabWidth: 4
-arrowParens: avoid
+{
+	"semi": true,
+	"singleQuote": true,
+	"trailingComma": "es5",
+	"arrowParens": "always",
+	"bracketSpacing": true,
+	"embeddedLanguageFormatting": "auto",
+	"htmlWhitespaceSensitivity": "css",
+	"insertPragma": false,
+	"jsxBracketSameLine": false,
+	"jsxSingleQuote": false,
+	"printWidth": 100,
+	"proseWrap": "preserve",
+	"quoteProps": "as-needed",
+	"requirePragma": false,
+	"tabWidth": 4,
+	"useTabs": true,
+	"vueIndentScriptAndStyle": false,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"requireConfig": true,
+	"singleAttributePerLine": true,
+	"enable": true
+}

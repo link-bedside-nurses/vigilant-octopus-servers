@@ -71,8 +71,8 @@ export async function seedCaregivers() {
 	await db.caregivers.deleteMany( {}, { maxTimeMS: 30000 } )
 
 	const centerCoords = {
-		lat: 0.3322221,
-		lng: 32.5704806,
+		lat: 0.3323315,
+		lng: 32.5678668,
 	};
 
 	const caregivers = [];
@@ -110,26 +110,17 @@ export async function seedCaregivers() {
 }
 
 export async function seedPatients() {
-	const centerCoords = {
-		lat: 0.3322221,
-		lng: 32.5704806,
-	};
 	await db.patients.deleteMany( {}, { maxTimeMS: 30000 } )
 	const patients = []
 	for ( let i = 0; i < 10; i++ ) {
 		const patient = {
 			designation: DESIGNATION.PATIENT,
 			phone: `256456789${i.toString().padStart( 2, '0' )}`,
-			firstName: faker.person.firstName(),
-			lastName: faker.person.lastName(),
-			password: "password",
-			location: generateRandomLocation( centerCoords ),
+			name: faker.person.firstName(),
 			isPhoneVerified: faker.datatype.boolean(),
-			dob: faker.date.past(),
 			isBanned: faker.datatype.boolean(),
 			isDeactivated: faker.datatype.boolean(),
 			isVerified: faker.datatype.boolean(),
-			email: faker.internet.email(),
 		};
 
 		patients.push( patient );
