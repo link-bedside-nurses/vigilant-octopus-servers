@@ -19,6 +19,7 @@
 		"watch-js": "node --watch dist/index.js",
 		"watch-ts": "tsc -w",
 		"build-ts": "tsc",
+		"dist-ts": "tsc",
 		"lint": "eslint src/*.ts",
 		"lint-fix": "yarn lint --fix",
 		"debug": "npm run build && npm run watch-debug",
