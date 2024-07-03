@@ -1,12 +1,18 @@
 import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../adapters/express-callback';
-import { db } from '../../../db';
 import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
 import * as argon2 from 'argon2';
+import { CaregiverRepo } from '../../users/caregivers/repo';
+import { CreateCaregiverDto } from '../../../interfaces/dtos';
 
 export function caregiverSignin() {
-	return async function (request: HTTPRequest<object, { phone: string; password: string }>) {
+	return async function (
+		request: HTTPRequest<
+			object,
+			Pick<CreateCaregiverDto, 'phone'> & Pick<CreateCaregiverDto, 'password'>
+		>
+	) {
 		const { phone, password } = request.body;
 
 		if (!phone || !password) {
@@ -19,7 +25,7 @@ export function caregiverSignin() {
 			};
 		}
 
-		const user = await db.caregivers.findOne({ phone });
+		const user = await CaregiverRepo.getCaregiverByPhone(phone);
 
 		if (!user) {
 			return {

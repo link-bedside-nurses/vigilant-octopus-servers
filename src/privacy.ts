@@ -75,4 +75,4 @@ export const html = `<!doctype html>
 		</div>
 	</body>
 </html>
-`
+`;

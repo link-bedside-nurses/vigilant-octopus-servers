@@ -13,7 +13,7 @@
 	"proseWrap": "preserve",
 	"quoteProps": "as-needed",
 	"requirePragma": false,
-	"tabWidth": 4,
+	"tabWidth": 2,
 	"useTabs": true,
 	"vueIndentScriptAndStyle": false,
 	"editor.defaultFormatter": "esbenp.prettier-vscode",

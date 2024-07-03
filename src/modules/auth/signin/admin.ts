@@ -2,9 +2,12 @@ import { StatusCodes } from 'http-status-codes';
 import * as argon2 from 'argon2';
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { AdminRepo } from '../../users/admins/repo';
+import { CreateAdminDto } from '../../../interfaces/dtos';
 
 export function adminSignin() {
-	return async function (request: HTTPRequest<object, { email: string; password: string }>) {
+	return async function (
+		request: HTTPRequest<object, Pick<CreateAdminDto, 'email'> & Pick<CreateAdminDto, 'password'>>
+	) {
 		const { email, password } = request.body;
 
 		if (!email || !password) {
