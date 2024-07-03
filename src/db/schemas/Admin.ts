@@ -1,5 +1,5 @@
-import { DESIGNATION } from '../../interfaces/designations'
 import { modelOptions, prop, Severity } from '@typegoose/typegoose'
+import { DESIGNATION } from '../../interfaces'
 
 @modelOptions( {
 	schemaOptions: {

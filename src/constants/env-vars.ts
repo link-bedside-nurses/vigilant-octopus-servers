@@ -31,9 +31,7 @@ const env = envalid.cleanEnv( process.env, {
   OCP_APIM_SUBSCRIPTION_KEY: envalid.str(),
 
   AIRTEL_MONEY_CLIENT_ID: envalid.str(),
-  AIRTEL_MONEY_CLIENT_SECRET_KEY: envalid.str(),
-
-  GOOGLE_MAPS_API_KEY: envalid.str(),
+  AIRTEL_MONEY_CLIENT_SECRET_KEY: envalid.str()
 } );
 
 export default Object.freeze( {
@@ -66,6 +64,4 @@ export default Object.freeze( {
 
   getAirtelMoneyClientId: () => String( env.AIRTEL_MONEY_CLIENT_ID ),
   getAirtelMoneyClientSecretKey: () => String( env.AIRTEL_MONEY_CLIENT_SECRET_KEY ),
-
-  getGoogleMapsApiKey: () => String( env.GOOGLE_MAPS_API_KEY ),
 } );

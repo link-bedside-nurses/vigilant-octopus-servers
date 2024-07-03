@@ -1,14 +1,14 @@
-import callback from '../../adapters/express-callback'
-import { Router } from 'express'
+import callback from '../../adapters/express-callback';
+import { Router } from 'express';
 
-import authenticate from '../../middlewares/authentication'
-import { makeMomoPayement, getAllPayments, getPayment } from '../../modules/payments/controller'
-import isBanned from '../../middlewares/is-banned'
+import authenticate from '../../middlewares/auth/authentication';
+import { makeMomoPayement, getAllPayments, getPayment } from '../../modules/payments/controller';
+import isBanned from '../../middlewares/auth/is-banned';
 
-const router = Router()
+const router = Router();
 
-router.get( '/', authenticate, isBanned, callback( getAllPayments() ) )
-router.get( '/:id', authenticate, isBanned, callback( getPayment() ) )
-router.delete( '/:id', authenticate, isBanned, callback( makeMomoPayement() ) )
+router.get('/', authenticate, isBanned, callback(getAllPayments()));
+router.get('/:id', authenticate, isBanned, callback(getPayment()));
+router.delete('/:id', authenticate, isBanned, callback(makeMomoPayement()));
 
-export default router
+export default router;
