@@ -7,6 +7,7 @@ export type TUser = {
 	designation: DESIGNATION;
 	password: string;
 };
+
 export enum APPOINTMENT_STATUSES {
 	PENDING = 'pending',
 	CANCELLED = 'cancelled',

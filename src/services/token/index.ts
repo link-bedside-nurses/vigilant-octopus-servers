@@ -7,7 +7,7 @@ export interface ITokenPayload extends ACCOUNT {
 	iat: number;
 }
 
-export function createAccessToken(user: Document & ACCOUNT): string {
+export function createAccessToken(user: (Document & ACCOUNT) | null): string {
 	return jwt.sign(
 		{
 			id: user?._id,

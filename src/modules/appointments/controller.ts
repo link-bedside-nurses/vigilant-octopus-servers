@@ -1,344 +1,221 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { HTTPRequest } from "../../adapters/express-callback";
-import { StatusCodes } from "http-status-codes";
-import { db } from "../../db";
-import { mongoose } from "@typegoose/typegoose";
-import {
-    ObjectId
-} from 'mongodb';
+import { HTTPRequest } from '../../adapters/express-callback';
+import { StatusCodes } from 'http-status-codes';
 
-import { Appointment } from "../../db/schemas/Appointment";
+import { AppointmentRepo } from './repo';
+import { APPOINTMENT_STATUSES } from '../../interfaces';
+import { CancelAppointmentDto, ScheduleAppointmentDto } from '../../interfaces/dtos';
+import { CaregiverRepo } from '../users/caregivers/repo';
 
 export function getAllAppointments() {
-    return async function ( _: HTTPRequest<object, object> ) {
-        const appointments = await db.appointments
-            .find( {} )
-            .sort( { createdAt: "desc" } )
-            .populate( "caregiver" )
-            .populate( "patient" );
+	return async function (_: HTTPRequest<object, object>) {
+		const appointments = await AppointmentRepo.getAllAppointments();
 
-        return {
-            statusCode: StatusCodes.OK,
-            body: {
-                data: appointments,
-                message:
-                    appointments.length === 0
-                        ? "No Appointments Scheduled"
-                        : "All appointments retrieved",
-                count: appointments.length,
-            },
-        };
-    };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: appointments,
+				message:
+					appointments.length === 0
+						? 'No Appointments Scheduled'
+						: 'All appointments retrieved',
+				count: appointments.length,
+			},
+		};
+	};
 }
 
 export function getCaregiverAppointments() {
-    return async function (
-        request: HTTPRequest<{ id: string }, object, object>,
-    ) {
-        const appointments = await db.appointments
-            .find( {
-                caregiver: {
-                    _id: request.params.id,
-                },
-            } )
-            .populate( "patient" )
-            .populate( "caregiver" );
+	return async function (request: HTTPRequest<{ id: string }, object, object>) {
+		const appointments = await AppointmentRepo.getCaregiverAppointments(request.params.id);
 
-        if ( appointments.length > 0 ) {
-            return {
-                statusCode: StatusCodes.OK,
-                body: {
-                    data: appointments,
-                    count: appointments.length,
-                    message: "Successfully fetched caregiver Appointments",
-                },
-            };
-        } else {
-            return {
-                statusCode: StatusCodes.NOT_FOUND,
-                body: {
-                    data: null,
-                    message: "No Appointment Found",
-                },
-            };
-        }
-    };
+		if (appointments.length > 0) {
+			return {
+				statusCode: StatusCodes.OK,
+				body: {
+					data: appointments,
+					count: appointments.length,
+					message: 'Successfully fetched caregiver Appointments',
+				},
+			};
+		} else {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'No Appointment Found',
+				},
+			};
+		}
+	};
 }
 
 export function getPatientAppointments() {
-    return async function (
-        request: HTTPRequest<{ id: string }, object, { status: string }>,
-    ) {
-        const { status } = request.query;
+	return async function (
+		request: HTTPRequest<{ id: string }, object, { status: APPOINTMENT_STATUSES }>
+	) {
+		const { status } = request.query;
 
-        let filters: mongoose.FilterQuery<Appointment> = {
-            patient: { _id: request.params.id },
-        };
+		const appointments = await AppointmentRepo.getPatientAppointments(
+			request.params.id,
+			status
+		);
 
-        if ( status ) {
-            filters = { ...filters, status };
-        }
-
-        const pipeline: mongoose.PipelineStage[] =
-            [
-                {
-                    '$match': {
-                        'patient': new ObjectId( request.params.id )
-                    }
-                }, {
-                    '$addFields': {
-                        'order': {
-                            '$switch': {
-                                'branches': [
-                                    {
-                                        'case': {
-                                            '$eq': [
-                                                '$status', 'ongoing'
-                                            ]
-                                        },
-                                        'then': 1
-                                    }, {
-                                        'case': {
-                                            '$eq': [
-                                                '$status', 'pending'
-                                            ]
-                                        },
-                                        'then': 2
-                                    }, {
-                                        'case': {
-                                            '$eq': [
-                                                '$status', 'cancelled'
-                                            ]
-                                        },
-                                        'then': 3
-                                    }, {
-                                        'case': {
-                                            '$eq': [
-                                                '$status', 'completed'
-                                            ]
-                                        },
-                                        'then': 4
-                                    }
-                                ],
-                                'default': 5
-                            }
-                        }
-                    }
-                },
-                {
-                    '$sort': {
-                        'createdAt': -1
-                    }
-                }
-            ]
-
-        if ( status ) {
-            pipeline.push( {
-                '$match': {
-                    'status': status,
-                },
-            } );
-        }
-
-        let appointments = await db.appointments.aggregate( pipeline );
-
-        appointments = await db.caregivers.populate( appointments, {
-            path: "caregiver",
-        } );
-
-        if ( appointments.length > 0 ) {
-            return {
-                statusCode: StatusCodes.OK,
-                body: {
-                    data: appointments,
-                    count: appointments.length,
-                    message: "Successfully fetched patient Appointments",
-                },
-            };
-        } else {
-            return {
-                statusCode: StatusCodes.NOT_FOUND,
-                body: {
-                    data: null,
-                    message: "No Appointment Found",
-                },
-            };
-        }
-    };
+		if (appointments.length > 0) {
+			return {
+				statusCode: StatusCodes.OK,
+				body: {
+					data: appointments,
+					count: appointments.length,
+					message: 'Successfully fetched patient Appointments',
+				},
+			};
+		} else {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'No Appointment Found',
+				},
+			};
+		}
+	};
 }
 
 export function scheduleAppointment() {
-    return async function (
-        request: HTTPRequest<
-            object,
-            {
-                reason: string;
-                caregiverId: string;
-            },
-            object
-        >,
-    ) {
-        if ( !request.body.reason && !request.body.caregiverId ) {
-            const missingFields = [];
+	return async function (request: HTTPRequest<object, ScheduleAppointmentDto, object>) {
+		if (!request.body.reason && !request.body.caregiverId) {
+			const missingFields = [];
 
-            if ( !request.body.reason ) {
-                missingFields.push( "reason" );
-            }
-            if ( !request.body.caregiverId ) {
-                missingFields.push( "caregiverId" );
-            }
+			if (!request.body.reason) {
+				missingFields.push('reason');
+			}
+			if (!request.body.caregiverId) {
+				missingFields.push('caregiverId');
+			}
 
-            return {
-                statusCode: StatusCodes.BAD_REQUEST,
-                body: {
-                    message: `The following fields are missing: ${missingFields.join(
-                        ", ",
-                    )}`,
-                    data: null,
-                },
-            };
-        }
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					message: `The following fields are missing: ${missingFields.join(', ')}`,
+					data: null,
+				},
+			};
+		}
 
-        const caregiver = await db.caregivers.findById( request.body.caregiverId );
+		const caregiver = await CaregiverRepo.getCaregiverById(request.body.caregiverId);
 
-        if ( !caregiver ) {
-            return {
-                statusCode: StatusCodes.BAD_REQUEST,
-                body: {
-                    message: `No such caregiver with id ${request.body.caregiverId} found`,
-                    data: null,
-                },
-            };
-        }
+		if (!caregiver) {
+			return {
+				statusCode: StatusCodes.BAD_REQUEST,
+				body: {
+					message: `No such caregiver with id ${request.body.caregiverId} found`,
+					data: null,
+				},
+			};
+		}
 
-        const appointments = await db.appointments
-            .create( {
-                reason: request.body.reason,
-                patient: request.account?.id,
-                caregiver: request.body.caregiverId,
-            } )
-            .then( appointment =>
-                appointment
-                    .populate( "patient" )
-                    .then( appointment => appointment.populate( "caregiver" ) ),
-            );
+		const appointment = await AppointmentRepo.scheduleAppointment(
+			request.account?.id!,
+			request.body
+		);
+		await appointment.save();
 
-        await appointments.save();
-
-        return {
-            statusCode: StatusCodes.OK,
-            body: {
-                data: appointments,
-                message: "Appointment Scheduled",
-            },
-        };
-    };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: appointment,
+				message: 'Appointment Scheduled',
+			},
+		};
+	};
 }
 
 export function confirmAppointment() {
-    return async function ( request: HTTPRequest<{ id: string }, object> ) {
-        const appointment = await db.appointments
-            .findById( request.params.id )
-            .populate( "patient" )
-            .populate( "caregiver" );
+	return async function (request: HTTPRequest<{ id: string }, object>) {
+		const appointment = await AppointmentRepo.getAppointmentById(request.params.id);
 
-        if ( !appointment ) {
-            return {
-                statusCode: StatusCodes.NOT_FOUND,
-                body: {
-                    data: null,
-                    message: "Could not confirm appointment.",
-                },
-            };
-        }
+		if (!appointment) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'Could not confirm appointment.',
+				},
+			};
+		}
 
-        await appointment.confirmAppointment();
+		await appointment.confirmAppointment();
 
-        return {
-            statusCode: StatusCodes.OK,
-            body: {
-                data: appointment,
-                message: "Appointment has been confirmed and initiated",
-            },
-        };
-    };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: appointment,
+				message: 'Appointment has been confirmed and initiated',
+			},
+		};
+	};
 }
 
 export function cancelAppointment() {
-    return async function (
-        request: HTTPRequest<
-            { id: string },
-            {
-                reason?: string;
-            }
-        >,
-    ) {
-        const appointment = await db.appointments
-            .findById( request.params.id )
-            .populate( "patient" )
-            .populate( "caregiver" );
+	return async function (request: HTTPRequest<{ id: string }, CancelAppointmentDto>) {
+		const appointment = await AppointmentRepo.getAppointmentById(request.params.id);
 
-        if ( !appointment ) {
-            return {
-                statusCode: StatusCodes.NOT_FOUND,
-                body: {
-                    data: null,
-                    message: "Could not cancel appointment.",
-                },
-            };
-        }
+		if (!appointment) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'Could not cancel appointment.',
+				},
+			};
+		}
 
-        await appointment.cancelAppointment( request.body.reason );
+		await appointment.cancelAppointment(request.body.reason);
 
-        return {
-            statusCode: StatusCodes.OK,
-            body: {
-                data: appointment,
-                message: "Successfully cancelled appointment",
-            },
-        };
-    };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: appointment,
+				message: 'Successfully cancelled appointment',
+			},
+		};
+	};
 }
 
 export function getAppointment() {
-    return async function ( request: HTTPRequest<{ id: string }> ) {
-        const appointment = await db.appointments
-            .findById( request.params.id )
-            .populate( "caregiver" )
-            .populate( "patient" );
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const appointment = await AppointmentRepo.getAppointmentById(request.params.id);
+		if (!appointment) {
+			return {
+				statusCode: StatusCodes.NOT_FOUND,
+				body: {
+					data: null,
+					message: 'Could not fetch appointment.',
+				},
+			};
+		}
 
-        if ( !appointment ) {
-            return {
-                statusCode: StatusCodes.NOT_FOUND,
-                body: {
-                    data: null,
-                    message: "Could not get appointment.",
-                },
-            };
-        }
-
-        return {
-            statusCode: StatusCodes.OK,
-            body: {
-                data: appointment,
-                message: "Successfully fetched appointment",
-            },
-        };
-    };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: appointment,
+				message: 'Successfully fetched appointment',
+			},
+		};
+	};
 }
 
 export function deleteAppointment() {
-    return async function ( request: HTTPRequest<{ id: string }> ) {
-        const appointment = await db.appointments.findByIdAndDelete(
-            request.params.id,
-        );
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const appointment = await AppointmentRepo.deleteAppointment(request.params.id);
 
-        return {
-            statusCode: StatusCodes.OK,
-            body: {
-                data: appointment,
-                message: "Successfully deleted appointment",
-            },
-        };
-    };
+		return {
+			statusCode: StatusCodes.OK,
+			body: {
+				data: appointment,
+				message: 'Successfully deleted appointment',
+			},
+		};
+	};
 }

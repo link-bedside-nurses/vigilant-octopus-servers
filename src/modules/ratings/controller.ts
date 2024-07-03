@@ -1,11 +1,12 @@
-import { HTTPRequest } from '../../adapters/express-callback'
-import { StatusCodes } from 'http-status-codes'
-import { db } from '../../db'
+import { HTTPRequest } from '../../adapters/express-callback';
+import { StatusCodes } from 'http-status-codes';
+import { RatingRepo } from './repo';
+import { CreateRatingDto } from '../../interfaces/dtos';
 
 export function getAllRatings() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	return async function ( _: HTTPRequest<object> ) {
-		const ratings = await db.ratings.find( {} ).sort( { createdAt: "desc" } ).populate( 'patient' ).populate( 'caregiver' )
+	return async function (_: HTTPRequest<object>) {
+		const ratings = await RatingRepo.getAllRatings();
 
 		return {
 			statusCode: StatusCodes.OK,
@@ -13,22 +14,22 @@ export function getAllRatings() {
 				data: ratings,
 				message: 'Rating retrieved',
 			},
-		}
-	}
+		};
+	};
 }
 
 export function getRating() {
-	return async function ( request: HTTPRequest<{ id: string }> ) {
-		const rating = await db.ratings.findById( request.params.id ).populate( 'patient' ).populate( 'caregiver' )
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const rating = await RatingRepo.getRatingById(request.params.id);
 
-		if ( !rating ) {
+		if (!rating) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
 					data: null,
 					message: 'Not Rating found',
 				},
-			}
+			};
 		}
 
 		return {
@@ -37,27 +38,22 @@ export function getRating() {
 				data: rating,
 				message: 'Rating retrieved',
 			},
-		}
-	}
+		};
+	};
 }
 
 export function getCaregiverRatings() {
-	return async function ( request: HTTPRequest<{ id: string }, object, object> ) {
-		const ratings = await db.ratings.find( {
-			caregiver: {
-				_id: request.params.id
-			}
-		} ).populate( 'patient' ).populate( 'caregiver' ).sort( { createdAt: "desc" } )
+	return async function (request: HTTPRequest<{ id: string }, object, object>) {
+		const ratings = await RatingRepo.getCaregiverRatings(request.params.id);
 
-
-		if ( ratings.length > 0 ) {
+		if (ratings.length > 0) {
 			return {
 				statusCode: StatusCodes.OK,
 				body: {
 					data: ratings,
 					message: 'Successfully fetched caregiver ratings',
 				},
-			}
+			};
 		} else {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
@@ -65,23 +61,23 @@ export function getCaregiverRatings() {
 					data: [],
 					message: 'No Rating Found',
 				},
-			}
+			};
 		}
-	}
+	};
 }
 
 export function deleteRating() {
-	return async function ( request: HTTPRequest<{ id: string }> ) {
-		const rating = await db.ratings.findByIdAndDelete( request.params.id ).populate( 'patient' ).populate( 'caregiver' )
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const rating = await RatingRepo.deleteRating(request.params.id);
 
-		if ( !rating ) {
+		if (!rating) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
 				body: {
 					data: null,
 					message: 'Not such rating',
 				},
-			}
+			};
 		}
 
 		return {
@@ -90,41 +86,22 @@ export function deleteRating() {
 				data: rating,
 				message: 'Rating deleted',
 			},
-		}
-	}
+		};
+	};
 }
 
-export function addRating() {
-	return async function (
-		request: HTTPRequest<
-			{ id: string },
-			{
-				value: number
-				review: string
-			}
-		>,
-	) {
-		const { review, value } = request.body
-		const { id } = request.params
-
-		if ( !review || !value || !id ) {
+export function creatRating() {
+	return async function (request: HTTPRequest<{ id: string }, CreateRatingDto>) {
+		if (!request.body.review || !request.body.value || !request.body.caregiverId) {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
 				body: {
 					data: null,
 					message: 'All fields must be sent',
 				},
-			}
+			};
 		}
-
-		const rating = await db.ratings.create( {
-			review,
-			value,
-			caregiver: id,
-			patient: request?.account?.id,
-		} ).then( r => r.populate( 'patient' ).then( r => r.populate( 'caregiver' ) ) )
-
-		await rating.save()
+		const rating = await RatingRepo.createRating(request.account?.id!, request.body);
 
 		return {
 			statusCode: StatusCodes.OK,
@@ -132,6 +109,6 @@ export function addRating() {
 				data: rating,
 				message: 'Rating Posted',
 			},
-		}
-	}
+		};
+	};
 }
