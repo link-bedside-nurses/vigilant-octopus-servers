@@ -1,44 +1,40 @@
 name: Node.js CI Build Workflow
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-    build:
-        name: Build app
-        runs-on: ubuntu-latest
+  build:
+    name: Build app
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v3
-            - name: Use Node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: "18.x"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
 
-            - name: Install dependencies
-              run: yarn install
+      - name: Install dependencies
+        run: yarn install
 
-            - name: Build typescipt project
-              run: yarn build
+      - name: Build typescipt project
+        run: yarn build
 
-            - name: Lint project
-              run: yarn lint
+      - name: Lint project
+        run: yarn lint
 
-            - name: Running Build
-              run: |
-                  echo "Build is running"
+      - name: Running Build
+        run: |
+          echo "Build is running"
 
-    deploy:
-        name: Deploy app
-        needs: build
-        runs-on: ubuntu-latest
+  deploy:
+    name: Deploy app
+    needs: build
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v3
-            - uses: superfly/flyctl-actions/setup-flyctl@master
-            - run: flyctl deploy --remote-only
-              env:
-                  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
