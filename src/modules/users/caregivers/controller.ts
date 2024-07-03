@@ -5,50 +5,18 @@ import { db } from '../../../db';
 import mongoose from 'mongoose';
 import { Caregiver } from '../../../db/schemas/Caregiver';
 import { Exception } from '../../../utils';
+import { CaregiverRepo } from './repo';
+import { UpdateCaregiverDto } from '../../../interfaces/dtos';
 
 export function getAllCaregivers() {
 	return async function (request: HTTPRequest<object, object, { latLng: string }>) {
 		const { latLng } = request.query;
 
 		let caregivers = [];
-
 		if (latLng) {
-			const latitude = latLng?.split(',')[0];
-			const longitude = latLng?.split(',')[1];
-
-			if (!latitude || !longitude) {
-				throw new Error("Missing either latitude or longitude on the 'latLng' query key");
-			}
-
-			// prettier-ignore
-			// const pipeline: mongoose.PipelineStage[] = [
-			//     {
-			//         '$geoNear': {
-			//             'near': {
-			//                 'type': "Point",
-			//                 'coordinates': [parseFloat(longitude), parseFloat(latitude)],
-			//             },
-			//             'distanceField': "distance",
-			// 			'spherical': true,
-			// 			'includeLocs': 'location'
-			//         },
-			//     },
-			// ];
-
-			// caregivers = await db.appointments.aggregate(pipeline);
-
-			caregivers = await db.caregivers.find({
-                location: {
-                    $near: {
-                        $geometry: {
-                            type: "Point",
-                            coordinates: [longitude, latitude],
-                        },
-                    },
-                },
-            });
+			caregivers = await CaregiverRepo.getAllCaregiversByCoords(latLng);
 		} else {
-			caregivers = await db.caregivers.find({}).sort({ createdAt: 'desc' });
+			caregivers = await CaregiverRepo.getAllCaregivers();
 		}
 
 		return {
@@ -67,7 +35,7 @@ export function getCaregiver() {
 			id: string;
 		}>
 	) {
-		const caregiver = await db.caregivers.findById(request.params.id);
+		const caregiver = await CaregiverRepo.getCaregiverById(request.params.id);
 
 		if (!caregiver) {
 			return {
@@ -83,7 +51,7 @@ export function getCaregiver() {
 			statusCode: StatusCodes.OK,
 			body: {
 				data: caregiver,
-				message: 'caregiver Retrieved',
+				message: 'Caregiver Retrieved',
 			},
 		};
 	};
@@ -95,7 +63,7 @@ export function deleteCaregiver() {
 			id: string;
 		}>
 	) {
-		const caregiver = await db.caregivers.findByIdAndDelete(request.params.id);
+		const caregiver = await CaregiverRepo.deleteCaregiver(request.params.id);
 
 		if (!caregiver) {
 			return {
@@ -117,36 +85,17 @@ export function deleteCaregiver() {
 	};
 }
 
-interface UpdateBody {
-	phone: string;
-	firstName: string;
-	lastName: string;
-	nin: string;
-	medicalLicenseNumber: string;
-	description: string;
-	placeOfReception: string;
-	speciality: string[];
-	languages: string[];
-	affiliations: string[];
-	experience: 0;
-	servicesOffered: string[];
-	imgUrl: string;
-}
-
 export function updateCaregiver() {
 	return async function (
 		request: HTTPRequest<
 			{
 				id: string;
 			},
-			UpdateBody
+			UpdateCaregiverDto
 		>
 	) {
-		const caregiver = await db.caregivers.findByIdAndUpdate(
-			request.params.id,
-			{ ...request.body },
-			{ new: true }
-		);
+		const updated = request.body;
+		const caregiver = await CaregiverRepo.findByIdAndUpdate(request.params.id, updated);
 
 		if (!caregiver) {
 			return {
@@ -170,18 +119,11 @@ export function updateCaregiver() {
 
 export function deactivateCaregiver() {
 	return async function (
-		request: HTTPRequest<
-			{
-				id: string;
-			},
-			UpdateBody
-		>
+		request: HTTPRequest<{
+			id: string;
+		}>
 	) {
-		const caregiver = await db.caregivers.findByIdAndUpdate(
-			request.params.id,
-			{ $set: { isDeactivated: true } },
-			{ new: true }
-		);
+		const caregiver = await CaregiverRepo.deactivateCaregiver(request.params.id);
 
 		if (!caregiver) {
 			return {
@@ -208,17 +150,12 @@ const locationBasedSearch = async (params: {
 	distance?: number; // in kilometres
 	criteria?: string;
 }) => {
-	console.log(params);
 	const { location: coords, distance: radiusInKm = 8.8 } = params;
 
-	// validating search criteria query option
-
-	// get location coords
 	const searchRadius = radiusInKm / 1.60934 / 3963.2;
 	const longitude = coords.lng;
 	const latitude = coords.lat;
 
-	// query filter ...
 	let queryFilter: mongoose.FilterQuery<Caregiver> = {};
 
 	queryFilter = {
@@ -230,7 +167,6 @@ const locationBasedSearch = async (params: {
 		},
 	};
 
-	// search through the database
 	const resultingCaregivers = await db.caregivers.find({
 		...queryFilter,
 	});
@@ -252,15 +188,12 @@ export function searchCaregiversByLocation() {
 	) {
 		const queryParams = req.query;
 
-		console.log(queryParams);
-
 		if (!queryParams.lat || !queryParams.lng) {
 			throw new Exception(`Provide both 'lat' and 'lng' as query params`);
 		}
 		const latitude: number = parseFloat(queryParams.lat);
 		const longitude: number = parseFloat(queryParams.lng);
 
-		// filters
 		let filter: Partial<{ distance: number }> = {};
 		if (queryParams.distance) {
 			filter = { ...filter, distance: parseFloat(queryParams.distance) };

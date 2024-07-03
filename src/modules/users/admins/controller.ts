@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../../db';
+import { AdminRepo } from './repo';
+import { UpdateAdminDto } from '../../../interfaces/dtos';
+import { PatientRepo } from '../patients/repo';
+import { CaregiverRepo } from '../caregivers/repo';
 
 export function getAllAdmins() {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	return async function (_: HTTPRequest<object>) {
-		const admins = await db.admins.find({}).sort({ createdAt: 'desc' });
+	return async function () {
+		const admins = await AdminRepo.getAllAdmins();
 
 		return {
 			statusCode: StatusCodes.OK,
@@ -24,7 +26,7 @@ export function getAdmin() {
 			id: string;
 		}>
 	) {
-		const admin = await db.admins.findById(request.params.id);
+		const admin = await AdminRepo.getAdminById(request.params.id);
 
 		if (!admin) {
 			return {
@@ -62,11 +64,7 @@ export function banAdmin() {
 			};
 		}
 
-		const updatedAmin = await db.admins.findByIdAndUpdate(
-			request.params.id,
-			{ $set: { isBanned: true } },
-			{ new: true }
-		);
+		const updatedAmin = await AdminRepo.banAdmin(request.params.id);
 		if (!updatedAmin) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
@@ -93,11 +91,7 @@ export function banCaregiver() {
 			id: string;
 		}>
 	) {
-		const bannedCaregiver = await db.caregivers.findByIdAndUpdate(
-			request.params.id,
-			{ $set: { isBanned: true } },
-			{ new: true }
-		);
+		const bannedCaregiver = await CaregiverRepo.banCaregiver(request.params.id);
 		if (!bannedCaregiver) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
@@ -123,11 +117,7 @@ export function banPatient() {
 			id: string;
 		}>
 	) {
-		const bannedPatient = await db.patients.findByIdAndUpdate(
-			request.params.id,
-			{ $set: { isBanned: true } },
-			{ new: true }
-		);
+		const bannedPatient = await PatientRepo.banPatient(request.params.id);
 		if (!bannedPatient) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
@@ -154,11 +144,7 @@ export function verifyCaregiver() {
 			id: string;
 		}>
 	) {
-		const verifiedCaregiver = await db.caregivers.findByIdAndUpdate(
-			request.params.id,
-			{ isVerified: true },
-			{ new: true }
-		);
+		const verifiedCaregiver = await CaregiverRepo.verifyCaregiver(request.params.id);
 		if (!verifiedCaregiver) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
@@ -185,11 +171,7 @@ export function verifyPatient() {
 			id: string;
 		}>
 	) {
-		const verifiedPatient = await db.patients.findByIdAndUpdate(
-			request.params.id,
-			{ isVerified: true },
-			{ new: true }
-		);
+		const verifiedPatient = await PatientRepo.verifyPatient(request.params.id);
 		if (!verifiedPatient) {
 			return {
 				statusCode: StatusCodes.NOT_FOUND,
@@ -210,26 +192,16 @@ export function verifyPatient() {
 	};
 }
 
-interface UpdateBody {
-	phone: string;
-	firstName: string;
-	lastName: string;
-}
-
 export function updateAdmin() {
 	return async function (
 		request: HTTPRequest<
 			{
 				id: string;
 			},
-			UpdateBody
+			UpdateAdminDto
 		>
 	) {
-		const admin = await db.admins.findByIdAndUpdate(
-			request.params.id,
-			{ ...request.body },
-			{ new: true }
-		);
+		const admin = await AdminRepo.updateAdmin(request.params.id, request.body);
 
 		if (!admin) {
 			return {

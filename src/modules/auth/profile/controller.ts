@@ -1,34 +1,10 @@
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../../db';
+import { UpdateCaregiverDto } from '../../../interfaces/dtos';
+import { CaregiverRepo } from '../../users/caregivers/repo';
 
 export function completeCaregiverProfile() {
-	return async function (
-		request: HTTPRequest<
-			object,
-			{
-				phone: string;
-				firstName: string;
-				lastName: string;
-				dateOfBirth: string;
-				nin: string;
-				medicalLicenseNumber: string;
-				experience: string;
-				description: string;
-				location: {
-					lng: number;
-					lat: number;
-				};
-				languages: string[];
-				affiliations: string;
-				placeOfReception: string;
-				rating: number;
-				speciality: string;
-				servicesOffered: string;
-				imageUrl: string;
-			}
-		>
-	) {
+	return async function (request: HTTPRequest<object, UpdateCaregiverDto>) {
 		const caregiverId = request?.account?.id;
 		const {
 			phone,
@@ -36,15 +12,9 @@ export function completeCaregiverProfile() {
 			lastName,
 			dateOfBirth,
 			nin,
-			medicalLicenseNumber,
 			experience,
 			description,
 			location,
-			languages,
-			affiliations,
-			placeOfReception,
-			speciality,
-			servicesOffered,
 			imageUrl,
 		} = request.body;
 
@@ -55,15 +25,9 @@ export function completeCaregiverProfile() {
 			!lastName ||
 			!dateOfBirth ||
 			!nin ||
-			!medicalLicenseNumber ||
 			!experience ||
 			!description ||
 			!location ||
-			!languages ||
-			!affiliations ||
-			!placeOfReception ||
-			!speciality ||
-			!servicesOffered ||
 			!imageUrl
 		) {
 			return {
@@ -75,28 +39,7 @@ export function completeCaregiverProfile() {
 			};
 		}
 
-		const updatedCaregiver = await db.caregivers.findByIdAndUpdate(
-			request?.account?.id,
-			{
-				phone,
-				firstName,
-				lastName,
-				dateOfBirth,
-				nin,
-				medicalLicenseNumber,
-				experience,
-				description,
-				location,
-				languages,
-				affiliations,
-				placeOfReception,
-				speciality,
-				servicesOffered,
-				imageUrl,
-			},
-			{ new: true }
-		);
-
+		const updatedCaregiver = await CaregiverRepo.findByIdAndUpdate(caregiverId, request.body);
 		return {
 			statusCode: StatusCodes.OK,
 			body: {

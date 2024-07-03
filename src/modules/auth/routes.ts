@@ -1,17 +1,14 @@
 import callback from '../../adapters/express-callback';
 import { Router } from 'express';
 
-import {
-	adminSignin,
-	adminSignup,
-	caregiverSignin,
-	caregiverSignup,
-	deleteAccount,
-	getAccessToken,
-	patientSignin,
-	patientSignup,
-} from '../../modules/auth/controller';
+import { deleteAccount, getAccessToken } from '../../modules/auth/controller';
 import verifyRefreshTokenMiddleware from '../../middlewares/auth/verify-refresh-token';
+import { adminSignup } from './signup/admin';
+import { caregiverSignup } from './signup/caregiver';
+import { patientSignup } from './signup/patient';
+import { adminSignin } from './signin/admin';
+import { caregiverSignin } from './signin/caregiver';
+import { patientSignin } from './signin/patient';
 
 const router = Router();
 
@@ -26,7 +23,6 @@ router.post('/admin/signup', callback(adminSignup()));
 
 router.delete('/accounts/deletion', callback(deleteAccount()));
 
-// router.post( '/reset-password/:id', callback( passwordReset() ) )
 router.get('/token/refresh', verifyRefreshTokenMiddleware, callback(getAccessToken()));
 
 export default router;

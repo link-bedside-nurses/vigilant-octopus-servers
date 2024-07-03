@@ -44,7 +44,7 @@ router.use(
 		},
 	})
 );
-
+0;
 const ONE_MINUTE = 1 * 60 * 1000;
 router.use(
 	rateLimit({
@@ -78,7 +78,7 @@ router.get('/privacy', function (_, res) {
 	res.send(html);
 });
 
-router.use('/', function (request: express.Request, response: express.Response) {
+router.get('/', function (request: express.Request, response: express.Response) {
 	return response
 		.status(StatusCodes.NOT_FOUND)
 		.send({ message: 'SERVER IS ONLINE!', requestHeaders: request.headers });

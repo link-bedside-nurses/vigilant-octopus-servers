@@ -1,0 +1,24 @@
+import { db } from '../../../db';
+import { CreatePatientDto } from '../../../interfaces/dtos';
+
+export class PatientRepo {
+	public static async createPatient(patient: CreatePatientDto) {
+		return await db.patients.create(patient);
+	}
+
+	public static async getPatientById(id: string) {
+		return await db.patients.findById(id);
+	}
+
+	public static async getPatientByPhone(phone: string) {
+		return await db.patients.findOne({ phone });
+	}
+
+	public static async verifyPatient(id: string) {
+		return await db.patients.findByIdAndUpdate(id, { isVerified: true }, { new: true });
+	}
+
+	public static async banPatient(id: string) {
+		return await db.patients.findByIdAndUpdate(id, { isBanned: true }, { new: true });
+	}
+}

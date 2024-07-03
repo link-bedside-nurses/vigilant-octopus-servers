@@ -1,7 +1,9 @@
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../../db';
 import { DESIGNATION } from '../../../interfaces';
+import { AdminRepo } from '../../users/admins/repo';
+import { CaregiverRepo } from '../../users/caregivers/repo';
+import { PatientRepo } from '../../users/patients/repo';
 
 export function getCurrentUser() {
 	return async function (request: HTTPRequest<object>) {
@@ -9,11 +11,11 @@ export function getCurrentUser() {
 
 		let user;
 		if (designation === DESIGNATION.NURSE) {
-			user = await db.caregivers.findById(request.account?.id);
+			user = await CaregiverRepo.getCaregiverById(request.account?.id!);
 		} else if (designation === DESIGNATION.PATIENT) {
-			user = await db.patients.findById(request.account?.id);
+			user = await PatientRepo.getPatientById(request.account?.id!);
 		} else if (designation === DESIGNATION.ADMIN) {
-			user = await db.admins.findById(request.account?.id);
+			user = await AdminRepo.getAdminById(request.account?.id!);
 		} else {
 			return {
 				statusCode: StatusCodes.BAD_REQUEST,
