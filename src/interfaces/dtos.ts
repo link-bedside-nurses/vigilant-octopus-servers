@@ -1,8 +1,7 @@
 import { z } from 'zod';
-import { APPOINTMENT_STATUSES, DESIGNATION } from '.';
+import { DESIGNATION } from '.';
 
 const DesignationEnum = z.enum(Object.values(DESIGNATION) as [string, ...string[]]);
-const AppointmentStatusEnum = z.enum(Object.values(APPOINTMENT_STATUSES) as [string, ...string[]]);
 
 const BaseSchema = z.object({
 	/**
