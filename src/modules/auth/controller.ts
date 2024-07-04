@@ -8,7 +8,6 @@ import { PatientRepo } from '../users/patients/repo';
 import { CaregiverRepo } from '../users/caregivers/repo';
 
 export function deleteAccount() {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function (_: HTTPRequest<object, object, object>) {
 		return response(StatusCodes.OK, null, 'account deleted');
 	};

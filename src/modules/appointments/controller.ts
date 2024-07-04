@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { HTTPRequest } from '../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 
