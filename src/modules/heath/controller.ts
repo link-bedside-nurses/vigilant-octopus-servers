@@ -9,6 +9,6 @@ export function ping() {
 
 export function error() {
 	return async function () {
-		throw new Error('Something went wrong!');
+		throw new Error('Intended Error!');
 	};
 }

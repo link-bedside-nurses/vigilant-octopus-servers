@@ -3,6 +3,7 @@ import { replaceTscAliasPaths } from 'tsc-alias';
 import 'dotenv/config';
 
 import express from 'express';
+import 'express-async-errors';
 import { EnvironmentVars } from './constants';
 import { connectToDatabase, disconnectFromDatabase } from './db/connection';
 import router from './router/router';
@@ -16,12 +17,14 @@ app.set('trust proxy', false);
 app.use(router);
 
 process.on('unhandledRejection', (reason, promise) => {
-	logger.error('Unhandled Rejection at:', {
-		promise,
-		reason,
+	const serializedPromise = JSON.stringify(promise);
+	const serializedReason = reason instanceof Error ? reason.stack : reason;
+
+	logger.error('Unhandled Rejection:', {
+		promise: serializedPromise,
+		reason: serializedReason,
 	});
 });
-
 process.on('uncaughtException', (exception) => {
 	logger.error('Uncaught Exception', exception);
 });

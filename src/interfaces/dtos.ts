@@ -59,7 +59,6 @@ export const UpdateAdminSchema = BaseSchema.extend({
 }).partial();
 
 export const CreateRatingSchema = z.object({
-	patientId: z.string(),
 	caregiverId: z.string(),
 	review: z.string(),
 	value: z.number().min(1).max(5),
@@ -67,7 +66,6 @@ export const CreateRatingSchema = z.object({
 
 export const ScheduleAppointmentSchema = z.object({
 	caregiverId: z.string(),
-	status: AppointmentStatusEnum,
 	reason: z.string(),
 	date: z.string().optional(),
 });

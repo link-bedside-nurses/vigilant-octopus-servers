@@ -69,11 +69,7 @@ export function scheduleAppointment() {
 		const caregiver = await CaregiverRepo.getCaregiverById(request.body.caregiverId);
 
 		if (!caregiver) {
-			return response(
-				StatusCodes.BAD_REQUEST,
-				null,
-				`No such caregiver with id ${request.body.caregiverId} found`
-			);
+			return response(StatusCodes.BAD_REQUEST, null, `No such caregiver with given id`);
 		}
 
 		const appointment = await AppointmentRepo.scheduleAppointment(
