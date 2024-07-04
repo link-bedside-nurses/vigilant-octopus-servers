@@ -57,19 +57,21 @@ router.use(
 	})
 );
 
-router.use('/test', testRouter);
-router.use('/auth', authRouter);
-router.use('/appointments', appointmentRouter);
-router.use('/dashboard', dashboardRouter);
-router.use('/profile', profileRouter);
-router.use('/ratings', ratingsRouter);
-router.use('/patients', patientRouter);
-router.use('/caregivers', caregiverRouter);
-router.use('/admins', adminRouter);
-router.use('/payments', paymentsRouter);
-router.use('/otp', otpRouter);
-router.use('/mail', emailRouter);
-router.use('/me', meRouter);
+const PREFIX = '/api/v1.1';
+
+router.use(`${PREFIX}/test`, testRouter);
+router.use(`${PREFIX}/auth`, authRouter);
+router.use(`${PREFIX}/appointments`, appointmentRouter);
+router.use(`${PREFIX}/dashboard`, dashboardRouter);
+router.use(`${PREFIX}/profile`, profileRouter);
+router.use(`${PREFIX}/ratings`, ratingsRouter);
+router.use(`${PREFIX}/patients`, patientRouter);
+router.use(`${PREFIX}/caregivers`, caregiverRouter);
+router.use(`${PREFIX}/admins`, adminRouter);
+router.use(`${PREFIX}/payments`, paymentsRouter);
+router.use(`${PREFIX}/otp`, otpRouter);
+router.use(`${PREFIX}/mail`, emailRouter);
+router.use(`${PREFIX}/me`, meRouter);
 
 router.use(errorMiddleware);
 

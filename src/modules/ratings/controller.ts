@@ -1,7 +1,7 @@
 import { HTTPRequest } from '../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { RatingRepo } from './repo';
-import { CreateRatingDto } from '../../interfaces/dtos';
+import { CreateRatingDto, CreateRatingSchema } from '../../interfaces/dtos';
 import { response } from '../../utils/http-response';
 
 export function getAllRatings() {
@@ -42,10 +42,12 @@ export function deleteRating() {
 	};
 }
 
-export function creatRating() {
+export function postRating() {
 	return async function (request: HTTPRequest<{ id: string }, CreateRatingDto>) {
-		if (!request.body.review || !request.body.value || !request.body.caregiverId) {
-			return response(StatusCodes.BAD_REQUEST, null, 'All fields must be sent');
+		const result = CreateRatingSchema.safeParse(request.body);
+
+		if (!result.success) {
+			return response(StatusCodes.BAD_REQUEST, null, 'All fields must be sent', result.error);
 		}
 		const rating = await RatingRepo.createRating(request.account?.id!, request.body);
 		return response(StatusCodes.OK, rating, 'Rating Posted');

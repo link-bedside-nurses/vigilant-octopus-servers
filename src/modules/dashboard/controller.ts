@@ -8,22 +8,18 @@ import { AppointmentRepo } from '../appointments/repo';
 
 export function getOverview() {
 	return async function (_: HTTPRequest<object, object, object>) {
-		try {
-			const admins = await AdminRepo.getAllAdmins();
-			const caregivers = await CaregiverRepo.getAllCaregivers();
-			const patients = await PatientRepo.getAllPatients();
-			const appointments = await AppointmentRepo.getAllAppointments();
+		const admins = await AdminRepo.getAllAdmins();
+		const caregivers = await CaregiverRepo.getAllCaregivers();
+		const patients = await PatientRepo.getAllPatients();
+		const appointments = await AppointmentRepo.getAllAppointments();
 
-			const overviewData = {
-				admins: admins.length,
-				caregivers: caregivers.length,
-				patients: patients.length,
-				appointments: appointments.length,
-			};
+		const overviewData = {
+			admins: admins.length,
+			caregivers: caregivers.length,
+			patients: patients.length,
+			appointments: appointments.length,
+		};
 
-			return response(StatusCodes.OK, overviewData, 'Successfully returned stats overview');
-		} catch (error) {
-			return response(StatusCodes.INTERNAL_SERVER_ERROR, error as object, 'Failed to get stats');
-		}
+		return response(StatusCodes.OK, overviewData, 'Successfully returned stats overview');
 	};
 }
