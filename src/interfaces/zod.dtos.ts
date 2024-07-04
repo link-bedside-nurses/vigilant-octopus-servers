@@ -6,6 +6,7 @@ const AppointmentStatusEnum = z.enum(Object.values(APPOINTMENT_STATUSES) as [str
 
 const BaseSchema = z.object({
 	/**
+	 * This pattern will now allow phone numbers in these formats:
 	 * +256700000000
 	 * +256300000000
 	 * 256700000000

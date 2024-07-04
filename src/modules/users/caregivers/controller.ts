@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../../../db';
@@ -7,6 +6,7 @@ import { Caregiver } from '../../../db/schemas/Caregiver';
 import { Exception } from '../../../utils';
 import { CaregiverRepo } from './repo';
 import { UpdateCaregiverDto } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
 
 export function getAllCaregivers() {
 	return async function (request: HTTPRequest<object, object, { latLng: string }>) {
@@ -19,129 +19,56 @@ export function getAllCaregivers() {
 			caregivers = await CaregiverRepo.getAllCaregivers();
 		}
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: caregivers,
-				message: 'caregivers Retrieved',
-			},
-		};
+		return response(StatusCodes.OK, caregivers, 'Caregivers Retrieved');
 	};
 }
 
 export function getCaregiver() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const caregiver = await CaregiverRepo.getCaregiverById(request.params.id);
 
 		if (!caregiver) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No caregiver Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No caregiver Found');
 		}
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: caregiver,
-				message: 'Caregiver Retrieved',
-			},
-		};
+		return response(StatusCodes.OK, caregiver, 'Caregiver Retrieved');
 	};
 }
 
 export function deleteCaregiver() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const caregiver = await CaregiverRepo.deleteCaregiver(request.params.id);
 
 		if (!caregiver) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No caregiver Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No caregiver Found');
 		}
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: caregiver,
-				message: 'caregiver deleted',
-			},
-		};
+		return response(StatusCodes.OK, caregiver, 'Caregiver deleted');
 	};
 }
 
 export function updateCaregiver() {
-	return async function (
-		request: HTTPRequest<
-			{
-				id: string;
-			},
-			UpdateCaregiverDto
-		>
-	) {
+	return async function (request: HTTPRequest<{ id: string }, UpdateCaregiverDto>) {
 		const updated = request.body;
 		const caregiver = await CaregiverRepo.findByIdAndUpdate(request.params.id, updated);
 
 		if (!caregiver) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No caregiver Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No caregiver Found');
 		}
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: caregiver,
-				message: 'caregiver updated',
-			},
-		};
+		return response(StatusCodes.OK, caregiver, 'Caregiver updated');
 	};
 }
 
 export function deactivateCaregiver() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const caregiver = await CaregiverRepo.deactivateCaregiver(request.params.id);
 
 		if (!caregiver) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No caregiver Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No caregiver Found');
 		}
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: caregiver,
-				message: 'Account successfully deactivated',
-			},
-		};
+		return response(StatusCodes.OK, caregiver, 'Account successfully deactivated');
 	};
 }
 
@@ -176,15 +103,7 @@ const locationBasedSearch = async (params: {
 
 export function searchCaregiversByLocation() {
 	return async function (
-		req: HTTPRequest<
-			object,
-			object,
-			{
-				lat: string;
-				lng: string;
-				distance: string;
-			}
-		>
+		req: HTTPRequest<object, object, { lat: string; lng: string; distance: string }>
 	) {
 		const queryParams = req.query;
 
@@ -204,15 +123,9 @@ export function searchCaregiversByLocation() {
 			...filter,
 		});
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: caregivers || [],
-				message:
-					caregivers.length > 0
-						? `Found ${caregivers.length} result(s)`
-						: 'No results found',
-			},
-		};
+		const message =
+			caregivers.length > 0 ? `Found ${caregivers.length} result(s)` : 'No results found';
+
+		return response(StatusCodes.OK, caregivers || [], message);
 	};
 }

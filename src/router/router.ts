@@ -44,7 +44,7 @@ router.use(
 		},
 	})
 );
-0;
+
 const ONE_MINUTE = 1 * 60 * 1000;
 router.use(
 	rateLimit({

@@ -5,220 +5,96 @@ import { AdminRepo } from './repo';
 import { UpdateAdminDto } from '../../../interfaces/dtos';
 import { PatientRepo } from '../patients/repo';
 import { CaregiverRepo } from '../caregivers/repo';
+import { response } from '../../../utils/http-response';
 
 export function getAllAdmins() {
 	return async function () {
 		const admins = await AdminRepo.getAllAdmins();
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: admins,
-				message: 'Admins Retrieved',
-			},
-		};
+		return response(StatusCodes.OK, admins, 'Admins Retrieved');
 	};
 }
 
 export function getAdmin() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const admin = await AdminRepo.getAdminById(request.params.id);
-
 		if (!admin) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No admin Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No admin Found');
 		}
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: admin,
-				message: 'Admin Retrieved',
-			},
-		};
+		return response(StatusCodes.OK, admin, 'Admin Retrieved');
 	};
 }
 
 export function banAdmin() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		if (request.account?.id === request.params.id) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'You cannot ban yourself, Please select a different admin to ban',
-					data: null,
-				},
-			};
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				'You cannot ban yourself, Please select a different admin to ban'
+			);
 		}
-
-		const updatedAmin = await AdminRepo.banAdmin(request.params.id);
-		if (!updatedAmin) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No admin Found',
-					data: null,
-				},
-			};
+		const updatedAdmin = await AdminRepo.banAdmin(request.params.id);
+		if (!updatedAdmin) {
+			return response(StatusCodes.NOT_FOUND, null, 'No admin Found');
 		}
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: updatedAmin,
-				message: 'Admin banned',
-			},
-		};
+		return response(StatusCodes.OK, updatedAdmin, 'Admin banned');
 	};
 }
 
 export function banCaregiver() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const bannedCaregiver = await CaregiverRepo.banCaregiver(request.params.id);
 		if (!bannedCaregiver) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No such caregiver Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No such caregiver Found');
 		}
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: bannedCaregiver,
-				message: 'Caregiver Successfully banned from using the application',
-			},
-		};
+		return response(
+			StatusCodes.OK,
+			bannedCaregiver,
+			'Caregiver Successfully banned from using the application'
+		);
 	};
 }
+
 export function banPatient() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const bannedPatient = await PatientRepo.banPatient(request.params.id);
 		if (!bannedPatient) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No such patient Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No such patient Found');
 		}
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: bannedPatient,
-				message: 'Patient Successfully banned from using the application!',
-			},
-		};
+		return response(
+			StatusCodes.OK,
+			bannedPatient,
+			'Patient Successfully banned from using the application!'
+		);
 	};
 }
 
 export function verifyCaregiver() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const verifiedCaregiver = await CaregiverRepo.verifyCaregiver(request.params.id);
 		if (!verifiedCaregiver) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No such caregiver Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No such caregiver Found');
 		}
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: verifiedCaregiver,
-				message: 'Caregiver verified',
-			},
-		};
+		return response(StatusCodes.OK, verifiedCaregiver, 'Caregiver verified');
 	};
 }
 
 export function verifyPatient() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const verifiedPatient = await PatientRepo.verifyPatient(request.params.id);
 		if (!verifiedPatient) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No such patient Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No such patient Found');
 		}
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: verifiedPatient,
-				message: 'Patient verified!',
-			},
-		};
+		return response(StatusCodes.OK, verifiedPatient, 'Patient verified!');
 	};
 }
 
 export function updateAdmin() {
-	return async function (
-		request: HTTPRequest<
-			{
-				id: string;
-			},
-			UpdateAdminDto
-		>
-	) {
+	return async function (request: HTTPRequest<{ id: string }, UpdateAdminDto>) {
 		const admin = await AdminRepo.updateAdmin(request.params.id, request.body);
-
 		if (!admin) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No admin Found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'No admin Found');
 		}
-
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: admin,
-				message: 'Admin updated',
-			},
-		};
+		return response(StatusCodes.OK, admin, 'Admin updated');
 	};
 }

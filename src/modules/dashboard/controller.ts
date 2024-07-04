@@ -1,37 +1,29 @@
 import { HTTPRequest } from '../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../db';
+import { response } from '../../utils/http-response';
+import { AdminRepo } from '../users/admins/repo';
+import { CaregiverRepo } from '../users/caregivers/repo';
+import { PatientRepo } from '../users/patients/repo';
+import { AppointmentRepo } from '../appointments/repo';
 
 export function getOverview() {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	return async function ( _: HTTPRequest<object, object, object> ) {
+	return async function (_: HTTPRequest<object, object, object>) {
 		try {
+			const admins = await AdminRepo.getAllAdmins();
+			const caregivers = await CaregiverRepo.getAllCaregivers();
+			const patients = await PatientRepo.getAllPatients();
+			const appointments = await AppointmentRepo.getAllAppointments();
 
-			const admins = await db.admins.find( {} ).sort( { createdAt: "desc" } )
-			const caregivers = await db.caregivers.find( {} ).sort( { createdAt: "desc" } )
-			const patients = await db.patients.find( {} ).sort( { createdAt: "desc" } )
-			const appointments = await db.appointments.find( {} ).sort( { createdAt: "desc" } )
+			const overviewData = {
+				admins: admins.length,
+				caregivers: caregivers.length,
+				patients: patients.length,
+				appointments: appointments.length,
+			};
 
-			return {
-				statusCode: StatusCodes.OK,
-				body: {
-					data: {
-						admins: admins.length,
-						caregivers: caregivers.length,
-						patients: patients.length,
-						appointments: appointments.length,
-					},
-					message: 'successfully returned stats overview',
-				},
-			};
-		} catch ( error ) {
-			return {
-				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-				body: {
-					data: error,
-					message: 'failed to get stats',
-				},
-			};
+			return response(StatusCodes.OK, overviewData, 'Successfully returned stats overview');
+		} catch (error) {
+			return response(StatusCodes.INTERNAL_SERVER_ERROR, error as object, 'Failed to get stats');
 		}
 	};
 }
