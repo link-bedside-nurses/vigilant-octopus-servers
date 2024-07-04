@@ -5,12 +5,7 @@ const DesignationEnum = z.enum(Object.values(DESIGNATION) as [string, ...string[
 
 const BaseSchema = z.object({
 	/**
-	 * +256700000000
-	 * +256300000000
-	 * 256700000000
-	 * 256300000000
-	 * 0700000000
-	 * 0300000000
+	 * +256700000000 +256300000000  256700000000 256300000000 0700000000 0300000000
 	 */
 	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Invalid UG NO format'), // E.164 format
 	designation: DesignationEnum,
