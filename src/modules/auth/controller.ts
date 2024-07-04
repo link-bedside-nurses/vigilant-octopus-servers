@@ -1,20 +1,16 @@
 import { HTTPRequest } from '../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../db';
 import { createAccessToken } from '../../services/token';
 import { Document } from 'mongoose';
 import { DESIGNATION, ACCOUNT } from '../../interfaces';
+import { response } from '../../utils/http-response';
+import { PatientRepo } from '../users/patients/repo';
+import { CaregiverRepo } from '../users/caregivers/repo';
 
 export function deleteAccount() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function (_: HTTPRequest<object, object, object>) {
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: null,
-				message: 'account deleted',
-			},
-		};
+		return response(StatusCodes.OK, null, 'account deleted');
 	};
 }
 
@@ -23,51 +19,24 @@ export function getAccessToken() {
 		const designation = request.query.designation;
 
 		if (!designation) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'Designation must be specified',
-					data: null,
-				},
-			};
+			return response(StatusCodes.BAD_REQUEST, null, 'Designation must be specified');
 		}
 
 		let user;
 		if (designation === DESIGNATION.PATIENT) {
-			user = await db.patients.findById(request.account?.id);
-		} else if (designation === DESIGNATION.NURSE) {
-			user = await db.caregivers.findById(request.account?.id);
-		} else if (designation === DESIGNATION.ADMIN) {
-			user = await db.caregivers.findById(request.account?.id);
+			user = await PatientRepo.getPatientById(request.account?.id!);
+		} else if (designation === DESIGNATION.NURSE || designation === DESIGNATION.ADMIN) {
+			user = await CaregiverRepo.getCaregiverById(request.account?.id!);
 		} else {
-			return {
-				statusCode: StatusCodes.UNAUTHORIZED,
-				body: {
-					message: 'Invalid Designation',
-					data: null,
-				},
-			};
+			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Designation');
 		}
 
 		if (!user) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					data: user,
-					message: 'No user found',
-				},
-			};
+			return response(StatusCodes.BAD_REQUEST, null, 'No user found');
 		}
 
 		const accessToken = createAccessToken(user as Document & ACCOUNT);
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: null,
-				accessToken,
-				message: 'Access token has been reset!',
-			},
-		};
+		return response(StatusCodes.OK, { accessToken }, 'Access token has been reset!');
 	};
 }

@@ -1,61 +1,41 @@
 import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../adapters/express-callback';
-import { db } from '../../../db';
-import { DESIGNATION, ACCOUNT } from '../../../interfaces';
+import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
 import * as argon2 from 'argon2';
 import { AdminRepo } from '../../users/admins/repo';
-import { CreateAdminDto } from '../../../interfaces/dtos';
+import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
 
 export function adminSignup() {
 	return async function (request: HTTPRequest<object, CreateAdminDto>) {
-		const { email, password, firstName, lastName } = request.body;
-
-		if (!email || !password || !firstName || !lastName) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'Some fields are missing',
-					data: null,
-				},
-			};
+		const result = CreateAdminSchema.safeParse(request.body);
+		if (!result.success) {
+			return response(StatusCodes.BAD_REQUEST, null, 'Validation failed', result.error);
 		}
 
-		const user = await db.admins.findOne({ email });
+		const { email, password } = result.data;
 
-		if (user) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'email in use',
-					data: null,
-				},
-			};
+		const admin = await AdminRepo.getAdminByEmail(email);
+
+		if (admin) {
+			return response(StatusCodes.BAD_REQUEST, null, 'Email already in use');
 		}
 
 		const hash = await argon2.hash(password, {
 			type: argon2.argon2id,
 		});
+
 		const newUser = await AdminRepo.createAdmin({
-			designation: DESIGNATION.ADMIN,
-			email,
-			firstName,
-			lastName,
+			...result.data,
 			password: hash,
-			phone: '',
 		});
 
 		await newUser.save();
-		// @ts-ignore
-		const token = createAccessToken(newUser as unknown as Document & ACCOUNT);
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: newUser,
-				token,
-				message: 'Account created',
-			},
-		};
+		// @ts-ignore
+		const token = createAccessToken(newUser as Document & ACCOUNT);
+
+		return response(StatusCodes.OK, { user: newUser, token }, 'Account created');
 	};
 }

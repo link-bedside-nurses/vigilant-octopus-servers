@@ -20,7 +20,8 @@ import { DESIGNATION } from '../../interfaces'
 export class Admin {
 	@prop( {
 		type: String,
-		required: true,
+		required: false,
+		default:DESIGNATION.ADMIN,
 		enum: [DESIGNATION.PATIENT, DESIGNATION.NURSE, DESIGNATION.ADMIN],
 	} )
 	designation!: DESIGNATION

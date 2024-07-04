@@ -1,51 +1,21 @@
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { UpdateCaregiverDto } from '../../../interfaces/dtos';
+import { UpdateAdminSchema, UpdateCaregiverDto } from '../../../interfaces/dtos';
 import { CaregiverRepo } from '../../users/caregivers/repo';
+import { response } from '../../../utils/http-response';
 
 export function completeCaregiverProfile() {
 	return async function (request: HTTPRequest<object, UpdateCaregiverDto>) {
-		const caregiverId = request?.account?.id;
-		const {
-			phone,
-			firstName,
-			lastName,
-			dateOfBirth,
-			nin,
-			experience,
-			description,
-			location,
-			imageUrl,
-		} = request.body;
+		const result = UpdateAdminSchema.safeParse(request.body);
 
-		if (
-			!caregiverId ||
-			!phone ||
-			!firstName ||
-			!lastName ||
-			!dateOfBirth ||
-			!nin ||
-			!experience ||
-			!description ||
-			!location ||
-			!imageUrl
-		) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					data: null,
-					message: 'Incomplete or invalid request data',
-				},
-			};
+		if (!result.success) {
+			return response(StatusCodes.BAD_REQUEST, null, 'Validation Error', result.error);
 		}
 
-		const updatedCaregiver = await CaregiverRepo.findByIdAndUpdate(caregiverId, request.body);
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: updatedCaregiver,
-				message: 'Profile completed',
-			},
-		};
+		const updatedCaregiver = await CaregiverRepo.findByIdAndUpdate(
+			request.account?.id!,
+			request.body
+		);
+		return response(StatusCodes.OK, updatedCaregiver, 'Profile updated');
 	};
 }

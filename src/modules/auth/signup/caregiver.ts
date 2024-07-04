@@ -1,50 +1,34 @@
 import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { db } from '../../../db';
-import { DESIGNATION, ACCOUNT } from '../../../interfaces';
+import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
 import * as argon2 from 'argon2';
-
-interface SignUpBody {
-	phone: string;
-	name: string;
-	password: string;
-	email: string;
-}
+import { CaregiverRepo } from '../../users/caregivers/repo';
+import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
 
 export function caregiverSignup() {
-	return async function (request: HTTPRequest<object, SignUpBody>) {
-		const { phone, password, name } = request.body;
-
-		if (!phone || !password || !name) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'Some fields are missing',
-					data: null,
-				},
-			};
+	return async function (request: HTTPRequest<object, CreateCaregiverDto>) {
+		const result = CreateCaregiverSchema.safeParse(request.body);
+		if (!result.success) {
+			return response(StatusCodes.BAD_REQUEST, null, 'Validation failed', result.error);
 		}
+
+		const { phone, password } = result.data;
 
 		const caregiver = await db.caregivers.findOne({ phone });
 
 		if (caregiver) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'Phone number in use',
-					data: null,
-				},
-			};
+			return response(StatusCodes.BAD_REQUEST, null, 'Phone number in use');
 		}
 
 		const hash = await argon2.hash(password, {
 			type: argon2.argon2id,
 		});
-		const user = await db.caregivers.create({
-			phone,
-			name,
-			designation: DESIGNATION.NURSE,
+
+		const user = await CaregiverRepo.createCaregiver({
+			...result.data,
 			password: hash,
 		});
 
@@ -52,13 +36,6 @@ export function caregiverSignup() {
 		// @ts-ignore
 		const accessToken = createAccessToken(user as Document & ACCOUNT);
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: user,
-				accessToken,
-				message: 'Account created',
-			},
-		};
+		return response(StatusCodes.OK, { user, accessToken }, 'Account created');
 	};
 }

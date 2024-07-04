@@ -2,34 +2,24 @@ import { StatusCodes } from 'http-status-codes';
 import * as argon2 from 'argon2';
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { AdminRepo } from '../../users/admins/repo';
-import { CreateAdminDto } from '../../../interfaces/dtos';
+import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
+import { createAccessToken } from '../../../services/token';
+import { response } from '../../../utils/http-response';
 
 export function adminSignin() {
-	return async function (
-		request: HTTPRequest<object, Pick<CreateAdminDto, 'email'> & Pick<CreateAdminDto, 'password'>>
-	) {
-		const { email, password } = request.body;
+	return async function (request: HTTPRequest<object, Pick<CreateAdminDto, 'email' | 'password'>>) {
+		const result = CreateAdminSchema.pick({ email: true, password: true }).safeParse(request.body);
 
-		if (!email || !password) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'Some fields are missing',
-					data: null,
-				},
-			};
+		if (!result.success) {
+			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
 		}
+
+		const { email, password } = result.data;
 
 		const user = await AdminRepo.getAdminByEmail(email);
 
 		if (!user) {
-			return {
-				statusCode: StatusCodes.UNAUTHORIZED,
-				body: {
-					message: 'Invalid Credentials',
-					data: null,
-				},
-			};
+			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
 		}
 
 		const match = await argon2.verify(user.password, password, {
@@ -37,24 +27,12 @@ export function adminSignin() {
 		});
 
 		if (!match) {
-			return {
-				statusCode: StatusCodes.UNAUTHORIZED,
-				body: {
-					data: null,
-					message: 'Invalid Credentials',
-				},
-			};
+			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
 		}
+
 		// @ts-ignore
 		const accessToken = createAccessToken(user as Document & ACCOUNT);
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: user,
-				accessToken,
-				message: 'Signed in',
-			},
-		};
+		return response(StatusCodes.OK, { user, accessToken }, 'Signed in');
 	};
 }

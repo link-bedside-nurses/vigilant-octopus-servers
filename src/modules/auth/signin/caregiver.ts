@@ -4,37 +4,27 @@ import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
 import * as argon2 from 'argon2';
 import { CaregiverRepo } from '../../users/caregivers/repo';
-import { CreateCaregiverDto } from '../../../interfaces/dtos';
+import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
 
 export function caregiverSignin() {
 	return async function (
-		request: HTTPRequest<
-			object,
-			Pick<CreateCaregiverDto, 'phone'> & Pick<CreateCaregiverDto, 'password'>
-		>
+		request: HTTPRequest<object, Pick<CreateCaregiverDto, 'phone' | 'password'>>
 	) {
-		const { phone, password } = request.body;
+		const result = CreateCaregiverSchema.pick({ phone: true, password: true }).safeParse(
+			request.body
+		);
 
-		if (!phone || !password) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'Some fields are missing',
-					data: null,
-				},
-			};
+		if (!result.success) {
+			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
 		}
+
+		const { phone, password } = result.data;
 
 		const user = await CaregiverRepo.getCaregiverByPhone(phone);
 
 		if (!user) {
-			return {
-				statusCode: StatusCodes.UNAUTHORIZED,
-				body: {
-					message: 'Invalid Credentials',
-					data: null,
-				},
-			};
+			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
 		}
 
 		const match = await argon2.verify(user.password, password, {
@@ -42,24 +32,12 @@ export function caregiverSignin() {
 		});
 
 		if (!match) {
-			return {
-				statusCode: StatusCodes.UNAUTHORIZED,
-				body: {
-					data: null,
-					message: 'Invalid Credentials',
-				},
-			};
+			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
 		}
+
 		// @ts-ignore
 		const accessToken = createAccessToken(user as Document & ACCOUNT);
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: user,
-				accessToken,
-				message: 'Signed in',
-			},
-		};
+		return response(StatusCodes.OK, { user, accessToken }, 'Signed in');
 	};
 }

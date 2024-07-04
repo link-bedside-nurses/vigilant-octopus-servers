@@ -11,6 +11,7 @@ import sendOTP, {
 import cron from 'node-cron';
 import { otpCacheStore } from '../../../cache-store/client';
 import { DESIGNATION, ACCOUNT } from '../../../interfaces';
+import { response } from '../../../utils/http-response';
 
 export function getOTP() {
 	function expireOTPCache(phoneNumber: string) {
@@ -31,47 +32,37 @@ export function getOTP() {
 				expireOTPCache(request.query.toPhone);
 			});
 
-			const response = await sendOTP(request.query.toPhone, String(otp));
+			const otpResponse = await sendOTP(request.query.toPhone, String(otp));
 
-			return {
-				statusCode: StatusCodes.OK,
-				body: {
-					data: JSON.parse(response.config.data),
-					message: 'OTP generated successfully!',
-				},
-			};
+			return response(
+				StatusCodes.OK,
+				JSON.parse(otpResponse.config.data),
+				'OTP generated successfully!'
+			);
 		} catch (error) {
-			return {
-				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-				body: {
-					data: error,
-					message: 'Failed to generate OTP',
-				},
-			};
+			return response(
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				error as unknown as Error,
+				'Failed to generate OTP'
+			);
 		}
 	};
 }
 
 export function verifyOTP() {
 	return async function (
-		request: HTTPRequest<
-			object,
-			{ phone: string; otp: string; designation: DESIGNATION },
-			object
-		>
+		request: HTTPRequest<object, { phone: string; otp: string; designation: DESIGNATION }, object>
 	) {
 		const { phone, otp, designation } = request.body;
 		try {
 			const cacheStoreOTP = await getOTPFromCacheStore(phone);
 
 			if (!cacheStoreOTP) {
-				return {
-					statusCode: StatusCodes.BAD_REQUEST,
-					body: {
-						data: null,
-						message: 'Wrong or Expired OTP. Try resending the OTP request',
-					},
-				};
+				return response(
+					StatusCodes.BAD_REQUEST,
+					null,
+					'Wrong or Expired OTP. Try resending the OTP request'
+				);
 			}
 
 			if (cacheStoreOTP === otp) {
@@ -81,24 +72,19 @@ export function verifyOTP() {
 				} else if (designation === DESIGNATION.PATIENT) {
 					user = await db.patients.findOne({ phone });
 				} else {
-					return {
-						statusCode: StatusCodes.BAD_REQUEST,
-						body: {
-							data: null,
-							message: 'Only patients or caregivers can access this route',
-						},
-					};
+					return response(
+						StatusCodes.BAD_REQUEST,
+						null,
+						'Only patients or caregivers can access this route'
+					);
 				}
 
 				if (!user) {
-					return {
-						statusCode: StatusCodes.NOT_FOUND,
-						body: {
-							data: null,
-							message:
-								'No such user with given phone. Please try registering again after 5 mins',
-						},
-					};
+					return response(
+						StatusCodes.NOT_FOUND,
+						null,
+						'No such user with given phone. Please try registering again after 5 mins'
+					);
 				}
 
 				user.isPhoneVerified = true;
@@ -106,31 +92,12 @@ export function verifyOTP() {
 
 				const accessToken = createAccessToken(user as Document & ACCOUNT);
 
-				return {
-					statusCode: StatusCodes.OK,
-					body: {
-						data: user,
-						accessToken,
-						message: 'OTP has been Verified',
-					},
-				};
+				return response(StatusCodes.OK, { user, accessToken }, 'OTP has been Verified');
 			}
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					data: null,
-					message: 'Wrong OTP',
-				},
-			};
+			return response(StatusCodes.BAD_REQUEST, null, 'Wrong OTP');
 		} catch (error) {
 			console.log('error: ', error);
-			return {
-				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-				body: {
-					data: null,
-					message: 'FAILED TO VERIFY OTP',
-				},
-			};
+			return response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'FAILED TO VERIFY OTP');
 		}
 	};
 }

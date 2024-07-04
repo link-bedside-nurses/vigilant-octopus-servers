@@ -4,49 +4,37 @@ import { StatusCodes } from 'http-status-codes';
 
 import { AppointmentRepo } from './repo';
 import { APPOINTMENT_STATUSES } from '../../interfaces';
-import { CancelAppointmentDto, ScheduleAppointmentDto } from '../../interfaces/dtos';
+import {
+	CancelAppointmentDto,
+	ScheduleAppointmentDto,
+	ScheduleAppointmentSchema,
+} from '../../interfaces/dtos';
 import { CaregiverRepo } from '../users/caregivers/repo';
+import { response } from '../../utils/http-response';
 
 export function getAllAppointments() {
 	return async function (_: HTTPRequest<object, object>) {
 		const appointments = await AppointmentRepo.getAllAppointments();
+		const message =
+			appointments.length === 0 ? 'No Appointments Scheduled' : 'All appointments retrieved';
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: appointments,
-				message:
-					appointments.length === 0
-						? 'No Appointments Scheduled'
-						: 'All appointments retrieved',
-				count: appointments.length,
-			},
-		};
+		return response(StatusCodes.OK, { data: appointments, count: appointments.length }, message);
 	};
 }
 
 export function getCaregiverAppointments() {
 	return async function (request: HTTPRequest<{ id: string }, object, object>) {
 		const appointments = await AppointmentRepo.getCaregiverAppointments(request.params.id);
+		const message =
+			appointments.length > 0
+				? 'Successfully fetched caregiver Appointments'
+				: 'No Appointment Found';
 
-		if (appointments.length > 0) {
-			return {
-				statusCode: StatusCodes.OK,
-				body: {
-					data: appointments,
-					count: appointments.length,
-					message: 'Successfully fetched caregiver Appointments',
-				},
-			};
-		} else {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					data: null,
-					message: 'No Appointment Found',
-				},
-			};
-		}
+		return response(
+			appointments.length > 0 ? StatusCodes.OK : StatusCodes.NOT_FOUND,
+			{ data: appointments.length > 0 ? appointments : null, count: appointments.length },
+			message
+		);
 	};
 }
 
@@ -56,63 +44,36 @@ export function getPatientAppointments() {
 	) {
 		const { status } = request.query;
 
-		const appointments = await AppointmentRepo.getPatientAppointments(
-			request.params.id,
-			status
-		);
+		const appointments = await AppointmentRepo.getPatientAppointments(request.params.id, status);
+		const message =
+			appointments.length > 0
+				? 'Successfully fetched patient Appointments'
+				: 'No Appointment Found';
 
-		if (appointments.length > 0) {
-			return {
-				statusCode: StatusCodes.OK,
-				body: {
-					data: appointments,
-					count: appointments.length,
-					message: 'Successfully fetched patient Appointments',
-				},
-			};
-		} else {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					data: null,
-					message: 'No Appointment Found',
-				},
-			};
-		}
+		return response(
+			appointments.length > 0 ? StatusCodes.OK : StatusCodes.NOT_FOUND,
+			{ data: appointments.length > 0 ? appointments : null, count: appointments.length },
+			message
+		);
 	};
 }
 
 export function scheduleAppointment() {
 	return async function (request: HTTPRequest<object, ScheduleAppointmentDto, object>) {
-		if (!request.body.reason && !request.body.caregiverId) {
-			const missingFields = [];
+		const result = ScheduleAppointmentSchema.safeParse(request.body);
 
-			if (!request.body.reason) {
-				missingFields.push('reason');
-			}
-			if (!request.body.caregiverId) {
-				missingFields.push('caregiverId');
-			}
-
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: `The following fields are missing: ${missingFields.join(', ')}`,
-					data: null,
-				},
-			};
+		if (!result.success) {
+			return response(StatusCodes.BAD_REQUEST, null, 'Validation Error', result.error);
 		}
 
 		const caregiver = await CaregiverRepo.getCaregiverById(request.body.caregiverId);
 
 		if (!caregiver) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: `No such caregiver with id ${request.body.caregiverId} found`,
-					data: null,
-				},
-			};
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`No such caregiver with id ${request.body.caregiverId} found`
+			);
 		}
 
 		const appointment = await AppointmentRepo.scheduleAppointment(
@@ -121,13 +82,7 @@ export function scheduleAppointment() {
 		);
 		await appointment.save();
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: appointment,
-				message: 'Appointment Scheduled',
-			},
-		};
+		return response(StatusCodes.OK, appointment, 'Appointment Scheduled');
 	};
 }
 
@@ -136,24 +91,12 @@ export function confirmAppointment() {
 		const appointment = await AppointmentRepo.getAppointmentById(request.params.id);
 
 		if (!appointment) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					data: null,
-					message: 'Could not confirm appointment.',
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'Could not confirm appointment.');
 		}
 
 		await appointment.confirmAppointment();
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: appointment,
-				message: 'Appointment has been confirmed and initiated',
-			},
-		};
+		return response(StatusCodes.OK, appointment, 'Appointment has been confirmed and initiated');
 	};
 }
 
@@ -162,24 +105,12 @@ export function cancelAppointment() {
 		const appointment = await AppointmentRepo.getAppointmentById(request.params.id);
 
 		if (!appointment) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					data: null,
-					message: 'Could not cancel appointment.',
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'Could not cancel appointment.');
 		}
 
 		await appointment.cancelAppointment(request.body.reason);
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: appointment,
-				message: 'Successfully cancelled appointment',
-			},
-		};
+		return response(StatusCodes.OK, appointment, 'Successfully cancelled appointment');
 	};
 }
 
@@ -187,22 +118,10 @@ export function getAppointment() {
 	return async function (request: HTTPRequest<{ id: string }>) {
 		const appointment = await AppointmentRepo.getAppointmentById(request.params.id);
 		if (!appointment) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					data: null,
-					message: 'Could not fetch appointment.',
-				},
-			};
+			return response(StatusCodes.NOT_FOUND, null, 'Could not fetch appointment.');
 		}
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: appointment,
-				message: 'Successfully fetched appointment',
-			},
-		};
+		return response(StatusCodes.OK, appointment, 'Successfully fetched appointment');
 	};
 }
 
@@ -210,12 +129,6 @@ export function deleteAppointment() {
 	return async function (request: HTTPRequest<{ id: string }>) {
 		const appointment = await AppointmentRepo.deleteAppointment(request.params.id);
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: appointment,
-				message: 'Successfully deleted appointment',
-			},
-		};
+		return response(StatusCodes.OK, appointment, 'Successfully deleted appointment');
 	};
 }

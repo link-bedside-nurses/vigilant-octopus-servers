@@ -1,40 +1,25 @@
 import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { PatientRepo } from '../../users/patients/repo';
-import { CreatePatientDto } from '../../../interfaces/dtos';
+import { CreatePatientDto, CreatePatientSchema } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
 
 export function patientSignin() {
 	return async function (request: HTTPRequest<object, Pick<CreatePatientDto, 'phone'>>) {
-		const { phone } = request.body;
+		const result = CreatePatientSchema.pick({ phone: true }).safeParse(request.body);
 
-		if (!request.body.phone) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'Phone must be specified!',
-					data: null,
-				},
-			};
+		if (!result.success) {
+			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
 		}
+
+		const { phone } = result.data;
 
 		const user = await PatientRepo.getPatientByPhone(phone);
 
 		if (!user) {
-			return {
-				statusCode: StatusCodes.UNAUTHORIZED,
-				body: {
-					message: 'No such user found',
-					data: null,
-				},
-			};
+			return response(StatusCodes.UNAUTHORIZED, null, 'No such user found');
 		}
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: null,
-				message: 'Success',
-			},
-		};
+		return response(StatusCodes.OK, null, 'Success');
 	};
 }

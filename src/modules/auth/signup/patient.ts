@@ -1,65 +1,28 @@
 import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../adapters/express-callback';
-import { db } from '../../../db';
-import { DESIGNATION } from '../../../interfaces';
-
-interface SignUpBody {
-	phone: string;
-	name: string;
-	password: string;
-	email: string;
-}
+import { CreatePatientDto, CreatePatientSchema } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
+import { PatientRepo } from '../../users/patients/repo';
 
 export function patientSignup() {
-	return async function (request: HTTPRequest<object, Omit<SignUpBody, 'email'>>) {
-		const { phone, name } = request.body;
-
-		const missingFields = [];
-
-		if (!phone) {
-			missingFields.push('phone');
+	return async function (request: HTTPRequest<object, CreatePatientDto>) {
+		const result = CreatePatientSchema.safeParse(request.body);
+		if (!result.success) {
+			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
 		}
 
-		if (!name) {
-			missingFields.push('name');
-		}
+		const { phone } = result.data;
 
-		if (missingFields.length > 0) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: `The following fields are missing: ${missingFields.join(', ')}`,
-					data: null,
-				},
-			};
-		}
-
-		const patient = await db.patients.findOne({ phone });
+		const patient = await PatientRepo.getPatientByPhone(phone);
 
 		if (patient) {
-			return {
-				statusCode: StatusCodes.BAD_REQUEST,
-				body: {
-					message: 'Phone number in use',
-					data: null,
-				},
-			};
+			return response(StatusCodes.BAD_REQUEST, null, 'Phone number in use');
 		}
 
-		const user = await db.patients.create({
-			phone,
-			name,
-			designation: DESIGNATION.PATIENT,
-		});
+		const user = await PatientRepo.createPatient(result.data);
 
 		await user.save();
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: user,
-				message: 'Account created',
-			},
-		};
+		return response(StatusCodes.OK, user, 'Account created');
 	};
 }

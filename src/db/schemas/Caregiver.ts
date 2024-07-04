@@ -22,8 +22,7 @@ import { DESIGNATION } from '../../interfaces';
 export class Caregiver {
 	@prop({
 		type: String,
-		required: true,
-		trim: true,
+		required: false,
 		enum: [DESIGNATION.PATIENT, DESIGNATION.NURSE, DESIGNATION.ADMIN],
 		default: DESIGNATION.NURSE,
 	})
@@ -65,14 +64,8 @@ export class Caregiver {
 	@prop({ type: Number, required: false, default: 0 })
 	rating?: number;
 
-	@prop({ type: [String], required: false, default: [] })
-	languages?: string[];
-
 	@prop({ type: Number, required: false, default: 0 })
 	experience?: number;
-
-	@prop({ type: [String], required: false, default: [] })
-	servicesOffered?: string[];
 
 	@prop({ type: String, required: false, default: '', trim: true })
 	imgUrl?: string;

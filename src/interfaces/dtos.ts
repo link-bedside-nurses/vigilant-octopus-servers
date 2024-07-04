@@ -13,13 +13,13 @@ const BaseSchema = z.object({
 	 * 0700000000
 	 * 0300000000
 	 */
-	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/), // E.164 format
+	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Invalid UG NO format'), // E.164 format
 	designation: DesignationEnum,
 });
 
 export const CreatePatientSchema = BaseSchema.extend({
 	name: z.string().min(2),
-});
+}).omit({ designation: true });
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
 
@@ -28,14 +28,14 @@ export const CreateAdminSchema = BaseSchema.extend({
 	lastName: z.string().min(1),
 	email: z.string().email(),
 	password: z.string().min(8),
-});
+}).omit({ designation: true });
 
 export const CreateCaregiverSchema = BaseSchema.extend({
 	firstName: z.string().min(1),
 	lastName: z.string().min(1),
 	email: z.string().email(),
 	password: z.string().min(8),
-});
+}).omit({ designation: true });
 
 export const UpdateCaregiverSchema = BaseSchema.extend({
 	firstName: z.string().min(1).optional(),
@@ -78,6 +78,7 @@ export const TResponseSchema = z.object({
 	statusCode: z.number(),
 	body: z.object({
 		data: z.object({}).nullable(),
+		error: z.object({}).optional(),
 		message: z.string(),
 	}),
 });

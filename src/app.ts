@@ -7,13 +7,10 @@ import { EnvironmentVars } from './constants';
 import { connectToDatabase, disconnectFromDatabase } from './db/connection';
 import router from './router/router';
 import logger from './utils/logger';
-import morganBody from 'morgan-body';
 
 replaceTscAliasPaths().catch((err: Error) => logger.info(err.message));
 
 const app = express();
-
-morganBody(app);
 
 app.set('trust proxy', false);
 app.use(router);
@@ -30,6 +27,7 @@ process.on('uncaughtException', (exception) => {
 });
 
 const server = app.listen(EnvironmentVars.getPort(), async () => {
+	console.clear();
 	logger.info(`Listening at ${'127.0.0.1:'}${EnvironmentVars.getPort()}`);
 
 	await connectToDatabase();

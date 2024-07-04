@@ -1,7 +1,7 @@
 import appointmentRouter from '../modules/appointments/routes';
 import profileRouter from '../modules/auth/profile/routes';
 import ratingsRouter from '../modules/ratings/routes';
-import testRouter from '../modules/test/routes';
+import testRouter from '../modules/heath/routes';
 import authRouter from '../modules/auth/routes';
 import patientRouter from '../modules/users/patients/routes';
 import caregiverRouter from '../modules/users/caregivers/routes';
@@ -19,7 +19,7 @@ import path from 'node:path';
 import { EnvironmentVars, __PROD__ } from '../constants';
 import errorMiddleware from '../middlewares/error-middleware';
 import { otpRouter } from '../modules/comms/sms/routes';
-import { html } from '../privacy';
+import { html } from '../utils/privacy';
 import { emailRouter } from '../modules/comms/email/routes';
 import { dashboardRouter } from '../modules/dashboard/routes';
 import { StatusCodes } from 'http-status-codes';

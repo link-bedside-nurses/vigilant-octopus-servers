@@ -7,15 +7,10 @@ import { ScheduleAppointmentDto } from '../../interfaces/dtos';
 import { APPOINTMENT_STATUSES } from '../../interfaces';
 
 export class AppointmentRepo {
-	public static async scheduleAppointment(
-		patientId: string,
-		appointment: ScheduleAppointmentDto
-	) {
-		return (
-			await (
-				await db.appointments.create({ appointment, patient: patientId })
-			).populate('patient')
-		).populate('caregiver');
+	public static async scheduleAppointment(patientId: string, appointment: ScheduleAppointmentDto) {
+		const result = await db.appointments.create({ appointment, patient: patientId });
+
+		return (await (await result.save()).populate('patient')).populate('caregiver');
 	}
 
 	public static async getAllAppointments() {

@@ -1,73 +1,43 @@
-import { HTTPRequest } from '../../adapters/express-callback'
-import { StatusCodes } from 'http-status-codes'
-import { db } from '../../db'
+import { HTTPRequest } from '../../adapters/express-callback';
+import { StatusCodes } from 'http-status-codes';
+import { db } from '../../db';
+import { response } from '../../utils/http-response';
 
 export function getAllPayments() {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	return async function ( _: HTTPRequest<object> ) {
-		const payments = await db.payments.find( {} ).sort( { createdAt: "desc" } )
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: payments,
-				message: 'Payments Retrieved',
-			},
-		}
-	}
+	return async function (_: HTTPRequest<object>) {
+		const payments = await db.payments.find({}).sort({ createdAt: 'desc' });
+		return response(StatusCodes.OK, payments, 'Payments Retrieved');
+	};
 }
 
 export function getPayment() {
 	return async function (
 		request: HTTPRequest<{
-			id: string
-		}>,
+			id: string;
+		}>
 	) {
-		const payment = await db.payments.findById( request.params.id )
+		const payment = await db.payments.findById(request.params.id);
 
-		if ( !payment ) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No Payment Found',
-					data: null,
-				},
-			}
+		if (!payment) {
+			return response(StatusCodes.NOT_FOUND, null, 'No Payment Found');
 		}
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: payment,
-				message: 'Payment Retrieved',
-			},
-		}
-	}
+		return response(StatusCodes.OK, payment, 'Payment Retrieved');
+	};
 }
 
-export function makeMomoPayement() {
+export function makeMomoPayment() {
 	return async function (
 		request: HTTPRequest<{
-			id: string
-		}>,
+			id: string;
+		}>
 	) {
-		const payment = await db.payments.findByIdAndDelete( request.params.id )
+		const payment = await db.payments.findByIdAndDelete(request.params.id);
 
-		if ( !payment ) {
-			return {
-				statusCode: StatusCodes.NOT_FOUND,
-				body: {
-					message: 'No Payment Found',
-					data: null,
-				},
-			}
+		if (!payment) {
+			return response(StatusCodes.NOT_FOUND, null, 'No Payment Found');
 		}
 
-		return {
-			statusCode: StatusCodes.OK,
-			body: {
-				data: payment,
-				message: 'Payment deleted',
-			},
-		}
-	}
+		return response(StatusCodes.OK, payment, 'Payment deleted');
+	};
 }
