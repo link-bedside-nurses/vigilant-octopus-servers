@@ -3,7 +3,7 @@ import { HTTPRequest } from '../../../adapters/express-callback';
 import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
 import * as argon2 from 'argon2';
-import { AdminRepo } from '../../users/admins/repo';
+import { AdminRepo } from '../../users/admins/repository';
 import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
 import { response } from '../../../utils/http-response';
 

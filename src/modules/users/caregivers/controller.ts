@@ -4,7 +4,7 @@ import { db } from '../../../db';
 import mongoose from 'mongoose';
 import { Caregiver } from '../../../db/schemas/Caregiver';
 import { Exception } from '../../../utils';
-import { CaregiverRepo } from './repo';
+import { CaregiverRepo } from './repository';
 import { UpdateCaregiverDto } from '../../../interfaces/dtos';
 import { response } from '../../../utils/http-response';
 

@@ -1,9 +1,9 @@
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { DESIGNATION } from '../../../interfaces';
-import { AdminRepo } from '../../users/admins/repo';
-import { CaregiverRepo } from '../../users/caregivers/repo';
-import { PatientRepo } from '../../users/patients/repo';
+import { AdminRepo } from '../../users/admins/repository';
+import { CaregiverRepo } from '../../users/caregivers/repository';
+import { PatientRepo } from '../../users/patients/repository';
 import { response } from '../../../utils/http-response';
 
 export function getCurrentUser() {

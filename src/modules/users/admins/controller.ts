@@ -1,9 +1,9 @@
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { AdminRepo } from './repo';
+import { AdminRepo } from './repository';
 import { UpdateAdminDto } from '../../../interfaces/dtos';
-import { PatientRepo } from '../patients/repo';
-import { CaregiverRepo } from '../caregivers/repo';
+import { PatientRepo } from '../patients/repository';
+import { CaregiverRepo } from '../caregivers/repository';
 import { response } from '../../../utils/http-response';
 
 export function getAllAdmins() {

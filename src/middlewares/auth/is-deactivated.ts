@@ -3,9 +3,9 @@ import type { NextFunction, Request, Response } from 'express';
 import { Exception } from '../../utils';
 import { StatusCodes } from 'http-status-codes';
 import { DESIGNATION } from '../../interfaces';
-import { AdminRepo } from '../../modules/users/admins/repo';
-import { CaregiverRepo } from '../../modules/users/caregivers/repo';
-import { PatientRepo } from '../../modules/users/patients/repo';
+import { AdminRepo } from '../../modules/users/admins/repository';
+import { CaregiverRepo } from '../../modules/users/caregivers/repository';
+import { PatientRepo } from '../../modules/users/patients/repository';
 
 export default async function isDeactivated(
 	request: Request,

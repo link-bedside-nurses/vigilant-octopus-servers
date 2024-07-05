@@ -1,6 +1,6 @@
 import { HTTPRequest } from '../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { RatingRepo } from './repo';
+import { RatingRepo } from './repository';
 import { CreateRatingDto, CreateRatingSchema } from '../../interfaces/dtos';
 import { response } from '../../utils/http-response';
 

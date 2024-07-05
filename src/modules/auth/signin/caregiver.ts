@@ -3,7 +3,7 @@ import { HTTPRequest } from '../../../adapters/express-callback';
 import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
 import * as argon2 from 'argon2';
-import { CaregiverRepo } from '../../users/caregivers/repo';
+import { CaregiverRepo } from '../../users/caregivers/repository';
 import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../interfaces/dtos';
 import { response } from '../../../utils/http-response';
 

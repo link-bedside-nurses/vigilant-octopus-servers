@@ -1,7 +1,7 @@
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { response } from '../../../utils/http-response';
-import { PatientRepo } from './repo';
+import { PatientRepo } from './repository';
 import { UpdatePatientDto } from '../../../interfaces/dtos';
 
 export function getAllPatients() {

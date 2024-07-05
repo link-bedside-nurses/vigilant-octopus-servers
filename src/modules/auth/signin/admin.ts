@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import * as argon2 from 'argon2';
 import { HTTPRequest } from '../../../adapters/express-callback';
-import { AdminRepo } from '../../users/admins/repo';
+import { AdminRepo } from '../../users/admins/repository';
 import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
 import { createAccessToken } from '../../../services/token';
 import { response } from '../../../utils/http-response';

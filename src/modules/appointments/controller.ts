@@ -1,14 +1,14 @@
 import { HTTPRequest } from '../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 
-import { AppointmentRepo } from './repo';
+import { AppointmentRepo } from './repository';
 import { APPOINTMENT_STATUSES } from '../../interfaces';
 import {
 	CancelAppointmentDto,
 	ScheduleAppointmentDto,
 	ScheduleAppointmentSchema,
 } from '../../interfaces/dtos';
-import { CaregiverRepo } from '../users/caregivers/repo';
+import { CaregiverRepo } from '../users/caregivers/repository';
 import { response } from '../../utils/http-response';
 
 export function getAllAppointments() {
