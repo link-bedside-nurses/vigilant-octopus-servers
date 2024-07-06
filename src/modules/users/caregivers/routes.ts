@@ -6,6 +6,7 @@ import {
 	deleteCaregiver,
 	getAllCaregivers,
 	getCaregiver,
+	getCaregiverAppointments,
 	searchCaregiversByLocation,
 	updateCaregiver,
 } from './controller';
@@ -16,6 +17,7 @@ const router = Router();
 router.get('/', isBanned, callback(getAllCaregivers()));
 router.get('/search', authenticate, isBanned, callback(searchCaregiversByLocation()));
 router.get('/:id', authenticate, isBanned, callback(getCaregiver()));
+router.get('/:id/appointments', authenticate, isBanned, callback(getCaregiverAppointments()));
 router.patch('/:id', authenticate, isBanned, callback(updateCaregiver()));
 router.patch('/deactivate/:id', authenticate, isBanned, callback(deactivateCaregiver()));
 router.delete('/:id', authenticate, isBanned, callback(deleteCaregiver()));
