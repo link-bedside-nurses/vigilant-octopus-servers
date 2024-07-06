@@ -6,7 +6,7 @@ import { Document } from 'mongoose';
 import { generateOTP, storeOTP, getOTPFromCacheStore } from '../../../services/otp/send-otp';
 import cron from 'node-cron';
 import { otpCacheStore } from '../../../cache-store/client';
-import { sendMail } from '../../../services/email/email';
+import { sendMail } from '../../../services/email';
 import { html } from '../../../constants/html';
 import { ACCOUNT } from '../../../interfaces';
 import { response } from '../../../utils/http-response';

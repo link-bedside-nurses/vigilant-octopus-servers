@@ -2,7 +2,6 @@ import { HTTPRequest } from '../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 
 import { AppointmentRepo } from './repository';
-import { APPOINTMENT_STATUSES } from '../../interfaces';
 import {
 	CancelAppointmentDto,
 	ScheduleAppointmentDto,
@@ -17,7 +16,7 @@ export function getAllAppointments() {
 		const message =
 			appointments.length === 0 ? 'No Appointments Scheduled' : 'All appointments retrieved';
 
-		return response(StatusCodes.OK, { data: appointments, count: appointments.length }, message);
+		return response(StatusCodes.OK, appointments, message);
 	};
 }
 
@@ -31,27 +30,7 @@ export function getCaregiverAppointments() {
 
 		return response(
 			appointments.length > 0 ? StatusCodes.OK : StatusCodes.NOT_FOUND,
-			{ data: appointments.length > 0 ? appointments : null, count: appointments.length },
-			message
-		);
-	};
-}
-
-export function getPatientAppointments() {
-	return async function (
-		request: HTTPRequest<{ id: string }, object, { status: APPOINTMENT_STATUSES }>
-	) {
-		const { status } = request.query;
-
-		const appointments = await AppointmentRepo.getPatientAppointments(request.params.id, status);
-		const message =
-			appointments.length > 0
-				? 'Successfully fetched patient Appointments'
-				: 'No Appointment Found';
-
-		return response(
-			appointments.length > 0 ? StatusCodes.OK : StatusCodes.NOT_FOUND,
-			{ data: appointments.length > 0 ? appointments : null, count: appointments.length },
+			appointments,
 			message
 		);
 	};

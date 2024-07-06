@@ -22,7 +22,7 @@ export class Patient {
 		type: String,
 		required: false,
 		default: DESIGNATION.PATIENT,
-		enum: [DESIGNATION.PATIENT, DESIGNATION.NURSE, DESIGNATION.ADMIN],
+		enum: [DESIGNATION.PATIENT, DESIGNATION.CAREGIVER, DESIGNATION.ADMIN],
 	})
 	designation!: DESIGNATION.PATIENT;
 
@@ -36,7 +36,10 @@ export class Patient {
 	phone!: string;
 
 	@prop({ type: String, required: true, minlength: 2, maxlength: 250, trim: true })
-	name!: string;
+	firstName!: string;
+
+	@prop({ type: String, required: true, minlength: 2, maxlength: 250, trim: true })
+	lastName!: string;
 
 	@prop({ type: Boolean, required: false, default: false })
 	isPhoneVerified?: boolean;

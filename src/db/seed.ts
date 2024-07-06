@@ -3,20 +3,22 @@ import { Payment } from '../db/schemas/Payment';
 import { faker } from '@faker-js/faker';
 import * as geolib from 'geolib';
 import { APPOINTMENT_STATUSES, DESIGNATION } from '../interfaces';
+import { PatientRepo } from '../modules/users/patients/repository';
+import { AppointmentRepo } from '../modules/appointments/repository';
+import { CaregiverRepo } from '../modules/users/caregivers/repository';
+import { Patient } from './schemas/Patient';
 
 export async function seedPayments() {
 	await db.payments.deleteMany({}, { maxTimeMS: 30000 });
-	const patients = await db.patients.find({});
-	const appointments = await db.appointments.find({});
+	const patients = await PatientRepo.getAllPatients();
+	const appointments = await AppointmentRepo.getAllAppointments();
 
 	const payments = [];
 	for (let i = 0; i < 10; i++) {
 		const payment: Payment = {
 			patient: faker.helpers.arrayElement(patients),
 			appointment: faker.helpers.arrayElement(appointments),
-			amount: faker.helpers.arrayElement([
-				1200, 15000, 50000, 54000, 25000, 100000, 51000, 32000,
-			]),
+			amount: faker.helpers.arrayElement([1200, 15000, 50000, 54000, 25000, 100000, 51000, 32000]),
 			comment: faker.helpers.arrayElement(['alsdfasdfasd', 'asdfasdfasd', 'asdfasdasd']),
 		};
 
@@ -28,15 +30,15 @@ export async function seedPayments() {
 
 export async function seedAppointments() {
 	await db.appointments.deleteMany({}, { maxTimeMS: 30000 });
-	const caregiverIds = (await db.caregivers.find({})).map((c) => c._id);
-	const patientIds = (await db.patients.find({})).map((p) => p._id);
+	const caregiverIds = (await CaregiverRepo.getAllCaregivers()).map((caregiver) => caregiver._id);
+	const patientIds = (await PatientRepo.getAllPatients()).map((patient) => patient._id);
 
 	const appointments = [];
-	for (let i = 0; i < 10; i++) {
+	for (let i = 0; i < 100; i++) {
 		const appointment = {
 			patient: faker.helpers.arrayElement(patientIds) as unknown as string,
 			caregiver: faker.helpers.arrayElement(caregiverIds) as unknown as string,
-			title: faker.lorem.slug(5),
+			reason: faker.lorem.slug(5),
 			status: faker.helpers.arrayElement(Object.values(APPOINTMENT_STATUSES)),
 			date: faker.date.past(),
 			description: faker.lorem.lines(2),
@@ -49,11 +51,11 @@ export async function seedAppointments() {
 
 export async function seedRatings() {
 	await db.ratings.deleteMany({}, { maxTimeMS: 30000 });
-	const caregiverIds = (await db.caregivers.find({})).map((c) => c._id);
-	const patientIds = (await db.patients.find({})).map((p) => p._id);
+	const caregiverIds = (await CaregiverRepo.getAllCaregivers()).map((caregiver) => caregiver._id);
+	const patientIds = (await PatientRepo.getAllPatients()).map((patient) => patient._id);
 
 	const ratings = [];
-	for (let i = 0; i < 10; i++) {
+	for (let i = 0; i < 1000; i++) {
 		const rating = {
 			patient: faker.helpers.arrayElement(patientIds) as unknown as string,
 			caregiver: faker.helpers.arrayElement(caregiverIds) as unknown as string,
@@ -66,7 +68,6 @@ export async function seedRatings() {
 
 	await db.ratings.insertMany(ratings);
 }
-
 export async function seedCaregivers() {
 	await db.caregivers.deleteMany({}, { maxTimeMS: 30000 });
 
@@ -76,9 +77,9 @@ export async function seedCaregivers() {
 	};
 
 	const caregivers = [];
-	for (let i = 0; i < 10; i++) {
+	for (let i = 0; i < 100; i++) {
 		const caregiver = {
-			designation: DESIGNATION.NURSE,
+			designation: DESIGNATION.CAREGIVER,
 			phone: `256456789${i.toString().padStart(2, '0')}`,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),
@@ -89,7 +90,6 @@ export async function seedCaregivers() {
 			nin: `NIN${i.toString().padStart(2, '0')}`,
 			description: faker.person.bio(),
 			rating: (i % 5) + 1,
-			address: faker.location.city(),
 			experience: i * 2,
 			imgUrl: faker.image.avatar(),
 			isBanned: faker.datatype.boolean(),
@@ -106,11 +106,12 @@ export async function seedCaregivers() {
 export async function seedPatients() {
 	await db.patients.deleteMany({}, { maxTimeMS: 30000 });
 	const patients = [];
-	for (let i = 0; i < 10; i++) {
-		const patient = {
+	for (let i = 0; i < 100; i++) {
+		const patient: Patient = {
 			designation: DESIGNATION.PATIENT,
 			phone: `256456789${i.toString().padStart(2, '0')}`,
-			name: faker.person.firstName(),
+			firstName: faker.person.firstName(),
+			lastName: faker.person.lastName(),
 			isPhoneVerified: faker.datatype.boolean(),
 			isBanned: faker.datatype.boolean(),
 			isDeactivated: faker.datatype.boolean(),

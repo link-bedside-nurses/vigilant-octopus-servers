@@ -34,7 +34,7 @@ router.use(express.urlencoded({ extended: true }));
 router.use(express.static(path.join(__dirname, 'public')));
 
 router.use(
-	morgan('combined', {
+	morgan('dev', {
 		stream: {
 			async write(str) {
 				const log = new Uint8Array(Buffer.from(str));

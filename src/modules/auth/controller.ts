@@ -24,7 +24,7 @@ export function getAccessToken() {
 		let user;
 		if (designation === DESIGNATION.PATIENT) {
 			user = await PatientRepo.getPatientById(request.account?.id!);
-		} else if (designation === DESIGNATION.NURSE || designation === DESIGNATION.ADMIN) {
+		} else if (designation === DESIGNATION.CAREGIVER || designation === DESIGNATION.ADMIN) {
 			user = await CaregiverRepo.getCaregiverById(request.account?.id!);
 		} else {
 			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Designation');

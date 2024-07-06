@@ -23,8 +23,8 @@ export class Caregiver {
 	@prop({
 		type: String,
 		required: false,
-		enum: [DESIGNATION.PATIENT, DESIGNATION.NURSE, DESIGNATION.ADMIN],
-		default: DESIGNATION.NURSE,
+		enum: [DESIGNATION.PATIENT, DESIGNATION.CAREGIVER, DESIGNATION.ADMIN],
+		default: DESIGNATION.CAREGIVER,
 	})
 	designation!: DESIGNATION;
 

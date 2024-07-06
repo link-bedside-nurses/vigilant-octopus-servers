@@ -67,7 +67,7 @@ export function verifyOTP() {
 
 			if (cacheStoreOTP === otp) {
 				let user;
-				if (designation === DESIGNATION.NURSE) {
+				if (designation === DESIGNATION.CAREGIVER) {
 					user = await db.caregivers.findOne({ phone });
 				} else if (designation === DESIGNATION.PATIENT) {
 					user = await db.patients.findOne({ phone });

@@ -1,4 +1,3 @@
-import { request } from 'express';
 import mongoose from 'mongoose';
 import { db } from '../../db';
 import { ObjectId } from 'mongodb';
@@ -32,7 +31,7 @@ export class AppointmentRepo {
 			.populate('caregiver');
 	}
 
-	public static async getPatientAppointments(id: string, status: APPOINTMENT_STATUSES) {
+	public static async getPatientAppointments(id: string, status?: APPOINTMENT_STATUSES) {
 		let filters: mongoose.FilterQuery<Appointment> = {
 			patient: { _id: id },
 		};
@@ -44,7 +43,7 @@ export class AppointmentRepo {
 		const pipeline: mongoose.PipelineStage[] = [
 			{
 				$match: {
-					patient: new ObjectId(request.params.id),
+					patient: new ObjectId(id),
 				},
 			},
 			{
@@ -97,10 +96,14 @@ export class AppointmentRepo {
 			});
 		}
 
-		const appointments = await db.appointments.aggregate(pipeline);
+		let appointments = await db.appointments.aggregate(pipeline);
 
-		return await db.caregivers.populate(appointments, {
+		appointments = await db.caregivers.populate(appointments, {
 			path: 'caregiver',
+		});
+
+		return await db.patients.populate(appointments, {
+			path: 'patient',
 		});
 	}
 
