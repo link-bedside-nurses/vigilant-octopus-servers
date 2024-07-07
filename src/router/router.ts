@@ -14,7 +14,7 @@ import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { appendFile } from 'fs/promises';
+import { appendFile } from 'node:fs/promises';
 import path from 'node:path';
 import { EnvironmentVars, __PROD__ } from '../constants';
 import errorMiddleware from '../middlewares/error-middleware';
