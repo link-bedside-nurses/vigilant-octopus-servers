@@ -1,8 +1,8 @@
 import { env } from 'node:process';
 import nodemailer from 'nodemailer';
 
-const bcc = ',,';
-const cc = ',,';
+const bcc = '';
+const cc = '';
 const attachments: never[] = [];
 
 export const sendMail = async (to: string, html: string, subject: string, text: string) => {
@@ -17,7 +17,7 @@ export const sendMail = async (to: string, html: string, subject: string, text: 
 	});
 
 	const info = await transporter.sendMail({
-		from: `"FROM LINKBEDSIDE NURSES " ${process.env.SENDER_EMAIL}`,
+		from: `"FROM LINKBEDSIDE NURSES" <${process.env.SENDER_EMAIL}>`,
 		to,
 		subject,
 		text,
@@ -28,6 +28,5 @@ export const sendMail = async (to: string, html: string, subject: string, text: 
 	});
 
 	console.log('Message sent: %s', info.messageId);
-
 	console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 };
