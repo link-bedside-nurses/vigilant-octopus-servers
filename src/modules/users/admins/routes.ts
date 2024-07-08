@@ -21,8 +21,8 @@ router.get('/:id', authenticate, isAdmin, isBanned, callback(getAdmin()));
 router.patch('/:id', authenticate, isAdmin, isBanned, callback(updateAdmin()));
 router.patch('/:id/ban', authenticate, isAdmin, isBanned, callback(banAdmin()));
 router.patch('/caregiver/:id/ban', authenticate, isAdmin, isBanned, callback(banCaregiver()));
-router.patch('/patient/:id/ban', authenticate, isAdmin, isBanned, callback(banPatient()));
 router.patch('/caregiver/:id/verify', authenticate, isAdmin, isBanned, callback(verifyCaregiver()));
+router.patch('/patient/:id/ban', authenticate, isAdmin, isBanned, callback(banPatient()));
 router.patch('/patient/:id/verify', authenticate, isAdmin, isBanned, callback(verifyPatient()));
 
 export default router;

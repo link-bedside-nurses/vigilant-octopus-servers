@@ -68,6 +68,11 @@ export const TResponseSchema = z.object({
 	}),
 });
 
+export const VerifyEmailSchema = z.object({
+	email: z.string().email(),
+	otp: z.string().length(6)
+})
+
 export type CreatePatientDto = z.infer<typeof CreatePatientSchema>;
 export type UpdatePatientDto = z.infer<typeof UpdatePatientSchema>;
 export type CreateAdminDto = z.infer<typeof CreateAdminSchema>;
@@ -78,3 +83,4 @@ export type CreateRatingDto = z.infer<typeof CreateRatingSchema>;
 export type ScheduleAppointmentDto = z.infer<typeof ScheduleAppointmentSchema>;
 export type CancelAppointmentDto = z.infer<typeof CancelAppointmentSchema>;
 export type TResponse = z.infer<typeof TResponseSchema>;
+export type VerifyEmailDto = z.infer<typeof VerifyEmailSchema>

@@ -93,7 +93,7 @@ export async function seedCaregivers() {
 			experience: i * 2,
 			imgUrl: faker.image.avatar(),
 			isBanned: faker.datatype.boolean(),
-			isDeactivated: faker.datatype.boolean(),
+			isActive: faker.datatype.boolean(),
 			isVerified: faker.datatype.boolean(),
 		};
 
@@ -114,7 +114,7 @@ export async function seedPatients() {
 			lastName: faker.person.lastName(),
 			isPhoneVerified: faker.datatype.boolean(),
 			isBanned: faker.datatype.boolean(),
-			isDeactivated: faker.datatype.boolean(),
+			isActive: faker.datatype.boolean(),
 			isVerified: faker.datatype.boolean(),
 		};
 
@@ -135,7 +135,7 @@ export async function seedAdmins() {
 			password: 'password',
 			isEmailVerified: faker.datatype.boolean(),
 			isBanned: faker.datatype.boolean(),
-			isDeactivated: faker.datatype.boolean(),
+			isActive: faker.datatype.boolean(),
 			email: faker.internet.email(),
 		};
 

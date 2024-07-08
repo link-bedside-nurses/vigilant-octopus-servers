@@ -74,7 +74,7 @@ export class Caregiver {
 	isBanned?: boolean;
 
 	@prop({ type: Boolean, required: false, default: false })
-	isDeactivated?: boolean;
+	isActive?: boolean;
 
 	@prop({ type: Boolean, required: false, default: false })
 	isVerified?: boolean;

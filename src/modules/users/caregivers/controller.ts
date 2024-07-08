@@ -77,18 +77,6 @@ export function getCaregiverAppointments() {
 	};
 }
 
-export function deactivateCaregiver() {
-	return async function (request: HTTPRequest<{ id: string }>) {
-		const caregiver = await CaregiverRepo.deactivateCaregiver(request.params.id);
-
-		if (!caregiver) {
-			return response(StatusCodes.NOT_FOUND, null, 'No caregiver Found');
-		}
-
-		return response(StatusCodes.OK, caregiver, 'Account successfully deactivated');
-	};
-}
-
 const locationBasedSearch = async (params: {
 	location: { lat: number; lng: number };
 	distance?: number; // in kilometres

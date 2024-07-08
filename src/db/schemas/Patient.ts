@@ -51,5 +51,5 @@ export class Patient {
 	isVerified?: boolean;
 
 	@prop({ type: Boolean, required: false, default: false })
-	isDeactivated?: boolean;
+	isActive?: boolean;
 }

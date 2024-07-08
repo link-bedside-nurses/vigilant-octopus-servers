@@ -3,10 +3,10 @@ import { HTTPRequest } from '../../../adapters/express-callback';
 import { db } from '../../../db';
 import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
-import * as argon2 from 'argon2';
 import { CaregiverRepo } from '../../users/caregivers/repository';
 import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../interfaces/dtos';
 import { response } from '../../../utils/http-response';
+import { Password } from '../../../utils/password';
 
 export function caregiverSignup() {
 	return async function (request: HTTPRequest<object, CreateCaregiverDto>) {
@@ -23,9 +23,7 @@ export function caregiverSignup() {
 			return response(StatusCodes.BAD_REQUEST, null, 'Phone number in use');
 		}
 
-		const hash = await argon2.hash(password, {
-			type: argon2.argon2id,
-		});
+		const hash = await Password.hash(password);
 
 		const user = await CaregiverRepo.createCaregiver({
 			...result.data,

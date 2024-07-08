@@ -1,4 +1,4 @@
-class HTTPException extends Error {
+export  default class HTTPException extends Error {
   public override message: string;
   public statusCode?: number;
   public details?: string;
@@ -10,5 +10,3 @@ class HTTPException extends Error {
     this.details = details;
   }
 }
-
-export default HTTPException;
