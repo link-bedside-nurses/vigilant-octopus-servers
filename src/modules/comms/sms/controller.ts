@@ -3,11 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { db } from '../../../db';
 import { createAccessToken } from '../../../services/token';
 import { Document } from 'mongoose';
-import sendOTP, {
-	generateOTP,
-	storeOTP,
-	getOTPFromCacheStore,
-} from '../../../services/otp/send-otp';
+import sendOTP, { generateOTP, storeOTP, getOTP } from '../../../services/otp';
 import cron from 'node-cron';
 import { otpCacheStore } from '../../../cache-store/client';
 import { DESIGNATION, ACCOUNT } from '../../../interfaces';
@@ -55,7 +51,7 @@ export function verifyOTP() {
 	) {
 		const { phone, otp, designation } = request.body;
 		try {
-			const cacheStoreOTP = await getOTPFromCacheStore(phone);
+			const cacheStoreOTP = await getOTP(phone);
 
 			if (!cacheStoreOTP) {
 				return response(
@@ -67,7 +63,7 @@ export function verifyOTP() {
 
 			if (cacheStoreOTP === otp) {
 				let user;
-				if (designation === DESIGNATION.NURSE) {
+				if (designation === DESIGNATION.CAREGIVER) {
 					user = await db.caregivers.findOne({ phone });
 				} else if (designation === DESIGNATION.PATIENT) {
 					user = await db.patients.findOne({ phone });

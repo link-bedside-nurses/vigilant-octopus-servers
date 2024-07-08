@@ -3,7 +3,7 @@ import { CreateAdminDto, UpdateAdminDto } from '../../../interfaces/dtos';
 
 export class AdminRepo {
 	public static async createAdmin(admin: CreateAdminDto) {
-		return await db.admins.create(admin);
+		return (await db.admins.create(admin)).save();
 	}
 
 	public static async getAdminById(id: string) {

@@ -8,8 +8,6 @@ import {
 	getAllAppointments,
 	deleteAppointment,
 	scheduleAppointment,
-	getPatientAppointments,
-	getCaregiverAppointments,
 } from '../../modules/appointments/controller';
 import authenticate from '../../middlewares/auth/authentication';
 import { validateObjectID } from '../../middlewares/validate-objectid';
@@ -21,21 +19,6 @@ const router = Router();
 router.get('/', authenticate, isBanned, callback(getAllAppointments()));
 router.post('/', authenticate, isBanned, callback(scheduleAppointment()));
 router.get('/:id', authenticate, validateObjectID, isBanned, callback(getAppointment()));
-router.get(
-	'/:id/patients',
-	authenticate,
-	validateObjectID,
-	isBanned,
-	callback(getPatientAppointments())
-);
-router.get(
-	'/:id/caregivers',
-	authenticate,
-	validateObjectID,
-	isBanned,
-	callback(getCaregiverAppointments())
-);
-
 router.patch(
 	'/:id/confirm',
 	authenticate,

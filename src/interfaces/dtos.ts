@@ -4,41 +4,30 @@ import { DESIGNATION } from '.';
 const DesignationEnum = z.enum(Object.values(DESIGNATION) as [string, ...string[]]);
 
 const BaseSchema = z.object({
+	firstName: z.string().min(1),
+	lastName: z.string().min(1),
 	/**
-	 * +256700000000
-	 * +256300000000
-	 * 256700000000
-	 * 256300000000
-	 * 0700000000
-	 * 0300000000
+	 * +256700000000 +256300000000  256700000000 256300000000 0700000000 0300000000
 	 */
 	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Invalid UG NO format'), // E.164 format
 	designation: DesignationEnum,
 });
 
-export const CreatePatientSchema = BaseSchema.extend({
-	name: z.string().min(2),
-}).omit({ designation: true });
+export const CreatePatientSchema = BaseSchema.extend({}).omit({ designation: true });
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
 
 export const CreateAdminSchema = BaseSchema.extend({
-	firstName: z.string().min(1),
-	lastName: z.string().min(1),
 	email: z.string().email(),
 	password: z.string().min(8),
-}).omit({ designation: true });
+}).omit({ designation: true, phone: true });
 
 export const CreateCaregiverSchema = BaseSchema.extend({
-	firstName: z.string().min(1),
-	lastName: z.string().min(1),
 	email: z.string().email(),
 	password: z.string().min(8),
 }).omit({ designation: true });
 
 export const UpdateCaregiverSchema = BaseSchema.extend({
-	firstName: z.string().min(1).optional(),
-	lastName: z.string().min(1).optional(),
 	dateOfBirth: z.string().optional(),
 	nin: z.string().optional(),
 	experience: z.string().optional(),
@@ -53,8 +42,7 @@ export const UpdateCaregiverSchema = BaseSchema.extend({
 }).partial();
 
 export const UpdateAdminSchema = BaseSchema.extend({
-	firstName: z.string().min(1).optional(),
-	lastName: z.string().min(1).optional(),
+	email: z.string().email(),
 }).partial();
 
 export const CreateRatingSchema = z.object({
@@ -80,6 +68,11 @@ export const TResponseSchema = z.object({
 	}),
 });
 
+export const VerifyEmailSchema = z.object({
+	email: z.string().email(),
+	otp: z.string().length(6)
+})
+
 export type CreatePatientDto = z.infer<typeof CreatePatientSchema>;
 export type UpdatePatientDto = z.infer<typeof UpdatePatientSchema>;
 export type CreateAdminDto = z.infer<typeof CreateAdminSchema>;
@@ -90,3 +83,4 @@ export type CreateRatingDto = z.infer<typeof CreateRatingSchema>;
 export type ScheduleAppointmentDto = z.infer<typeof ScheduleAppointmentSchema>;
 export type CancelAppointmentDto = z.infer<typeof CancelAppointmentSchema>;
 export type TResponse = z.infer<typeof TResponseSchema>;
+export type VerifyEmailDto = z.infer<typeof VerifyEmailSchema>

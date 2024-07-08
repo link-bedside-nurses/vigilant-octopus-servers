@@ -42,11 +42,7 @@ export class CaregiverRepo {
 	}
 
 	public static async deactivateCaregiver(id: string) {
-		return await db.caregivers.findByIdAndUpdate(
-			id,
-			{ $set: { isDeactivated: true } },
-			{ new: true }
-		);
+		return await db.caregivers.findByIdAndUpdate(id, { $set: { isActive: true } }, { new: true });
 	}
 
 	public static async findByIdAndUpdate(id: string, caregiver: UpdateCaregiverDto) {
@@ -68,7 +64,11 @@ export class CaregiverRepo {
 	}
 
 	public static async verifyCaregiver(id: string) {
-		return await db.caregivers.findByIdAndUpdate(id, { isVerified: true }, { new: true });
+		return await db.caregivers.findByIdAndUpdate(
+			id,
+			{ isVerified: true, isActive: true },
+			{ new: true }
+		);
 	}
 
 	public static async banCaregiver(id: string) {

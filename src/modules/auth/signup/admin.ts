@@ -2,10 +2,11 @@ import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
-import * as argon2 from 'argon2';
-import { AdminRepo } from '../../users/admins/repo';
+import { AdminRepo } from '../../users/admins/repository';
 import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
 import { response } from '../../../utils/http-response';
+import startEmailVerification from '../../../utils/startEmailVerification';
+import { Password } from '../../../utils/password';
 
 export function adminSignup() {
 	return async function (request: HTTPRequest<object, CreateAdminDto>) {
@@ -22,20 +23,18 @@ export function adminSignup() {
 			return response(StatusCodes.BAD_REQUEST, null, 'Email already in use');
 		}
 
-		const hash = await argon2.hash(password, {
-			type: argon2.argon2id,
-		});
+		const hash = await Password.hash(password);
 
-		const newUser = await AdminRepo.createAdmin({
+		const user = await AdminRepo.createAdmin({
 			...result.data,
 			password: hash,
 		});
 
-		await newUser.save();
-
 		// @ts-ignore
-		const token = createAccessToken(newUser as Document & ACCOUNT);
+		const accessToken = createAccessToken(user as Document & ACCOUNT);
 
-		return response(StatusCodes.OK, { user: newUser, token }, 'Account created');
+		await startEmailVerification(email);
+
+		return response(StatusCodes.OK, { user, accessToken }, 'Account created');
 	};
 }

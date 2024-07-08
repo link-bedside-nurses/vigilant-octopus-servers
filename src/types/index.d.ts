@@ -1,5 +1,5 @@
 import { ACCOUNT } from '../interfaces';
-export type DESIGNATION = 'PATIENT' | 'NURSE' | 'ADMIN';
+export type DESIGNATION = 'PATIENT' | 'CAREGIVER' | 'ADMIN';
 
 declare global {
 	namespace Express {

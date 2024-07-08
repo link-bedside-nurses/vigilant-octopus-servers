@@ -4,11 +4,10 @@ import { createAccessToken } from '../../services/token';
 import { Document } from 'mongoose';
 import { DESIGNATION, ACCOUNT } from '../../interfaces';
 import { response } from '../../utils/http-response';
-import { PatientRepo } from '../users/patients/repo';
-import { CaregiverRepo } from '../users/caregivers/repo';
+import { PatientRepo } from '../users/patients/repository';
+import { CaregiverRepo } from '../users/caregivers/repository';
 
 export function deleteAccount() {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	return async function (_: HTTPRequest<object, object, object>) {
 		return response(StatusCodes.OK, null, 'account deleted');
 	};
@@ -25,7 +24,7 @@ export function getAccessToken() {
 		let user;
 		if (designation === DESIGNATION.PATIENT) {
 			user = await PatientRepo.getPatientById(request.account?.id!);
-		} else if (designation === DESIGNATION.NURSE || designation === DESIGNATION.ADMIN) {
+		} else if (designation === DESIGNATION.CAREGIVER || designation === DESIGNATION.ADMIN) {
 			user = await CaregiverRepo.getCaregiverById(request.account?.id!);
 		} else {
 			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Designation');

@@ -23,8 +23,8 @@ export class Caregiver {
 	@prop({
 		type: String,
 		required: false,
-		enum: [DESIGNATION.PATIENT, DESIGNATION.NURSE, DESIGNATION.ADMIN],
-		default: DESIGNATION.NURSE,
+		enum: [DESIGNATION.PATIENT, DESIGNATION.CAREGIVER, DESIGNATION.ADMIN],
+		default: DESIGNATION.CAREGIVER,
 	})
 	designation!: DESIGNATION;
 
@@ -74,7 +74,7 @@ export class Caregiver {
 	isBanned?: boolean;
 
 	@prop({ type: Boolean, required: false, default: false })
-	isDeactivated?: boolean;
+	isActive?: boolean;
 
 	@prop({ type: Boolean, required: false, default: false })
 	isVerified?: boolean;

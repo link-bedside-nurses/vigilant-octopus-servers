@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { AdminRepo } from './repo';
+import { AdminRepo } from './repository';
 import { UpdateAdminDto } from '../../../interfaces/dtos';
-import { PatientRepo } from '../patients/repo';
-import { CaregiverRepo } from '../caregivers/repo';
+import { PatientRepo } from '../patients/repository';
+import { CaregiverRepo } from '../caregivers/repository';
 import { response } from '../../../utils/http-response';
 
 export function getAllAdmins() {
@@ -66,6 +65,17 @@ export function banPatient() {
 			bannedPatient,
 			'Patient Successfully banned from using the application!'
 		);
+	};
+}
+export function deactivateCaregiver() {
+	return async function (request: HTTPRequest<{ id: string }>) {
+		const caregiver = await CaregiverRepo.deactivateCaregiver(request.params.id);
+
+		if (!caregiver) {
+			return response(StatusCodes.NOT_FOUND, null, 'No caregiver Found');
+		}
+
+		return response(StatusCodes.OK, caregiver, 'Account successfully deactivated');
 	};
 }
 

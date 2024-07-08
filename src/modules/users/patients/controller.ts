@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { response } from '../../../utils/http-response';
-import { PatientRepo } from './repo';
+import { PatientRepo } from './repository';
 import { UpdatePatientDto } from '../../../interfaces/dtos';
+import { APPOINTMENT_STATUSES } from '../../../interfaces';
+import { AppointmentRepo } from '../../appointments/repository';
 
 export function getAllPatients() {
 	return async function (_: HTTPRequest<object>) {
@@ -54,5 +55,25 @@ export function deactivatePatient() {
 		}
 
 		return response(StatusCodes.OK, patient, 'Patient updated');
+	};
+}
+
+export function getPatientAppointments() {
+	return async function (
+		request: HTTPRequest<{ id: string }, object, { status?: APPOINTMENT_STATUSES }>
+	) {
+		const { status } = request.query;
+
+		const appointments = await AppointmentRepo.getPatientAppointments(request.params.id, status);
+		const message =
+			appointments.length > 0
+				? 'Successfully fetched patient Appointments'
+				: 'No Appointment Found';
+
+		return response(
+			appointments.length > 0 ? StatusCodes.OK : StatusCodes.NOT_FOUND,
+			appointments,
+			message
+		);
 	};
 }

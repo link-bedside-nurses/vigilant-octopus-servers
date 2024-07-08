@@ -1,15 +1,14 @@
 import { HTTPRequest } from '../../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { DESIGNATION } from '../../../interfaces';
-import { AdminRepo } from '../../users/admins/repo';
-import { CaregiverRepo } from '../../users/caregivers/repo';
-import { PatientRepo } from '../../users/patients/repo';
+import { AdminRepo } from '../../users/admins/repository';
+import { CaregiverRepo } from '../../users/caregivers/repository';
+import { PatientRepo } from '../../users/patients/repository';
 import { response } from '../../../utils/http-response';
 
 export function getCurrentUser() {
 	return async function (request: HTTPRequest<object>) {
-		const designation = request.account?.designation;
-		const userId = request.account?.id;
+		const { designation, id: userId } = request.account!;
 
 		if (!userId) {
 			return response(StatusCodes.UNAUTHORIZED, null, 'User not authenticated');
@@ -17,7 +16,7 @@ export function getCurrentUser() {
 
 		let user;
 		switch (designation) {
-			case DESIGNATION.NURSE:
+			case DESIGNATION.CAREGIVER:
 				user = await CaregiverRepo.getCaregiverById(userId);
 				break;
 			case DESIGNATION.PATIENT:

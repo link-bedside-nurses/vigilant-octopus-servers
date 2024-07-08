@@ -1,10 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import * as argon2 from 'argon2';
 import { HTTPRequest } from '../../../adapters/express-callback';
-import { AdminRepo } from '../../users/admins/repo';
+import { AdminRepo } from '../../users/admins/repository';
 import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
 import { createAccessToken } from '../../../services/token';
 import { response } from '../../../utils/http-response';
+import { Password } from '../../../utils/password';
 
 export function adminSignin() {
 	return async function (request: HTTPRequest<object, Pick<CreateAdminDto, 'email' | 'password'>>) {
@@ -22,9 +22,7 @@ export function adminSignin() {
 			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
 		}
 
-		const match = await argon2.verify(user.password, password, {
-			type: argon2.argon2id,
-		});
+		const match = await Password.verify(user.password, password);
 
 		if (!match) {
 			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');

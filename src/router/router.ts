@@ -14,7 +14,7 @@ import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { appendFile } from 'fs/promises';
+import { appendFile } from 'node:fs/promises';
 import path from 'node:path';
 import { EnvironmentVars, __PROD__ } from '../constants';
 import errorMiddleware from '../middlewares/error-middleware';
@@ -34,7 +34,7 @@ router.use(express.urlencoded({ extended: true }));
 router.use(express.static(path.join(__dirname, 'public')));
 
 router.use(
-	morgan('combined', {
+	morgan('dev', {
 		stream: {
 			async write(str) {
 				const log = new Uint8Array(Buffer.from(str));

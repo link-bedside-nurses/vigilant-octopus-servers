@@ -31,11 +31,7 @@ export class PatientRepo {
 	}
 
 	public static async deactivatePatient(id: string) {
-		return await db.patients.findByIdAndUpdate(
-			id,
-			{ $set: { isDeactivated: true } },
-			{ new: true }
-		);
+		return await db.patients.findByIdAndUpdate(id, { $set: { isActive: true } }, { new: true });
 	}
 
 	public static async updatePatient(id: string, update: UpdatePatientDto) {
