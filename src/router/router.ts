@@ -18,9 +18,9 @@ import { appendFile } from 'node:fs/promises';
 import path from 'node:path';
 import { EnvironmentVars, __PROD__ } from '../constants';
 import errorMiddleware from '../middlewares/error-middleware';
-import { otpRouter } from '../modules/comms/sms/routes';
+import { otpRouter } from '../modules/sms/routes';
 import { html } from '../utils/privacy';
-import { emailRouter } from '../modules/comms/email/routes';
+import { emailRouter } from '../modules/email/routes';
 import { dashboardRouter } from '../modules/dashboard/routes';
 import { StatusCodes } from 'http-status-codes';
 
