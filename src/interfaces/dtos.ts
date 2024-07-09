@@ -9,7 +9,7 @@ const BaseSchema = z.object({
 	/**
 	 * +256700000000 +256300000000  256700000000 256300000000 0700000000 0300000000
 	 */
-	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Invalid UG NO format'), // E.164 format
+	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'), // E.164 format
 	designation: DesignationEnum,
 });
 
@@ -70,8 +70,19 @@ export const TResponseSchema = z.object({
 
 export const VerifyEmailSchema = z.object({
 	email: z.string().email(),
-	otp: z.string().length(6)
-})
+	otp: z.string().length(6),
+});
+
+export const VerifyPhoneSchema = z.object({
+	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'), // E.164 format,
+	otp: z.string().length(6),
+	designation: DesignationEnum,
+});
+
+export const PhoneVerifcationOTPSchema = z.object({
+	designation: DesignationEnum,
+	toPhone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'), // E.164 format
+});
 
 export type CreatePatientDto = z.infer<typeof CreatePatientSchema>;
 export type UpdatePatientDto = z.infer<typeof UpdatePatientSchema>;
@@ -83,4 +94,6 @@ export type CreateRatingDto = z.infer<typeof CreateRatingSchema>;
 export type ScheduleAppointmentDto = z.infer<typeof ScheduleAppointmentSchema>;
 export type CancelAppointmentDto = z.infer<typeof CancelAppointmentSchema>;
 export type TResponse = z.infer<typeof TResponseSchema>;
-export type VerifyEmailDto = z.infer<typeof VerifyEmailSchema>
+export type VerifyEmailDto = z.infer<typeof VerifyEmailSchema>;
+export type VerifyPhoneDto = z.infer<typeof VerifyPhoneSchema>;
+export type PhoneVerifcationOTPDto = z.infer<typeof PhoneVerifcationOTPSchema>;
