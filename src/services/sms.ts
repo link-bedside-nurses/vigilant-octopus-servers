@@ -9,7 +9,7 @@ export default async function sendOTP(phone: string, otp: string) {
 				{
 					destinations: [{ to: phone }],
 					from: 'ServiceSMS',
-					text: `Your OTP is ${otp}`,
+					text: `Your verication code is ${otp}`,
 				},
 			],
 		},
