@@ -10,5 +10,3 @@ const logger = pino( {
 } );
 
 export default logger;
-
-export type Logger = { error: typeof logger.error };

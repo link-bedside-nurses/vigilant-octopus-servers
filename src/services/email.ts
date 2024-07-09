@@ -1,5 +1,6 @@
 import { env } from 'node:process';
 import nodemailer from 'nodemailer';
+import logger from '../utils/logger';
 
 const bcc = '';
 const cc = '';
@@ -27,6 +28,6 @@ export const sendMail = async (to: string, html: string, subject: string, text: 
 		attachments,
 	});
 
-	console.log('Message sent: %s', info.messageId);
-	console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+	logger.info('Message sent: %s', info.messageId);
+	logger.info('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 };
