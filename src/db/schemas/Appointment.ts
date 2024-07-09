@@ -12,6 +12,8 @@ import { APPOINTMENT_STATUSES } from '../../interfaces';
 		toJSON: {
 			virtuals: true,
 			transform(_doc, ret): void {
+				ret.id = _doc._id;
+				delete ret._id;
 				delete ret.__v;
 			},
 		},

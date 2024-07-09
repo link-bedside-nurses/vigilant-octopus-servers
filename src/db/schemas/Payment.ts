@@ -2,7 +2,7 @@ import { Severity, modelOptions, mongoose, prop } from '@typegoose/typegoose';
 import { Appointment } from './Appointment';
 import { Patient } from './Patient';
 
-@modelOptions( {
+@modelOptions({
 	schemaOptions: {
 		id: false,
 		virtuals: true,
@@ -10,31 +10,33 @@ import { Patient } from './Patient';
 		toObject: { virtuals: true },
 		toJSON: {
 			virtuals: true,
-			transform( _doc, ret ): void {
-				delete ret.__v
+			transform(_doc, ret): void {
+				ret.id = _doc._id;
+				delete ret._id;
+				delete ret.__v;
 			},
 		},
 	},
 	options: { allowMixed: Severity.ALLOW },
-} )
+})
 export class Payment {
-	@prop( {
+	@prop({
 		required: true,
 		type: mongoose.Document,
 		ref: Appointment,
-	} )
+	})
 	appointment!: Appointment;
 
-	@prop( {
+	@prop({
 		required: true,
 		type: mongoose.Document,
 		ref: Patient,
-	} )
+	})
 	patient!: Patient;
 
-	@prop( { type: String, required: true } )
-	amount!: number
+	@prop({ type: String, required: true })
+	amount!: number;
 
-	@prop( { type: String, required: true } )
-	comment!: string
+	@prop({ type: String, required: true })
+	comment!: string;
 }
