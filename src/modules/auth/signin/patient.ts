@@ -3,6 +3,7 @@ import { HTTPRequest } from '../../../adapters/express-callback';
 import { PatientRepo } from '../../users/patients/repository';
 import { CreatePatientDto, CreatePatientSchema } from '../../../interfaces/dtos';
 import { response } from '../../../utils/http-response';
+import startPhoneVerification from '../../../utils/startPhoneVerification';
 
 export function patientSignin() {
 	return async function (request: HTTPRequest<object, Pick<CreatePatientDto, 'phone'>>) {
@@ -12,13 +13,13 @@ export function patientSignin() {
 			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
 		}
 
-		const { phone } = result.data;
-
-		const user = await PatientRepo.getPatientByPhone(phone);
+		const user = await PatientRepo.getPatientByPhone(result.data.phone);
 
 		if (!user) {
 			return response(StatusCodes.UNAUTHORIZED, null, 'No such user found');
 		}
+
+		await startPhoneVerification(result.data.phone);
 
 		return response(StatusCodes.OK, null, 'Success');
 	};
