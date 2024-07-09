@@ -29,5 +29,6 @@ export default function authenticate(request: Request, _response: Response, next
 		email: decoded.email,
 		designation: decoded.designation,
 	};
+
 	next();
 }

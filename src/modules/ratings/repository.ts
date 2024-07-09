@@ -3,13 +3,11 @@ import { CreateRatingDto } from '../../interfaces/dtos';
 
 export class RatingRepo {
 	public static async createRating(patientId: string, rating: CreateRatingDto) {
-		const result = (
-			await (
-				await (await db.ratings.create({ rating, patient: patientId })).populate('patient')
-			).populate('caregiver')
+		const result = await (
+			await (await db.ratings.create({ ...rating, patient: patientId })).populate('patient')
 		).populate('caregiver');
 
-		return await (await result).save();
+		return await result.save();
 	}
 
 	public static async getAllRatings() {

@@ -3,6 +3,8 @@ import { StatusCodes } from 'http-status-codes';
 import { RatingRepo } from './repository';
 import { CreateRatingDto, CreateRatingSchema } from '../../interfaces/dtos';
 import { response } from '../../utils/http-response';
+import { CaregiverRepo } from '../users/caregivers/repository';
+import { PatientRepo } from '../users/patients/repository';
 
 export function getAllRatings() {
 	return async function (_: HTTPRequest<object>) {
@@ -43,13 +45,25 @@ export function deleteRating() {
 }
 
 export function postRating() {
-	return async function (request: HTTPRequest<{ id: string }, CreateRatingDto>) {
+	return async function (request: HTTPRequest<object, CreateRatingDto, object>) {
 		const result = CreateRatingSchema.safeParse(request.body);
 
 		if (!result.success) {
 			return response(StatusCodes.BAD_REQUEST, null, 'All fields must be sent', result.error);
 		}
-		const rating = await RatingRepo.createRating(request.account?.id!, request.body);
+		const caregiver = await CaregiverRepo.getCaregiverById(result.data.caregiver);
+
+		if (!caregiver) {
+			return response(StatusCodes.NOT_FOUND, null, 'Caregiver not found');
+		}
+
+		const patient = await PatientRepo.getPatientById(request.account?.id!);
+
+		if (!patient) {
+			return response(StatusCodes.NOT_FOUND, null, 'Patient not found');
+		}
+
+		const rating = await RatingRepo.createRating(request.account?.id!, result.data);
 		return response(StatusCodes.OK, rating, 'Rating Posted');
 	};
 }

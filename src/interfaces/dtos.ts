@@ -46,7 +46,7 @@ export const UpdateAdminSchema = BaseSchema.extend({
 }).partial();
 
 export const CreateRatingSchema = z.object({
-	caregiverId: z.string(),
+	caregiver: z.string(),
 	review: z.string(),
 	value: z.number().min(1).max(5),
 });

@@ -16,7 +16,7 @@ const router = Router();
 router.get('/', authenticate, isBanned, callback(getAllRatings()));
 router.get('/:id', authenticate, isBanned, callback(getRating()));
 router.get('/:id/caregiver', authenticate, isBanned, callback(getCaregiverRatings()));
-router.post('/:id/add', authenticate, isBanned, callback(postRating()));
+router.post('/add', authenticate, isBanned, callback(postRating()));
 router.delete('/:id/delete', authenticate, isBanned, callback(deleteRating()));
 
 export default router;

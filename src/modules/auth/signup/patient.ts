@@ -12,9 +12,7 @@ export function patientSignup() {
 			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
 		}
 
-		const { phone } = result.data;
-
-		const patient = await PatientRepo.getPatientByPhone(phone);
+		const patient = await PatientRepo.getPatientByPhone(result.data.phone);
 
 		if (patient) {
 			return response(StatusCodes.BAD_REQUEST, null, 'Phone number in use');

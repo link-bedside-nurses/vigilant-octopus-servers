@@ -21,6 +21,6 @@ export function patientSignin() {
 
 		await startPhoneVerification(result.data.phone);
 
-		return response(StatusCodes.OK, null, 'Success');
+		return response(StatusCodes.OK, null, 'Check sms for Cne Time Code (OTP)');
 	};
 }
