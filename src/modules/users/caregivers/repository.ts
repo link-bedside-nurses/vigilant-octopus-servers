@@ -34,7 +34,7 @@ export class CaregiverRepo {
 	}
 
 	public static async createCaregiver(caregiver: CreateCaregiverDto) {
-		return await db.caregivers.create(caregiver);
+		return (await db.caregivers.create(caregiver)).save();
 	}
 
 	public static async deleteCaregiver(id: string) {

@@ -3,7 +3,7 @@ import { CreatePatientDto, UpdatePatientDto } from '../../../interfaces/dtos';
 
 export class PatientRepo {
 	public static async createPatient(patient: CreatePatientDto) {
-		return await db.patients.create(patient);
+		return (await db.patients.create(patient)).save();
 	}
 
 	public static async getPatientById(id: string) {

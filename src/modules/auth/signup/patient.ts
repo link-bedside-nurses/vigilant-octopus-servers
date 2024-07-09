@@ -3,6 +3,7 @@ import { HTTPRequest } from '../../../adapters/express-callback';
 import { CreatePatientDto, CreatePatientSchema } from '../../../interfaces/dtos';
 import { response } from '../../../utils/http-response';
 import { PatientRepo } from '../../users/patients/repository';
+import startPhoneVerification from '../../../utils/startPhoneVerification';
 
 export function patientSignup() {
 	return async function (request: HTTPRequest<object, CreatePatientDto>) {
@@ -21,7 +22,7 @@ export function patientSignup() {
 
 		const user = await PatientRepo.createPatient(result.data);
 
-		await user.save();
+		await startPhoneVerification(result.data.phone);
 
 		return response(StatusCodes.OK, user, 'Account created');
 	};
