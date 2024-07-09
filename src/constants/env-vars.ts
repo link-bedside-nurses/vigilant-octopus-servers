@@ -26,6 +26,7 @@ const env = envalid.cleanEnv(process.env, {
 
 	FROM_SMS_PHONE: envalid.str(),
 	TO_SMS_PHONE: envalid.str(),
+	INFOBIP_SECRET_KEY: envalid.str(),
 	TWILIO_ACCOUNT_SID: envalid.str(),
 	TWILIO_AUTH_TOKEN: envalid.str(),
 
@@ -58,6 +59,7 @@ export default Object.freeze({
 
 	getFromSMSPhone: () => String(env.FROM_SMS_PHONE),
 	getTO_SMS_Phone: () => String(env.TO_SMS_PHONE),
+	getInfobipSecretKey: () => String(env.INFOBIP_SECRET_KEY),
 	getTwilioAccountSID: () => String(env.TWILIO_ACCOUNT_SID),
 	getTwilioAuthToken: () => String(env.TWILIO_AUTH_TOKEN),
 

@@ -11,6 +11,8 @@ import { DESIGNATION } from '../../interfaces';
 			virtuals: true,
 			transform(_doc, ret): void {
 				delete ret.password;
+				ret.id = _doc._id;
+				delete ret._id;
 				delete ret.__v;
 			},
 		},
@@ -40,7 +42,7 @@ export class Admin {
 
 	@prop({ type: String, required: true, minlength: 2, maxlength: 250, trim: true })
 	lastName!: string;
-	
+
 	@prop({ type: String, required: true })
 	password!: string;
 

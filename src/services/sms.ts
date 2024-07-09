@@ -1,4 +1,5 @@
 import axios from 'axios';
+import envVars from '../constants/env-vars';
 
 export default async function sendOTP(phone: string, otp: string) {
 	const response = await axios.post(
@@ -8,13 +9,13 @@ export default async function sendOTP(phone: string, otp: string) {
 				{
 					destinations: [{ to: phone }],
 					from: 'ServiceSMS',
-					text: `LINKBEDSIDES::Your OTP is ${otp}`,
+					text: `Your OTP is ${otp}`,
 				},
 			],
 		},
 		{
 			headers: {
-				Authorization: `App 9fc830f221c28b354b493a57a4ff3f9e-a47fd25f-efa5-42e1-ac24-b8800accd9ca`,
+				Authorization: `App ${envVars.getInfobipSecretKey()}`,
 				'Content-Type': 'application/json',
 				Accept: 'application/json',
 			},

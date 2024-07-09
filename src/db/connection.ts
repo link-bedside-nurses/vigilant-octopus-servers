@@ -41,33 +41,33 @@ export async function disconnectFromDatabase() {
 
 export async function seedDatabase() {
 	try {
-		console.log('Seeding patients...');
+		logger.info('Seeding patients...');
 		await seedPatients();
-		console.log('Patients seeded.');
+		logger.info('Patients seeded.');
 
-		console.log('Seeding caregivers...');
+		logger.info('Seeding caregivers...');
 		await seedCaregivers();
-		console.log('Caregivers seeded.');
+		logger.info('Caregivers seeded.');
 
-		console.log('Seeding admins...');
+		logger.info('Seeding admins...');
 		await seedAdmins();
-		console.log('Admins seeded.');
+		logger.info('Admins seeded.');
 
-		console.log('Seeding appointments...');
+		logger.info('Seeding appointments...');
 		await seedAppointments();
-		console.log('Appointments seeded.');
+		logger.info('Appointments seeded.');
 
-		console.log('Seeding payments...');
+		logger.info('Seeding payments...');
 		await seedPayments();
-		console.log('Payments seeded.');
+		logger.info('Payments seeded.');
 
-		console.log('Seeding ratings...');
+		logger.info('Seeding ratings...');
 		await seedRatings();
-		console.log('Ratings seeded.');
+		logger.info('Ratings seeded.');
 
-		console.log('Database seeding completed successfully.');
+		logger.info('Database seeding completed successfully.');
 	} catch (error) {
-		console.error('Error seeding database:', error);
+		logger.error('Error seeding database:', error);
 	}
 }
 

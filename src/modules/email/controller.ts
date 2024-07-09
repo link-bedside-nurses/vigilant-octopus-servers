@@ -1,13 +1,14 @@
-import { HTTPRequest } from '../../../adapters/express-callback';
+import { HTTPRequest } from '../../adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { createAccessToken } from '../../../services/token';
+import { createAccessToken } from '../../services/token';
 import { Document } from 'mongoose';
-import { ACCOUNT } from '../../../interfaces';
-import { response } from '../../../utils/http-response';
-import { AdminRepo } from '../../users/admins/repository';
-import { VerifyEmailDto, VerifyEmailSchema } from '../../../interfaces/dtos';
-import startEmailVerification from '../../../utils/startEmailVerification';
-import { getOTP } from '../../../services/otp';
+import { ACCOUNT } from '../../interfaces';
+import { response } from '../../utils/http-response';
+import { AdminRepo } from '../users/admins/repository';
+import { VerifyEmailDto, VerifyEmailSchema } from '../../interfaces/dtos';
+import startEmailVerification from '../../utils/startEmailVerification';
+import { getOTP } from '../../services/otp';
+import logger from '../../utils/logger';
 
 export function sendEmail() {
 	return async function (request: HTTPRequest<object, object, Pick<VerifyEmailDto, 'email'>>) {
@@ -72,7 +73,7 @@ export function verifyEmail() {
 			}
 			return response(StatusCodes.BAD_REQUEST, null, 'Wrong OTP');
 		} catch (error) {
-			console.log('error: ', error);
+			logger.error(error);
 			return response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'FAILED TO VERIFY OTP');
 		}
 	};

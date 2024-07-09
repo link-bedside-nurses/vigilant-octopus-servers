@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { Exception } from '../../utils';
 import { verifyRefreshToken } from '../../services/token';
+import HTTPException from '../../utils/exception';
 
 export default async function verifyRefreshTokenMiddleware(
 	request: Request<object, { refreshToken: string }>,
@@ -12,11 +12,11 @@ export default async function verifyRefreshTokenMiddleware(
 	const refreshToken = request.body.refreshToken;
 
 	if (!refreshToken || !(await verifyRefreshToken(refreshToken)))
-		return next(new Exception('Invalid refresh Token!', StatusCodes.UNAUTHORIZED));
+		return next(new HTTPException('Invalid refresh Token!', StatusCodes.UNAUTHORIZED));
 
 	const decoded = await verifyRefreshToken(refreshToken);
 	if (!decoded || !decoded.id)
-		return next(new Exception('Invalid refresh Token!', StatusCodes.UNAUTHORIZED));
+		return next(new HTTPException('Invalid refresh Token!', StatusCodes.UNAUTHORIZED));
 
 	request.account = {
 		designation: decoded.designation,

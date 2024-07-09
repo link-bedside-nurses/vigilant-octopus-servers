@@ -11,11 +11,7 @@ export function getAllPayments() {
 }
 
 export function getPayment() {
-	return async function (
-		request: HTTPRequest<{
-			id: string;
-		}>
-	) {
+	return async function (request: HTTPRequest<{ id: string }>) {
 		const payment = await db.payments.findById(request.params.id);
 
 		if (!payment) {

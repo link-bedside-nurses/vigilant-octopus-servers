@@ -3,11 +3,11 @@ import { StatusCodes } from 'http-status-codes';
 import { db } from '../../../db';
 import mongoose from 'mongoose';
 import { Caregiver } from '../../../db/schemas/Caregiver';
-import { Exception } from '../../../utils';
 import { CaregiverRepo } from './repository';
 import { UpdateCaregiverDto } from '../../../interfaces/dtos';
 import { response } from '../../../utils/http-response';
 import { AppointmentRepo } from '../../appointments/repository';
+import HTTPException from '../../../utils/exception';
 
 export function getAllCaregivers() {
 	return async function (request: HTTPRequest<object, object, { latLng: string }>) {
@@ -113,7 +113,7 @@ export function searchCaregiversByLocation() {
 		const queryParams = req.query;
 
 		if (!queryParams.lat || !queryParams.lng) {
-			throw new Exception(`Provide both 'lat' and 'lng' as query params`);
+			throw new HTTPException(`Provide both 'lat' and 'lng' as query params`);
 		}
 		const latitude: number = parseFloat(queryParams.lat);
 		const longitude: number = parseFloat(queryParams.lng);
