@@ -6,10 +6,10 @@ import { ScheduleAppointmentDto } from '../../interfaces/dtos';
 import { APPOINTMENT_STATUSES } from '../../interfaces';
 
 export class AppointmentRepo {
-	public static async scheduleAppointment(patientId: string, appointment: ScheduleAppointmentDto) {
-		const result = await db.appointments.create({ appointment, patient: patientId });
+	public static async scheduleAppointment(patient: string, appointment: ScheduleAppointmentDto) {
+		const result = await db.appointments.create({ ...appointment, patient });
 
-		return (await (await result.save()).populate('patient')).populate('caregiver');
+		return (await (await result.populate('patient')).populate('patient')).populate('caregiver');
 	}
 
 	public static async getAllAppointments() {

@@ -52,7 +52,7 @@ export const CreateRatingSchema = z.object({
 });
 
 export const ScheduleAppointmentSchema = z.object({
-	caregiverId: z.string(),
+	caregiver: z.string(),
 	reason: z.string(),
 	date: z.string().optional(),
 });

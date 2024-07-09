@@ -9,6 +9,7 @@ import {
 } from '../../interfaces/dtos';
 import { CaregiverRepo } from '../users/caregivers/repository';
 import { response } from '../../utils/http-response';
+import { PatientRepo } from '../users/patients/repository';
 
 export function getAllAppointments() {
 	return async function (_: HTTPRequest<object, object>) {
@@ -28,17 +29,22 @@ export function scheduleAppointment() {
 			return response(StatusCodes.BAD_REQUEST, null, 'Validation Error', result.error);
 		}
 
-		const caregiver = await CaregiverRepo.getCaregiverById(request.body.caregiverId);
+		const caregiver = await CaregiverRepo.getCaregiverById(result.data.caregiver);
 
 		if (!caregiver) {
 			return response(StatusCodes.BAD_REQUEST, null, `No such caregiver with given id`);
 		}
 
+		const patient = await PatientRepo.getPatientById(request.account?.id!);
+
+		if (!patient) {
+			return response(StatusCodes.BAD_REQUEST, null, `No such patient with given id`);
+		}
+
 		const appointment = await AppointmentRepo.scheduleAppointment(
 			request.account?.id!,
-			request.body
+			result.data
 		);
-		await appointment.save();
 
 		return response(StatusCodes.OK, appointment, 'Appointment Scheduled');
 	};
