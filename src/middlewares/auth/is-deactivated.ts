@@ -1,11 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import { Exception } from '../../utils';
 import { StatusCodes } from 'http-status-codes';
 import { DESIGNATION } from '../../interfaces';
 import { AdminRepo } from '../../modules/users/admins/repository';
 import { CaregiverRepo } from '../../modules/users/caregivers/repository';
 import { PatientRepo } from '../../modules/users/patients/repository';
+import HTTPException from '../../utils/exception';
 
 export default async function isActive(request: Request, _response: Response, next: NextFunction) {
 	let user;
@@ -19,7 +19,7 @@ export default async function isActive(request: Request, _response: Response, ne
 
 	if (user?.isActive) {
 		return next(
-			new Exception(
+			new HTTPException(
 				'Your account has been deactivated. Contact support for re-activation',
 				StatusCodes.FORBIDDEN
 			)

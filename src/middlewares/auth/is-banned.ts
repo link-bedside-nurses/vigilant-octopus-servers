@@ -1,11 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import { Exception } from '../../utils';
 import { StatusCodes } from 'http-status-codes';
 import { DESIGNATION } from '../../interfaces';
 import { AdminRepo } from '../../modules/users/admins/repository';
 import { CaregiverRepo } from '../../modules/users/caregivers/repository';
 import { PatientRepo } from '../../modules/users/patients/repository';
+import HTTPException from '../../utils/exception';
 
 export default async function isBanned(request: Request, _response: Response, next: NextFunction) {
 	let user;
@@ -19,7 +19,7 @@ export default async function isBanned(request: Request, _response: Response, ne
 
 	if (user?.isBanned) {
 		return next(
-			new Exception('You have been banned from accessing the system', StatusCodes.FORBIDDEN)
+			new HTTPException('You have been banned from accessing the system', StatusCodes.FORBIDDEN)
 		);
 	}
 
