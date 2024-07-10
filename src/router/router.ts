@@ -19,7 +19,7 @@ import path from 'node:path';
 import { EnvironmentVars, __PROD__ } from '../constants';
 import errorMiddleware from '../middlewares/error-middleware';
 import { otpRouter } from '../modules/sms/routes';
-import { html } from '../utils/privacy';
+import { privacy } from '../utils/privacy';
 import { emailRouter } from '../modules/email/routes';
 import { dashboardRouter } from '../modules/dashboard/routes';
 import { StatusCodes } from 'http-status-codes';
@@ -77,12 +77,12 @@ router.use(errorMiddleware);
 
 router.get('/privacy', function (_, res) {
 	res.setHeader('Content-Type', 'text/html');
-	res.send(html);
+	res.send(privacy);
 });
 
 router.get('/', function (request: express.Request, response: express.Response) {
 	return response
-		.status(StatusCodes.NOT_FOUND)
+		.status(StatusCodes.OK)
 		.send({ message: 'SERVER IS ONLINE!', requestHeaders: request.headers });
 });
 

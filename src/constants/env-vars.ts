@@ -16,14 +16,6 @@ const env = envalid.cleanEnv(process.env, {
 	ACCESS_TOKEN_EXPIRATION: envalid.str(),
 	REFRESH_TOKEN_EXPIRATION: envalid.str(),
 
-	APP_EMAIL_SERVICE_USERNAME: envalid.str(),
-	APP_EMAIL_SERVICE_PASSWORD: envalid.str(),
-
-	VERIFICATION_CODE_LENGTH: envalid.num(),
-
-	REDIS_URL: envalid.str(),
-	REDISCLI_AUTH: envalid.str(),
-
 	FROM_SMS_PHONE: envalid.str(),
 	TO_SMS_PHONE: envalid.str(),
 	INFOBIP_SECRET_KEY: envalid.str(),
@@ -48,14 +40,6 @@ export default Object.freeze({
 	getRefreshTokenSecret: () => String(env.REFRESH_TOKEN_SECRET),
 	getAccessTokenExpiration: () => String(env.ACCESS_TOKEN_EXPIRATION),
 	getRefreshTokenExpiration: () => String(env.REFRESH_TOKEN_EXPIRATION),
-
-	getEmailServiceUsername: () => String(env.APP_EMAIL_SERVICE_USERNAME),
-	getEmailServicePassword: () => String(env.APP_EMAIL_SERVICE_PASSWORD),
-
-	getVerificationCodeLength: () => Number(env.VERIFICATION_CODE_LENGTH),
-
-	getCacheStoreURL: () => String(env.REDIS_URL),
-	getCacheStoreCLIAuth: () => String(env.REDISCLI_AUTH),
 
 	getFromSMSPhone: () => String(env.FROM_SMS_PHONE),
 	getTO_SMS_Phone: () => String(env.TO_SMS_PHONE),
