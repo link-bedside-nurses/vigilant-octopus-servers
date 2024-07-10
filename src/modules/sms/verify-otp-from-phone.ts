@@ -16,7 +16,7 @@ export function verifyOTPFromPhone() {
 			return response(
 				StatusCodes.OK,
 				null,
-				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
 

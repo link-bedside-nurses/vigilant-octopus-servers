@@ -14,7 +14,7 @@ export function adminSignin() {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
-				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
 
