@@ -1,8 +1,8 @@
 {
 	"name": "vigilant-octopus",
 	"version": "1.0.0",
-	"description": "The monolith server for Caregiver app.",
-	"main": "dist/src/app.js",
+	"description": "The monolith server for Caregiver server.",
+	"main": "dist/src/server.js",
 	"repository": "",
 	"authors": [
 		"Ian-Balijawa",
@@ -12,9 +12,9 @@
 	"scripts": {
 		"start": "npm run serve",
 		"build": "tsc",
-		"serve": "node dist/app.js",
+		"serve": "node dist/server.js",
 		"test": "jest --coverage=false --verbose",
-		"dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"tsc -w\" \"node --watch dist/app.js\"",
+		"dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"tsc -w\" \"node --watch dist/server.js\"",
 		"lint": "eslint src/*.ts",
 		"lint-fix": "yarn lint --fix",
 		"typecheck": "tsc --noEmit",
