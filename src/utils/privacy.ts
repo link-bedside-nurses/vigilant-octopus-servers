@@ -1,4 +1,4 @@
-export const html = `<!doctype html>
+export const privacy = `<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
