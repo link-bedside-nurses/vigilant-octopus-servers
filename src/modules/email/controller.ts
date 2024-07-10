@@ -1,22 +1,21 @@
-import { HTTPRequest } from '../../adapters/express-callback';
+import { HTTPRequest } from '../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { createAccessToken } from '../../services/token';
 import { Document } from 'mongoose';
-import { ACCOUNT } from '../../interfaces';
-import { response } from '../../utils/http-response';
-import { AdminRepo } from '../users/admins/repository';
-import { VerifyEmailDto, VerifyEmailSchema } from '../../interfaces/dtos';
-import startEmailVerification from '../../utils/startEmailVerification';
+import { ACCOUNT } from '../../core/interfaces';
+import { response } from '../../core/utils/http-response';
+import { AdminRepo } from '../../infrastructure/database/repositories/admin-repository';
+import { VerifyEmailDto, VerifyEmailSchema } from '../../core/interfaces/dtos';
+import startEmailVerification from '../../core/utils/startEmailVerification';
 import { getOTP } from '../../services/otp';
-import logger from '../../utils/logger';
+import logger from '../../core/utils/logger';
 
 export function sendEmail() {
 	return async function (request: HTTPRequest<object, object, Pick<VerifyEmailDto, 'email'>>) {
 		const result = VerifyEmailSchema.omit({ otp: true }).safeParse(request.query);
 
 		if (!result.success) {
-			const message = result.error.issues[0].message;
-			return response(StatusCodes.BAD_REQUEST, null, message, result.error);
+			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
 		}
 
 		const { email } = request.query;
@@ -39,8 +38,7 @@ export function verifyEmail() {
 		const result = VerifyEmailSchema.safeParse(request.query);
 
 		if (!result.success) {
-			const message = result.error.issues[0].message;
-			return response(StatusCodes.BAD_REQUEST, null, message, result.error);
+			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
 		}
 
 		try {

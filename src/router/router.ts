@@ -16,13 +16,13 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { appendFile } from 'node:fs/promises';
 import path from 'node:path';
-import { EnvironmentVars, __PROD__ } from '../constants';
-import errorMiddleware from '../middlewares/error-middleware';
 import { otpRouter } from '../modules/sms/routes';
-import { privacy } from '../utils/privacy';
+import { privacy } from '../core/utils/privacy';
 import { emailRouter } from '../modules/email/routes';
 import { dashboardRouter } from '../modules/dashboard/routes';
 import { StatusCodes } from 'http-status-codes';
+import errorMiddleware from '../api/middlewares/error-middleware';
+import { __PROD__, EnvironmentVars } from '../config/constants';
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
-import callback from '../../../adapters/express-callback';
+import callback from '../../../api/adapters/express-callback';
 import { Router } from 'express';
-import authenticate from '../../../middlewares/auth/authentication';
+import authenticate from '../../../infrastructure/security/authentication/authentication';
 import {
 	getAllAdmins,
 	getAdmin,
@@ -10,9 +10,9 @@ import {
 	banPatient,
 	verifyPatient,
 	verifyCaregiver,
-} from './controller';
-import isAdmin from '../../../middlewares/auth/is-admin';
-import isBanned from '../../../middlewares/auth/is-banned';
+} from './admin.controller';
+import isAdmin from '../../../infrastructure/security/authorization/is-admin';
+import isBanned from '../../../infrastructure/security/authorization/is-banned';
 
 const router = Router();
 

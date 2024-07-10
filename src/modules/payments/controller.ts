@@ -1,7 +1,7 @@
-import { HTTPRequest } from '../../adapters/express-callback';
+import { HTTPRequest } from '../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../db';
-import { response } from '../../utils/http-response';
+import { db } from '../../infrastructure/database';
+import { response } from '../../core/utils/http-response';
 
 export function getAllPayments() {
 	return async function (_: HTTPRequest<object>) {

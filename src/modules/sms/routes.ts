@@ -1,11 +1,11 @@
-import callback from '../../adapters/express-callback';
+import callback from '../../api/adapters/express-callback';
 import { Router } from 'express';
 
-import { getPhoneVericationOTP, verifyOTPFromPhone } from './controller';
+import { getPhoneVerificationOTP, verifyOTPFromPhone } from '.';
 
 const router = Router();
 
-router.get('/', callback(getPhoneVericationOTP()));
+router.get('/', callback(getPhoneVerificationOTP()));
 router.post('/verify', callback(verifyOTPFromPhone()));
 
 export { router as otpRouter };

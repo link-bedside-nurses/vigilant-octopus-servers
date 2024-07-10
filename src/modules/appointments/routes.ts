@@ -1,4 +1,4 @@
-import callback from '../../adapters/express-callback';
+import callback from '../../api/adapters/express-callback';
 import { Router } from 'express';
 
 import {
@@ -8,11 +8,11 @@ import {
 	getAllAppointments,
 	deleteAppointment,
 	scheduleAppointment,
-} from '../../modules/appointments/controller';
-import authenticate from '../../middlewares/auth/authentication';
-import { validateObjectID } from '../../middlewares/validate-objectid';
-import isBanned from '../../middlewares/auth/is-banned';
-import isAdmin from '../../middlewares/auth/is-admin';
+} from './appointment.controller';
+import authenticate from '../../infrastructure/security/authentication/authentication';
+import { validateObjectID } from '../../api/middlewares/validate-objectid';
+import isBanned from '../../infrastructure/security/authorization/is-banned';
+import isAdmin from '../../infrastructure/security/authorization/is-admin';
 
 const router = Router();
 

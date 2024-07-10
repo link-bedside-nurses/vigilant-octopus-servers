@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { response } from '../../utils/http-response';
+import { response } from '../../core/utils/http-response';
 
 export function ping() {
 	return async function () {

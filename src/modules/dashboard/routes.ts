@@ -1,10 +1,11 @@
-import callback from '../../adapters/express-callback'
-import { Router } from 'express'
+import callback from '../../api/adapters/express-callback';
 
-import { getOverview } from './controller'
+import { Router } from 'express';
 
-const router = Router()
+import { getOverview } from './controller';
 
-router.get( '/', callback( getOverview() ) )
+const router = Router();
 
-export { router as dashboardRouter }
+router.get('/', callback(getOverview()));
+
+export { router as dashboardRouter };

@@ -1,4 +1,4 @@
-import callback from '../../adapters/express-callback';
+import callback from '../../api/adapters/express-callback';
 import { Router } from 'express';
 
 import { error, ping } from './controller';

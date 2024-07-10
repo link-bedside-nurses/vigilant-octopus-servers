@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import EnvVars from '../constants/env-vars';
+import EnvVars from '../config/constants/env-vars';
 import { Document } from 'mongoose';
-import { ACCOUNT } from '../interfaces';
+import { ACCOUNT } from '../core/interfaces';
 
 export interface ITokenPayload extends ACCOUNT {
 	iat: number;

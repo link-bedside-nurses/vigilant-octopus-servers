@@ -1,17 +1,17 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../adapters/express-callback';
-import { AdminRepo } from '../../users/admins/repository';
-import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
+import { AdminRepo } from '../../../infrastructure/database/repositories/admin-repository';
+import { CreateAdminDto, CreateAdminSchema } from '../../../core/interfaces/dtos';
 import { createAccessToken } from '../../../services/token';
-import { response } from '../../../utils/http-response';
-import { Password } from '../../../utils/password';
+import { response } from '../../../core/utils/http-response';
+import { Password } from '../../../core/utils/password';
+import { HTTPRequest } from '../../../api/adapters/express-callback';
 
 export function adminSignin() {
 	return async function (request: HTTPRequest<object, Pick<CreateAdminDto, 'email' | 'password'>>) {
 		const result = CreateAdminSchema.pick({ email: true, password: true }).safeParse(request.body);
 
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
+			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
 		}
 
 		const { email, password } = result.data;

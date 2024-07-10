@@ -1,5 +1,5 @@
-import { EnvironmentVars, uris } from '../../../../constants';
 import axios from 'axios';
+import { uris, EnvironmentVars } from '../../../../config/constants';
 
 export default async function getTXEnquiry( token: string, id: string ) {
 

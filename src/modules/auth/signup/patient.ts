@@ -1,15 +1,15 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../adapters/express-callback';
-import { CreatePatientDto, CreatePatientSchema } from '../../../interfaces/dtos';
-import { response } from '../../../utils/http-response';
-import { PatientRepo } from '../../users/patients/repository';
-import startPhoneVerification from '../../../utils/startPhoneVerification';
+import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { CreatePatientDto, CreatePatientSchema } from '../../../core/interfaces/dtos';
+import { response } from '../../../core/utils/http-response';
+import startPhoneVerification from '../../../core/utils/startPhoneVerification';
+import { PatientRepo } from '../../../infrastructure/database/repositories/patient-repository';
 
 export function patientSignup() {
 	return async function (request: HTTPRequest<object, CreatePatientDto>) {
 		const result = CreatePatientSchema.safeParse(request.body);
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
+			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
 		}
 
 		const patient = await PatientRepo.getPatientByPhone(result.data.phone);

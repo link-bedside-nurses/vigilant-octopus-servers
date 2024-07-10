@@ -1,11 +1,11 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../adapters/express-callback';
-import { ACCOUNT } from '../../../interfaces';
+import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { ACCOUNT } from '../../../core/interfaces';
 import { createAccessToken } from '../../../services/token';
-import { CaregiverRepo } from '../../users/caregivers/repository';
-import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../interfaces/dtos';
-import { response } from '../../../utils/http-response';
-import { Password } from '../../../utils/password';
+import { CaregiverRepo } from '../../../infrastructure/database/repositories/caregiver-repository';
+import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../core/interfaces/dtos';
+import { response } from '../../../core/utils/http-response';
+import { Password } from '../../../core/utils/password';
 
 export function caregiverSignin() {
 	return async function (
@@ -16,7 +16,7 @@ export function caregiverSignin() {
 		);
 
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
+			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
 		}
 
 		const { phone, password } = result.data;
