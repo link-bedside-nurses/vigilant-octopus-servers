@@ -1,7 +1,7 @@
 import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { response } from '../../../core/utils/http-response';
-import { PatientRepo } from '../../../infrastructure/database/repositories/patient-repository';
+import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
 
 export function getPatient() {
 	return async function (request: HTTPRequest<{ id: string }>) {

@@ -1,5 +1,5 @@
 import { generateOTP, storeOTP } from '../../services/otp';
-import sendOTP from '../../infrastructure/external-services/sms/sms';
+import sendOTP from '../../infra/external-services/sms/sms';
 
 export default async function startPhoneVerification(phone: string) {
 	const otp = generateOTP();

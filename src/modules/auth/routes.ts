@@ -8,7 +8,7 @@ import { patientSignup } from './signup/patient';
 import { adminSignin } from './signin/admin';
 import { caregiverSignin } from './signin/caregiver';
 import { patientSignin } from './signin/patient';
-import verifyRefreshTokenMiddleware from '../../infrastructure/security/authentication/verify-refresh-token';
+import verifyRefreshTokenMiddleware from '../../infra/security/authentication/verify-refresh-token';
 
 const router = Router();
 

@@ -2,10 +2,10 @@ import { HTTPRequest } from '../../../api/adapters/express-callback';
 
 import { StatusCodes } from 'http-status-codes';
 import { DESIGNATION } from '../../../core/interfaces';
-import { AdminRepo } from '../../../infrastructure/database/repositories/admin-repository';
-import { CaregiverRepo } from '../../../infrastructure/database/repositories/caregiver-repository';
+import { AdminRepo } from '../../../infra/database/repositories/admin-repository';
+import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
 import { response } from '../../../core/utils/http-response';
-import { PatientRepo } from '../../../infrastructure/database/repositories/patient-repository';
+import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
 
 export function getCurrentUser() {
 	return async function (request: HTTPRequest<object>) {

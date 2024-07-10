@@ -3,7 +3,7 @@ import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { CreatePatientDto, CreatePatientSchema } from '../../../core/interfaces/dtos';
 import { response } from '../../../core/utils/http-response';
 import startPhoneVerification from '../../../core/utils/startPhoneVerification';
-import { PatientRepo } from '../../../infrastructure/database/repositories/patient-repository';
+import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
 
 export function patientSignin() {
 	return async function (request: HTTPRequest<object, Pick<CreatePatientDto, 'phone'>>) {

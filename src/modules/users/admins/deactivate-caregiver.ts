@@ -1,6 +1,6 @@
 import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { CaregiverRepo } from '../../../infrastructure/database/repositories/caregiver-repository';
+import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
 import { response } from '../../../core/utils/http-response';
 
 export function deactivateCaregiver() {

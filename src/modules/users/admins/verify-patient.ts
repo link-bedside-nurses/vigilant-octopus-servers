@@ -1,6 +1,6 @@
 import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { PatientRepo } from '../../../infrastructure/database/repositories/patient-repository';
+import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
 import { response } from '../../../core/utils/http-response';
 
 export function verifyPatient() {

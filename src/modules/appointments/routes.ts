@@ -9,10 +9,10 @@ import {
 	deleteAppointment,
 	scheduleAppointment,
 } from './appointment.controller';
-import authenticate from '../../infrastructure/security/authentication/authentication';
+import authenticate from '../../infra/security/authentication/authentication';
 import { validateObjectID } from '../../api/middlewares/validate-objectid';
-import isBanned from '../../infrastructure/security/authorization/is-banned';
-import isAdmin from '../../infrastructure/security/authorization/is-admin';
+import isBanned from '../../infra/security/authorization/is-banned';
+import isAdmin from '../../infra/security/authorization/is-admin';
 
 const router = Router();
 

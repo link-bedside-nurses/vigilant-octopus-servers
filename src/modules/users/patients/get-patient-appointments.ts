@@ -2,7 +2,7 @@ import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { response } from '../../../core/utils/http-response';
 import { APPOINTMENT_STATUSES } from '../../../core/interfaces';
-import { AppointmentRepo } from '../../../infrastructure/database/repositories/appointment-repository';
+import { AppointmentRepo } from '../../../infra/database/repositories/appointment-repository';
 
 export function getPatientAppointments() {
 	return async function (

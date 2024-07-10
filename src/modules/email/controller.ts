@@ -4,7 +4,7 @@ import { createAccessToken } from '../../services/token';
 import { Document } from 'mongoose';
 import { ACCOUNT } from '../../core/interfaces';
 import { response } from '../../core/utils/http-response';
-import { AdminRepo } from '../../infrastructure/database/repositories/admin-repository';
+import { AdminRepo } from '../../infra/database/repositories/admin-repository';
 import { VerifyEmailDto, VerifyEmailSchema } from '../../core/interfaces/dtos';
 import startEmailVerification from '../../core/utils/startEmailVerification';
 import { getOTP } from '../../services/otp';

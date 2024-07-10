@@ -1,10 +1,10 @@
 import { HTTPRequest } from '../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { response } from '../../core/utils/http-response';
-import { AdminRepo } from '../../infrastructure/database/repositories/admin-repository';
-import { CaregiverRepo } from '../../infrastructure/database/repositories/caregiver-repository';
-import { AppointmentRepo } from '../../infrastructure/database/repositories/appointment-repository';
-import { PatientRepo } from '../../infrastructure/database/repositories/patient-repository';
+import { AdminRepo } from '../../infra/database/repositories/admin-repository';
+import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
+import { AppointmentRepo } from '../../infra/database/repositories/appointment-repository';
+import { PatientRepo } from '../../infra/database/repositories/patient-repository';
 
 export function getOverview() {
 	return async function (_: HTTPRequest<object, object, object>) {

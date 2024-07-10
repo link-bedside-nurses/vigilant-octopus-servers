@@ -3,11 +3,11 @@ import { StatusCodes } from 'http-status-codes';
 import { DESIGNATION } from '../../core/interfaces';
 import { response } from '../../core/utils/http-response';
 import { generateOTP, storeOTP } from '../../services/otp';
-import sendOTP from '../../infrastructure/external-services/sms/sms';
+import sendOTP from '../../infra/external-services/sms/sms';
 import { PhoneVerifcationOTPDto, PhoneVerifcationOTPSchema } from '../../core/interfaces/dtos';
-import { CaregiverRepo } from '../../infrastructure/database/repositories/caregiver-repository';
+import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
 import logger from '../../core/utils/logger';
-import { PatientRepo } from '../../infrastructure/database/repositories/patient-repository';
+import { PatientRepo } from '../../infra/database/repositories/patient-repository';
 
 export function getPhoneVerificationOTP() {
 	return async function (request: HTTPRequest<object, object, PhoneVerifcationOTPDto>) {

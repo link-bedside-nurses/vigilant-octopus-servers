@@ -4,8 +4,8 @@ import { createAccessToken } from '../../services/token';
 import { Document } from 'mongoose';
 import { DESIGNATION, ACCOUNT } from '../../core/interfaces';
 import { response } from '../../core/utils/http-response';
-import { CaregiverRepo } from '../../infrastructure/database/repositories/caregiver-repository';
-import { PatientRepo } from '../../infrastructure/database/repositories/patient-repository';
+import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
+import { PatientRepo } from '../../infra/database/repositories/patient-repository';
 
 export function deleteAccount() {
 	return async function (_: HTTPRequest<object, object, object>) {

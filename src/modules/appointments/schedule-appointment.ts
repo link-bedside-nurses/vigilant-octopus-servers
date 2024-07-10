@@ -1,8 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-import { AppointmentRepo } from '../../infrastructure/database/repositories/appointment-repository';
+import { AppointmentRepo } from '../../infra/database/repositories/appointment-repository';
 import { ScheduleAppointmentDto, ScheduleAppointmentSchema } from '../../core/interfaces/dtos';
-import { CaregiverRepo } from '../../infrastructure/database/repositories/caregiver-repository';
-import { PatientRepo } from '../../infrastructure/database/repositories/patient-repository';
+import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
+import { PatientRepo } from '../../infra/database/repositories/patient-repository';
 import { response } from '../../core/utils/http-response';
 import { HTTPRequest } from '../../api/adapters/express-callback';
 

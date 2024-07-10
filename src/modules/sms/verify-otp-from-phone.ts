@@ -6,8 +6,8 @@ import { DESIGNATION, ACCOUNT } from '../../core/interfaces';
 import { response } from '../../core/utils/http-response';
 import { getOTP } from '../../services/otp';
 import { VerifyPhoneDto, VerifyPhoneSchema } from '../../core/interfaces/dtos';
-import { CaregiverRepo } from '../../infrastructure/database/repositories/caregiver-repository';
-import { PatientRepo } from '../../infrastructure/database/repositories/patient-repository';
+import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
+import { PatientRepo } from '../../infra/database/repositories/patient-repository';
 
 export function verifyOTPFromPhone() {
 	return async function (request: HTTPRequest<object, object, VerifyPhoneDto>) {

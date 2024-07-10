@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { ACCOUNT } from '../../../core/interfaces';
 import { createAccessToken } from '../../../services/token';
-import { CaregiverRepo } from '../../../infrastructure/database/repositories/caregiver-repository';
+import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
 import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../core/interfaces/dtos';
 import { response } from '../../../core/utils/http-response';
 import { Password } from '../../../core/utils/password';

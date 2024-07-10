@@ -4,7 +4,7 @@ import 'dotenv/config';
 
 import express from 'express';
 import 'express-async-errors';
-import { connectToDatabase, disconnectFromDatabase } from './infrastructure/database/connection';
+import { connectToDatabase, disconnectFromDatabase } from './infra/database/connection';
 import router from './router';
 import logger from './core/utils/logger';
 import { EnvironmentVars } from './config/constants';

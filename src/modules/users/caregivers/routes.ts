@@ -9,8 +9,8 @@ import {
 	searchCaregiversByLocation,
 	updateCaregiver,
 } from './caregiver.controller';
-import authenticate from '../../../infrastructure/security/authentication/authentication';
-import isBanned from '../../../infrastructure/security/authorization/is-banned';
+import authenticate from '../../../infra/security/authentication/authentication';
+import isBanned from '../../../infra/security/authorization/is-banned';
 const router = Router();
 
 router.get('/', isBanned, callback(getAllCaregivers()));

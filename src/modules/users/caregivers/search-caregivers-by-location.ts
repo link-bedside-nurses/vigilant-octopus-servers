@@ -1,8 +1,8 @@
 import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../../infrastructure/database';
+import { db } from '../../../infra/database';
 import mongoose from 'mongoose';
-import { Caregiver } from '../../../infrastructure/database/models/Caregiver';
+import { Caregiver } from '../../../infra/database/models/Caregiver';
 import { response } from '../../../core/utils/http-response';
 import HTTPException from '../../../core/utils/exception';
 

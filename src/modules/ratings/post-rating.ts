@@ -2,9 +2,9 @@ import { HTTPRequest } from '../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { CreateRatingDto, CreateRatingSchema } from '../../core/interfaces/dtos';
 import { response } from '../../core/utils/http-response';
-import { CaregiverRepo } from '../../infrastructure/database/repositories/caregiver-repository';
-import { PatientRepo } from '../../infrastructure/database/repositories/patient-repository';
-import { RatingRepo } from '../../infrastructure/database/repositories/rating-repository';
+import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
+import { PatientRepo } from '../../infra/database/repositories/patient-repository';
+import { RatingRepo } from '../../infra/database/repositories/rating-repository';
 
 export function postRating() {
 	return async function (request: HTTPRequest<object, CreateRatingDto, object>) {

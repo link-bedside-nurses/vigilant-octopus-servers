@@ -1,6 +1,6 @@
 import callback from '../../../api/adapters/express-callback';
 import { Router } from 'express';
-import authenticate from '../../../infrastructure/security/authentication/authentication';
+import authenticate from '../../../infra/security/authentication/authentication';
 import {
 	getAllAdmins,
 	getAdmin,
@@ -11,8 +11,8 @@ import {
 	verifyPatient,
 	verifyCaregiver,
 } from './admin.controller';
-import isAdmin from '../../../infrastructure/security/authorization/is-admin';
-import isBanned from '../../../infrastructure/security/authorization/is-banned';
+import isAdmin from '../../../infra/security/authorization/is-admin';
+import isBanned from '../../../infra/security/authorization/is-banned';
 
 const router = Router();
 

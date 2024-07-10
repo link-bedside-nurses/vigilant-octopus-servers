@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { ACCOUNT } from '../../../core/interfaces';
 import { createAccessToken } from '../../../services/token';
-import { AdminRepo } from '../../../infrastructure/database/repositories/admin-repository';
+import { AdminRepo } from '../../../infra/database/repositories/admin-repository';
 import { CreateAdminDto, CreateAdminSchema } from '../../../core/interfaces/dtos';
 import { response } from '../../../core/utils/http-response';
 import startEmailVerification from '../../../core/utils/startEmailVerification';

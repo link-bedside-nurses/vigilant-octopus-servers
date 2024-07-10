@@ -1,6 +1,6 @@
 import { HTTPRequest } from '../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../infrastructure/database';
+import { db } from '../../infra/database';
 import { response } from '../../core/utils/http-response';
 
 export function getAllPayments() {

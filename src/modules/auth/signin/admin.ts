@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { AdminRepo } from '../../../infrastructure/database/repositories/admin-repository';
+import { AdminRepo } from '../../../infra/database/repositories/admin-repository';
 import { CreateAdminDto, CreateAdminSchema } from '../../../core/interfaces/dtos';
 import { createAccessToken } from '../../../services/token';
 import { response } from '../../../core/utils/http-response';

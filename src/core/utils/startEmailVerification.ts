@@ -1,5 +1,5 @@
 import { html } from '../../config/constants/html';
-import { sendMail } from '../../infrastructure/external-services/email/email';
+import { sendMail } from '../../infra/external-services/email/email';
 import { generateOTP, storeOTP } from '../../services/otp';
 
 export default async function startEmailVerification(email: string) {
