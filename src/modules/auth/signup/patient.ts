@@ -9,7 +9,11 @@ export function patientSignup() {
 	return async function (request: HTTPRequest<object, CreatePatientDto>) {
 		const result = CreatePatientSchema.safeParse(request.body);
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+			);
 		}
 
 		const patient = await PatientRepo.getPatientByPhone(result.data.phone);

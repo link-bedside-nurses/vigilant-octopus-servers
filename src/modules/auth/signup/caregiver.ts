@@ -12,7 +12,11 @@ export function caregiverSignup() {
 	return async function (request: HTTPRequest<object, CreateCaregiverDto>) {
 		const result = CreateCaregiverSchema.safeParse(request.body);
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+			);
 		}
 
 		const caregiver = await CaregiverRepo.getCaregiverByPhone(result.data.phone);

@@ -15,7 +15,11 @@ export function sendEmail() {
 		const result = VerifyEmailSchema.omit({ otp: true }).safeParse(request.query);
 
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+			);
 		}
 
 		const { email } = request.query;
@@ -38,7 +42,11 @@ export function verifyEmail() {
 		const result = VerifyEmailSchema.safeParse(request.query);
 
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+			);
 		}
 
 		try {

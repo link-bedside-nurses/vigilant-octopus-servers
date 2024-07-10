@@ -13,7 +13,11 @@ export function getPhoneVerificationOTP() {
 	return async function (request: HTTPRequest<object, object, PhoneVerifcationOTPDto>) {
 		const result = PhoneVerifcationOTPSchema.safeParse(request.query);
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+			);
 		}
 		if (
 			![DESIGNATION.CAREGIVER, DESIGNATION.PATIENT].includes(result.data.designation as DESIGNATION)

@@ -9,7 +9,11 @@ export function completeCaregiverProfile() {
 		const result = UpdateAdminSchema.safeParse(request.body);
 
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+			);
 		}
 
 		const updatedCaregiver = await CaregiverRepo.findByIdAndUpdate(

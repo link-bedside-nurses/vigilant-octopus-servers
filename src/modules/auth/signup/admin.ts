@@ -12,7 +12,11 @@ export function adminSignup() {
 	return async function (request: HTTPRequest<object, CreateAdminDto>) {
 		const result = CreateAdminSchema.safeParse(request.body);
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+			);
 		}
 
 		const { email, password } = result.data;

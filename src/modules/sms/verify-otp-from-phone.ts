@@ -13,7 +13,11 @@ export function verifyOTPFromPhone() {
 	return async function (request: HTTPRequest<object, object, VerifyPhoneDto>) {
 		const result = VerifyPhoneSchema.safeParse(request.query);
 		if (!result.success) {
-			return response(StatusCodes.OK, null, result.error.issues[0].message);
+			return response(
+				StatusCodes.OK,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`
+			);
 		}
 
 		if (
