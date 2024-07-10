@@ -50,7 +50,7 @@ export const html = (otp: string) => {
 <body>
     <div class="container">
         <div class="logo">
-            <img src=${'https://www.linkbedsidenurses.co.ug/images/logo.jpg'} alt="Company Logo" width="150"/>
+            <img src=${'https://www.linkbedsidenurses.co.ug/images/logo.jpg'} alt="Company Logo" width="80"/>
         </div>
         <h2>Veriry Your Email</h2>
         <p>Please use the following OTP (One-Time Password) to verify your email:</p>
