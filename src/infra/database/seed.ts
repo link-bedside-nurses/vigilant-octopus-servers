@@ -7,6 +7,7 @@ import { CaregiverRepo } from './repositories/caregiver-repository';
 import { Patient } from './models/Patient';
 import { db } from '.';
 import { PatientRepo } from './repositories/patient-repository';
+import { Password } from '../../core/utils/password';
 
 export async function seedPayments() {
 	await db.payments.deleteMany({}, { maxTimeMS: 30000 });
@@ -83,7 +84,7 @@ export async function seedCaregivers() {
 			phone: `256456789${i.toString().padStart(2, '0')}`,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),
-			password: 'password',
+			password: await Password.hash('password'),
 			location: generateRandomLocation(centerCoords),
 			isPhoneVerified: faker.datatype.boolean(),
 			dateOfBirth: faker.date.past(),
@@ -91,7 +92,7 @@ export async function seedCaregivers() {
 			description: faker.person.bio(),
 			rating: (i % 5) + 1,
 			experience: i * 2,
-			imgUrl: faker.image.avatar(),
+			imgUrl: faker.image.urlPicsumPhotos(),
 			isBanned: faker.datatype.boolean(),
 			isActive: faker.datatype.boolean(),
 			isVerified: faker.datatype.boolean(),
@@ -132,7 +133,7 @@ export async function seedAdmins() {
 			designation: DESIGNATION.ADMIN,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),
-			password: 'password',
+			password: await Password.hash('password'),
 			isEmailVerified: faker.datatype.boolean(),
 			isBanned: faker.datatype.boolean(),
 			isActive: faker.datatype.boolean(),

@@ -1,15 +1,12 @@
 import * as envalid from 'envalid';
-import { __PROD__ } from './prod';
 
 const env = envalid.cleanEnv(process.env, {
 	NODE_ENV: envalid.str({
 		choices: ['development', 'production'],
 	}),
 	PORT: envalid.num(),
-	DATABASE_URL_PROD: envalid.str(),
-	DATABASE_URL_DEV: envalid.str(),
-	DATABASE_NAME_PROD: envalid.str(),
-	DATABASE_NAME_DEV: envalid.str(),
+	DATABASE_URL: envalid.str(),
+	DATABASE_NAME: envalid.str(),
 
 	ACCESS_TOKEN_SECRET: envalid.str(),
 	REFRESH_TOKEN_SECRET: envalid.str(),
@@ -33,8 +30,8 @@ const env = envalid.cleanEnv(process.env, {
 export default Object.freeze({
 	getNodeEnv: () => env.NODE_ENV,
 	getPort: () => Number(env.PORT),
-	getDatabaseUrl: () => String(__PROD__ ? env.DATABASE_URL_PROD : env.DATABASE_URL_DEV),
-	getDatabaseName: () => String(__PROD__ ? env.DATABASE_NAME_PROD : env.DATABASE_NAME_DEV),
+	getDatabaseUrl: () => String(env.DATABASE_URL),
+	getDatabaseName: () => String(env.DATABASE_NAME),
 
 	getAccessTokenSecret: () => String(env.ACCESS_TOKEN_SECRET),
 	getRefreshTokenSecret: () => String(env.REFRESH_TOKEN_SECRET),
