@@ -81,7 +81,7 @@ export async function seedCaregivers() {
 	for (let i = 0; i < 100; i++) {
 		const caregiver = {
 			designation: DESIGNATION.CAREGIVER,
-			phone: `256456789${i.toString().padStart(2, '0')}`,
+			phone: `25677456789${i.toString().padStart(2, '0')}`,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),
 			password: await Password.hash('password'),

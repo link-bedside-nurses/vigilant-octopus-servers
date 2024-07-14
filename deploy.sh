@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Navigate to your project directory
 cd /root/vigilant-octopus-servers
 
 git pull origin v1.1

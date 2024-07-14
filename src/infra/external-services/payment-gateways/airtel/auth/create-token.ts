@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { EnvironmentVars, uris } from '../../../../../config/constants';
+import { envars, uris } from '../../../../../config/constants';
 
 export default async function createAirteMoneyBearerToken() {
 	const data = JSON.stringify({
-		client_id: EnvironmentVars.getAirtelMoneyClientId(),
-		client_secret: EnvironmentVars.getAirtelMoneyClientSecretKey(),
+		client_id: envars.AIRTEL_MONEY_CLIENT_ID,
+		client_secret: envars.AIRTEL_MONEY_CLIENT_SECRET_KEY,
 		grant_type: 'client_credentials',
 	});
 

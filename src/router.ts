@@ -16,7 +16,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { appendFile } from 'node:fs/promises';
 import path from 'node:path';
-import { EnvironmentVars, __PROD__ } from './config/constants';
+import { envars, __PROD__ } from './config/constants';
 import errorMiddleware from './api/middlewares/error-middleware';
 import { otpRouter } from './modules/sms/routes';
 import { privacy } from './core/utils/privacy';
@@ -49,7 +49,7 @@ const ONE_MINUTE = 1 * 60 * 1000;
 router.use(
 	rateLimit({
 		windowMs: ONE_MINUTE,
-		limit: EnvironmentVars.getNodeEnv() === 'production' ? 60 : Number.MAX_SAFE_INTEGER,
+		limit: envars.NODE_ENV === 'production' ? 60 : Number.MAX_SAFE_INTEGER,
 		validate: {
 			trustProxy: false,
 			xForwardedForHeader: false,

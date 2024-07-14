@@ -7,7 +7,7 @@ import 'express-async-errors';
 import { connectToDatabase, disconnectFromDatabase } from './infra/database/connection';
 import router from './router';
 import logger from './core/utils/logger';
-import { EnvironmentVars } from './config/constants';
+import { envars } from './config/constants';
 
 replaceTscAliasPaths().catch((err: Error) => logger.info(err.message));
 
@@ -29,9 +29,9 @@ process.on('uncaughtException', (exception) => {
 	logger.error('Uncaught Exception', exception);
 });
 
-const server = app.listen(EnvironmentVars.getPort(), async () => {
+const server = app.listen(envars.PORT, async () => {
 	console.clear();
-	logger.info(`Listening at ${'127.0.0.1:'}${EnvironmentVars.getPort()}`);
+	logger.info(`Listening at ${'127.0.0.1:'}${envars.PORT}`);
 
 	await connectToDatabase();
 });

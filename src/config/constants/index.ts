@@ -1,5 +1,5 @@
-export { default as EnvironmentVars } from './env-vars'
-export { default as phoneRegx } from './phone-regex'
-export * as __PROD__ from "./prod"
+export { default as envars } from './env-vars';
+export { default as phoneRegx } from './phone-regex';
+export * as __PROD__ from './prod';
 
-export * as uris from "./base-url"
+export * as uris from './base-url';

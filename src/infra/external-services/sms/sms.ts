@@ -15,7 +15,7 @@ export default async function sendOTP(phone: string, otp: string) {
 		},
 		{
 			headers: {
-				Authorization: `App ${envVars.getInfobipSecretKey()}`,
+				Authorization: `App ${envVars.INFOBIP_SECRET_KEY}`,
 				'Content-Type': 'application/json',
 				Accept: 'application/json',
 			},

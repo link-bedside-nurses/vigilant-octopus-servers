@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import { ITokenPayload } from '../../../services/token';
 import HTTPException from '../../../core/utils/exception';
-import { EnvironmentVars } from '../../../config/constants';
+import { envars } from '../../../config/constants';
 
 export default function authenticate(request: Request, _response: Response, next: NextFunction) {
 	if (
@@ -18,7 +18,7 @@ export default function authenticate(request: Request, _response: Response, next
 
 	if (!token) return next(new HTTPException('Missing token!', StatusCodes.UNAUTHORIZED));
 
-	const decoded = jwt.verify(token, EnvironmentVars.getAccessTokenSecret()) as ITokenPayload;
+	const decoded = jwt.verify(token, envars.ACCESS_TOKEN_SECRET) as ITokenPayload;
 
 	if (!decoded || !decoded.id)
 		return next(new HTTPException('Invalid Access Token!', StatusCodes.UNAUTHORIZED));

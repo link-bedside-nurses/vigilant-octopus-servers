@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { uris, EnvironmentVars } from '../../../../../config/constants';
+import { uris, envars } from '../../../../../config/constants';
 
 export default async function getTXEnquiry(token: string, id: string) {
 	const config = {
@@ -8,7 +8,7 @@ export default async function getTXEnquiry(token: string, id: string) {
 		url: `${uris.momo_sandbox}/collection/v1_0/requesttopay/${id}`,
 		headers: {
 			'X-Target-Environment': 'sandbox',
-			'Ocp-Apim-Subscription-Key': EnvironmentVars.getOcpApimSubscriptionKey(),
+			'Ocp-Apim-Subscription-Key': envars.OCP_APIM_SUBSCRIPTION_KEY,
 			'X-Reference-Id': id,
 			Authorization: `Bearer ${token}`,
 		},

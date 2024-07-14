@@ -28,26 +28,22 @@ const env = envalid.cleanEnv(process.env, {
 });
 
 export default Object.freeze({
-	getNodeEnv: () => env.NODE_ENV,
-	getPort: () => Number(env.PORT),
-	getDatabaseUrl: () => String(env.DATABASE_URL),
-	getDatabaseName: () => String(env.DATABASE_NAME),
-
-	getAccessTokenSecret: () => String(env.ACCESS_TOKEN_SECRET),
-	getRefreshTokenSecret: () => String(env.REFRESH_TOKEN_SECRET),
-	getAccessTokenExpiration: () => String(env.ACCESS_TOKEN_EXPIRATION),
-	getRefreshTokenExpiration: () => String(env.REFRESH_TOKEN_EXPIRATION),
-
-	getFromSMSPhone: () => String(env.FROM_SMS_PHONE),
-	getTO_SMS_Phone: () => String(env.TO_SMS_PHONE),
-	getInfobipSecretKey: () => String(env.INFOBIP_SECRET_KEY),
-	getTwilioAccountSID: () => String(env.TWILIO_ACCOUNT_SID),
-	getTwilioAuthToken: () => String(env.TWILIO_AUTH_TOKEN),
-
-	getXReferenceId: () => String(env.X_REFERENCE_ID),
-	getApiKey: () => String(env.API_KEY),
-	getOcpApimSubscriptionKey: () => String(env.OCP_APIM_SUBSCRIPTION_KEY),
-
-	getAirtelMoneyClientId: () => String(env.AIRTEL_MONEY_CLIENT_ID),
-	getAirtelMoneyClientSecretKey: () => String(env.AIRTEL_MONEY_CLIENT_SECRET_KEY),
+	NODE_ENV: env.NODE_ENV,
+	PORT: Number(env.PORT),
+	DATABASE_URL: String(env.DATABASE_URL),
+	DATABASE_NAME: String(env.DATABASE_NAME),
+	ACCESS_TOKEN_SECRET: String(env.ACCESS_TOKEN_SECRET),
+	REFRESH_TOKEN_SECRET: String(env.REFRESH_TOKEN_SECRET),
+	ACCESS_TOKEN_EXPIRATION: String(env.ACCESS_TOKEN_EXPIRATION),
+	REFRESH_TOKEN_EXPIRATION: String(env.REFRESH_TOKEN_EXPIRATION),
+	FROM_SMS_PHONE: String(env.FROM_SMS_PHONE),
+	TO_SMS_PHONE: String(env.TO_SMS_PHONE),
+	INFOBIP_SECRET_KEY: String(env.INFOBIP_SECRET_KEY),
+	TWILIO_ACCOUNT_SID: String(env.TWILIO_ACCOUNT_SID),
+	TWILIO_AUTH_TOKEN: String(env.TWILIO_AUTH_TOKEN),
+	X_REFERENCE_ID: String(env.X_REFERENCE_ID),
+	API_KEY: String(env.API_KEY),
+	OCP_APIM_SUBSCRIPTION_KEY: String(env.OCP_APIM_SUBSCRIPTION_KEY),
+	AIRTEL_MONEY_CLIENT_ID: String(env.AIRTEL_MONEY_CLIENT_ID),
+	AIRTEL_MONEY_CLIENT_SECRET_KEY: String(env.AIRTEL_MONEY_CLIENT_SECRET_KEY),
 });

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { uris, EnvironmentVars } from '../../../../../config/constants';
+import { uris, envars } from '../../../../../config/constants';
 
 export default function createMomoBearerToken() {
 	const data = '';
@@ -7,11 +7,9 @@ export default function createMomoBearerToken() {
 	const config = {
 		method: 'post',
 		maxBodyLength: Infinity,
-		url: `${
-			uris.momo_sandbox
-		}/v1_0/apiuser/${EnvironmentVars.getXReferenceId()}/${EnvironmentVars.getApiKey()}`,
+		url: `${uris.momo_sandbox}/v1_0/apiuser/${envars.X_REFERENCE_ID}/${envars.API_KEY}`,
 		headers: {
-			'Ocp-Apim-Subscription-Key': EnvironmentVars.getOcpApimSubscriptionKey(),
+			'Ocp-Apim-Subscription-Key': envars.OCP_APIM_SUBSCRIPTION_KEY,
 		},
 		data: data,
 	};

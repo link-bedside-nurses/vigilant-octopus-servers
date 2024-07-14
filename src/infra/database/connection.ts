@@ -9,10 +9,10 @@ import {
 	seedAppointments,
 	seedRatings,
 } from './seed';
-import { EnvironmentVars } from '../../config/constants';
+import { envars } from '../../config/constants';
 
-const DATABASE_CONNECTION_URI = EnvironmentVars.getDatabaseUrl();
-const DATABASE_NAME = EnvironmentVars.getDatabaseName();
+const DATABASE_CONNECTION_URI = envars.DATABASE_URL;
+const DATABASE_NAME = envars.DATABASE_NAME;
 
 export async function connectToDatabase() {
 	try {
