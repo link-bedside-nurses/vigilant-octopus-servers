@@ -1,7 +1,6 @@
 import { HTTPRequest } from '../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { createAccessToken } from '../../services/token';
-import { Document } from 'mongoose';
 import { ACCOUNT } from '../../core/interfaces';
 import { response } from '../../core/utils/http-response';
 import { AdminRepo } from '../../infra/database/repositories/admin-repository';
@@ -9,6 +8,7 @@ import { VerifyEmailDto, VerifyEmailSchema } from '../../core/interfaces/dtos';
 import startEmailVerification from '../../core/utils/startEmailVerification';
 import { getOTP } from '../../services/otp';
 import logger from '../../core/utils/logger';
+import mongoose from 'mongoose';
 
 export function sendEmail() {
 	return async function (request: HTTPRequest<object, object, Pick<VerifyEmailDto, 'email'>>) {
@@ -74,7 +74,7 @@ export function verifyEmail() {
 				user.isEmailVerified = true;
 				await user.save();
 
-				const accessToken = createAccessToken(user as Document & ACCOUNT);
+				const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
 				return response(StatusCodes.OK, { user, accessToken }, 'OTP has been Verified');
 			}
 			return response(StatusCodes.BAD_REQUEST, null, 'Wrong OTP');

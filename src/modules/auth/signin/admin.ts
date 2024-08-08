@@ -5,6 +5,8 @@ import { createAccessToken } from '../../../services/token';
 import { response } from '../../../core/utils/http-response';
 import { Password } from '../../../core/utils/password';
 import { HTTPRequest } from '../../../api/adapters/express-callback';
+import mongoose from 'mongoose';
+import { ACCOUNT } from '../../../core/interfaces';
 
 export function adminSignin() {
 	return async function (request: HTTPRequest<object, Pick<CreateAdminDto, 'email' | 'password'>>) {
@@ -32,8 +34,7 @@ export function adminSignin() {
 			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
 		}
 
-		// @ts-ignore
-		const accessToken = createAccessToken(user as Document & ACCOUNT);
+		const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
 
 		return response(StatusCodes.OK, { user, accessToken }, 'Signed in');
 	};

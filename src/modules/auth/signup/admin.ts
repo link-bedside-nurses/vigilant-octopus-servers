@@ -7,10 +7,12 @@ import { CreateAdminDto, CreateAdminSchema } from '../../../core/interfaces/dtos
 import { response } from '../../../core/utils/http-response';
 import startEmailVerification from '../../../core/utils/startEmailVerification';
 import { Password } from '../../../core/utils/password';
+import mongoose from 'mongoose';
 
 export function adminSignup() {
 	return async function (request: HTTPRequest<object, CreateAdminDto>) {
 		const result = CreateAdminSchema.safeParse(request.body);
+
 		if (!result.success) {
 			return response(
 				StatusCodes.BAD_REQUEST,
@@ -34,8 +36,7 @@ export function adminSignup() {
 			password: hash,
 		});
 
-		// @ts-ignore
-		const accessToken = createAccessToken(user as Document & ACCOUNT);
+		const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
 
 		await startEmailVerification(email);
 

@@ -6,6 +6,7 @@ import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-re
 import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../core/interfaces/dtos';
 import { response } from '../../../core/utils/http-response';
 import { Password } from '../../../core/utils/password';
+import mongoose from 'mongoose';
 
 export function caregiverSignin() {
 	return async function (
@@ -37,8 +38,7 @@ export function caregiverSignin() {
 			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
 		}
 
-		// @ts-ignore
-		const accessToken = createAccessToken(caregiver as Document & ACCOUNT);
+		const accessToken = createAccessToken(caregiver as mongoose.Document & ACCOUNT);
 
 		return response(StatusCodes.OK, { user: caregiver, accessToken }, 'Signed in');
 	};

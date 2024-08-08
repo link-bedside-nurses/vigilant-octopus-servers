@@ -7,6 +7,7 @@ import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../core/interfa
 import { response } from '../../../core/utils/http-response';
 import { Password } from '../../../core/utils/password';
 import startPhoneVerification from '../../../core/utils/startPhoneVerification';
+import mongoose from 'mongoose';
 
 export function caregiverSignup() {
 	return async function (request: HTTPRequest<object, CreateCaregiverDto>) {
@@ -31,8 +32,8 @@ export function caregiverSignup() {
 			...result.data,
 			password: hash,
 		});
-		// @ts-ignore
-		const accessToken = createAccessToken(user as Document & ACCOUNT);
+
+		const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
 		await startPhoneVerification(result.data.phone);
 		return response(StatusCodes.OK, { user, accessToken }, 'Account created');
 	};
