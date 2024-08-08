@@ -1,11 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../adapters/express-callback';
-import { ACCOUNT } from '../../../interfaces';
+import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { ACCOUNT } from '../../../core/interfaces';
 import { createAccessToken } from '../../../services/token';
-import { CaregiverRepo } from '../../users/caregivers/repository';
-import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../interfaces/dtos';
-import { response } from '../../../utils/http-response';
-import { Password } from '../../../utils/password';
+import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
+import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../core/interfaces/dtos';
+import { response } from '../../../core/utils/http-response';
+import { Password } from '../../../core/utils/password';
+import mongoose from 'mongoose';
 
 export function caregiverSignin() {
 	return async function (
@@ -16,7 +17,11 @@ export function caregiverSignin() {
 		);
 
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+			);
 		}
 
 		const { phone, password } = result.data;
@@ -33,8 +38,7 @@ export function caregiverSignin() {
 			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
 		}
 
-		// @ts-ignore
-		const accessToken = createAccessToken(caregiver as Document & ACCOUNT);
+		const accessToken = createAccessToken(caregiver as mongoose.Document & ACCOUNT);
 
 		return response(StatusCodes.OK, { user: caregiver, accessToken }, 'Signed in');
 	};

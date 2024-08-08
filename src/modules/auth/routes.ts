@@ -1,14 +1,14 @@
-import callback from '../../adapters/express-callback';
+import callback from '../../api/adapters/express-callback';
 import { Router } from 'express';
 
 import { deleteAccount, getAccessToken } from '../../modules/auth/controller';
-import verifyRefreshTokenMiddleware from '../../middlewares/auth/verify-refresh-token';
 import { adminSignup } from './signup/admin';
 import { caregiverSignup } from './signup/caregiver';
 import { patientSignup } from './signup/patient';
 import { adminSignin } from './signin/admin';
 import { caregiverSignin } from './signin/caregiver';
 import { patientSignin } from './signin/patient';
+import verifyRefreshTokenMiddleware from '../../infra/security/authentication/verify-refresh-token';
 
 const router = Router();
 

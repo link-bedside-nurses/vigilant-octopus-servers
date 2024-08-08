@@ -1,11 +1,11 @@
-import { HTTPRequest } from '../../adapters/express-callback';
+import { HTTPRequest } from '../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { createAccessToken } from '../../services/token';
-import { Document } from 'mongoose';
-import { DESIGNATION, ACCOUNT } from '../../interfaces';
-import { response } from '../../utils/http-response';
-import { PatientRepo } from '../users/patients/repository';
-import { CaregiverRepo } from '../users/caregivers/repository';
+import { DESIGNATION, ACCOUNT } from '../../core/interfaces';
+import { response } from '../../core/utils/http-response';
+import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
+import { PatientRepo } from '../../infra/database/repositories/patient-repository';
+import mongoose from 'mongoose';
 
 export function deleteAccount() {
 	return async function (_: HTTPRequest<object, object, object>) {
@@ -34,7 +34,7 @@ export function getAccessToken() {
 			return response(StatusCodes.BAD_REQUEST, null, 'No user found');
 		}
 
-		const accessToken = createAccessToken(user as Document & ACCOUNT);
+		const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
 
 		return response(StatusCodes.OK, { accessToken }, 'Access token has been reset!');
 	};

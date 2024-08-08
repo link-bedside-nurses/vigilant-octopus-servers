@@ -1,16 +1,15 @@
-import { EnvironmentVars, uris } from '../../../../constants';
 import axios from 'axios';
+import { envars, uris } from '../../../../config/constants';
 
 export default async function createMomoBearerToken() {
+	const config = {
+		method: 'get',
+		maxBodyLength: Infinity,
+		url: `${uris.momo_sandbox}/v1_0/apiuser/${envars.X_REFERENCE_ID}`,
+		headers: {
+			'Ocp-Apim-Subscription-Key': envars.OCP_APIM_SUBSCRIPTION_KEY,
+		},
+	};
 
-    const config = {
-        method: 'get',
-        maxBodyLength: Infinity,
-        url: `${uris.momo_sandbox}/v1_0/apiuser/${EnvironmentVars.getXReferenceId()}`,
-        headers: {
-            'Ocp-Apim-Subscription-Key': EnvironmentVars.getOcpApimSubscriptionKey()
-        }
-    };
-
-    return await axios.request( config )
+	return await axios.request(config);
 }

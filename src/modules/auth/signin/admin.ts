@@ -1,17 +1,23 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../adapters/express-callback';
-import { AdminRepo } from '../../users/admins/repository';
-import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
+import { AdminRepo } from '../../../infra/database/repositories/admin-repository';
+import { CreateAdminDto, CreateAdminSchema } from '../../../core/interfaces/dtos';
 import { createAccessToken } from '../../../services/token';
-import { response } from '../../../utils/http-response';
-import { Password } from '../../../utils/password';
+import { response } from '../../../core/utils/http-response';
+import { Password } from '../../../core/utils/password';
+import { HTTPRequest } from '../../../api/adapters/express-callback';
+import mongoose from 'mongoose';
+import { ACCOUNT } from '../../../core/interfaces';
 
 export function adminSignin() {
 	return async function (request: HTTPRequest<object, Pick<CreateAdminDto, 'email' | 'password'>>) {
 		const result = CreateAdminSchema.pick({ email: true, password: true }).safeParse(request.body);
 
 		if (!result.success) {
-			return response(StatusCodes.BAD_REQUEST, null, 'Validation error', result.error);
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+			);
 		}
 
 		const { email, password } = result.data;
@@ -28,8 +34,7 @@ export function adminSignin() {
 			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
 		}
 
-		// @ts-ignore
-		const accessToken = createAccessToken(user as Document & ACCOUNT);
+		const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
 
 		return response(StatusCodes.OK, { user, accessToken }, 'Signed in');
 	};

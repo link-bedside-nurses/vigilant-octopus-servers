@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import authenticate from '../../../middlewares/auth/authentication';
-import isBanned from '../../../middlewares/auth/is-banned';
+import authenticate from '../../../infra/security/authentication/authentication';
+import isBanned from '../../../infra/security/authorization/is-banned';
 import { getCurrentUser } from './controller';
-import callback from '../../../adapters/express-callback';
+import callback from '../../../api/adapters/express-callback';
 
 const router = Router();
 
