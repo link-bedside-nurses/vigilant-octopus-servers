@@ -14,7 +14,7 @@ export default function authenticate(request: Request, _response: Response, next
 		return next(new HTTPException('Unauthorized!', StatusCodes.UNAUTHORIZED));
 	}
 
-	const token = request.headers.authorization.split('Bearer ')[1].trim();
+	const token = request.headers.authorization.split('Bearer ')[1]?.trim();
 
 	if (!token) return next(new HTTPException('Missing token!', StatusCodes.UNAUTHORIZED));
 
