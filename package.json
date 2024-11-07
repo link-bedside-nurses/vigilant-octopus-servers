@@ -12,9 +12,10 @@
 	"scripts": {
 		"start": "npm run serve",
 		"build": "tsc",
+		"watch": "tsc -w",
 		"serve": "node dist/server.js",
 		"test": "jest --coverage=false --verbose",
-		"dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"tsc -w\" \"node --watch dist/server.js\"",
+		"dev": "node --watch dist/server.js",
 		"lint": "eslint src/*.ts",
 		"lint-fix": "yarn lint --fix",
 		"typecheck": "tsc --noEmit",

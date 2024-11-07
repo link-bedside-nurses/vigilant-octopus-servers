@@ -2,8 +2,9 @@ import axios from 'axios';
 import envVars from '../../../config/constants/env-vars';
 
 export default async function sendOTP(phone: string, otp: string) {
+	console.log(envVars.INFOBIP_URL);
 	const response = await axios.post(
-		'https://e1wzeq.api.infobip.com/sms/2/text/advanced',
+		envVars.INFOBIP_URL,
 		{
 			messages: [
 				{
