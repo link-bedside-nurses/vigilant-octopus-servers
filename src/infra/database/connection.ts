@@ -11,9 +11,9 @@ import {
 } from './seed';
 import { envars } from '../../config/constants';
 
-// const DATABASE_CONNECTION_URI = envars.DATABASE_URL;
-const DATABASE_CONNECTION_URI =
-	'mongodb+srv://ianbalijawa16:S1eZikqqPmZUNCt8@cluster0.dd1ll.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const DATABASE_CONNECTION_URI = envars.DATABASE_URL;
+// const DATABASE_CONNECTION_URI =
+// 'mongodb+srv://ianbalijawa16:S1eZikqqPmZUNCt8@cluster0.dd1ll.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const DATABASE_NAME = envars.DATABASE_NAME;
 
 export async function connectToDatabase() {
@@ -73,4 +73,4 @@ export async function seedDatabase() {
 	}
 }
 
-// seedDatabase();
+seedDatabase();

@@ -27,8 +27,8 @@ export class Appointment {
 	@prop({ type: mongoose.Types.ObjectId, required: true, ref: Caregiver, index: true })
 	caregiver!: Ref<Caregiver>;
 
-	@prop({ required: true })
-	reason!: string;
+	@prop({ required: true, type: Array })
+	symptoms!: string[];
 
 	@prop({ required: true, default: Date.now() })
 	date!: Date;

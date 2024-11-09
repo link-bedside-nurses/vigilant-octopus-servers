@@ -48,26 +48,14 @@ export class Caregiver {
 	@prop({ type: String, required: true })
 	password!: string;
 
+	@prop({ type: Array, required: true })
+	qualifications!: string[];
+
 	@prop({ type: Location, index: '2dsphere' })
 	location!: Location;
 
 	@prop({ type: Boolean, required: false, default: false })
 	isPhoneVerified?: boolean;
-
-	@prop({ type: Date, required: false, default: new Date() })
-	dateOfBirth?: Date;
-
-	@prop({ type: String, required: false, default: '', trim: true })
-	nin?: string;
-
-	@prop({ type: String, required: false, default: '', trim: true })
-	description?: string;
-
-	@prop({ type: Number, required: false, default: 0 })
-	rating?: number;
-
-	@prop({ type: Number, required: false, default: 0 })
-	experience?: number;
 
 	@prop({ type: String, required: false, default: '', trim: true })
 	imgUrl?: string;
