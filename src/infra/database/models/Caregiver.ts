@@ -48,8 +48,14 @@ export class Caregiver {
 	@prop({ type: String, required: true })
 	password!: string;
 
-	@prop({ type: Array, required: true })
+	@prop({ type: [String], required: false, default: [] })
 	qualifications!: string[];
+
+	@prop({ type: String, required: false, default: 'pending' })
+	verificationStatus?: 'pending' | 'approved' | 'rejected';
+
+	@prop({ type: String, required: false })
+	verificationNotes?: string;
 
 	@prop({ type: Location, index: '2dsphere' })
 	location!: Location;

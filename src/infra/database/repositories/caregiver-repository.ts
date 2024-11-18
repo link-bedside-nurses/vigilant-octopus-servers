@@ -74,4 +74,17 @@ export class CaregiverRepo {
 	public static async banCaregiver(id: string) {
 		return await db.caregivers.findByIdAndUpdate(id, { isBanned: true }, { new: true });
 	}
+
+	public static async addQualificationDocuments(id: string, filePaths: string[]) {
+		return await db.caregivers.findByIdAndUpdate(
+			id,
+			{
+				$push: {
+					qualifications: { $each: filePaths },
+				},
+				isVerified: false, // Reset verification status when new documents are uploaded
+			},
+			{ new: true }
+		);
+	}
 }
