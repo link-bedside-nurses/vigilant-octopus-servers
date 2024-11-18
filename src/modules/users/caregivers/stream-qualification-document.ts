@@ -30,8 +30,9 @@ export async function streamQualificationDocument(req: Request, res: Response) {
 		const stream = fs.createReadStream(fullPath);
 		stream.pipe(res);
 		stream.on('end', () => {
-			res.end();
+			return res.end();
 		});
+		return;
 	} catch (error) {
 		return response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Error streaming document');
 	}

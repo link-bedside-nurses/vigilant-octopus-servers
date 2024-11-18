@@ -3,16 +3,16 @@ import path from 'path';
 import { Request } from 'express';
 
 const storage = multer.diskStorage({
-	destination: (req: Request, file: Express.Multer.File, cb) => {
+	destination: (_req: Request, _file: Express.Multer.File, cb) => {
 		cb(null, 'uploads/qualifications');
 	},
-	filename: (req: Request, file: Express.Multer.File, cb) => {
+	filename: (_req: Request, file: Express.Multer.File, cb) => {
 		const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
 		cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
 	},
 });
 
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
 	const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 
 	if (allowedTypes.includes(file.mimetype)) {
