@@ -12,7 +12,7 @@ module.exports = {
 			},
 			instances: 1,
 			exec_mode: "cluster",
-			autorestart: true,
+			autorestart: false,
 			env: {
 				NODE_ENV: "development"
 			},
