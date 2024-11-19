@@ -11,11 +11,8 @@ import {
 } from './caregiver.controller';
 import authenticate from '../../../infra/security/authentication/authentication';
 import isBanned from '../../../infra/security/authorization/is-banned';
-import { upload } from '../../../api/middlewares/fileUpload';
-import { uploadQualifications } from './upload-qualifications';
-import { getCaregiverQualifications } from './get-caregiver-qualifications';
-import { getQualificationDocument } from './get-qualification-document';
-import { streamQualificationDocument } from './stream-qualification-document';
+import { uploadQualifications } from '../../../api/middlewares/fileUpload';
+import { QualificationsController } from './qualifications';
 
 const router = Router();
 
@@ -29,26 +26,25 @@ router.post(
 	'/:id/qualifications',
 	authenticate,
 	isBanned,
-	upload.array('qualifications', 5), // Allow up to 5 files
-	callback(uploadQualifications())
+	uploadQualifications.array('qualifications', 5), // Allow up to 5 files
+	QualificationsController.uploadQualifications
 );
-// Get all qualifications for a caregiver
-router.get('/:id/qualifications', authenticate, isBanned, callback(getCaregiverQualifications()));
-
-// Get metadata for a specific qualification document
 router.get(
-	'/:id/qualifications/:documentPath',
+	'/:id/qualifications',
 	authenticate,
 	isBanned,
-	callback(getQualificationDocument())
+	QualificationsController.getQualificationDocs
 );
-
-// Stream/download a specific qualification document
 router.get(
-	'/:id/qualifications/:documentPath/stream',
+	'/:id/qualifications',
 	authenticate,
 	isBanned,
-	streamQualificationDocument
+	QualificationsController.getQualificationDocs
 );
-
+router.get(
+	'/:id/qualifications/:filename/download',
+	authenticate,
+	isBanned,
+	QualificationsController.downloadQualificationDoc
+);
 export default router;

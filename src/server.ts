@@ -8,10 +8,13 @@ import { connectToDatabase, disconnectFromDatabase } from './infra/database/conn
 import router from './router';
 import logger from './core/utils/logger';
 import { envars } from './config/constants';
+import path from 'path';
 
 replaceTscAliasPaths().catch((err: Error) => logger.info(err.message));
 
 const app = express();
+
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.set('trust proxy', false);
 app.use(router);

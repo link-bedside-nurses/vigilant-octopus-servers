@@ -10,18 +10,10 @@
 	],
 	"license": "MIT",
 	"scripts": {
-		"start": "npm run serve",
 		"build": "tsc",
 		"watch": "tsc -w",
-		"serve": "node dist/server.js",
-		"test": "jest --coverage=false --verbose",
-		"dev": "node --watch dist/server.js",
-		"lint": "eslint src/*.ts",
-		"lint-fix": "yarn lint --fix",
-		"typecheck": "tsc --noEmit",
-		"run-prettier": "prettier src/*.ts",
-		"validate-prettiness": "yarn run-prettier -c",
-		"make-prettier": "yarn run-prettier --write"
+		"start": "node dist/server.js",
+		"dev": "node --watch dist/server.js"
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^8.3.1",

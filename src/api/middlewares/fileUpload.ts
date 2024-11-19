@@ -1,31 +1,35 @@
 import multer from 'multer';
 import path from 'path';
-import { Request } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 
-const storage = multer.diskStorage({
-	destination: (_req: Request, _file: Express.Multer.File, cb) => {
-		cb(null, 'uploads/qualifications');
+const qualificationStorage = multer.diskStorage({
+	destination: (_req, _file, cb) => {
+		cb(null, 'public/uploads/qualifications');
 	},
-	filename: (_req: Request, file: Express.Multer.File, cb) => {
-		const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-		cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+	filename: (_req, file, cb) => {
+		const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
+		cb(null, uniqueName);
 	},
 });
 
-const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-	const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-
+const qualificationFileFilter = (
+	_req: any,
+	file: { mimetype: string },
+	cb: (arg0: Error | null, arg1: boolean) => void
+) => {
+	const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 	if (allowedTypes.includes(file.mimetype)) {
 		cb(null, true);
 	} else {
-		cb(new Error('Invalid file type. Only PDF, JPEG, and PNG files are allowed.'));
+		cb(new Error('Invalid file type. Only PDF, JPEG, and PNG are allowed.'), false);
 	}
 };
 
-export const upload = multer({
-	storage: storage,
-	fileFilter: fileFilter,
+export const uploadQualifications = multer({
+	storage: qualificationStorage,
+	// @ts-ignore
+	fileFilter: qualificationFileFilter,
 	limits: {
-		fileSize: 5 * 1024 * 1024, // 5MB limit
+		fileSize: 5 * 1024 * 1024, // 5MB max file size
 	},
 });
