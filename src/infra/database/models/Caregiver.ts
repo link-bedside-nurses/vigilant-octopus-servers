@@ -57,8 +57,8 @@ export class Caregiver {
 	@prop({ type: String, required: false })
 	verificationNotes?: string;
 
-	@prop({ type: Location, index: '2dsphere' })
-	location!: Location;
+	@prop({ type: Location, index: '2dsphere', required: false })
+	location?: Location;
 
 	@prop({ type: Boolean, required: false, default: false })
 	isPhoneVerified?: boolean;

@@ -2,6 +2,7 @@ import { DocumentType, Ref, Severity, modelOptions, mongoose, prop } from '@type
 import { Patient } from './Patient';
 import { APPOINTMENT_STATUSES } from '../../../core/interfaces';
 import { Caregiver } from './Caregiver';
+import { Location } from './Location';
 
 @modelOptions({
 	schemaOptions: {
@@ -32,6 +33,9 @@ export class Appointment {
 
 	@prop({ required: true, default: Date.now() })
 	date!: Date;
+
+	@prop({ type: Location, index: '2dsphere' })
+	location!: Location;
 
 	@prop({
 		enum: APPOINTMENT_STATUSES,

@@ -1,11 +1,11 @@
 // controllers/get-qualification-document.ts
-import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { HTTPRequest } from '../../../../api/adapters/express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
-import { response } from '../../../core/utils/http-response';
+import { CaregiverRepo } from '../../../../infra/database/repositories/caregiver-repository';
+import { response } from '../../../../core/utils/http-response';
 import path from 'path';
 import fs from 'fs';
-import { getMimeType } from '../../../core/utils/mime-types';
+import { getMimeType } from '../../../../core/utils/mime-types';
 
 export function getQualificationDocument() {
 	return async function (request: HTTPRequest<{ id: string; documentPath: string }>) {

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
+import { CaregiverRepo } from '../../../../infra/database/repositories/caregiver-repository';
 
 export class QualificationsController {
 	public static async uploadQualifications(req: Request, res: Response) {

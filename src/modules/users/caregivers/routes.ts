@@ -12,7 +12,7 @@ import {
 import authenticate from '../../../infra/security/authentication/authentication';
 import isBanned from '../../../infra/security/authorization/is-banned';
 import { uploadQualifications } from '../../../api/middlewares/fileUpload';
-import { QualificationsController } from './qualifications';
+import { QualificationsController } from './qualifications/qualifications-controller';
 
 const router = Router();
 

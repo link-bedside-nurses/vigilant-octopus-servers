@@ -8,6 +8,7 @@ import { Patient } from './models/Patient';
 import { db } from '.';
 import { PatientRepo } from './repositories/patient-repository';
 import { Password } from '../../core/utils/password';
+import { Caregiver } from './models/Caregiver';
 
 export async function seedPayments() {
 	await db.payments.deleteMany({}, { maxTimeMS: 30000 });
@@ -42,6 +43,7 @@ export async function seedAppointments() {
 			symptoms: Array.from({ length: 3 }).map(() => faker.lorem.slug(5)),
 			status: faker.helpers.arrayElement(Object.values(APPOINTMENT_STATUSES)),
 			date: faker.date.past(),
+			location: generateRandomLocation(centerCoords),
 			description: faker.lorem.lines(2),
 			notes: faker.lorem.lines(3),
 		};
@@ -69,17 +71,16 @@ export async function seedRatings() {
 
 	await db.ratings.insertMany(ratings);
 }
+const centerCoords = {
+	lat: 0.3323315,
+	lng: 32.5678668,
+};
+
 export async function seedCaregivers() {
 	await db.caregivers.deleteMany({}, { maxTimeMS: 30000 });
-
-	const centerCoords = {
-		lat: 0.3323315,
-		lng: 32.5678668,
-	};
-
 	const caregivers = [];
 	for (let i = 0; i < 100; i++) {
-		const caregiver = {
+		const caregiver: Caregiver = {
 			designation: DESIGNATION.CAREGIVER,
 			phone: `25677456789${i.toString().padStart(2, '0')}`,
 			firstName: faker.person.firstName(),
@@ -106,6 +107,7 @@ export async function seedPatients() {
 	for (let i = 0; i < 100; i++) {
 		const patient: Patient = {
 			designation: DESIGNATION.PATIENT,
+			location: generateRandomLocation(centerCoords),
 			phone: `256456789${i.toString().padStart(2, '0')}`,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),

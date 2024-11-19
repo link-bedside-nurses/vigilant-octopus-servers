@@ -1,5 +1,6 @@
-import { modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { index, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { DESIGNATION } from '../../../core/interfaces';
+import { Location } from './Location';
 
 @modelOptions({
 	schemaOptions: {
@@ -18,6 +19,7 @@ import { DESIGNATION } from '../../../core/interfaces';
 	},
 	options: { allowMixed: Severity.ALLOW },
 })
+@index({ title: 'text', location: '2dsphere' })
 export class Patient {
 	@prop({
 		type: String,
@@ -47,6 +49,9 @@ export class Patient {
 
 	@prop({ type: Boolean, required: false, default: false })
 	isBanned?: boolean;
+
+	@prop({ type: Location, index: '2dsphere' })
+	location!: Location;
 
 	@prop({ type: Boolean, required: false, default: false })
 	isVerified?: boolean;
