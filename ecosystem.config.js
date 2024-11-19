@@ -5,7 +5,7 @@ module.exports = {
 			name: "linkbedsides",
 			script: "npm",
 			args: "start",
-			watch: true,
+			watch: false,
 			ignore_watch: ["dist"],
 			watch_options: {
 				"followSymlinks": false
