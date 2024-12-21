@@ -32,7 +32,8 @@ export function addQualifications() {
 		if ( !caregiver ) {
 			return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
 		}
-		caregiver.qualifications = [...caregiver.qualifications, ...qualificationUrls];
+		const newQualifications = qualificationUrls.filter( ( url ) => !caregiver.qualifications.includes( url ) );
+		caregiver.qualifications = [...caregiver.qualifications, ...newQualifications];
 		await caregiver.save();
 		return response( StatusCodes.OK, { caregiver }, 'Qualifications added' );
 	}
@@ -53,9 +54,9 @@ export function updateQualifications() {
 }
 
 export function deleteQualification() {
-	return async function ( request: HTTPRequest<{ id: string }, { qualificationUrl: string }, object> ) {
+	return async function ( request: HTTPRequest<{ id: string }, object, { qualificationUrl: string }> ) {
 		const { id } = request.params;
-		const { qualificationUrl } = request.body;
+		const { qualificationUrl } = request.query;
 		const caregiver = await CaregiverRepo.getCaregiverById( id );
 		if ( !caregiver ) {
 			return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
