@@ -2,7 +2,7 @@ import { index, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { Location } from './Location';
 import { DESIGNATION } from '../../../core/interfaces';
 
-@modelOptions({
+@modelOptions( {
 	schemaOptions: {
 		id: false,
 		virtuals: true,
@@ -10,7 +10,7 @@ import { DESIGNATION } from '../../../core/interfaces';
 		toObject: { virtuals: true },
 		toJSON: {
 			virtuals: true,
-			transform(_doc, ret): void {
+			transform( _doc, ret ): void {
 				delete ret.password;
 				ret.id = _doc._id;
 				delete ret._id;
@@ -19,59 +19,59 @@ import { DESIGNATION } from '../../../core/interfaces';
 		},
 	},
 	options: { allowMixed: Severity.ALLOW },
-})
-@index({ title: 'text', location: '2dsphere' })
+} )
+@index( { title: 'text', location: '2dsphere' } )
 export class Caregiver {
-	@prop({
+	@prop( {
 		type: String,
 		required: false,
 		enum: [DESIGNATION.PATIENT, DESIGNATION.CAREGIVER, DESIGNATION.ADMIN],
 		default: DESIGNATION.CAREGIVER,
-	})
+	} )
 	designation!: DESIGNATION;
 
-	@prop({
+	@prop( {
 		type: String,
 		required: true,
 		unique: true,
 		index: true,
 		trim: true,
-	})
+	} )
 	phone!: string;
 
-	@prop({ type: String, required: true, minlength: 2, maxlength: 250, trim: true })
+	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
 	firstName!: string;
 
-	@prop({ type: String, required: true, minlength: 2, maxlength: 250, trim: true })
+	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
 	lastName!: string;
 
-	@prop({ type: String, required: true })
+	@prop( { type: String, required: true } )
 	password!: string;
 
-	@prop({ type: [String], required: false, default: [] })
+	@prop( { type: [String], required: false, default: [] } )
 	qualifications!: string[];
 
-	@prop({ type: String, required: false, default: 'pending' })
+	@prop( { type: String, required: false, default: 'pending' } )
 	verificationStatus?: 'pending' | 'approved' | 'rejected';
 
-	@prop({ type: String, required: false })
+	@prop( { type: String, required: false } )
 	verificationNotes?: string;
 
-	@prop({ type: Location, index: '2dsphere', required: false })
+	@prop( { type: Location, index: '2dsphere', required: false } )
 	location?: Location;
 
-	@prop({ type: Boolean, required: false, default: false })
+	@prop( { type: Boolean, required: false, default: false } )
 	isPhoneVerified?: boolean;
 
-	@prop({ type: String, required: false, default: '', trim: true })
+	@prop( { type: String, required: false, default: '', trim: true } )
 	imgUrl?: string;
 
-	@prop({ type: Boolean, required: false, default: false })
+	@prop( { type: Boolean, required: false, default: false } )
 	isBanned?: boolean;
 
-	@prop({ type: Boolean, required: false, default: false })
+	@prop( { type: Boolean, required: false, default: false } )
 	isActive?: boolean;
 
-	@prop({ type: Boolean, required: false, default: false })
+	@prop( { type: Boolean, required: false, default: false } )
 	isVerified?: boolean;
 }
