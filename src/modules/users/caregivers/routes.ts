@@ -8,6 +8,7 @@ import {
 	getCaregiverAppointments,
 	searchCaregiversByLocation,
 	updateCaregiver,
+	updateProfilePicture
 } from './caregiver.controller';
 import authenticate from '../../../infra/security/authentication/authentication';
 import isBanned from '../../../infra/security/authorization/is-banned';
@@ -23,6 +24,7 @@ router.get( '/search', callback( searchCaregiversByLocation() ) );
 router.get( '/:id', callback( getCaregiver() ) );
 router.get( '/:id/appointments', callback( getCaregiverAppointments() ) );
 router.patch( '/:id', callback( updateCaregiver() ) );
+router.patch( '/:id/profilePicture', callback( updateProfilePicture() ) );
 router.delete( '/:id', callback( deleteCaregiver() ) );
 
 // Qualifications routes
