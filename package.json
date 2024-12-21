@@ -36,6 +36,7 @@
 		"@typescript-eslint/eslint-plugin": "^6.4.0",
 		"@typescript-eslint/parser": "^6.4.0",
 		"babel-jest": "^29.6.4",
+		"braces": ">=3.0.3",
 		"concurrently": "6.5.1",
 		"eslint": "^8.47.0",
 		"eslint-config-prettier": "8.10.0",
@@ -48,10 +49,10 @@
 		"ts-node-dev": "^2.0.0",
 		"tsconfig-paths": "^4.2.0",
 		"typescript": "^5.3.3",
-		"vitest": "^0.34.6",
-		"braces": ">=3.0.3"
+		"vitest": "^0.34.6"
 	},
 	"dependencies": {
+		"@ianbalijawa16/real-time-sync": "^1.0.1",
 		"@typegoose/typegoose": "^11.4.1",
 		"argon2": "^0.31.0",
 		"axios": "^1.6.2",
