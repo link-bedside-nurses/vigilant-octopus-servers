@@ -8,6 +8,7 @@ import { response } from '../../../core/utils/http-response';
 import { Password } from '../../../core/utils/password';
 import startPhoneVerification from '../../../core/utils/startPhoneVerification';
 import mongoose from 'mongoose';
+import startEmailVerification from '../../../core/utils/startEmailVerification';
 
 export function caregiverSignup() {
 	return async function ( request: HTTPRequest<object, CreateCaregiverDto> ) {
@@ -32,6 +33,13 @@ export function caregiverSignup() {
 			return response( StatusCodes.BAD_REQUEST, null, 'Phone number in use' );
 		}
 
+		const email = await CaregiverRepo.getCaregiverByEmail( result.data.email );
+
+		if ( email ) {
+			console.log( 'Email already in use ', result.data.email );
+			return response( StatusCodes.BAD_REQUEST, null, 'Email in use' );
+		}
+
 		const hash = await Password.hash( result.data.password );
 
 		console.log( 'password hashed successfully', hash );
@@ -49,6 +57,9 @@ export function caregiverSignup() {
 
 		await startPhoneVerification( result.data.phone );
 		console.log( 'OTP sent successfully to phone number', result.data.phone );
+
+		await startEmailVerification( result.data.email );
+		console.log( 'OTP sent successfully to email', result.data.email );
 
 		return response( StatusCodes.OK, { user, accessToken }, 'Account created' );
 	};

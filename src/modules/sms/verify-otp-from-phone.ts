@@ -51,7 +51,7 @@ export function verifyOTPFromPhone() {
 
 		const storedOTP = await getOTP( result.data.phone );
 
-		if ( storedOTP !== result.data.otp ) {
+		if ( storedOTP && storedOTP !== result.data.otp ) {
 			console.log( 'Wrong or Expired OTP. Try resending the OTP request' );
 			return response(
 				StatusCodes.BAD_REQUEST,

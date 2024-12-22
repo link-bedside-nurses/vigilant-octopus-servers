@@ -26,11 +26,10 @@ export default async function authenticate( request: Request, _response: Respons
 		return next( new HTTPException( 'Invalid Access Token!', StatusCodes.UNAUTHORIZED ) );
 
 	// check if the user with this id exists
-	const user =
-		( await PatientRepo.getPatientById( decoded.id ) ) ||
-		( await CaregiverRepo.getCaregiverById( decoded.id ) );
+	const patient = await PatientRepo.getPatientById( decoded.id );
+	const caregiver = await CaregiverRepo.getCaregiverById( decoded.id );
 
-	if ( !user ) {
+	if ( !patient && !caregiver ) {
 		console.log( 'user not found' );
 		return next( new HTTPException( 'User not found!', StatusCodes.UNAUTHORIZED ) );
 	}

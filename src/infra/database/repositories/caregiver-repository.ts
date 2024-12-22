@@ -2,22 +2,22 @@ import { db } from '..';
 import { CreateCaregiverDto, UpdateCaregiverDto } from '../../../core/interfaces/dtos';
 
 export class CaregiverRepo {
-	public static async getCaregiverById(id: string) {
-		return await db.caregivers.findById(id);
+	public static async getCaregiverById( id: string ) {
+		return await db.caregivers.findById( id );
 	}
 
 	public static async getAllCaregivers() {
-		return await db.caregivers.find({}).sort({ createdAt: 'desc' });
+		return await db.caregivers.find( {} ).sort( { createdAt: 'desc' } );
 	}
 
-	public static async getAllCaregiversByCoords(latLng: string) {
-		const latitude = latLng?.split(',')[0];
-		const longitude = latLng?.split(',')[1];
+	public static async getAllCaregiversByCoords( latLng: string ) {
+		const latitude = latLng?.split( ',' )[0];
+		const longitude = latLng?.split( ',' )[1];
 
-		if (!latitude || !longitude) {
-			throw new Error("Missing either latitude or longitude on the 'latLng' query key");
+		if ( !latitude || !longitude ) {
+			throw new Error( "Missing either latitude or longitude on the 'latLng' query key" );
 		}
-		return await db.caregivers.find({
+		return await db.caregivers.find( {
 			location: {
 				$near: {
 					$geometry: {
@@ -26,26 +26,30 @@ export class CaregiverRepo {
 					},
 				},
 			},
-		});
+		} );
 	}
 
-	public static async getCaregiverByPhone(phone: string) {
-		return await db.caregivers.findOne({ phone });
+	public static async getCaregiverByPhone( phone: string ) {
+		return await db.caregivers.findOne( { phone } );
 	}
 
-	public static async createCaregiver(caregiver: CreateCaregiverDto) {
-		return (await db.caregivers.create(caregiver)).save();
+	public static async getCaregiverByEmail( email: string ) {
+		return await db.caregivers.findOne( { email } );
 	}
 
-	public static async deleteCaregiver(id: string) {
-		return await db.caregivers.findByIdAndDelete(id);
+	public static async createCaregiver( caregiver: CreateCaregiverDto ) {
+		return ( await db.caregivers.create( caregiver ) ).save();
 	}
 
-	public static async deactivateCaregiver(id: string) {
-		return await db.caregivers.findByIdAndUpdate(id, { $set: { isActive: true } }, { new: true });
+	public static async deleteCaregiver( id: string ) {
+		return await db.caregivers.findByIdAndDelete( id );
 	}
 
-	public static async findByIdAndUpdate(id: string, caregiver: UpdateCaregiverDto) {
+	public static async deactivateCaregiver( id: string ) {
+		return await db.caregivers.findByIdAndUpdate( id, { $set: { isActive: true } }, { new: true } );
+	}
+
+	public static async findByIdAndUpdate( id: string, caregiver: UpdateCaregiverDto ) {
 		return await db.caregivers.findByIdAndUpdate(
 			id,
 			{
@@ -63,7 +67,7 @@ export class CaregiverRepo {
 		);
 	}
 
-	public static async verifyCaregiver(id: string) {
+	public static async verifyCaregiver( id: string ) {
 		return await db.caregivers.findByIdAndUpdate(
 			id,
 			{ isVerified: true, isActive: true },
@@ -71,11 +75,11 @@ export class CaregiverRepo {
 		);
 	}
 
-	public static async banCaregiver(id: string) {
-		return await db.caregivers.findByIdAndUpdate(id, { isBanned: true }, { new: true });
+	public static async banCaregiver( id: string ) {
+		return await db.caregivers.findByIdAndUpdate( id, { isBanned: true }, { new: true } );
 	}
 
-	public static async addQualificationDocuments(id: string, filePaths: string[]) {
+	public static async addQualificationDocuments( id: string, filePaths: string[] ) {
 		return await db.caregivers.findByIdAndUpdate(
 			id,
 			{

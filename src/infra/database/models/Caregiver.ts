@@ -48,6 +48,9 @@ export class Caregiver {
 	@prop( { type: String, required: true } )
 	password!: string;
 
+	@prop( { type: String, required: false, unique: true, trim: true } )
+	email?: string;
+
 	@prop( { type: [String], required: false, default: [] } )
 	qualifications!: string[];
 
