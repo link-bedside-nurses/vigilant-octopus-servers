@@ -58,7 +58,6 @@ export const ScheduleAppointmentSchema = z.object( {
 } );
 
 export const RescheduleAppointmentSchema = z.object( {
-	appointmentId: z.string(),
 	date: z.string(),
 } );
 
