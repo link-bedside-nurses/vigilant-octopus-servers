@@ -9,8 +9,10 @@ import { HTTPRequest } from '../../api/adapters/express-callback';
 export function scheduleAppointment() {
 	return async function ( request: HTTPRequest<object, ScheduleAppointmentDto, object> ) {
 		const result = ScheduleAppointmentSchema.safeParse( request.body );
+		console.log( 'result', result );
 
 		if ( !result.success ) {
+			console.log( 'result.error', result.error );
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -18,13 +20,15 @@ export function scheduleAppointment() {
 			);
 		}
 
+		console.log( 'result.data', result.data );
 		const caregiver = await CaregiverRepo.getCaregiverById( result.data.caregiver );
-
+		console.log( 'caregiver', caregiver );
 		if ( !caregiver ) {
+			console.log( 'caregiver not found' );
 			return response( StatusCodes.BAD_REQUEST, null, `No such caregiver with given id` );
 		}
 
-		console.log( 'caregiver', caregiver );
+		console.log( 'caregiver found' );
 
 		const patient = await PatientRepo.getPatientById( request.account?.id! );
 
@@ -33,6 +37,11 @@ export function scheduleAppointment() {
 		if ( !patient ) {
 			return response( StatusCodes.BAD_REQUEST, null, `No such patient with given id` );
 		}
+
+		console.log( 'patient found' );
+
+
+		console.log( 'scheduling appointment with patient', request.account?.id!, 'with data', result.data );
 
 		const appointment = await AppointmentRepo.scheduleAppointment(
 			request.account?.id!,

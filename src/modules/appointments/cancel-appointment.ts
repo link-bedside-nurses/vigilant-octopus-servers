@@ -14,7 +14,7 @@ export function cancelAppointment() {
 			return response( StatusCodes.NOT_FOUND, null, 'Could not cancel appointment.' );
 		}
 
-		await appointment.cancelAppointment( request.body.reason );
+		await appointment.cancelAppointment( request.body.reason || 'NONE' );
 		console.log( 'appointment cancelled successfully', appointment );
 
 		return response( StatusCodes.OK, appointment, 'Successfully cancelled appointment' );

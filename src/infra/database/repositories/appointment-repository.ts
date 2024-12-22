@@ -9,6 +9,8 @@ export class AppointmentRepo {
 	public static async scheduleAppointment( patient: string, appointment: ScheduleAppointmentDto ) {
 		const result = await db.appointments.create( { ...appointment, patient } );
 
+		console.log( 'result', result );
+
 		return ( await ( await result.populate( 'patient' ) ).populate( 'patient' ) ).populate( 'caregiver' );
 	}
 
@@ -32,6 +34,7 @@ export class AppointmentRepo {
 	}
 
 	public static async getCaregiverAppointmentHistory( caregiverId: string ) {
+		console.log( 'caregiverId', caregiverId );
 		const appointments = await db.appointments
 			.find( {
 				caregiver: {
@@ -41,15 +44,19 @@ export class AppointmentRepo {
 			.populate( 'patient' )
 			.populate( 'caregiver' );
 
-		const filteredAppointments = appointments.filter( ( appointment ) => appointment.status === APPOINTMENT_STATUSES.COMPLETED || appointment.status === APPOINTMENT_STATUSES.CANCELLED );
+		console.log( 'appointments', appointments );
 
+		const filteredAppointments = appointments.filter( ( appointment ) => appointment.status === APPOINTMENT_STATUSES.COMPLETED || appointment.status === APPOINTMENT_STATUSES.CANCELLED );
+		console.log( 'filteredAppointments', filteredAppointments );
 		return filteredAppointments;
 	}
 
 	public static async getPatientAppointments( id: string, status?: APPOINTMENT_STATUSES ) {
+		console.log( 'id', id );
 		let filters: mongoose.FilterQuery<Appointment> = {
 			patient: { _id: id },
 		};
+		console.log( 'filters', filters );
 
 		if ( status ) {
 			filters = { ...filters, status };
@@ -103,6 +110,8 @@ export class AppointmentRepo {
 			},
 		];
 
+		console.log( 'pipeline', pipeline );
+
 		if ( status ) {
 			pipeline.push( {
 				$match: {
@@ -113,9 +122,13 @@ export class AppointmentRepo {
 
 		let appointments = await db.appointments.aggregate( pipeline );
 
+		console.log( 'appointments', appointments );
+
 		appointments = await db.caregivers.populate( appointments, {
 			path: 'caregiver',
 		} );
+
+		console.log( 'appointments after caregiver', appointments );
 
 		return await db.patients.populate( appointments, {
 			path: 'patient',

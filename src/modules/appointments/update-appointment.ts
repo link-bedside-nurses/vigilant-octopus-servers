@@ -6,11 +6,13 @@ import { APPOINTMENT_STATUSES } from '../../core/interfaces';
 
 export function updateAppointmentStatus() {
     return async function ( request: HTTPRequest<{ id: string }, { status: APPOINTMENT_STATUSES }, object> ) {
+        console.log( 'request', request );
         const appointment = await AppointmentRepo.getAppointmentById( request.params.id );
 
         console.log( 'appointment', appointment );
 
         if ( !appointment ) {
+            console.log( 'appointment not found' );
             return response( StatusCodes.NOT_FOUND, null, 'Could not update appointment.' );
         }
 
