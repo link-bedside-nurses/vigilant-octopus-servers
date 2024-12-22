@@ -1,7 +1,7 @@
 {
-	"name": "vigilant-octopus",
+	"name": "linkbedsides",
 	"version": "1.0.0",
-	"description": "The monolith server for Caregiver server.",
+	"description": "The monolith server for Linkbedsides server.",
 	"main": "dist/src/server.js",
 	"repository": "",
 	"authors": [
@@ -52,7 +52,6 @@
 		"vitest": "^0.34.6"
 	},
 	"dependencies": {
-		"@ianbalijawa16/real-time-sync": "^1.0.1",
 		"@typegoose/typegoose": "^11.4.1",
 		"argon2": "^0.31.0",
 		"axios": "^1.6.2",
