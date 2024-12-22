@@ -4,7 +4,7 @@ import { APPOINTMENT_STATUSES } from '../../../core/interfaces';
 import { Caregiver } from './Caregiver';
 import { Location } from './Location';
 
-@modelOptions({
+@modelOptions( {
 	schemaOptions: {
 		id: false,
 		virtuals: true,
@@ -12,7 +12,7 @@ import { Location } from './Location';
 		toObject: { virtuals: true },
 		toJSON: {
 			virtuals: true,
-			transform(_doc, ret): void {
+			transform( _doc, ret ): void {
 				ret.id = _doc._id;
 				delete ret._id;
 				delete ret.__v;
@@ -20,35 +20,40 @@ import { Location } from './Location';
 		},
 	},
 	options: { allowMixed: Severity.ALLOW },
-})
+} )
 export class Appointment {
-	@prop({ type: mongoose.Types.ObjectId, required: true, ref: Patient })
+	@prop( { type: mongoose.Types.ObjectId, required: true, ref: Patient } )
 	patient!: Ref<Patient>;
 
-	@prop({ type: mongoose.Types.ObjectId, required: true, ref: Caregiver, index: true })
+	@prop( { type: mongoose.Types.ObjectId, required: true, ref: Caregiver, index: true } )
 	caregiver!: Ref<Caregiver>;
 
-	@prop({ required: true, type: Array })
+	@prop( { required: true, type: Array } )
 	symptoms!: string[];
 
-	@prop({ required: true, default: Date.now() })
+	@prop( { required: true, default: Date.now() } )
 	date!: Date;
 
-	@prop({ type: Location, index: '2dsphere' })
+	@prop( { type: Location, index: '2dsphere' } )
 	location!: Location;
 
-	@prop({
+	@prop( {
 		enum: APPOINTMENT_STATUSES,
 		default: APPOINTMENT_STATUSES.PENDING,
 		index: true,
-	})
-	status!: string;
+	} )
+	status!: APPOINTMENT_STATUSES;
 
-	@prop({ type: String, required: false, default: '' })
+	@prop( { type: String, required: false, default: '' } )
 	cancellationReason?: string;
 
-	public async confirmAppointment(this: DocumentType<Appointment>): Promise<void> {
+	public async confirmAppointment( this: DocumentType<Appointment> ): Promise<void> {
 		this.status = APPOINTMENT_STATUSES.IN_PROGRESS;
+		await this.save();
+	}
+
+	public async updateAppointmentStatus( this: DocumentType<Appointment>, { status }: { status: APPOINTMENT_STATUSES } ): Promise<void> {
+		this.status = status;
 		await this.save();
 	}
 

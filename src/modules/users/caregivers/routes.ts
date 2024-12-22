@@ -1,18 +1,16 @@
 import callback from '../../../api/adapters/express-callback';
 import { Router } from 'express';
 
-import {
-	deleteCaregiver,
-	getAllCaregivers,
-	getCaregiver,
-	getCaregiverAppointments,
-	searchCaregiversByLocation,
-	updateCaregiver,
-	updateProfilePicture
-} from './caregiver.controller';
 import authenticate from '../../../infra/security/authentication/authentication';
 import isBanned from '../../../infra/security/authorization/is-banned';
 import { addQualifications, deleteQualification, getQualifications, updateQualifications } from './qualifications/qualifications-controller';
+import { deleteCaregiver } from './delete-caregiver';
+import { getAllCaregivers } from './get-all-caregivers';
+import { getCaregiver } from './get-caregiver';
+import { getCaregiverAppointments } from './get-caregiver-appointments';
+import { searchCaregiversByLocation } from './search-caregivers-by-location';
+import { updateCaregiver } from './update-caregiver';
+import { updateProfilePicture } from './update-profile-image';
 
 const router = Router();
 
