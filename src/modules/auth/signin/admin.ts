@@ -9,10 +9,10 @@ import mongoose from 'mongoose';
 import { ACCOUNT } from '../../../core/interfaces';
 
 export function adminSignin() {
-	return async function (request: HTTPRequest<object, Pick<CreateAdminDto, 'email' | 'password'>>) {
-		const result = CreateAdminSchema.pick({ email: true, password: true }).safeParse(request.body);
+	return async function ( request: HTTPRequest<object, Pick<CreateAdminDto, 'email' | 'password'>> ) {
+		const result = CreateAdminSchema.pick( { email: true, password: true } ).safeParse( request.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -20,22 +20,32 @@ export function adminSignin() {
 			);
 		}
 
+		console.log( 'result', result );
+
 		const { email, password } = result.data;
 
-		const user = await AdminRepo.getAdminByEmail(email);
+		const user = await AdminRepo.getAdminByEmail( email );
 
-		if (!user) {
-			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
+		console.log( 'user', user );
+
+		if ( !user ) {
+			console.log( 'Invalid Credentials' );
+			return response( StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials' );
 		}
 
-		const match = await Password.verify(user.password, password);
+		const match = await Password.verify( user.password, password );
 
-		if (!match) {
-			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
+		console.log( 'match', match );
+
+		if ( !match ) {
+			console.log( 'Invalid Credentials' );
+			return response( StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials' );
 		}
 
-		const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
+		const accessToken = createAccessToken( user as mongoose.Document & ACCOUNT );
 
-		return response(StatusCodes.OK, { user, accessToken }, 'Signed in');
+		console.log( 'accessToken', accessToken );
+
+		return response( StatusCodes.OK, { user, accessToken }, 'Signed in' );
 	};
 }

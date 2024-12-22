@@ -8,40 +8,52 @@ import fs from 'fs';
 import { getMimeType } from '../../../../core/utils/mime-types';
 
 export function getQualificationDocument() {
-	return async function (request: HTTPRequest<{ id: string; documentPath: string }>) {
+	return async function ( request: HTTPRequest<{ id: string; documentPath: string }> ) {
 		const { id, documentPath } = request.params;
-
+		console.log( 'calling getQualificationDocument' );
+		console.log( 'request.account?.id', request.account?.id );
+		console.log( 'request.params.id', request.params.id );
 		try {
-			const caregiver = await CaregiverRepo.getCaregiverById(id);
+			console.log( 'calling getQualificationDocument' );
+			console.log( 'request.account?.id', request.account?.id );
+			console.log( 'request.params.id', request.params.id );
+			const caregiver = await CaregiverRepo.getCaregiverById( id );
+			console.log( 'caregiver', caregiver );
 
-			if (!caregiver) {
-				return response(StatusCodes.NOT_FOUND, null, 'Caregiver not found');
+			if ( !caregiver ) {
+				console.log( 'Caregiver not found' );
+				return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
 			}
 
 			// Check if the document belongs to the caregiver
-			if (!caregiver.qualifications.includes(documentPath)) {
-				return response(StatusCodes.FORBIDDEN, null, 'Document not found for this caregiver');
+			if ( !caregiver.qualifications.includes( documentPath ) ) {
+				console.log( 'Document not found for this caregiver' );
+				return response( StatusCodes.FORBIDDEN, null, 'Document not found for this caregiver' );
 			}
 
-			const fullPath = path.join(process.cwd(), documentPath);
+			const fullPath = path.join( process.cwd(), documentPath );
 
 			// Check if file exists
-			if (!fs.existsSync(fullPath)) {
-				return response(StatusCodes.NOT_FOUND, null, 'Document file not found');
+			if ( !fs.existsSync( fullPath ) ) {
+				console.log( 'Document file not found' );
+				return response( StatusCodes.NOT_FOUND, null, 'Document file not found' );
 			}
 
 			// Return file path and metadata
-			const stats = fs.statSync(fullPath);
+			const stats = fs.statSync( fullPath );
+			console.log( 'stats', stats );
 			const fileInfo = {
 				path: documentPath,
-				fileName: path.basename(documentPath),
+				fileName: path.basename( documentPath ),
 				size: stats.size,
 				uploadDate: stats.mtime,
-				mimeType: getMimeType(path.extname(documentPath).toLowerCase()),
+				mimeType: getMimeType( path.extname( documentPath ).toLowerCase() ),
 			};
+			console.log( 'fileInfo', fileInfo );
 
-			return response(StatusCodes.OK, fileInfo, 'Document info retrieved');
-		} catch (error) {
+			return response( StatusCodes.OK, fileInfo, 'Document info retrieved' );
+		} catch ( error ) {
+			console.log( 'error', error );
 			return response(
 				StatusCodes.INTERNAL_SERVER_ERROR,
 				null,

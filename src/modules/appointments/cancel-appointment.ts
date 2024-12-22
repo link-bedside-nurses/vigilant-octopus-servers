@@ -5,15 +5,17 @@ import { response } from '../../core/utils/http-response';
 import { HTTPRequest } from '../../api/adapters/express-callback';
 
 export function cancelAppointment() {
-	return async function (request: HTTPRequest<{ id: string }, CancelAppointmentDto>) {
-		const appointment = await AppointmentRepo.getAppointmentById(request.params.id);
+	return async function ( request: HTTPRequest<{ id: string }, CancelAppointmentDto> ) {
+		const appointment = await AppointmentRepo.getAppointmentById( request.params.id );
+		console.log( 'appointment', appointment );
 
-		if (!appointment) {
-			return response(StatusCodes.NOT_FOUND, null, 'Could not cancel appointment.');
+		if ( !appointment ) {
+			return response( StatusCodes.NOT_FOUND, null, 'Could not cancel appointment.' );
 		}
 
-		await appointment.cancelAppointment(request.body.reason);
+		await appointment.cancelAppointment( request.body.reason );
+		console.log( 'appointment cancelled successfully', appointment );
 
-		return response(StatusCodes.OK, appointment, 'Successfully cancelled appointment');
+		return response( StatusCodes.OK, appointment, 'Successfully cancelled appointment' );
 	};
 }

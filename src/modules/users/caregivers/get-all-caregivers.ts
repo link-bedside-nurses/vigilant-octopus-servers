@@ -4,16 +4,22 @@ import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-re
 import { response } from '../../../core/utils/http-response';
 
 export function getAllCaregivers() {
-	return async function (request: HTTPRequest<object, object, { latLng: string }>) {
+	return async function ( request: HTTPRequest<object, object, { latLng: string }> ) {
+		console.log( 'calling getAllCaregivers' );
+		console.log( 'request.account?.id', request.account?.id );
 		const { latLng } = request.query;
+		console.log( 'latLng', latLng );
 
 		let caregivers = [];
-		if (latLng) {
-			caregivers = await CaregiverRepo.getAllCaregiversByCoords(latLng);
+		if ( latLng ) {
+			console.log( 'latLng', latLng );
+			caregivers = await CaregiverRepo.getAllCaregiversByCoords( latLng );
 		} else {
+			console.log( 'no latLng' );
 			caregivers = await CaregiverRepo.getAllCaregivers();
 		}
+		console.log( 'caregivers', caregivers );
 
-		return response(StatusCodes.OK, caregivers, 'Caregivers Retrieved');
+		return response( StatusCodes.OK, caregivers, 'Caregivers Retrieved' );
 	};
 }

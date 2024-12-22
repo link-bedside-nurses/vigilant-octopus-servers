@@ -11,6 +11,7 @@ import { getCaregiverAppointments } from './get-caregiver-appointments';
 import { searchCaregiversByLocation } from './search-caregivers-by-location';
 import { updateCaregiver } from './update-caregiver';
 import { updateProfilePicture } from './update-profile-image';
+import { getCaregiverAppointmentHistory } from './get-caregiver-appointment-history';
 
 const router = Router();
 
@@ -21,6 +22,7 @@ router.get( '/', callback( getAllCaregivers() ) );
 router.get( '/search', callback( searchCaregiversByLocation() ) );
 router.get( '/:id', callback( getCaregiver() ) );
 router.get( '/:id/appointments', callback( getCaregiverAppointments() ) );
+router.get( '/:id/appointment-history', callback( getCaregiverAppointmentHistory() ) );
 router.patch( '/:id', callback( updateCaregiver() ) );
 router.patch( '/:id/profilePicture', callback( updateProfilePicture() ) );
 router.delete( '/:id', callback( deleteCaregiver() ) );

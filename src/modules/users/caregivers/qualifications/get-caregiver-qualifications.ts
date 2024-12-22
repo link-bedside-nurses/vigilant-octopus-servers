@@ -18,42 +18,50 @@ interface QualificationFileInfo {
 }
 
 export function getCaregiverQualifications() {
-	return async function (request: HTTPRequest<{ id: string }>) {
+	return async function ( request: HTTPRequest<{ id: string }> ) {
+		console.log( 'calling getCaregiverQualifications' );
+		console.log( 'request.account?.id', request.account?.id );
+		console.log( 'request.params.id', request.params.id );
 		try {
-			const caregiver = await CaregiverRepo.getCaregiverById(request.params.id);
-
-			if (!caregiver) {
-				return response(StatusCodes.NOT_FOUND, null, 'Caregiver not found');
+			const caregiver = await CaregiverRepo.getCaregiverById( request.params.id );
+			console.log( 'caregiver', caregiver );
+			if ( !caregiver ) {
+				console.log( 'Caregiver not found' );
+				return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
 			}
 
 			// Get detailed information for each qualification document
-			const qualificationDetails = caregiver.qualifications.map((docPath) => {
-				const fullPath = path.join(process.cwd(), docPath);
+			const qualificationDetails = caregiver.qualifications.map( ( docPath ) => {
+				console.log( 'docPath', docPath );
+				const fullPath = path.join( process.cwd(), docPath );
 				const fileInfo: QualificationFileInfo = {
 					path: docPath,
-					fileName: path.basename(docPath),
+					fileName: path.basename( docPath ),
 					exists: false,
 					size: 0,
 					uploadDate: null,
-					mimeType: getMimeType(path.extname(docPath).toLowerCase()),
+					mimeType: getMimeType( path.extname( docPath ).toLowerCase() ),
 				};
 
-				if (fs.existsSync(fullPath)) {
-					const stats = fs.statSync(fullPath);
+				console.log( 'fullPath', fullPath );
+				if ( fs.existsSync( fullPath ) ) {
+					console.log( 'file exists' );
+					const stats = fs.statSync( fullPath );
 					fileInfo.exists = true;
 					fileInfo.size = stats.size;
 					fileInfo.uploadDate = stats.mtime;
 				}
 
 				return fileInfo;
-			});
-
+			} );
+			console.log( 'qualificationDetails', qualificationDetails );
 			return response(
 				StatusCodes.OK,
 				{ qualifications: qualificationDetails },
 				'Qualification documents retrieved'
 			);
-		} catch (error) {
+		} catch ( error ) {
+			console.log( 'error', error );
 			return response(
 				StatusCodes.INTERNAL_SERVER_ERROR,
 				null,

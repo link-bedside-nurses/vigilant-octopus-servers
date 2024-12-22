@@ -6,25 +6,31 @@ import startPhoneVerification from '../../../core/utils/startPhoneVerification';
 import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
 
 export function patientSignin() {
-	return async function (request: HTTPRequest<object, Pick<CreatePatientDto, 'phone'>>) {
-		const result = CreatePatientSchema.pick({ phone: true }).safeParse(request.body);
+	return async function ( request: HTTPRequest<object, Pick<CreatePatientDto, 'phone'>> ) {
+		const result = CreatePatientSchema.pick( { phone: true } ).safeParse( request.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
 				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
+		console.log( 'result', result );
 
-		const user = await PatientRepo.getPatientByPhone(result.data.phone);
+		const user = await PatientRepo.getPatientByPhone( result.data.phone );
 
-		if (!user) {
-			return response(StatusCodes.UNAUTHORIZED, null, 'No such user found');
+		console.log( 'user', user );
+
+		if ( !user ) {
+			console.log( 'No such user found' );
+			return response( StatusCodes.UNAUTHORIZED, null, 'No such user found'
+			);
 		}
 
-		await startPhoneVerification(result.data.phone);
+		await startPhoneVerification( result.data.phone );
+		console.log( 'OTP sent successfully to phone number', result.data.phone );
 
-		return response(StatusCodes.OK, null, 'Check sms for Cne Time Code (OTP)');
+		return response( StatusCodes.OK, null, 'Check sms for Cne Time Code (OTP)' );
 	};
 }

@@ -7,14 +7,15 @@ import { AdminRepo } from '../../infra/database/repositories/admin-repository';
 import { VerifyEmailDto, VerifyEmailSchema } from '../../core/interfaces/dtos';
 import startEmailVerification from '../../core/utils/startEmailVerification';
 import { getOTP } from '../../services/otp';
-import logger from '../../core/utils/logger';
 import mongoose from 'mongoose';
 
 export function sendEmail() {
-	return async function (request: HTTPRequest<object, object, Pick<VerifyEmailDto, 'email'>>) {
-		const result = VerifyEmailSchema.omit({ otp: true }).safeParse(request.query);
+	return async function ( request: HTTPRequest<object, object, Pick<VerifyEmailDto, 'email'>> ) {
+		const result = VerifyEmailSchema.omit( { otp: true } ).safeParse( request.query );
 
-		if (!result.success) {
+		console.log( 'result', result );
+
+		if ( !result.success ) {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -24,10 +25,14 @@ export function sendEmail() {
 
 		const { email } = request.query;
 
+		console.log( 'email', email );
+
 		try {
-			await startEmailVerification(email);
-			return response(StatusCodes.OK, null, 'Email sent successfully!');
-		} catch (error) {
+			await startEmailVerification( email );
+			console.log( 'email sent successfully' );
+			return response( StatusCodes.OK, null, 'Email sent successfully!' );
+		} catch ( error ) {
+			console.log( 'error', error );
 			return response(
 				StatusCodes.INTERNAL_SERVER_ERROR,
 				error as unknown as Error,
@@ -38,10 +43,11 @@ export function sendEmail() {
 }
 
 export function verifyEmail() {
-	return async function (request: HTTPRequest<object, object, VerifyEmailDto>) {
-		const result = VerifyEmailSchema.safeParse(request.query);
+	return async function ( request: HTTPRequest<object, object, VerifyEmailDto> ) {
+		const result = VerifyEmailSchema.safeParse( request.query );
+		console.log( 'result', result );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -50,9 +56,10 @@ export function verifyEmail() {
 		}
 
 		try {
-			const otp = await getOTP(result.data.email);
-
-			if (!otp) {
+			console.log( 'result.data', result.data );
+			const otp = await getOTP( result.data.email );
+			console.log( 'otp', otp );
+			if ( !otp ) {
 				return response(
 					StatusCodes.BAD_REQUEST,
 					null,
@@ -60,10 +67,12 @@ export function verifyEmail() {
 				);
 			}
 
-			if (otp === result.data.otp) {
-				const user = await AdminRepo.getAdminByEmail(result.data.email);
+			if ( otp === result.data.otp ) {
+				const user = await AdminRepo.getAdminByEmail( result.data.email );
 
-				if (!user) {
+				console.log( 'user', user );
+
+				if ( !user ) {
 					return response(
 						StatusCodes.NOT_FOUND,
 						null,
@@ -73,14 +82,16 @@ export function verifyEmail() {
 
 				user.isEmailVerified = true;
 				await user.save();
-
-				const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
-				return response(StatusCodes.OK, { user, accessToken }, 'OTP has been Verified');
+				console.log( 'user saved successfully', user );
+				const accessToken = createAccessToken( user as mongoose.Document & ACCOUNT );
+				console.log( 'accessToken', accessToken );
+				return response( StatusCodes.OK, { user, accessToken }, 'OTP has been Verified' );
 			}
-			return response(StatusCodes.BAD_REQUEST, null, 'Wrong OTP');
-		} catch (error) {
-			logger.error(error);
-			return response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'FAILED TO VERIFY OTP');
+			console.log( 'wrong OTP' );
+			return response( StatusCodes.BAD_REQUEST, null, 'Wrong OTP' );
+		} catch ( error ) {
+			console.log( 'error', error );
+			return response( StatusCodes.INTERNAL_SERVER_ERROR, null, 'FAILED TO VERIFY OTP' );
 		}
 	};
 }

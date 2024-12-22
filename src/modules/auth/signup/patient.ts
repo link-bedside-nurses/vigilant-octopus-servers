@@ -6,9 +6,13 @@ import startPhoneVerification from '../../../core/utils/startPhoneVerification';
 import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
 
 export function patientSignup() {
-	return async function (request: HTTPRequest<object, CreatePatientDto>) {
-		const result = CreatePatientSchema.safeParse(request.body);
-		if (!result.success) {
+	return async function ( request: HTTPRequest<object, CreatePatientDto> ) {
+		const result = CreatePatientSchema.safeParse( request.body );
+
+		console.log( 'result', result );
+
+		if ( !result.success ) {
+			console.log( 'Validation failed' );
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -16,16 +20,23 @@ export function patientSignup() {
 			);
 		}
 
-		const patient = await PatientRepo.getPatientByPhone(result.data.phone);
+		const patient = await PatientRepo.getPatientByPhone( result.data.phone );
 
-		if (patient) {
-			return response(StatusCodes.BAD_REQUEST, null, 'Phone number in use');
+		console.log( 'patient', patient );
+
+		if ( patient ) {
+			console.log( 'Phone number already in use ', result.data.phone );
+			return response( StatusCodes.BAD_REQUEST, null, 'Phone number in use' );
 		}
 
-		const user = await PatientRepo.createPatient(result.data);
+		const user = await PatientRepo.createPatient( result.data );
 
-		await startPhoneVerification(result.data.phone);
+		console.log( 'user created successfully', user );
 
-		return response(StatusCodes.OK, user, 'Account created');
+
+		await startPhoneVerification( result.data.phone );
+		console.log( 'OTP sent successfully to phone number', result.data.phone );
+
+		return response( StatusCodes.OK, user, 'Account created' );
 	};
 }

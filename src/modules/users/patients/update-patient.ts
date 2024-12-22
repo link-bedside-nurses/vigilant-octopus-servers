@@ -5,13 +5,16 @@ import { UpdatePatientDto } from '../../../core/interfaces/dtos';
 import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
 
 export function updatePatient() {
-	return async function (request: HTTPRequest<{ id: string }, UpdatePatientDto>) {
-		const patient = await PatientRepo.updatePatient(request.params.id, request.body);
-
-		if (!patient) {
-			return response(StatusCodes.NOT_FOUND, null, 'No Patient Found');
+	return async function ( request: HTTPRequest<{ id: string }, UpdatePatientDto> ) {
+		console.log( 'calling updatePatient' );
+		console.log( 'request.params.id', request.params.id );
+		const patient = await PatientRepo.updatePatient( request.params.id, request.body );
+		console.log( 'patient', patient );
+		if ( !patient ) {
+			console.log( 'No Patient Found' );
+			return response( StatusCodes.NOT_FOUND, null, 'No Patient Found' );
 		}
-
-		return response(StatusCodes.OK, patient, 'Patient updated');
+		console.log( 'Patient updated' );
+		return response( StatusCodes.OK, patient, 'Patient updated' );
 	};
 }

@@ -6,44 +6,59 @@ import { ScheduleAppointmentDto } from '../../../core/interfaces/dtos';
 import { APPOINTMENT_STATUSES } from '../../../core/interfaces';
 
 export class AppointmentRepo {
-	public static async scheduleAppointment(patient: string, appointment: ScheduleAppointmentDto) {
-		const result = await db.appointments.create({ ...appointment, patient });
+	public static async scheduleAppointment( patient: string, appointment: ScheduleAppointmentDto ) {
+		const result = await db.appointments.create( { ...appointment, patient } );
 
-		return (await (await result.populate('patient')).populate('patient')).populate('caregiver');
+		return ( await ( await result.populate( 'patient' ) ).populate( 'patient' ) ).populate( 'caregiver' );
 	}
 
 	public static async getAllAppointments() {
 		return await db.appointments
-			.find({})
-			.sort({ createdAt: 'desc' })
-			.populate('caregiver')
-			.populate('patient');
+			.find( {} )
+			.sort( { createdAt: 'desc' } )
+			.populate( 'caregiver' )
+			.populate( 'patient' );
 	}
 
-	public static async getCaregiverAppointments(caregiverId: string) {
+	public static async getCaregiverAppointments( caregiverId: string ) {
 		return await db.appointments
-			.find({
+			.find( {
 				caregiver: {
 					_id: caregiverId,
 				},
-			})
-			.populate('patient')
-			.populate('caregiver');
+			} )
+			.populate( 'patient' )
+			.populate( 'caregiver' );
 	}
 
-	public static async getPatientAppointments(id: string, status?: APPOINTMENT_STATUSES) {
+	public static async getCaregiverAppointmentHistory( caregiverId: string ) {
+		const appointments = await db.appointments
+			.find( {
+				caregiver: {
+					_id: caregiverId,
+				},
+			} )
+			.populate( 'patient' )
+			.populate( 'caregiver' );
+
+		const filteredAppointments = appointments.filter( ( appointment ) => appointment.status === APPOINTMENT_STATUSES.COMPLETED || appointment.status === APPOINTMENT_STATUSES.CANCELLED );
+
+		return filteredAppointments;
+	}
+
+	public static async getPatientAppointments( id: string, status?: APPOINTMENT_STATUSES ) {
 		let filters: mongoose.FilterQuery<Appointment> = {
 			patient: { _id: id },
 		};
 
-		if (status) {
+		if ( status ) {
 			filters = { ...filters, status };
 		}
 
 		const pipeline: mongoose.PipelineStage[] = [
 			{
 				$match: {
-					patient: new ObjectId(id),
+					patient: new ObjectId( id ),
 				},
 			},
 			{
@@ -88,30 +103,30 @@ export class AppointmentRepo {
 			},
 		];
 
-		if (status) {
-			pipeline.push({
+		if ( status ) {
+			pipeline.push( {
 				$match: {
 					status: status,
 				},
-			});
+			} );
 		}
 
-		let appointments = await db.appointments.aggregate(pipeline);
+		let appointments = await db.appointments.aggregate( pipeline );
 
-		appointments = await db.caregivers.populate(appointments, {
+		appointments = await db.caregivers.populate( appointments, {
 			path: 'caregiver',
-		});
+		} );
 
-		return await db.patients.populate(appointments, {
+		return await db.patients.populate( appointments, {
 			path: 'patient',
-		});
+		} );
 	}
 
-	public static async getAppointmentById(id: string) {
-		return await db.appointments.findById(id).populate('caregiver').populate('patient');
+	public static async getAppointmentById( id: string ) {
+		return await db.appointments.findById( id ).populate( 'caregiver' ).populate( 'patient' );
 	}
 
-	public static async deleteAppointment(id: string) {
-		return await db.appointments.findByIdAndDelete(id);
+	public static async deleteAppointment( id: string ) {
+		return await db.appointments.findByIdAndDelete( id );
 	}
 }

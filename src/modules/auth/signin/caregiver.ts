@@ -12,11 +12,13 @@ export function caregiverSignin() {
 	return async function (
 		request: HTTPRequest<object, Pick<CreateCaregiverDto, 'phone' | 'password'>>
 	) {
-		const result = CreateCaregiverSchema.pick({ phone: true, password: true }).safeParse(
+		const result = CreateCaregiverSchema.pick( { phone: true, password: true } ).safeParse(
 			request.body
 		);
 
-		if (!result.success) {
+		console.log( 'result', result );
+
+		if ( !result.success ) {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -25,21 +27,30 @@ export function caregiverSignin() {
 		}
 
 		const { phone, password } = result.data;
+		console.log( 'phone', phone );
 
-		const caregiver = await CaregiverRepo.getCaregiverByPhone(phone);
+		const caregiver = await CaregiverRepo.getCaregiverByPhone( phone );
 
-		if (!caregiver) {
-			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
+		console.log( 'caregiver', caregiver );
+
+		if ( !caregiver ) {
+			console.log( 'Invalid Credentials' );
+			return response( StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials' );
 		}
 
-		const match = await Password.verify(caregiver.password, password);
+		const match = await Password.verify( caregiver.password, password );
 
-		if (!match) {
-			return response(StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials');
+		console.log( 'match', match );
+
+		if ( !match ) {
+			console.log( 'Invalid Credentials' );
+			return response( StatusCodes.UNAUTHORIZED, null, 'Invalid Credentials' );
 		}
 
-		const accessToken = createAccessToken(caregiver as mongoose.Document & ACCOUNT);
+		const accessToken = createAccessToken( caregiver as mongoose.Document & ACCOUNT );
 
-		return response(StatusCodes.OK, { user: caregiver, accessToken }, 'Signed in');
+		console.log( 'accessToken', accessToken );
+
+		return response( StatusCodes.OK, { user: caregiver, accessToken }, 'Signed in' );
 	};
 }

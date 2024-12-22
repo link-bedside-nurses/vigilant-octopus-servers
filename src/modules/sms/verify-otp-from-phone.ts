@@ -10,9 +10,11 @@ import { PatientRepo } from '../../infra/database/repositories/patient-repositor
 import mongoose from 'mongoose';
 
 export function verifyOTPFromPhone() {
-	return async function (request: HTTPRequest<object, object, VerifyPhoneDto>) {
-		const result = VerifyPhoneSchema.safeParse(request.query);
-		if (!result.success) {
+	return async function ( request: HTTPRequest<object, object, VerifyPhoneDto> ) {
+		const result = VerifyPhoneSchema.safeParse( request.query );
+		console.log( 'calling verifyOTPFromPhone' );
+		if ( !result.success ) {
+			console.log( 'Validation failed' );
 			return response(
 				StatusCodes.OK,
 				null,
@@ -20,9 +22,12 @@ export function verifyOTPFromPhone() {
 			);
 		}
 
+		console.log( 'result.data', result.data );
+
 		if (
-			![DESIGNATION.CAREGIVER, DESIGNATION.PATIENT].includes(result.data.designation as DESIGNATION)
+			![DESIGNATION.CAREGIVER, DESIGNATION.PATIENT].includes( result.data.designation as DESIGNATION )
 		) {
+			console.log( 'Only patients or caregivers can access this route' );
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -31,19 +36,23 @@ export function verifyOTPFromPhone() {
 		}
 
 		let user;
-		if (result.data.designation === DESIGNATION.CAREGIVER) {
-			user = await CaregiverRepo.getCaregiverByPhone(result.data.phone);
-		} else if (result.data.designation === DESIGNATION.PATIENT) {
-			user = await PatientRepo.getPatientByPhone(result.data.phone);
+		if ( result.data.designation === DESIGNATION.CAREGIVER ) {
+			console.log( 'Getting caregiver by phone', result.data.phone );
+			user = await CaregiverRepo.getCaregiverByPhone( result.data.phone );
+		} else if ( result.data.designation === DESIGNATION.PATIENT ) {
+			console.log( 'Getting patient by phone', result.data.phone );
+			user = await PatientRepo.getPatientByPhone( result.data.phone );
 		}
 
-		if (!user) {
-			return response(StatusCodes.NOT_FOUND, null, 'User not found');
+		if ( !user ) {
+			console.log( 'User not found' );
+			return response( StatusCodes.NOT_FOUND, null, 'User not found' );
 		}
 
-		const storedOTP = await getOTP(result.data.phone);
+		const storedOTP = await getOTP( result.data.phone );
 
-		if (storedOTP !== result.data.otp) {
+		if ( storedOTP !== result.data.otp ) {
+			console.log( 'Wrong or Expired OTP. Try resending the OTP request' );
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -54,8 +63,12 @@ export function verifyOTPFromPhone() {
 		user.isPhoneVerified = true;
 		user = await user.save();
 
-		const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
+		console.log( 'User saved successfully', user );
 
-		return response(StatusCodes.OK, { user, accessToken }, 'OTP has been Verified');
+		const accessToken = createAccessToken( user as mongoose.Document & ACCOUNT );
+
+		console.log( 'accessToken created successfully', accessToken );
+
+		return response( StatusCodes.OK, { user, accessToken }, 'OTP has been Verified' );
 	};
 }

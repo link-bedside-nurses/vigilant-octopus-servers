@@ -7,10 +7,10 @@ import { response } from '../../core/utils/http-response';
 import { HTTPRequest } from '../../api/adapters/express-callback';
 
 export function scheduleAppointment() {
-	return async function (request: HTTPRequest<object, ScheduleAppointmentDto, object>) {
-		const result = ScheduleAppointmentSchema.safeParse(request.body);
+	return async function ( request: HTTPRequest<object, ScheduleAppointmentDto, object> ) {
+		const result = ScheduleAppointmentSchema.safeParse( request.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -18,16 +18,20 @@ export function scheduleAppointment() {
 			);
 		}
 
-		const caregiver = await CaregiverRepo.getCaregiverById(result.data.caregiver);
+		const caregiver = await CaregiverRepo.getCaregiverById( result.data.caregiver );
 
-		if (!caregiver) {
-			return response(StatusCodes.BAD_REQUEST, null, `No such caregiver with given id`);
+		if ( !caregiver ) {
+			return response( StatusCodes.BAD_REQUEST, null, `No such caregiver with given id` );
 		}
 
-		const patient = await PatientRepo.getPatientById(request.account?.id!);
+		console.log( 'caregiver', caregiver );
 
-		if (!patient) {
-			return response(StatusCodes.BAD_REQUEST, null, `No such patient with given id`);
+		const patient = await PatientRepo.getPatientById( request.account?.id! );
+
+		console.log( 'patient', patient );
+
+		if ( !patient ) {
+			return response( StatusCodes.BAD_REQUEST, null, `No such patient with given id` );
 		}
 
 		const appointment = await AppointmentRepo.scheduleAppointment(
@@ -35,6 +39,8 @@ export function scheduleAppointment() {
 			result.data
 		);
 
-		return response(StatusCodes.OK, appointment, 'Appointment Scheduled');
+		console.log( 'appointment scheduled successfully', appointment );
+
+		return response( StatusCodes.OK, appointment, 'Appointment Scheduled' );
 	};
 }
