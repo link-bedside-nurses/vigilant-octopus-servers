@@ -2,22 +2,22 @@
 module.exports = {
 	apps: [
 		{
-			name: "linkbedsides",
-			script: "npm",
-			args: "start",
+			name: 'linkbedsides',
+			script: 'npm',
+			args: 'start',
 			watch: false,
-			ignore_watch: ["dist"],
+			ignore_watch: ['dist'],
 			watch_options: {
-				"followSymlinks": false
+				followSymlinks: false
 			},
 			instances: 1,
-			exec_mode: "cluster",
+			exec_mode: 'cluster',
 			autorestart: false,
 			env: {
-				NODE_ENV: "development"
+				NODE_ENV: 'production'
 			},
 			env_production: {
-				NODE_ENV: "production"
+				NODE_ENV: 'production'
 			}
 		}
 	]

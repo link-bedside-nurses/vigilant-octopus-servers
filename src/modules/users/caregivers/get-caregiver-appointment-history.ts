@@ -15,10 +15,6 @@ export function getCaregiverAppointmentHistory() {
                 : 'No Appointment History Found';
         console.log( 'message', message );
         console.log( 'appointments.length', appointments.length );
-        return response(
-            appointments.length > 0 ? StatusCodes.OK : StatusCodes.NOT_FOUND,
-            appointments,
-            message
-        );
+        return response( StatusCodes.OK, appointments, message );
     };
 }

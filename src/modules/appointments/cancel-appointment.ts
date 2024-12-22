@@ -10,6 +10,7 @@ export function cancelAppointment() {
 		console.log( 'appointment', appointment );
 
 		if ( !appointment ) {
+			console.log( 'appointment not found' );
 			return response( StatusCodes.NOT_FOUND, null, 'Could not cancel appointment.' );
 		}
 
