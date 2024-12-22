@@ -11,6 +11,7 @@ import { getAllAppointments } from './get-all-appointments';
 import { getAppointment } from './get-appointment';
 import { scheduleAppointment } from './schedule-appointment';
 import { updateAppointmentStatus } from './update-appointment';
+import rescheduleAppointment from './reschedule-appointment';
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.get( '/', authenticate, isBanned, callback( getAllAppointments() ) );
 router.post( '/', authenticate, isBanned, callback( scheduleAppointment() ) );
 router.get( '/:id', authenticate, validateObjectID, isBanned, callback( getAppointment() ) );
 router.patch( '/:id/update', authenticate, validateObjectID, isBanned, callback( updateAppointmentStatus() ) );
+router.patch( '/:id/reschedule', authenticate, validateObjectID, isBanned, callback( rescheduleAppointment() ) );
 router.patch(
 	'/:id/confirm',
 	authenticate,

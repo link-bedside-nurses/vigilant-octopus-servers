@@ -135,6 +135,10 @@ export class AppointmentRepo {
 		} );
 	}
 
+	public static async rescheduleAppointment( appointmentId: string, date: string ) {
+		return await db.appointments.findByIdAndUpdate( appointmentId, { date } );
+	}
+
 	public static async getAppointmentById( id: string ) {
 		return await db.appointments.findById( id ).populate( 'caregiver' ).populate( 'patient' );
 	}

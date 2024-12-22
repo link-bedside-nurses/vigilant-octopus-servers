@@ -57,6 +57,11 @@ export const ScheduleAppointmentSchema = z.object( {
 	date: z.string().optional(),
 } );
 
+export const RescheduleAppointmentSchema = z.object( {
+	appointmentId: z.string(),
+	date: z.string(),
+} );
+
 export const CancelAppointmentSchema = z.object( {
 	reason: z.string().optional(),
 } );
@@ -94,6 +99,7 @@ export type UpdateCaregiverDto = z.infer<typeof UpdateCaregiverSchema>;
 export type UpdateAdminDto = z.infer<typeof UpdateAdminSchema>;
 export type CreateRatingDto = z.infer<typeof CreateRatingSchema>;
 export type ScheduleAppointmentDto = z.infer<typeof ScheduleAppointmentSchema>;
+export type RescheduleAppointmentDto = z.infer<typeof RescheduleAppointmentSchema>;
 export type CancelAppointmentDto = z.infer<typeof CancelAppointmentSchema>;
 export type TResponse = z.infer<typeof TResponseSchema>;
 export type VerifyEmailDto = z.infer<typeof VerifyEmailSchema>;
