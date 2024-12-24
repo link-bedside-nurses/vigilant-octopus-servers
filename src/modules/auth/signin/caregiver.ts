@@ -19,6 +19,7 @@ export function caregiverSignin() {
 		console.log( 'result', result );
 
 		if ( !result.success ) {
+			console.log( 'result.error', result.error );
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
