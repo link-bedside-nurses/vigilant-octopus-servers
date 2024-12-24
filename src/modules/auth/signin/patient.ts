@@ -10,6 +10,7 @@ export function patientSignin() {
 		const result = CreatePatientSchema.pick( { phone: true } ).safeParse( request.body );
 
 		if ( !result.success ) {
+			console.log( 'validation failed at signin ', result )
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
