@@ -9,6 +9,7 @@ export function patientSignin() {
 	return async function ( request: HTTPRequest<object, Pick<CreatePatientDto, 'phone'>> ) {
 		const result = CreatePatientSchema.pick( { phone: true } ).safeParse( request.body );
 
+		console.log( 'imcoming data', request.body )
 		if ( !result.success ) {
 			console.log( 'validation failed at signin ', result.error )
 			return response(
