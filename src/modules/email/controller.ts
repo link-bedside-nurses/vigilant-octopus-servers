@@ -95,3 +95,19 @@ export function verifyEmail() {
 		}
 	};
 }
+
+export function getEmailVerificationOTP() {
+	return async function ( request: HTTPRequest<object, object, VerifyEmailDto> ) {
+		const result = VerifyEmailSchema.safeParse( request.query );
+		if ( !result.success ) {
+			return response(
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+			);
+		}
+
+		await startEmailVerification( result.data.email );
+		return response( StatusCodes.OK, null, 'Check email for OTP' );
+	}
+}
