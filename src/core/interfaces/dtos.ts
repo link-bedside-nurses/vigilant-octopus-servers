@@ -11,6 +11,9 @@ const BaseSchema = z.object( {
 	 */
 	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ), // E.164 format
 	designation: DesignationEnum,
+	password: z.string().min( 8 ),
+	confirmPassword: z.string().min( 8 ),
+	email: z.string().email(),
 } );
 
 export const CreatePatientSchema = BaseSchema.extend( {} ).omit( { designation: true } );

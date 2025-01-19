@@ -1,13 +1,19 @@
 import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../api/adapters/express-callback';
-import { CreatePatientDto, CreatePatientSchema } from '../../../core/interfaces/dtos';
-import { response } from '../../../core/utils/http-response';
-import startPhoneVerification from '../../../core/utils/startPhoneVerification';
 import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
+import { response } from '../../../core/utils/http-response';
+import { z } from 'zod';
+import startPhoneVerification from '../../../core/utils/startPhoneVerification';
+import startEmailVerification from '../../../core/utils/startEmailVerification';
+
+const PatientSigninSchema = z.object( {
+	type: z.enum( ['email', 'phone'] ),
+	username: z.string(),
+} );
 
 export function patientSignin() {
-	return async function ( request: HTTPRequest<object, Pick<CreatePatientDto, 'phone'>> ) {
-		const result = CreatePatientSchema.pick( { phone: true } ).safeParse( request.body );
+	return async function ( request: HTTPRequest<object, z.infer<typeof PatientSigninSchema>> ) {
+		const result = PatientSigninSchema.safeParse( request.body );
 
 		console.log( 'imcoming data', request.body )
 		if ( !result.success ) {
@@ -20,19 +26,32 @@ export function patientSignin() {
 		}
 		console.log( 'result', result );
 
-		const user = await PatientRepo.getPatientByPhone( result.data.phone );
+		const { type, username } = result.data;
+		let patient;
 
-		console.log( 'user', user );
-
-		if ( !user ) {
-			console.log( 'No such user found' );
-			return response( StatusCodes.UNAUTHORIZED, null, 'No such user found'
-			);
+		// Find patient based on type
+		if ( type === 'email' ) {
+			patient = await PatientRepo.getPatientByEmail( username );
+		} else {
+			patient = await PatientRepo.getPatientByPhone( username );
 		}
 
-		await startPhoneVerification( result.data.phone );
-		console.log( 'OTP sent successfully to phone number', result.data.phone );
+		console.log( 'user', patient );
 
-		return response( StatusCodes.OK, null, 'Check sms for Cne Time Code (OTP)' );
+		if ( !patient ) {
+			console.log( 'No such user found' );
+			return response( StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
+		}
+
+		// Send verification based on type
+		if ( type === 'email' ) {
+			await startEmailVerification( patient.email! );
+			console.log( 'OTP sent successfully to email', patient.email );
+			return response( StatusCodes.OK, null, 'Check email for One Time Code (OTP)' );
+		} else {
+			await startPhoneVerification( patient.phone );
+			console.log( 'OTP sent successfully to phone number', patient.phone );
+			return response( StatusCodes.OK, null, 'Check sms for One Time Code (OTP)' );
+		}
 	};
 }
