@@ -19,7 +19,7 @@ const router = Router();
 router.get( '/', authenticate, isBanned, callback( getAllAppointments() ) );
 router.post( '/', authenticate, isBanned, callback( scheduleAppointment() ) );
 router.get( '/:id', authenticate, validateObjectID, isBanned, callback( getAppointment() ) );
-router.get( '/history', authenticate, isBanned, callback( getAppointmentsHistory() ) );
+router.post( '/history', authenticate, isBanned, callback( getAppointmentsHistory() ) );
 router.patch( '/:id/update', authenticate, validateObjectID, isBanned, callback( updateAppointmentStatus() ) );
 router.patch( '/:id/reschedule', authenticate, validateObjectID, isBanned, callback( rescheduleAppointment() ) );
 router.patch(
