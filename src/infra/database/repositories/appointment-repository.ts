@@ -3,7 +3,7 @@ import { db } from '..';
 import { ObjectId } from 'mongodb';
 import { Appointment } from '../models/Appointment';
 import { ScheduleAppointmentDto } from '../../../core/interfaces/dtos';
-import { APPOINTMENT_STATUSES } from '../../../core/interfaces';
+import { APPOINTMENT_STATUSES, DESIGNATION } from '../../../core/interfaces';
 
 export class AppointmentRepo {
 	public static async scheduleAppointment( patient: string, appointment: ScheduleAppointmentDto ) {
@@ -33,7 +33,7 @@ export class AppointmentRepo {
 			.populate( 'caregiver' );
 	}
 
-	public static async getCaregiverAppointmentHistory( caregiverId: string ) {
+	public static async getCaregiverAppointmentHistory( caregiverId: string, ) {
 		console.log( 'caregiverId', caregiverId );
 		const appointments = await db.appointments
 			.find( {
@@ -137,6 +137,104 @@ export class AppointmentRepo {
 
 	public static async rescheduleAppointment( appointmentId: string, date: string ) {
 		return await db.appointments.findByIdAndUpdate( appointmentId, { date } );
+	}
+
+	public static async getAppointmentsHistory(
+		designation: DESIGNATION,
+		status?: APPOINTMENT_STATUSES,
+		patientId?: string,
+		caregiverId?: string
+	) {
+		try {
+			const query: mongoose.FilterQuery<Appointment> = {};
+
+			// Add status filter if provided
+			if ( status ) {
+				query.status = status;
+			}
+
+			// Add user-specific filters based on designation
+			if ( designation === DESIGNATION.PATIENT && patientId ) {
+				query.patient = new ObjectId( patientId );
+			} else if ( designation === DESIGNATION.CAREGIVER && caregiverId ) {
+				query.caregiver = new ObjectId( caregiverId );
+			}
+
+			const pipeline: mongoose.PipelineStage[] = [
+				{
+					$match: query
+				},
+				{
+					$addFields: {
+						order: {
+							$switch: {
+								branches: [
+									{
+										case: { $eq: ['$status', 'ongoing'] },
+										then: 1
+									},
+									{
+										case: { $eq: ['$status', 'pending'] },
+										then: 2
+									},
+									{
+										case: { $eq: ['$status', 'cancelled'] },
+										then: 3
+									},
+									{
+										case: { $eq: ['$status', 'completed'] },
+										then: 4
+									}
+								],
+								default: 5
+							}
+						}
+					}
+				},
+				{
+					$sort: {
+						order: 1,
+						createdAt: -1
+					}
+				},
+				{
+					$lookup: {
+						from: 'patients',
+						localField: 'patient',
+						foreignField: '_id',
+						as: 'patient'
+					}
+				},
+				{
+					$lookup: {
+						from: 'caregivers',
+						localField: 'caregiver',
+						foreignField: '_id',
+						as: 'caregiver'
+					}
+				},
+				{
+					$unwind: {
+						path: '$patient',
+						preserveNullAndEmptyArrays: true
+					}
+				},
+				{
+					$unwind: {
+						path: '$caregiver',
+						preserveNullAndEmptyArrays: true
+					}
+				}
+			];
+
+			const appointments = await db.appointments.aggregate( pipeline );
+			console.log( 'Filtered appointments:', appointments );
+
+			return appointments;
+		} catch ( error ) {
+			console.error( 'Error in getAppointmentsHistory:', error );
+			throw error;
+		}
 	}
 
 	public static async getAppointmentById( id: string ) {

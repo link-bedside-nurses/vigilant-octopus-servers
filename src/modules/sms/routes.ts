@@ -6,4 +6,4 @@ import { getPhoneVerificationOTP } from './get-phone-verification-otp';
 export const otpRouter = Router();
 
 otpRouter.post( '/verify', callback( verifyOTPFromPhone() ) );
-otpRouter.post( '/send', callback( getPhoneVerificationOTP() ) );
+otpRouter.post( '/request', callback( getPhoneVerificationOTP() ) );
