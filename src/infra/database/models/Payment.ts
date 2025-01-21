@@ -1,8 +1,8 @@
-import { Severity, modelOptions, mongoose, prop } from '@typegoose/typegoose';
+import { Severity, modelOptions, mongoose, prop, Ref } from '@typegoose/typegoose';
 import { Appointment } from './Appointment';
 import { Patient } from './Patient';
 
-@modelOptions({
+@modelOptions( {
 	schemaOptions: {
 		id: false,
 		virtuals: true,
@@ -10,7 +10,7 @@ import { Patient } from './Patient';
 		toObject: { virtuals: true },
 		toJSON: {
 			virtuals: true,
-			transform(_doc, ret): void {
+			transform( _doc, ret ): void {
 				ret.id = _doc._id;
 				delete ret._id;
 				delete ret.__v;
@@ -18,25 +18,36 @@ import { Patient } from './Patient';
 		},
 	},
 	options: { allowMixed: Severity.ALLOW },
-})
+} )
 export class Payment {
-	@prop({
+	@prop( {
 		required: true,
 		type: mongoose.Document,
 		ref: Appointment,
-	})
+	} )
 	appointment!: Appointment;
 
-	@prop({
-		required: true,
-		type: mongoose.Document,
-		ref: Patient,
-	})
-	patient!: Patient;
+	@prop( { ref: () => Patient, required: true } )
+	patient!: Ref<Patient>;
 
-	@prop({ type: String, required: true })
+	@prop( { required: true } )
 	amount!: number;
 
-	@prop({ type: String, required: true })
+	@prop( { required: true } )
+	referenceId!: string;
+
+	@prop( { required: true, enum: ['PENDING', 'SUCCESSFUL', 'FAILED'] } )
+	status!: string;
+
+	@prop( { required: true, enum: ['MOMO'] } )
+	paymentMethod!: string;
+
+	@prop()
+	transactionId?: string;
+
+	@prop()
+	failureReason?: string;
+
+	@prop( { type: String, required: true } )
 	comment!: string;
 }

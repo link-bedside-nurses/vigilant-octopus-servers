@@ -1,18 +1,30 @@
 import axios from 'axios';
 import { uris, envars } from '../../../../../config/constants';
 
-export default function createMomoBearerToken() {
-	const data = '';
+interface ApiKeyResponse {
+	apiKey: string;
+}
 
-	const config = {
-		method: 'post',
-		maxBodyLength: Infinity,
-		url: `${uris.momo_sandbox}/v1_0/apiuser/${envars.X_REFERENCE_ID}/${envars.API_KEY}`,
-		headers: {
-			'Ocp-Apim-Subscription-Key': envars.OCP_APIM_SUBSCRIPTION_KEY,
-		},
-		data: data,
-	};
+export async function createMomoApiKey( referenceId: string ): Promise<string> {
+	try {
+		const config = {
+			method: 'post',
+			url: `${uris.momo_sandbox}/v1_0/apiuser/${referenceId}/apikey`,
+			headers: {
+				'Ocp-Apim-Subscription-Key': envars.OCP_APIM_SUBSCRIPTION_KEY
+			}
+		};
 
-	return axios.request(config);
+		const response = await axios.request<ApiKeyResponse>( config );
+
+		if ( response.status === 201 && response.data.apiKey ) {
+			console.log( 'API Key generated successfully' );
+			return response.data.apiKey;
+		}
+
+		throw new Error( 'Failed to get API key from response' );
+	} catch ( error: any ) {
+		console.error( 'Error generating API key:', error.response?.data || error.message );
+		throw error;
+	}
 }
