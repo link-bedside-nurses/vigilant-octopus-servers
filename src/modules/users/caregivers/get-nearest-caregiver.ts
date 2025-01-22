@@ -19,6 +19,7 @@ export function getNearestCaregiver() {
             console.log( 'nearest caregiver validation result', result );
 
             if ( !result.success ) {
+                console.log( 'nearest caregiver validation result', result.error.issues[0].message );
                 return response(
                     StatusCodes.BAD_REQUEST,
                     null,
