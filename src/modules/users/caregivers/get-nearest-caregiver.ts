@@ -16,6 +16,8 @@ export function getNearestCaregiver() {
         try {
             const result = GetNearestCaregiverSchema.safeParse( req.query );
 
+            console.log( 'nearest caregiver validation result', result );
+
             if ( !result.success ) {
                 return response(
                     StatusCodes.BAD_REQUEST,
