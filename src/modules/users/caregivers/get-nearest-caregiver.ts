@@ -13,6 +13,7 @@ const GetNearestCaregiverSchema = z.object( {
 
 export function getNearestCaregiver() {
     return async function ( req: HTTPRequest<object, object, z.infer<typeof GetNearestCaregiverSchema>> ) {
+        console.log( 'nearest caregiver request query params', req.query );
         try {
             const result = GetNearestCaregiverSchema.safeParse( req.query );
 
