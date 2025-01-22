@@ -38,14 +38,6 @@ export function getNearestCaregiver() {
 
             console.log( 'availableCaregivers', availableCaregivers );
 
-            if ( !availableCaregivers.length ) {
-                return response(
-                    StatusCodes.NOT_FOUND,
-                    null,
-                    'No available caregivers found in your area'
-                );
-            }
-
             const nearestCaregiver = availableCaregivers[0];
 
             const formattedCaregiver = {
