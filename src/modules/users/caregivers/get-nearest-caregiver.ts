@@ -5,9 +5,9 @@ import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-re
 import { z } from 'zod';
 
 const GetNearestCaregiverSchema = z.object( {
-    lat: z.number(),
-    lng: z.number(),
-    radius: z.number().optional(), // radius in meters, optional
+    lat: z.string(),
+    lng: z.string(),
+    radius: z.string().optional(), // radius in meters, optional
     appointmentId: z.string() // Add appointmentId to schema
 } );
 
@@ -31,10 +31,10 @@ export function getNearestCaregiver() {
             const { lat, lng, radius, appointmentId } = result.data;
 
             const availableCaregivers = await CaregiverRepo.getNearestAvailableCaregivers(
-                lat,
-                lng,
+                Number( lat ),
+                Number( lng ),
                 appointmentId,
-                radius
+                Number( radius )
             );
 
             console.log( 'availableCaregivers', availableCaregivers );
