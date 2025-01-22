@@ -8,7 +8,6 @@ const GetNearestCaregiverSchema = z.object( {
     lat: z.string(),
     lng: z.string(),
     radius: z.string().optional(), // radius in meters, optional
-    appointmentId: z.string() // Add appointmentId to schema
 } );
 
 export function getNearestCaregiver() {
@@ -28,12 +27,12 @@ export function getNearestCaregiver() {
                 );
             }
 
-            const { lat, lng, radius, appointmentId } = result.data;
+            const { lat, lng, radius } = result.data;
 
             const availableCaregivers = await CaregiverRepo.getNearestAvailableCaregivers(
                 Number( lat ),
                 Number( lng ),
-                appointmentId,
+                "1",
                 Number( radius )
             );
 
