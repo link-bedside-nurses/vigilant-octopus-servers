@@ -4,12 +4,14 @@ import { db } from '../../infra/database';
 import { response } from '../../core/utils/http-response';
 import { PatientRepo } from '../../infra/database/repositories/patient-repository';
 import { CollectionsService } from '../../infra/external-services/payment-gateways/momo/collections/collections-service';
+import { AirtelCollectionsService } from '../../infra/external-services/payment-gateways/airtel/collections/collections-service';
 import { z } from 'zod';
 
 const PaymentSchema = z.object( {
 	amount: z.number(),
 	appointment: z.string(),
 	message: z.string().optional(),
+	provider: z.enum( ['MTN', 'AIRTEL'] ).optional()
 } );
 
 export function getAllPayments() {
@@ -66,13 +68,30 @@ export function initiatePaymentFromPatient() {
 				return response( StatusCodes.NOT_FOUND, null, 'Patient not found' );
 			}
 
-			// Initialize MOMO payment
-			const collectionsService = CollectionsService.getInstance();
-			const referenceId = await collectionsService.requestToPay(
-				result.data.amount.toString(),
-				patient.phone,
-				result.data.message || `Payment request for ${result.data.amount} UGX`
-			);
+			// Check if momo number is configured and verified
+			const paymentPhone = patient.momoNumber && patient.isMomoNumberVerified
+				? patient.momoNumber
+				: patient.phone;
+
+			// Determine payment provider
+			const provider = result.data.provider || detectProvider( paymentPhone );
+			let referenceId: string;
+
+			// Initialize payment based on provider
+			if ( provider === 'MTN' ) {
+				const collectionsService = CollectionsService.getInstance();
+				referenceId = await collectionsService.requestToPay(
+					result.data.amount.toString(),
+					paymentPhone,
+					result.data.message || `Payment request for ${result.data.amount} UGX`
+				);
+			} else {
+				const airtelService = AirtelCollectionsService.getInstance();
+				referenceId = await airtelService.requestToPay(
+					result.data.amount,
+					paymentPhone
+				);
+			}
 
 			// Create payment record in database
 			const payment = await db.payments.create( {
@@ -82,7 +101,7 @@ export function initiatePaymentFromPatient() {
 				comment: result.data.message || `Payment request for ${result.data.amount} UGX`,
 				referenceId,
 				status: 'PENDING',
-				paymentMethod: 'MOMO',
+				paymentMethod: provider,
 				createdAt: new Date()
 			} );
 
@@ -100,6 +119,26 @@ export function initiatePaymentFromPatient() {
 			);
 		}
 	};
+}
+
+// Helper function to detect provider from phone number
+function detectProvider( phone: string ): 'MTN' | 'AIRTEL' {
+	// Remove any country code or formatting
+	const cleanPhone = phone.replace( /\D/g, '' );
+
+	const mtnPrefixes = ['077', '078', '076'];
+
+	const airtelPrefixes = ['070', '075'];
+
+	for ( const prefix of mtnPrefixes ) {
+		if ( cleanPhone.startsWith( prefix ) ) return 'MTN';
+	}
+
+	for ( const prefix of airtelPrefixes ) {
+		if ( cleanPhone.startsWith( prefix ) ) return 'AIRTEL';
+	}
+
+	throw new Error( 'Unsupported phone number prefix' );
 }
 
 export function checkPaymentStatus() {

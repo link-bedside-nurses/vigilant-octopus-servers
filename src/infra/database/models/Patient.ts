@@ -67,4 +67,24 @@ export class Patient {
 		sparse: true // This allows multiple null values while maintaining uniqueness for non-null values
 	} )
 	email?: string;
+
+	@prop( {
+		type: String,
+		required: false,
+		trim: true,
+		unique: true,
+		validate: {
+			validator: function ( v: string ) {
+				return /^(256|0)?(7[0578])\d{7}$/.test( v );
+			},
+			message: props => `${props.value} is not a valid Uganda phone number!`
+		},
+		default: function ( this: Patient ) {
+			return this.phone;
+		}
+	} )
+	momoNumber?: string;
+
+	@prop( { type: Boolean, required: false, default: false } )
+	isMomoNumberVerified?: boolean;
 }

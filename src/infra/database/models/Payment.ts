@@ -39,7 +39,7 @@ export class Payment {
 	@prop( { required: true, enum: ['PENDING', 'SUCCESSFUL', 'FAILED'] } )
 	status!: string;
 
-	@prop( { required: true, enum: ['MOMO'] } )
+	@prop( { required: true, enum: ['MTN', 'AIRTEL'] } )
 	paymentMethod!: string;
 
 	@prop()

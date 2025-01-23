@@ -9,6 +9,8 @@ import { getAllPatients } from './get-all-patients';
 import { getPatient } from './get-patient';
 import { getPatientAppointments } from './get-patient-appointments';
 import { updatePatient } from './update-patient';
+import { configureMomoNumber } from './momo-number/configure-momo-number';
+import { verifyMomoNumber } from './momo-number/verify-momo-number';
 
 const router = Router();
 
@@ -18,5 +20,9 @@ router.get( '/:id/appointments', authenticate, isBanned, callback( getPatientApp
 router.patch( '/:id', authenticate, isBanned, callback( updatePatient() ) );
 router.patch( '/deactivate/:id', authenticate, isBanned, callback( deactivatePatient() ) );
 router.delete( '/:id', authenticate, isBanned, callback( deletePatient() ) );
+
+// Mobile money number routes
+router.post( '/:id/momo-number', authenticate, isBanned, callback( configureMomoNumber() ) );
+router.post( '/:id/momo-number/verify', authenticate, isBanned, callback( verifyMomoNumber() ) );
 
 export default router;

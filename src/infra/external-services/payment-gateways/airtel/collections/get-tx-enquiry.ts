@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { uris } from '../../../../config/constants';
+import { uris } from '../../../../../config/constants';
 
 export default async function getTXEnquiry(id: string, bearer: string) {
 	const config = {

@@ -16,7 +16,10 @@ const BaseSchema = z.object( {
 	email: z.string().email(),
 } );
 
-export const CreatePatientSchema = BaseSchema.extend( {} ).omit( { designation: true } );
+export const CreatePatientSchema = BaseSchema.extend( {
+	momoNumber: z.string().optional(),
+	isMomoNumberVerified: z.boolean().optional(),
+} ).omit( { designation: true } );
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
 
