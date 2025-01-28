@@ -8,6 +8,11 @@ const GetNearestCaregiverSchema = z.object( {
     lat: z.string(),
     lng: z.string(),
     radius: z.string().optional(), // radius in meters, optional
+    limit: z.string().transform( val => {
+        const num = parseInt( val );
+        // Ensure limit is at least 1 and no more than 20
+        return Math.min( Math.max( num, 1 ), 20 );
+    } ).optional().default( '1' ) // Default to 1 if not provided
 } );
 
 export function getNearestCaregiver() {
@@ -27,7 +32,7 @@ export function getNearestCaregiver() {
                 );
             }
 
-            const { lat, lng, radius } = result.data;
+            const { lat, lng, radius, limit } = result.data;
 
             const availableCaregivers = await CaregiverRepo.getNearestAvailableCaregivers(
                 Number( lat ),
@@ -41,27 +46,29 @@ export function getNearestCaregiver() {
             if ( !availableCaregivers.length ) {
                 return response(
                     StatusCodes.OK,
-                    null,
+                    [],
                     'No available caregivers found in your area'
                 );
             }
 
-            const nearestCaregiver = availableCaregivers[0];
+            // Get the specified number of caregivers
+            const limitedCaregivers = availableCaregivers.slice( 0, Number( limit ) );
 
-            const formattedCaregiver = {
-                ...nearestCaregiver,
+            // Format the caregivers with distance information
+            const formattedCaregivers = limitedCaregivers.map( caregiver => ( {
+                ...caregiver,
                 distance: {
-                    meters: Math.round( nearestCaregiver.distance ),
-                    kilometers: Math.round( nearestCaregiver.distance / 1000 * 10 ) / 10
+                    meters: Math.round( caregiver.distance ),
+                    kilometers: Math.round( caregiver.distance / 1000 * 10 ) / 10
                 }
-            };
+            } ) );
 
-            console.log( 'formattedCaregiver', formattedCaregiver );
+            console.log( 'formattedCaregivers', formattedCaregivers );
 
             return response(
                 StatusCodes.OK,
-                formattedCaregiver,
-                'Nearest available caregiver found'
+                formattedCaregivers,
+                `Found ${formattedCaregivers.length} nearest available caregiver(s)`
             );
         } catch ( error: any ) {
             console.error( 'Error getting nearest caregiver:', error );
