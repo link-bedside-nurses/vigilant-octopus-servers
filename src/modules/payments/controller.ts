@@ -6,6 +6,7 @@ import { PatientRepo } from '../../infra/database/repositories/patient-repositor
 import { CollectionsService } from '../../infra/external-services/payment-gateways/momo/collections/collections-service';
 import { AirtelCollectionsService } from '../../infra/external-services/payment-gateways/airtel/collections/collections-service';
 import { z } from 'zod';
+import mongoose from 'mongoose';
 
 const PaymentSchema = z.object( {
 	amount: z.number(),
@@ -21,8 +22,17 @@ export function getAllPayments() {
 	};
 }
 
+export function getPaymentsByPatient() {
+	return async function ( request: HTTPRequest<{ id: string }> ) {
+		const payments = await db.payments.find( { patient: request.params.id } ).sort( { createdAt: 'desc' } );
+		return response( StatusCodes.OK, payments, 'Payments Retrieved' );
+	};
+}
+
 export function getPayment() {
 	return async function ( request: HTTPRequest<{ id: string }> ) {
+
+
 		const payment = await db.payments.findById( request.params.id );
 
 		if ( !payment ) {
@@ -170,6 +180,58 @@ export function checkPaymentStatus() {
 				StatusCodes.INTERNAL_SERVER_ERROR,
 				null,
 				'Failed to check payment status'
+			);
+		}
+	};
+}
+
+export function getCaregiverEarnings() {
+	return async function ( request: HTTPRequest<{ id: string }> ) {
+		try {
+			// Get all successful payments for appointments with this caregiver
+			const payments = await db.payments.aggregate( [
+				{
+					$lookup: {
+						from: 'appointments',
+						localField: 'appointment',
+						foreignField: '_id',
+						as: 'appointmentDetails'
+					}
+				},
+				{
+					$unwind: '$appointmentDetails'
+				},
+				{
+					$match: {
+						'appointmentDetails.caregiver': new mongoose.Types.ObjectId( request.params.id ),
+						'status': 'SUCCESSFUL'
+					}
+				},
+				{
+					$group: {
+						_id: null,
+						totalEarnings: { $sum: '$amount' },
+						payments: { $push: '$$ROOT' }
+					}
+				}
+			] );
+
+			const result = payments[0] || { totalEarnings: 0, payments: [] };
+
+			return response(
+				StatusCodes.OK,
+				{
+					totalEarnings: result.totalEarnings,
+					payments: result.payments
+				},
+				'Caregiver earnings retrieved successfully'
+			);
+		} catch ( error: any ) {
+			console.error( 'Error getting caregiver earnings:', error );
+			return response(
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to get caregiver earnings'
 			);
 		}
 	};
