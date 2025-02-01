@@ -14,6 +14,7 @@ import { updateProfilePicture } from './update-profile-image';
 import { getCaregiverAppointmentHistory } from './get-caregiver-appointment-history';
 import { getNearestCaregiver } from './get-nearest-caregiver';
 import { cancelAppointmentRequest } from './cancel-appointment';
+import { updateAvailability } from './availability/update-availability';
 
 const router = Router();
 
@@ -39,5 +40,8 @@ router.get( '/:id/qualifications', callback( getQualifications() ) );
 router.post( '/:id/qualifications', callback( addQualifications() ) );
 router.put( '/:id/qualifications', callback( updateQualifications() ) );
 router.delete( '/:id/qualifications', callback( deleteQualification() ) );
+
+// Availability routes
+router.patch( '/:id/availability', callback( updateAvailability() ) );
 
 export default router;

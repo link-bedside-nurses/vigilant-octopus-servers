@@ -8,7 +8,6 @@ import { Patient } from './models/Patient';
 import { db } from '.';
 import { PatientRepo } from './repositories/patient-repository';
 import { Password } from '../../core/utils/password';
-import { Caregiver } from './models/Caregiver';
 
 export async function seedPayments() {
 	await db.payments.deleteMany( {}, { maxTimeMS: 30000 } );
@@ -83,7 +82,7 @@ export async function seedCaregivers() {
 	await db.caregivers.deleteMany( {}, { maxTimeMS: 30000 } );
 	const caregivers = [];
 	for ( let i = 0; i < 100; i++ ) {
-		const caregiver: Caregiver = {
+		const caregiver = {
 			designation: DESIGNATION.CAREGIVER,
 			phone: `25677456789${i.toString().padStart( 2, '0' )}`,
 			firstName: faker.person.firstName(),
@@ -97,6 +96,7 @@ export async function seedCaregivers() {
 			isActive: faker.datatype.boolean(),
 			isVerified: faker.datatype.boolean(),
 		};
+
 
 		caregivers.push( caregiver );
 	}

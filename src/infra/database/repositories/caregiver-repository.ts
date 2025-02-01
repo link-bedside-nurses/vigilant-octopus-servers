@@ -2,6 +2,7 @@ import { db } from '..';
 import { CreateCaregiverDto, UpdateCaregiverDto } from '../../../core/interfaces/dtos';
 import { APPOINTMENT_STATUSES } from '../../../core/interfaces';
 import { CaregiverCancellationService } from '../../../services/caregiver-cancellation';
+import { WeeklySchedule } from '../models/Caregiver';
 
 export class CaregiverRepo {
 	public static async getCaregiverById( id: string ) {
@@ -146,6 +147,15 @@ export class CaregiverRepo {
 			// Combine busy and cancelled caregiver IDs
 			const excludedCaregiverIds = [...busyCaregiverIds, ...cancelledCaregiverIds];
 
+			const currentTime = new Date();
+			const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+			const dayOfWeek = days[currentTime.getDay()];
+			const timeStr = currentTime.toLocaleTimeString( 'en-US', {
+				hour12: false,
+				hour: '2-digit',
+				minute: '2-digit'
+			} );
+
 			const availableCaregivers = await db.caregivers.aggregate( [
 				{
 					$geoNear: {
@@ -163,7 +173,10 @@ export class CaregiverRepo {
 						_id: { $nin: excludedCaregiverIds },
 						isVerified: true,
 						isActive: true,
-						isBanned: false
+						isBanned: false,
+						[`availability.${dayOfWeek}.enabled`]: true,
+						[`availability.${dayOfWeek}.start`]: { $lte: timeStr },
+						[`availability.${dayOfWeek}.end`]: { $gte: timeStr }
 					}
 				},
 				{
@@ -190,5 +203,20 @@ export class CaregiverRepo {
 			console.error( 'Error finding nearest available caregivers:', error );
 			throw error;
 		}
+	}
+
+	public static async updateAvailability( id: string, availability: WeeklySchedule ) {
+		return await db.caregivers.findByIdAndUpdate(
+			id,
+			{ availability },
+			{ new: true }
+		);
+	}
+
+	public static async isAvailableAt( id: string, dateTime: Date ): Promise<boolean> {
+		const caregiver = await this.getCaregiverById( id );
+		if ( !caregiver ) return false;
+
+		return caregiver.isAvailableAt( dateTime );
 	}
 }

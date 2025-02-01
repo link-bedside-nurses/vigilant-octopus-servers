@@ -2,6 +2,32 @@ import { index, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { Location } from './Location';
 import { DESIGNATION } from '../../../core/interfaces';
 
+export interface DaySchedule {
+	enabled: boolean;
+	start: string;
+	end: string;
+}
+
+export interface WeeklySchedule {
+	monday: DaySchedule;
+	tuesday: DaySchedule;
+	wednesday: DaySchedule;
+	thursday: DaySchedule;
+	friday: DaySchedule;
+	saturday: DaySchedule;
+	sunday: DaySchedule;
+}
+
+const DEFAULT_SCHEDULE: WeeklySchedule = {
+	monday: { enabled: true, start: '00:00', end: '23:59' },
+	tuesday: { enabled: true, start: '00:00', end: '23:59' },
+	wednesday: { enabled: true, start: '00:00', end: '23:59' },
+	thursday: { enabled: true, start: '00:00', end: '23:59' },
+	friday: { enabled: true, start: '00:00', end: '23:59' },
+	saturday: { enabled: true, start: '00:00', end: '23:59' },
+	sunday: { enabled: true, start: '00:00', end: '23:59' }
+};
+
 @modelOptions( {
 	schemaOptions: {
 		id: false,
@@ -77,4 +103,26 @@ export class Caregiver {
 
 	@prop( { type: Boolean, required: false, default: false } )
 	isVerified?: boolean;
+
+	@prop( {
+		type: Object,
+		required: false,
+		default: DEFAULT_SCHEDULE
+	} )
+	availability?: WeeklySchedule;
+
+	public isAvailableAt( date: Date ): boolean {
+		const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+		const dayOfWeek = days[date.getDay()];
+		const timeStr = date.toLocaleTimeString( 'en-US', {
+			hour12: false,
+			hour: '2-digit',
+			minute: '2-digit'
+		} );
+
+		const schedule = this.availability?.[dayOfWeek as keyof WeeklySchedule];
+		if ( !schedule?.enabled ) return false;
+
+		return timeStr >= schedule.start && timeStr <= schedule.end;
+	}
 }
