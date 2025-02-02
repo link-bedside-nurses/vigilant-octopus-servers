@@ -2,8 +2,9 @@ import { DocumentType, Ref, Severity, modelOptions, mongoose, prop } from '@type
 import { Patient } from './Patient';
 import { APPOINTMENT_STATUSES } from '../../../core/interfaces';
 import { Caregiver } from './Caregiver';
+import { Location } from './Location';
 
-@modelOptions({
+@modelOptions( {
 	schemaOptions: {
 		id: false,
 		virtuals: true,
@@ -11,7 +12,7 @@ import { Caregiver } from './Caregiver';
 		toObject: { virtuals: true },
 		toJSON: {
 			virtuals: true,
-			transform(_doc, ret): void {
+			transform( _doc, ret ): void {
 				ret.id = _doc._id;
 				delete ret._id;
 				delete ret.__v;
@@ -19,32 +20,40 @@ import { Caregiver } from './Caregiver';
 		},
 	},
 	options: { allowMixed: Severity.ALLOW },
-})
+} )
 export class Appointment {
-	@prop({ type: mongoose.Types.ObjectId, required: true, ref: Patient })
+	@prop( { type: mongoose.Types.ObjectId, required: true, ref: Patient } )
 	patient!: Ref<Patient>;
 
-	@prop({ type: mongoose.Types.ObjectId, required: true, ref: Caregiver, index: true })
+	@prop( { type: mongoose.Types.ObjectId, required: true, ref: Caregiver, index: true } )
 	caregiver!: Ref<Caregiver>;
 
-	@prop({ required: true })
-	reason!: string;
+	@prop( { required: true, type: Array } )
+	symptoms!: string[];
 
-	@prop({ required: true, default: Date.now() })
+	@prop( { required: true, default: Date.now() } )
 	date!: Date;
 
-	@prop({
+	@prop( { type: Location, index: '2dsphere' } )
+	location!: Location;
+
+	@prop( {
 		enum: APPOINTMENT_STATUSES,
 		default: APPOINTMENT_STATUSES.PENDING,
 		index: true,
-	})
-	status!: string;
+	} )
+	status!: APPOINTMENT_STATUSES;
 
-	@prop({ type: String, required: false, default: '' })
+	@prop( { type: String, required: false, default: '' } )
 	cancellationReason?: string;
 
-	public async confirmAppointment(this: DocumentType<Appointment>): Promise<void> {
+	public async confirmAppointment( this: DocumentType<Appointment> ): Promise<void> {
 		this.status = APPOINTMENT_STATUSES.IN_PROGRESS;
+		await this.save();
+	}
+
+	public async updateAppointmentStatus( this: DocumentType<Appointment>, { status }: { status: APPOINTMENT_STATUSES } ): Promise<void> {
+		this.status = status;
 		await this.save();
 	}
 

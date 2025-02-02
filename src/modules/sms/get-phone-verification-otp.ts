@@ -10,18 +10,24 @@ import logger from '../../core/utils/logger';
 import { PatientRepo } from '../../infra/database/repositories/patient-repository';
 
 export function getPhoneVerificationOTP() {
-	return async function (request: HTTPRequest<object, object, PhoneVerifcationOTPDto>) {
-		const result = PhoneVerifcationOTPSchema.safeParse(request.query);
-		if (!result.success) {
+	return async function ( request: HTTPRequest<object, object, PhoneVerifcationOTPDto> ) {
+		const result = PhoneVerifcationOTPSchema.safeParse( request.query );
+
+		if ( !result.success ) {
+			console.log( 'Validation failed' );
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
 				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
+
+		console.log( 'result.data', result.data );
+
 		if (
-			![DESIGNATION.CAREGIVER, DESIGNATION.PATIENT].includes(result.data.designation as DESIGNATION)
+			![DESIGNATION.CAREGIVER, DESIGNATION.PATIENT].includes( result.data.designation as DESIGNATION )
 		) {
+			console.log( 'Only patients or caregivers can access this route' );
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -30,27 +36,36 @@ export function getPhoneVerificationOTP() {
 		}
 
 		let user;
-		if (result.data.designation === DESIGNATION.CAREGIVER) {
-			user = await CaregiverRepo.getCaregiverByPhone(result.data.toPhone);
-		} else if (result.data.designation === DESIGNATION.PATIENT) {
-			user = await PatientRepo.getPatientByPhone(result.data.toPhone);
+		if ( result.data.designation === DESIGNATION.CAREGIVER ) {
+			console.log( 'Getting caregiver by phone', result.data.toPhone );
+			user = await CaregiverRepo.getCaregiverByPhone( result.data.toPhone );
+		} else if ( result.data.designation === DESIGNATION.PATIENT ) {
+			console.log( 'Getting patient by phone', result.data.toPhone );
+			user = await PatientRepo.getPatientByPhone( result.data.toPhone );
 		}
 
-		if (!user) {
-			return response(StatusCodes.NOT_FOUND, null, 'User not found');
+		if ( !user ) {
+			console.log( 'User not found' );
+			return response( StatusCodes.NOT_FOUND, null, 'User not found' );
 		}
 
 		const otp = generateOTP();
 
-		await storeOTP(result.data.toPhone, otp);
+		console.log( 'OTP generated successfully', otp );
 
-		logger.info(`OTP Expiring for phone: ${result.data.toPhone} in  2 minutes from now`);
+		await storeOTP( result.data.toPhone, otp );
 
-		const otpResponse = await sendOTP(result.data.toPhone, otp);
+		console.log( 'OTP stored successfully' );
+
+		logger.info( `OTP Expiring for phone: ${result.data.toPhone} in  2 minutes from now` );
+
+		const otpResponse = await sendOTP( result.data.toPhone, otp );
+
+		console.log( 'OTP sent successfully to phone number', result.data.toPhone );
 
 		return response(
 			StatusCodes.OK,
-			JSON.parse(otpResponse.config.data),
+			JSON.parse( otpResponse.config.data ),
 			'OTP generated successfully!'
 		);
 	};

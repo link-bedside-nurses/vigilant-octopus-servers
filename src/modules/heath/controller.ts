@@ -3,12 +3,14 @@ import { response } from '../../core/utils/http-response';
 
 export function ping() {
 	return async function () {
-		return response(StatusCodes.OK, null, 'pong');
+		console.log( 'server is running:sending pong' );
+		return response( StatusCodes.OK, null, 'pong' );
 	};
 }
 
 export function error() {
 	return async function () {
-		throw new Error('Intended Error!');
+		console.log( 'Intended Error!' );
+		throw new Error( 'Intended Error!' );
 	};
 }

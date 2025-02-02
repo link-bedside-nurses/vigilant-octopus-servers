@@ -4,11 +4,16 @@ import { response } from '../../../core/utils/http-response';
 import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
 
 export function getPatient() {
-	return async function (request: HTTPRequest<{ id: string }>) {
-		const patient = await PatientRepo.getPatientById(request.params.id);
-		if (!patient) {
-			return response(StatusCodes.NOT_FOUND, null, 'No Patient Found');
+	return async function ( request: HTTPRequest<{ id: string }> ) {
+		console.log( 'calling getPatient' );
+		console.log( 'request.params.id', request.params.id );
+		const patient = await PatientRepo.getPatientById( request.params.id );
+		console.log( 'patient', patient );
+		if ( !patient ) {
+			console.log( 'No Patient Found' );
+			return response( StatusCodes.NOT_FOUND, null, 'No Patient Found' );
 		}
-		return response(StatusCodes.OK, patient, 'Patient Retrieved');
+		console.log( 'Patient Retrieved' );
+		return response( StatusCodes.OK, patient, 'Patient Retrieved' );
 	};
 }

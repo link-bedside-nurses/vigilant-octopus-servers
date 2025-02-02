@@ -14,9 +14,8 @@ import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { appendFile } from 'node:fs/promises';
 import path from 'node:path';
-import { envars, __PROD__ } from './config/constants';
+import { envars } from './config/constants';
 import errorMiddleware from './api/middlewares/error-middleware';
 import { otpRouter } from './modules/sms/routes';
 import { privacy } from './core/utils/privacy';
@@ -33,17 +32,7 @@ router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 router.use(express.static(path.join(__dirname, 'public')));
 
-router.use(
-	morgan('dev', {
-		stream: {
-			async write(str) {
-				const log = new Uint8Array(Buffer.from(str));
-				process.stdout.write(log);
-				await appendFile(__PROD__ ? 'logs.prod.log' : 'logs.dev.log', log);
-			},
-		},
-	})
-);
+router.use(morgan('dev'));
 
 const ONE_MINUTE = 1 * 60 * 1000;
 router.use(

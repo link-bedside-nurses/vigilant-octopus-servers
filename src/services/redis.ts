@@ -1,16 +1,13 @@
 import Redis from 'ioredis';
-import logger from '../core/utils/logger';
 
-const redis = new Redis({
+const redis = new Redis( {
 	host: 'localhost',
 	port: 6379,
 	password: '',
-});
+} );
 
-redis.on('error', (err) => {
-	console.error('Redis Client Error', err);
-});
+redis.on( 'error', ( err ) => console.error( 'Redis Client Error', err ) );
 
-redis.once('connect', () => logger.info('Connected to redis'));
+redis.once( 'connect', () => console.info( 'Connected to redis' ) );
 
 export default redis;

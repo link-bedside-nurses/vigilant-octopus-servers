@@ -11,65 +11,63 @@ import {
 } from './seed';
 import { envars } from '../../config/constants';
 
-// const DATABASE_CONNECTION_URI = envars.DATABASE_URL;
-const DATABASE_CONNECTION_URI =
-	'mongodb+srv://ianbalijawa16:S1eZikqqPmZUNCt8@cluster0.dd1ll.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const DATABASE_CONNECTION_URI = envars.DATABASE_URL;
 const DATABASE_NAME = envars.DATABASE_NAME;
 
 export async function connectToDatabase() {
 	try {
-		const connection = await mongoose.connect(DATABASE_CONNECTION_URI, {
+		const connection = await mongoose.connect( DATABASE_CONNECTION_URI, {
 			dbName: DATABASE_NAME,
-		});
+		} );
 
-		logger.info(`Connected: ${connection.connection.db.databaseName}`);
-	} catch (error) {
-		logger.error(error);
-		process.exit(1);
+		console.info( `Connected: ${connection.connection.db.databaseName}` );
+	} catch ( error ) {
+		console.error( error );
+		process.exit( 1 );
 	}
 }
 
 export async function disconnectFromDatabase() {
 	try {
-		if (mongoose.connection.id) {
+		if ( mongoose.connection.id ) {
 			await mongoose.connection.close();
-			logger.info('disconnecting from db');
+			logger.info( 'disconnecting from db' );
 		}
 		return;
-	} catch (error) {
-		logger.error(error, 'Error disconnecting db');
+	} catch ( error ) {
+		logger.error( error, 'Error disconnecting db' );
 	}
 }
 
 export async function seedDatabase() {
 	try {
-		logger.info('Seeding patients...');
+		logger.info( 'Seeding patients...' );
 		await seedPatients();
-		logger.info('Patients seeded.');
+		logger.info( 'Patients seeded.' );
 
-		logger.info('Seeding caregivers...');
+		logger.info( 'Seeding caregivers...' );
 		await seedCaregivers();
-		logger.info('Caregivers seeded.');
+		logger.info( 'Caregivers seeded.' );
 
-		logger.info('Seeding admins...');
+		logger.info( 'Seeding admins...' );
 		await seedAdmins();
-		logger.info('Admins seeded.');
+		logger.info( 'Admins seeded.' );
 
-		logger.info('Seeding appointments...');
+		logger.info( 'Seeding appointments...' );
 		await seedAppointments();
-		logger.info('Appointments seeded.');
+		logger.info( 'Appointments seeded.' );
 
-		logger.info('Seeding payments...');
+		logger.info( 'Seeding payments...' );
 		await seedPayments();
-		logger.info('Payments seeded.');
+		logger.info( 'Payments seeded.' );
 
-		logger.info('Seeding ratings...');
+		logger.info( 'Seeding ratings...' );
 		await seedRatings();
-		logger.info('Ratings seeded.');
+		logger.info( 'Ratings seeded.' );
 
-		logger.info('Database seeding completed successfully.');
-	} catch (error) {
-		logger.error('Error seeding database:', error);
+		logger.info( 'Database seeding completed successfully.' );
+	} catch ( error ) {
+		logger.error( 'Error seeding database:', error );
 	}
 }
 

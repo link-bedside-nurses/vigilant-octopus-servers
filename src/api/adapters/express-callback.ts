@@ -3,6 +3,7 @@ import { IncomingHttpHeaders } from 'http';
 import { ACCOUNT } from '../../core/interfaces';
 
 export interface HTTPRequest<ParamsDictionary = any, RequestBody = any, QueryDictionary = any> {
+	files: File[];
 	body: RequestBody;
 	query: QueryDictionary;
 	params: ParamsDictionary;
@@ -28,6 +29,7 @@ export default function makeCallback(controllerCallback: ControllerCallbackHandl
 			query: request.query,
 			params: request.params,
 			ip: request.ip,
+			files: [],
 			method: request.method,
 			path: request.path,
 			headers: {

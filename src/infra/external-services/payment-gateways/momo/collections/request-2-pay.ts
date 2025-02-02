@@ -1,34 +1,47 @@
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
 import { uris, envars } from '../../../../../config/constants';
 
-export default async function makeReq2Pay(token: string, amount: string, partyId: string) {
-	const xReferenceId = uuidv4();
-
-	const data = {
-		amount: amount,
-		currency: 'EURO',
-		externalId: '097411115',
-		payer: {
-			partyIdType: 'MSISDN',
-			partyId: partyId,
-		},
-		payerMessage: 'Test payment 2',
-		payeeNote: 'Test payment Note 2',
+interface RequestToPayPayload {
+	amount: string;
+	currency: string;
+	externalId: string;
+	payer: {
+		partyIdType: 'MSISDN';
+		partyId: string;
 	};
+	payerMessage: string;
+	payeeNote: string;
+}
 
-	const config = {
-		method: 'post',
-		maxBodyLength: Infinity,
-		url: `${uris.momo_sandbox}/collection/v1_0/requesttopay`,
-		headers: {
-			'X-Reference-Id': xReferenceId,
-			'X-Target-Environment': 'sandbox',
-			'Ocp-Apim-Subscription-Key': envars.OCP_APIM_SUBSCRIPTION_KEY,
-			Authorization: `Bearer ${token}`,
-		},
-		data: data,
-	};
+export default async function makeReq2Pay(
+	token: string,
+	referenceId: string,
+	payload: RequestToPayPayload
+) {
+	try {
+		const config = {
+			method: 'post',
+			url: `${uris.momo_sandbox}/collection/v1_0/requesttopay`,
+			headers: {
+				'X-Reference-Id': referenceId,
+				'X-Target-Environment': 'sandbox',
+				'Ocp-Apim-Subscription-Key': envars.OCP_APIM_SUBSCRIPTION_KEY,
+				'Authorization': `Bearer ${token}`,
+				'Content-Type': 'application/json'
+			},
+			data: payload
+		};
 
-	return await axios.request(config);
+		const response = await axios.request( config );
+
+		if ( response.status === 202 ) {
+			console.log( 'Payment request accepted' );
+			return response;
+		}
+
+		throw new Error( `Request to pay failed with status: ${response.status}` );
+	} catch ( error: any ) {
+		console.error( 'Request to pay error:', error.response?.data || error.message );
+		throw error;
+	}
 }

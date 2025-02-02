@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { v4 as uuid4 } from 'uuid';
-import { uris } from '../../../../config/constants';
+import { uris } from '../../../../../config/constants';
 
 export default async function makeReq2Pay(token: string, msisdn: string, amount: number) {
 	const id = uuid4();

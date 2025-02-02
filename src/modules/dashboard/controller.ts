@@ -7,7 +7,7 @@ import { AppointmentRepo } from '../../infra/database/repositories/appointment-r
 import { PatientRepo } from '../../infra/database/repositories/patient-repository';
 
 export function getOverview() {
-	return async function (_: HTTPRequest<object, object, object>) {
+	return async function ( _: HTTPRequest<object, object, object> ) {
 		const admins = await AdminRepo.getAllAdmins();
 		const caregivers = await CaregiverRepo.getAllCaregivers();
 		const patients = await PatientRepo.getAllPatients();
@@ -20,6 +20,8 @@ export function getOverview() {
 			appointments: appointments.length,
 		};
 
-		return response(StatusCodes.OK, overviewData, 'Successfully returned stats overview');
+		console.log( 'overviewData retrieved successfully', overviewData );
+
+		return response( StatusCodes.OK, overviewData, 'Successfully returned stats overview' );
 	};
 }

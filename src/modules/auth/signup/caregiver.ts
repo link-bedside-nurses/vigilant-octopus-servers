@@ -8,11 +8,15 @@ import { response } from '../../../core/utils/http-response';
 import { Password } from '../../../core/utils/password';
 import startPhoneVerification from '../../../core/utils/startPhoneVerification';
 import mongoose from 'mongoose';
+import startEmailVerification from '../../../core/utils/startEmailVerification';
 
 export function caregiverSignup() {
-	return async function (request: HTTPRequest<object, CreateCaregiverDto>) {
-		const result = CreateCaregiverSchema.safeParse(request.body);
-		if (!result.success) {
+	return async function ( request: HTTPRequest<object, CreateCaregiverDto> ) {
+		const result = CreateCaregiverSchema.safeParse( request.body );
+
+		console.log( 'result', result );
+
+		if ( !result.success ) {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -20,21 +24,43 @@ export function caregiverSignup() {
 			);
 		}
 
-		const caregiver = await CaregiverRepo.getCaregiverByPhone(result.data.phone);
+		console.log( 'result.data', result.data );
 
-		if (caregiver) {
-			return response(StatusCodes.BAD_REQUEST, null, 'Phone number in use');
+		const caregiver = await CaregiverRepo.getCaregiverByPhone( result.data.phone );
+
+		if ( caregiver ) {
+			console.log( 'Phone number already in use ', result.data.phone );
+			return response( StatusCodes.BAD_REQUEST, null, 'Phone number in use' );
 		}
 
-		const hash = await Password.hash(result.data.password);
+		const email = await CaregiverRepo.getCaregiverByEmail( result.data.email );
 
-		const user = await CaregiverRepo.createCaregiver({
+		if ( email ) {
+			console.log( 'Email already in use ', result.data.email );
+			return response( StatusCodes.BAD_REQUEST, null, 'Email in use' );
+		}
+
+		const hash = await Password.hash( result.data.password );
+
+		console.log( 'password hashed successfully', hash );
+
+		const user = await CaregiverRepo.createCaregiver( {
 			...result.data,
 			password: hash,
-		});
+		} );
 
-		const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
-		await startPhoneVerification(result.data.phone);
-		return response(StatusCodes.OK, { user, accessToken }, 'Account created');
+		console.log( 'user created successfully', user );
+
+		const accessToken = createAccessToken( user as mongoose.Document & ACCOUNT );
+
+		console.log( 'accessToken created successfully', accessToken );
+
+		await startPhoneVerification( result.data.phone );
+		console.log( 'OTP sent successfully to phone number', result.data.phone );
+
+		await startEmailVerification( result.data.email );
+		console.log( 'OTP sent successfully to email', result.data.email );
+
+		return response( StatusCodes.OK, { user, accessToken }, 'Account created' );
 	};
 }
