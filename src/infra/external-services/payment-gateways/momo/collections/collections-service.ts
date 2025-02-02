@@ -21,19 +21,19 @@ interface RequestToPayResult {
     };
 }
 
-export class CollectionsService {
-    private static instance: CollectionsService;
+export class MomoCollectionsService {
+    private static instance: MomoCollectionsService;
     private momoAuth: MomoAuthService;
 
     private constructor() {
         this.momoAuth = MomoAuthService.getInstance();
     }
 
-    public static getInstance(): CollectionsService {
-        if ( !CollectionsService.instance ) {
-            CollectionsService.instance = new CollectionsService();
+    public static getInstance(): MomoCollectionsService {
+        if ( !MomoCollectionsService.instance ) {
+            MomoCollectionsService.instance = new MomoCollectionsService();
         }
-        return CollectionsService.instance;
+        return MomoCollectionsService.instance;
     }
 
     public async requestToPay( amount: string, phoneNumber: string, message: string ): Promise<string> {
