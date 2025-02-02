@@ -12,14 +12,13 @@ const BaseSchema = z.object( {
 	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ), // E.164 format
 	designation: DesignationEnum,
 	password: z.string().min( 8 ),
-	confirmPassword: z.string().min( 8 ),
-	email: z.string().email(),
+	email: z.string().email().optional(),
 } );
 
 export const CreatePatientSchema = BaseSchema.extend( {
 	momoNumber: z.string().optional(),
 	isMomoNumberVerified: z.boolean().optional(),
-} ).omit( { designation: true } );
+} ).omit( { designation: true, password: true } );
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
 
@@ -59,8 +58,16 @@ export const CreateRatingSchema = z.object( {
 
 export const ScheduleAppointmentSchema = z.object( {
 	caregiver: z.string(),
-	symptoms: z.array( z.string() ).min( 1 ),
-	date: z.string().optional(),
+	symptoms: z.array( z.string() ),
+	date: z.coerce.date(),
+	description: z.string().optional(),
+	location: z.object( {
+		type: z.literal( 'Point' ),
+		coordinates: z.tuple( [
+			z.number().min( -180 ).max( 180 ),  // longitude
+			z.number().min( -90 ).max( 90 )     // latitude
+		] )
+	} )
 } );
 
 export const RescheduleAppointmentSchema = z.object( {
