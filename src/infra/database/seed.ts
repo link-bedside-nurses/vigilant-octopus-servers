@@ -1,154 +1,17 @@
-import { Payment } from './models/Payment';
 import { faker } from '@faker-js/faker';
 import * as geolib from 'geolib';
 import { APPOINTMENT_STATUSES, DESIGNATION } from '../../core/interfaces';
-import { AppointmentRepo } from './repositories/appointment-repository';
-import { CaregiverRepo } from './repositories/caregiver-repository';
-import { Patient } from './models/Patient';
 import { db } from '.';
-import { PatientRepo } from './repositories/patient-repository';
 import { Password } from '../../core/utils/password';
 
-export async function seedPayments() {
-	await db.payments.deleteMany( {}, { maxTimeMS: 30000 } );
-	const patients = await PatientRepo.getAllPatients();
-	const appointments = await AppointmentRepo.getAllAppointments();
-
-	const payments = [];
-	for ( let i = 0; i < 10; i++ ) {
-		const payment: Payment = {
-			patient: faker.helpers.arrayElement( patients ),
-			appointment: faker.helpers.arrayElement( appointments ),
-			amount: faker.helpers.arrayElement( [1200, 15000, 50000, 54000, 25000, 100000, 51000, 32000] ),
-			comment: faker.helpers.arrayElement( ['alsdfasdfasd', 'asdfasdfasd', 'asdfasdasd'] ),
-			referenceId: faker.string.uuid(),
-			status: faker.helpers.arrayElement( ['PENDING', 'SUCCESSFUL', 'FAILED'] ),
-			paymentMethod: 'MOMO',
-		};
-
-		payments.push( payment );
-	}
-
-	await db.payments.insertMany( payments );
-}
-
-export async function seedAppointments() {
-	await db.appointments.deleteMany( {}, { maxTimeMS: 30000 } );
-	const caregiverIds = ( await CaregiverRepo.getAllCaregivers() ).map( ( caregiver ) => caregiver._id );
-	const patientIds = ( await PatientRepo.getAllPatients() ).map( ( patient ) => patient._id );
-
-	const appointments = [];
-	for ( let i = 0; i < 100; i++ ) {
-		const appointment = {
-			patient: faker.helpers.arrayElement( patientIds ) as unknown as string,
-			caregiver: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
-			symptoms: Array.from( { length: 3 } ).map( () => faker.lorem.slug( 5 ) ),
-			status: faker.helpers.arrayElement( Object.values( APPOINTMENT_STATUSES ) ),
-			date: faker.date.past(),
-			location: generateRandomLocation( centerCoords ),
-			description: faker.lorem.lines( 2 ),
-			notes: faker.lorem.lines( 3 ),
-		};
-		appointments.push( appointment );
-	}
-	await db.appointments.insertMany( appointments );
-}
-
-export async function seedRatings() {
-	await db.ratings.deleteMany( {}, { maxTimeMS: 30000 } );
-	const caregiverIds = ( await CaregiverRepo.getAllCaregivers() ).map( ( caregiver ) => caregiver._id );
-	const patientIds = ( await PatientRepo.getAllPatients() ).map( ( patient ) => patient._id );
-
-	const ratings = [];
-	for ( let i = 0; i < 1000; i++ ) {
-		const rating = {
-			patient: faker.helpers.arrayElement( patientIds ) as unknown as string,
-			caregiver: faker.helpers.arrayElement( caregiverIds ) as unknown as string,
-			review: faker.lorem.sentence( { max: 20, min: 8 } ),
-			value: faker.number.int( { min: 1, max: 5 } ),
-		};
-
-		ratings.push( rating );
-	}
-
-	await db.ratings.insertMany( ratings );
-}
+// Center coordinates (Kampala)
 const centerCoords = {
 	lat: 0.3323315,
 	lng: 32.5678668,
 };
 
-export async function seedCaregivers() {
-	await db.caregivers.deleteMany( {}, { maxTimeMS: 30000 } );
-	const caregivers = [];
-	for ( let i = 0; i < 100; i++ ) {
-		const caregiver = {
-			designation: DESIGNATION.CAREGIVER,
-			phone: `25677456789${i.toString().padStart( 2, '0' )}`,
-			firstName: faker.person.firstName(),
-			lastName: faker.person.lastName(),
-			password: await Password.hash( 'password' ),
-			qualifications: Array.from( { length: 3 } ).map( () => faker.internet.url() ),
-			location: generateRandomLocation( centerCoords ),
-			isPhoneVerified: faker.datatype.boolean(),
-			imgUrl: faker.image.urlPicsumPhotos(),
-			isBanned: faker.datatype.boolean(),
-			isActive: faker.datatype.boolean(),
-			isVerified: faker.datatype.boolean(),
-		};
-
-
-		caregivers.push( caregiver );
-	}
-
-	await db.caregivers.insertMany( caregivers );
-}
-
-export async function seedPatients() {
-	await db.patients.deleteMany( {}, { maxTimeMS: 30000 } );
-	const patients = [];
-	for ( let i = 0; i < 100; i++ ) {
-		const patient: Patient = {
-			designation: DESIGNATION.PATIENT,
-			location: generateRandomLocation( centerCoords ),
-			phone: `256456789${i.toString().padStart( 2, '0' )}`,
-			firstName: faker.person.firstName(),
-			lastName: faker.person.lastName(),
-			isPhoneVerified: faker.datatype.boolean(),
-			isBanned: faker.datatype.boolean(),
-			isActive: faker.datatype.boolean(),
-			isVerified: faker.datatype.boolean(),
-		};
-
-		patients.push( patient );
-	}
-
-	await db.patients.insertMany( patients );
-}
-
-export async function seedAdmins() {
-	await db.admins.deleteMany( {}, { maxTimeMS: 30000 } );
-	const admins = [];
-	for ( let i = 0; i < 10; i++ ) {
-		const admin = {
-			designation: DESIGNATION.ADMIN,
-			firstName: faker.person.firstName(),
-			lastName: faker.person.lastName(),
-			password: await Password.hash( 'password' ),
-			isEmailVerified: faker.datatype.boolean(),
-			isBanned: faker.datatype.boolean(),
-			isActive: faker.datatype.boolean(),
-			email: faker.internet.email(),
-		};
-
-		admins.push( admin );
-	}
-
-	await db.admins.insertMany( admins );
-}
-
 function generateRandomLocation( centerCoords: { lat: number; lng: number } ) {
-	const maxDistance = 25000; // 25 km in meters
+	const maxDistance = 10000; // 10 km in meters
 	const randomDistance = Math.random() * maxDistance;
 	const randomBearing = Math.random() * 360;
 
@@ -156,6 +19,180 @@ function generateRandomLocation( centerCoords: { lat: number; lng: number } ) {
 
 	return {
 		type: 'Point',
-		coordinates: [newCoords.latitude, newCoords.longitude],
+		coordinates: [newCoords.longitude, newCoords.latitude], // GeoJSON format: [longitude, latitude]
 	};
+}
+
+export async function seedDatabase() {
+	try {
+		console.log( 'Starting database seeding...' );
+
+		// Clear all collections
+		await Promise.all( [
+			db.admins.deleteMany( {} ),
+			db.caregivers.deleteMany( {} ),
+			db.patients.deleteMany( {} ),
+			db.appointments.deleteMany( {} ),
+			db.payments.deleteMany( {} ),
+			db.ratings.deleteMany( {} )
+		] );
+
+		// Seed admins
+		const admins = await seedAdmins();
+		console.log( '✓ Admins seeded', admins );
+
+		// Seed caregivers
+		const caregivers = await seedCaregivers();
+		console.log( '✓ Caregivers seeded' );
+
+		// Seed patients
+		const patients = await seedPatients();
+		console.log( '✓ Patients seeded' );
+
+		// Seed appointments
+		const appointments = await seedAppointments( patients, caregivers );
+		console.log( '✓ Appointments seeded' );
+
+		// Seed payments
+		await seedPayments( appointments, patients );
+		console.log( '✓ Payments seeded' );
+
+		// Seed ratings
+		await seedRatings( patients, caregivers );
+		console.log( '✓ Ratings seeded' );
+
+		console.log( 'Database seeding completed successfully!' );
+	} catch ( error ) {
+		console.error( 'Error seeding database:', error );
+		throw error;
+	}
+}
+
+async function seedAdmins() {
+	const admins = [];
+	for ( let i = 0; i < 5; i++ ) {
+		admins.push( {
+			designation: DESIGNATION.ADMIN,
+			firstName: faker.person.firstName(),
+			lastName: faker.person.lastName(),
+			password: await Password.hash( 'password' ),
+			email: faker.internet.email(),
+			isEmailVerified: true,
+			isBanned: false,
+			isActive: true
+		} );
+	}
+	return await db.admins.insertMany( admins );
+}
+
+async function seedCaregivers() {
+	const caregivers = [];
+	for ( let i = 0; i < 50; i++ ) {
+		caregivers.push( {
+			designation: DESIGNATION.CAREGIVER,
+			phone: `25677${faker.string.numeric( 7 )}`,
+			firstName: faker.person.firstName(),
+			lastName: faker.person.lastName(),
+			password: await Password.hash( 'password' ),
+			email: faker.internet.email(),
+			qualifications: Array( 3 ).fill( null ).map( () => faker.helpers.arrayElement( [
+				'Registered Nurse', 'Licensed Practical Nurse', 'Certified Nursing Assistant',
+				'Home Health Aide', 'Personal Care Aide'
+			] ) ),
+			location: generateRandomLocation( centerCoords ),
+			isPhoneVerified: true,
+			imgUrl: faker.image.avatar(),
+			isBanned: false,
+			isActive: true,
+			isVerified: true,
+			availability: {
+				monday: { enabled: true, start: '00:00', end: '23:59' },
+				tuesday: { enabled: true, start: '00:00', end: '23:59' },
+				wednesday: { enabled: true, start: '00:00', end: '23:59' },
+				thursday: { enabled: true, start: '00:00', end: '23:59' },
+				friday: { enabled: true, start: '00:00', end: '23:59' },
+				saturday: { enabled: true, start: '00:00', end: '23:59' },
+				sunday: { enabled: true, start: '00:00', end: '23:59' }
+			}
+		} );
+	}
+	return await db.caregivers.insertMany( caregivers );
+}
+
+async function seedPatients() {
+	const patients = [];
+	for ( let i = 0; i < 100; i++ ) {
+		patients.push( {
+			designation: DESIGNATION.PATIENT,
+			phone: `25677${faker.string.numeric( 7 )}`,
+			firstName: faker.person.firstName(),
+			lastName: faker.person.lastName(),
+			location: generateRandomLocation( centerCoords ),
+			isPhoneVerified: true,
+			isBanned: false,
+			isActive: true,
+			isVerified: true,
+			momoNumber: `25677${faker.string.numeric( 7 )}`,
+			isMomoNumberVerified: true
+		} );
+	}
+	return await db.patients.insertMany( patients );
+}
+
+async function seedAppointments( patients: any[], caregivers: any[] ) {
+	const appointments = [];
+	const statuses = Object.values( APPOINTMENT_STATUSES );
+	const symptoms = ['Fever', 'Cough', 'Fatigue', 'Headache', 'Body ache', 'Nausea'];
+
+	for ( let i = 0; i < 200; i++ ) {
+		const patient = faker.helpers.arrayElement( patients );
+		appointments.push( {
+			patient: patient._id,
+			caregiver: faker.helpers.arrayElement( caregivers )._id,
+			symptoms: faker.helpers.arrayElements( symptoms, { min: 1, max: 3 } ),
+			status: faker.helpers.arrayElement( statuses ),
+			date: faker.date.recent( { days: 30 } ),
+			location: patient.location,
+			description: faker.lorem.sentence(),
+			notes: faker.lorem.paragraph()
+		} );
+	}
+	return await db.appointments.insertMany( appointments );
+}
+
+async function seedPayments( appointments: any[], patients: any[] ) {
+	const payments = [];
+	const paymentMethods = ['MTN', 'AIRTEL'];
+	const statuses = ['PENDING', 'SUCCESSFUL', 'FAILED'];
+	console.log( patients )
+
+
+	for ( let i = 0; i < appointments.length; i++ ) {
+		if ( faker.number.int( { min: 1, max: 100 } ) <= 70 ) { // 70% of appointments have payments
+			payments.push( {
+				appointment: appointments[i]._id,
+				patient: appointments[i].patient,
+				amount: faker.number.int( { min: 20000, max: 100000 } ),
+				referenceId: faker.string.alphanumeric( 10 ).toUpperCase(),
+				status: faker.helpers.arrayElement( statuses ),
+				paymentMethod: faker.helpers.arrayElement( paymentMethods ),
+				comment: faker.lorem.sentence(),
+				transactionId: faker.string.alphanumeric( 15 ).toUpperCase()
+			} );
+		}
+	}
+	return await db.payments.insertMany( payments );
+}
+
+async function seedRatings( patients: any[], caregivers: any[] ) {
+	const ratings = [];
+	for ( let i = 0; i < 300; i++ ) {
+		ratings.push( {
+			patient: faker.helpers.arrayElement( patients )._id,
+			caregiver: faker.helpers.arrayElement( caregivers )._id,
+			review: faker.lorem.paragraph(),
+			value: faker.number.int( { min: 3, max: 5 } )
+		} );
+	}
+	return await db.ratings.insertMany( ratings );
 }
