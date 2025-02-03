@@ -36,7 +36,7 @@ export function getPayment() {
 		const payment = await db.payments.findById( request.params.id );
 
 		if ( !payment ) {
-			return response( StatusCodes.NOT_FOUND, null, 'No Payment Found' );
+			return response( StatusCodes.OK, null, 'No Payment Found' );
 		}
 
 		return response( StatusCodes.OK, payment, 'Payment Retrieved' );
@@ -52,7 +52,7 @@ export function makeMomoPayment() {
 		const payment = await db.payments.findByIdAndDelete( request.params.id );
 
 		if ( !payment ) {
-			return response( StatusCodes.NOT_FOUND, null, 'No Payment Found' );
+			return response( StatusCodes.OK, null, 'No Payment Found' );
 		}
 
 		return response( StatusCodes.OK, payment, 'Payment deleted' );
@@ -75,7 +75,7 @@ export function initiatePaymentFromPatient() {
 			// Get patient details
 			const patient = await PatientRepo.getPatientById( request.params.id );
 			if ( !patient ) {
-				return response( StatusCodes.NOT_FOUND, null, 'Patient not found' );
+				return response( StatusCodes.OK, null, 'Patient not found' );
 			}
 
 			// Check if momo number is configured and verified
@@ -156,7 +156,7 @@ export function checkPaymentStatus() {
 		try {
 			const payment = await db.payments.findById( request.params.id );
 			if ( !payment ) {
-				return response( StatusCodes.NOT_FOUND, null, 'Payment not found' );
+				return response( StatusCodes.OK, null, 'Payment not found' );
 			}
 
 			const collectionsService = MomoCollectionsService.getInstance();

@@ -27,7 +27,7 @@ export function getCaregiverQualifications() {
 			console.log( 'caregiver', caregiver );
 			if ( !caregiver ) {
 				console.log( 'Caregiver not found' );
-				return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
+				return response( StatusCodes.OK, null, 'Caregiver not found' );
 			}
 
 			// Get detailed information for each qualification document

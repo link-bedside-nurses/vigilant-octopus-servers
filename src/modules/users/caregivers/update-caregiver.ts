@@ -15,7 +15,7 @@ export function updateCaregiver() {
 		console.log( 'caregiver', caregiver );
 
 		if ( !caregiver ) {
-			return response( StatusCodes.NOT_FOUND, null, 'No caregiver Found' );
+			return response( StatusCodes.OK, null, 'No caregiver Found' );
 		}
 		console.log( 'caregiver updated' );
 		return response( StatusCodes.OK, caregiver, 'Caregiver updated' );

@@ -11,7 +11,7 @@ export function deletePatient() {
 		console.log( 'patient', patient );
 
 		if ( !patient ) {
-			return response( StatusCodes.NOT_FOUND, null, 'No Patient Found' );
+			return response( StatusCodes.OK, null, 'No Patient Found' );
 		}
 		console.log( 'patient deleted' );
 		return response( StatusCodes.OK, patient, 'Patient deleted' );

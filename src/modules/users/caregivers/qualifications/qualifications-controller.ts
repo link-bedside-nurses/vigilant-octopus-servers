@@ -14,7 +14,7 @@ export function getQualifications() {
 			console.log( 'caregiver', caregiver );
 			if ( !caregiver ) {
 				console.log( 'Caregiver not found' );
-				return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
+				return response( StatusCodes.OK, null, 'Caregiver not found' );
 			}
 			console.log( 'caregiver.qualifications', caregiver.qualifications );
 			return response( StatusCodes.OK, {
@@ -41,7 +41,7 @@ export function addQualifications() {
 		const caregiver = await CaregiverRepo.getCaregiverById( id );
 		if ( !caregiver ) {
 			console.log( 'Caregiver not found' );
-			return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
+			return response( StatusCodes.OK, null, 'Caregiver not found' );
 		}
 		const newQualifications = qualificationUrls.filter( ( url ) => !caregiver.qualifications.includes( url ) );
 		console.log( 'newQualifications', newQualifications );
@@ -63,7 +63,7 @@ export function updateQualifications() {
 		const caregiver = await CaregiverRepo.getCaregiverById( id );
 		if ( !caregiver ) {
 			console.log( 'Caregiver not found' );
-			return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
+			return response( StatusCodes.OK, null, 'Caregiver not found' );
 		}
 		caregiver.qualifications = qualificationUrls;
 		await caregiver.save();
@@ -83,7 +83,7 @@ export function deleteQualification() {
 		const caregiver = await CaregiverRepo.getCaregiverById( id );
 		if ( !caregiver ) {
 			console.log( 'Caregiver not found' );
-			return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
+			return response( StatusCodes.OK, null, 'Caregiver not found' );
 		}
 		caregiver.qualifications = caregiver.qualifications.filter( ( url ) => url !== qualificationUrl );
 		await caregiver.save();

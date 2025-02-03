@@ -13,7 +13,7 @@ export function updateAppointmentStatus() {
 
         if ( !appointment ) {
             console.log( 'appointment not found' );
-            return response( StatusCodes.NOT_FOUND, null, 'Could not update appointment.' );
+            return response( StatusCodes.OK, null, 'Could not update appointment.' );
         }
 
         await appointment.updateAppointmentStatus( { status: request.body.status } );

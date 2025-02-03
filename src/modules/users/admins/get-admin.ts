@@ -12,7 +12,7 @@ export function getAdmin() {
 		console.log( 'admin', admin );
 		if ( !admin ) {
 			console.log( 'No admin Found' );
-			return response( StatusCodes.NOT_FOUND, null, 'No admin Found' );
+			return response( StatusCodes.OK, null, 'No admin Found' );
 		}
 		console.log( 'Admin Retrieved' );
 		return response( StatusCodes.OK, admin, 'Admin Retrieved' );

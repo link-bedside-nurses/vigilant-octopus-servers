@@ -11,7 +11,7 @@ export function getPatient() {
 		console.log( 'patient', patient );
 		if ( !patient ) {
 			console.log( 'No Patient Found' );
-			return response( StatusCodes.NOT_FOUND, null, 'No Patient Found' );
+			return response( StatusCodes.OK, null, 'No Patient Found' );
 		}
 		console.log( 'Patient Retrieved' );
 		return response( StatusCodes.OK, patient, 'Patient Retrieved' );

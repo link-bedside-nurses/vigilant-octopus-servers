@@ -12,7 +12,7 @@ export function updateAdmin() {
 		const admin = await AdminRepo.updateAdmin( request.params.id, request.body );
 		if ( !admin ) {
 			console.log( 'No admin Found' );
-			return response( StatusCodes.NOT_FOUND, null, 'No admin Found' );
+			return response( StatusCodes.OK, null, 'No admin Found' );
 		}
 		console.log( 'Admin updated' );
 		return response( StatusCodes.OK, admin, 'Admin updated' );

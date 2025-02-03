@@ -74,7 +74,7 @@ export function verifyEmail() {
 
 				if ( !user ) {
 					return response(
-						StatusCodes.NOT_FOUND,
+						StatusCodes.OK,
 						null,
 						'No such user with given email. Please try registering again after 5 mins'
 					);
