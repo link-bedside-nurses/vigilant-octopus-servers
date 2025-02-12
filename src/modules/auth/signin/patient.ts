@@ -19,6 +19,8 @@ export function patientSignin() {
 		const result = PatientSigninSchema.safeParse( request.body );
 
 		if ( !result.success ) {
+			console.log( 'validation failed at signin ', JSON.stringify( result.error.issues ) );
+			console.log( 'result', JSON.stringify( result.error ) );
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
