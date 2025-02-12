@@ -22,7 +22,7 @@ export function patientSignin() {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
-				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+				`${JSON.stringify( result.error.issues )} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
 
