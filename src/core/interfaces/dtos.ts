@@ -18,7 +18,8 @@ const BaseSchema = z.object( {
 export const CreatePatientSchema = BaseSchema.extend( {
 	momoNumber: z.string().optional(),
 	isMomoNumberVerified: z.boolean().optional(),
-} ).omit( { designation: true, password: true } );
+	password: z.string().min( 8 )
+} ).omit( { designation: true } );
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
 

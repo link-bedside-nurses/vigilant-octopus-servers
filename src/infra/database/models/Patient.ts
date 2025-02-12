@@ -87,4 +87,7 @@ export class Patient {
 
 	@prop( { type: Boolean, required: false, default: false } )
 	isMomoNumberVerified?: boolean;
+
+	@prop( { type: String, required: true } )
+	password!: string;
 }

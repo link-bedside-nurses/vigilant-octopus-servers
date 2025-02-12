@@ -3,6 +3,12 @@ import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { CreatePatientDto, CreatePatientSchema } from '../../../core/interfaces/dtos';
 import { response } from '../../../core/utils/http-response';
 import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
+import { Password } from '../../../core/utils/password';
+import startPhoneVerification from '../../../core/utils/startPhoneVerification';
+import startEmailVerification from '../../../core/utils/startEmailVerification';
+import { createAccessToken } from '../../../services/token';
+import { ACCOUNT } from '../../../core/interfaces';
+import mongoose from 'mongoose';
 
 export function patientSignup() {
 	return async function ( request: HTTPRequest<object, CreatePatientDto> ) {
@@ -38,10 +44,28 @@ export function patientSignup() {
 			}
 		}
 
-		const user = await PatientRepo.createPatient( result.data );
+		// Hash password
+		const hash = await Password.hash( result.data.password );
 
-		console.log( 'user created successfully', user );
+		// Create patient with hashed password
+		const patient = await PatientRepo.createPatient( {
+			...result.data,
+			password: hash
+		} );
 
-		return response( StatusCodes.OK, user, 'Account created' );
+		// Generate access token
+		const accessToken = createAccessToken( patient as mongoose.Document & ACCOUNT );
+
+		// Send verification codes
+		await startPhoneVerification( result.data.phone );
+		if ( result.data.email ) {
+			await startEmailVerification( result.data.email );
+		}
+
+		return response(
+			StatusCodes.OK,
+			{ user: patient, accessToken },
+			'Account created successfully'
+		);
 	};
 }
