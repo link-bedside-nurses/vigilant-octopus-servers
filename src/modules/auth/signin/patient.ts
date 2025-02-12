@@ -42,17 +42,18 @@ export function patientSignin() {
 			return response( StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
 		}
 
+
+		// Create access token
+		const accessToken = createAccessToken( patient as mongoose.Document & ACCOUNT );
+
 		// Verify password
 		if ( !patient.password ) {
-			return response( StatusCodes.UNAUTHORIZED, null, 'Patient has no password' );
+			return response( StatusCodes.OK, { user: patient }, 'Patient has no password' );
 		}
 		const match = await Password.verify( patient.password, password );
 		if ( !match ) {
 			return response( StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
 		}
-
-		// Create access token
-		const accessToken = createAccessToken( patient as mongoose.Document & ACCOUNT );
 
 		return response(
 			StatusCodes.OK,
