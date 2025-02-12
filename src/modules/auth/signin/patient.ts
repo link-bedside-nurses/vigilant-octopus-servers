@@ -43,6 +43,9 @@ export function patientSignin() {
 		}
 
 		// Verify password
+		if ( !patient.password ) {
+			return response( StatusCodes.UNAUTHORIZED, null, 'Patient has no password' );
+		}
 		const match = await Password.verify( patient.password, password );
 		if ( !match ) {
 			return response( StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
