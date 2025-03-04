@@ -69,6 +69,11 @@ router.get( '/privacy', function ( _, res ) {
 	res.send( privacy );
 } );
 
+router.get( '/linkbedsides/privacy', function ( _, res ) {
+	res.setHeader( 'Content-Type', 'text/html' );
+	res.send( privacy );
+} );
+
 router.get( '/', function ( request: express.Request, response: express.Response ) {
 	return response
 		.status( StatusCodes.OK )
