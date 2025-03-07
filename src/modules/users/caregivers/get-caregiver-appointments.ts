@@ -17,7 +17,7 @@ export function getCaregiverAppointments() {
 		console.log( 'message', message );
 		console.log( 'appointments.length', appointments.length );
 		return response(
-			appointments.length > 0 ? StatusCodes.OK : StatusCodes.NOT_FOUND,
+			appointments.length > 0 ? StatusCodes.OK : StatusCodes.OK,
 			appointments,
 			message
 		);

@@ -2,18 +2,25 @@ import { StatusCodes } from 'http-status-codes';
 import { HTTPRequest } from '../../../api/adapters/express-callback';
 import { CreatePatientDto, CreatePatientSchema } from '../../../core/interfaces/dtos';
 import { response } from '../../../core/utils/http-response';
-import startPhoneVerification from '../../../core/utils/startPhoneVerification';
 import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
 import { Password } from '../../../core/utils/password';
+import startPhoneVerification from '../../../core/utils/startPhoneVerification';
+import startEmailVerification from '../../../core/utils/startEmailVerification';
+import { createAccessToken } from '../../../services/token';
+import { ACCOUNT } from '../../../core/interfaces';
+import mongoose from 'mongoose';
 
 export function patientSignup() {
 	return async function ( request: HTTPRequest<object, CreatePatientDto> ) {
-		const result = CreatePatientSchema.safeParse( request.body );
+		let result = CreatePatientSchema.safeParse( request.body );
+		if ( !request.body.email ) {
+			result = CreatePatientSchema.omit( { email: true } ).safeParse( request.body );
+		}
 
 		console.log( 'result', result );
 
 		if ( !result.success ) {
-			console.log( 'Validation failed' );
+			console.log( 'Validation failed', result.error.issues );
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
@@ -37,18 +44,28 @@ export function patientSignup() {
 			}
 		}
 
-		// Hash password if it exists in the schema
-		if ( 'password' in result.data ) {
-			result.data.password = await Password.hash( result.data.password );
+		// Hash password
+		const hash = await Password.hash( result.data.password );
+
+		// Create patient with hashed password
+		const patient = await PatientRepo.createPatient( {
+			...result.data,
+			password: hash
+		} );
+
+		// Generate access token
+		const accessToken = createAccessToken( patient as mongoose.Document & ACCOUNT );
+
+		// Send verification codes
+		await startPhoneVerification( result.data.phone );
+		if ( result.data.email ) {
+			await startEmailVerification( result.data.email );
 		}
 
-		const user = await PatientRepo.createPatient( result.data );
-
-		console.log( 'user created successfully', user );
-
-		await startPhoneVerification( result.data.phone );
-		console.log( 'OTP sent successfully to phone number', result.data.phone );
-
-		return response( StatusCodes.OK, user, 'Account created' );
+		return response(
+			StatusCodes.OK,
+			{ user: patient, accessToken },
+			'Account created successfully'
+		);
 	};
 }

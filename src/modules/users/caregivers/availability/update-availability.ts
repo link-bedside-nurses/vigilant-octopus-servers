@@ -4,20 +4,20 @@ import { response } from '../../../../core/utils/http-response';
 import { CaregiverRepo } from '../../../../infra/database/repositories/caregiver-repository';
 import { z } from 'zod';
 
-const TimeSchema = z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)');
+const TimeSchema = z.string().regex( /^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)' );
 
-const DayScheduleSchema = z.object({
+const DayScheduleSchema = z.object( {
     enabled: z.boolean(),
     start: TimeSchema,
     end: TimeSchema
-}).refine(data => {
-    if (!data.enabled) return true;
+} ).refine( data => {
+    if ( !data.enabled ) return true;
     return data.start <= data.end;
 }, {
     message: "End time must be after start time"
-});
+} );
 
-const AvailabilitySchema = z.object({
+const AvailabilitySchema = z.object( {
     monday: DayScheduleSchema,
     tuesday: DayScheduleSchema,
     wednesday: DayScheduleSchema,
@@ -25,13 +25,13 @@ const AvailabilitySchema = z.object({
     friday: DayScheduleSchema,
     saturday: DayScheduleSchema,
     sunday: DayScheduleSchema
-});
+} );
 
 export function updateAvailability() {
-    return async function(request: HTTPRequest<{ id: string }, z.infer<typeof AvailabilitySchema>>) {
+    return async function ( request: HTTPRequest<{ id: string }, z.infer<typeof AvailabilitySchema>> ) {
         try {
-            const result = AvailabilitySchema.safeParse(request.body);
-            if (!result.success) {
+            const result = AvailabilitySchema.safeParse( request.body );
+            if ( !result.success ) {
                 return response(
                     StatusCodes.BAD_REQUEST,
                     null,
@@ -44,9 +44,9 @@ export function updateAvailability() {
                 result.data
             );
 
-            if (!caregiver) {
+            if ( !caregiver ) {
                 return response(
-                    StatusCodes.NOT_FOUND,
+                    StatusCodes.OK,
                     null,
                     'Caregiver not found'
                 );
@@ -57,8 +57,8 @@ export function updateAvailability() {
                 caregiver,
                 'Availability updated successfully'
             );
-        } catch (error: any) {
-            console.error('Error updating availability:', error);
+        } catch ( error: any ) {
+            console.error( 'Error updating availability:', error );
             return response(
                 StatusCodes.INTERNAL_SERVER_ERROR,
                 null,

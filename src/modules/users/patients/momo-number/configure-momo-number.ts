@@ -23,7 +23,7 @@ export function configureMomoNumber() {
 
             const patient = await PatientRepo.getPatientById( request.params.id );
             if ( !patient ) {
-                return response( StatusCodes.NOT_FOUND, null, 'Patient not found' );
+                return response( StatusCodes.OK, null, 'Patient not found' );
             }
 
             // Update momo number and set it as unverified

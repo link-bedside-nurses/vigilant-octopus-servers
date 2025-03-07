@@ -20,7 +20,7 @@ export function banAdmin() {
 		console.log( 'updatedAdmin', updatedAdmin );
 		if ( !updatedAdmin ) {
 			console.log( 'No admin Found' );
-			return response( StatusCodes.NOT_FOUND, null, 'No admin Found' );
+			return response( StatusCodes.OK, null, 'No admin Found' );
 		}
 		console.log( 'Admin banned successfully', updatedAdmin );
 		return response( StatusCodes.OK, updatedAdmin, 'Admin banned' );

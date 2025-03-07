@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { db } from '../../infra/database';
 import { response } from '../../core/utils/http-response';
 import { PatientRepo } from '../../infra/database/repositories/patient-repository';
-import { CollectionsService } from '../../infra/external-services/payment-gateways/momo/collections/collections-service';
+import { MomoCollectionsService } from '../../infra/external-services/payment-gateways/momo/collections/collections-service';
 import { AirtelCollectionsService } from '../../infra/external-services/payment-gateways/airtel/collections/collections-service';
 import { z } from 'zod';
 import mongoose from 'mongoose';
@@ -36,7 +36,7 @@ export function getPayment() {
 		const payment = await db.payments.findById( request.params.id );
 
 		if ( !payment ) {
-			return response( StatusCodes.NOT_FOUND, null, 'No Payment Found' );
+			return response( StatusCodes.OK, null, 'No Payment Found' );
 		}
 
 		return response( StatusCodes.OK, payment, 'Payment Retrieved' );
@@ -52,7 +52,7 @@ export function makeMomoPayment() {
 		const payment = await db.payments.findByIdAndDelete( request.params.id );
 
 		if ( !payment ) {
-			return response( StatusCodes.NOT_FOUND, null, 'No Payment Found' );
+			return response( StatusCodes.OK, null, 'No Payment Found' );
 		}
 
 		return response( StatusCodes.OK, payment, 'Payment deleted' );
@@ -75,7 +75,7 @@ export function initiatePaymentFromPatient() {
 			// Get patient details
 			const patient = await PatientRepo.getPatientById( request.params.id );
 			if ( !patient ) {
-				return response( StatusCodes.NOT_FOUND, null, 'Patient not found' );
+				return response( StatusCodes.OK, null, 'Patient not found' );
 			}
 
 			// Check if momo number is configured and verified
@@ -89,7 +89,7 @@ export function initiatePaymentFromPatient() {
 
 			// Initialize payment based on provider
 			if ( provider === 'MTN' ) {
-				const collectionsService = CollectionsService.getInstance();
+				const collectionsService = MomoCollectionsService.getInstance();
 				referenceId = await collectionsService.requestToPay(
 					result.data.amount.toString(),
 					paymentPhone,
@@ -156,10 +156,10 @@ export function checkPaymentStatus() {
 		try {
 			const payment = await db.payments.findById( request.params.id );
 			if ( !payment ) {
-				return response( StatusCodes.NOT_FOUND, null, 'Payment not found' );
+				return response( StatusCodes.OK, null, 'Payment not found' );
 			}
 
-			const collectionsService = CollectionsService.getInstance();
+			const collectionsService = MomoCollectionsService.getInstance();
 			const status = await collectionsService.getTransactionStatus( payment.referenceId );
 
 			// Update payment status in database

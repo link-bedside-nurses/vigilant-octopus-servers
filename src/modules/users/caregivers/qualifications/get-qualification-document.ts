@@ -22,7 +22,7 @@ export function getQualificationDocument() {
 
 			if ( !caregiver ) {
 				console.log( 'Caregiver not found' );
-				return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
+				return response( StatusCodes.OK, null, 'Caregiver not found' );
 			}
 
 			// Check if the document belongs to the caregiver
@@ -36,7 +36,7 @@ export function getQualificationDocument() {
 			// Check if file exists
 			if ( !fs.existsSync( fullPath ) ) {
 				console.log( 'Document file not found' );
-				return response( StatusCodes.NOT_FOUND, null, 'Document file not found' );
+				return response( StatusCodes.OK, null, 'Document file not found' );
 			}
 
 			// Return file path and metadata

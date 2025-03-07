@@ -7,29 +7,29 @@ import { PatientRepo } from '../../infra/database/repositories/patient-repositor
 import { RatingRepo } from '../../infra/database/repositories/rating-repository';
 
 export function postRating() {
-	return async function (request: HTTPRequest<object, CreateRatingDto, object>) {
-		const result = CreateRatingSchema.safeParse(request.body);
+	return async function ( request: HTTPRequest<object, CreateRatingDto, object> ) {
+		const result = CreateRatingSchema.safeParse( request.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return response(
 				StatusCodes.BAD_REQUEST,
 				null,
 				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
-		const caregiver = await CaregiverRepo.getCaregiverById(result.data.caregiver);
+		const caregiver = await CaregiverRepo.getCaregiverById( result.data.caregiver );
 
-		if (!caregiver) {
-			return response(StatusCodes.NOT_FOUND, null, 'Caregiver not found');
+		if ( !caregiver ) {
+			return response( StatusCodes.OK, null, 'Caregiver not found' );
 		}
 
-		const patient = await PatientRepo.getPatientById(request.account?.id!);
+		const patient = await PatientRepo.getPatientById( request.account?.id! );
 
-		if (!patient) {
-			return response(StatusCodes.NOT_FOUND, null, 'Patient not found');
+		if ( !patient ) {
+			return response( StatusCodes.OK, null, 'Patient not found' );
 		}
 
-		const rating = await RatingRepo.createRating(request.account?.id!, result.data);
-		return response(StatusCodes.OK, rating, 'Rating Posted');
+		const rating = await RatingRepo.createRating( request.account?.id!, result.data );
+		return response( StatusCodes.OK, rating, 'Rating Posted' );
 	};
 }

@@ -15,7 +15,7 @@ export function updateProfilePicture() {
         const caregiver = await CaregiverRepo.getCaregiverById( id );
         console.log( 'caregiver', caregiver );
         if ( !caregiver ) {
-            return response( StatusCodes.NOT_FOUND, null, 'Caregiver not found' );
+            return response( StatusCodes.OK, null, 'Caregiver not found' );
         }
         caregiver.imgUrl = profileImageUrl;
         await caregiver.save();

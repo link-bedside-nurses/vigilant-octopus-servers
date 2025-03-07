@@ -8,7 +8,7 @@ export function confirmAppointment() {
 		const appointment = await AppointmentRepo.getAppointmentById( request.params.id );
 		console.log( 'appointment', appointment );
 		if ( !appointment ) {
-			return response( StatusCodes.NOT_FOUND, null, 'Could not confirm appointment.' );
+			return response( StatusCodes.OK, null, 'Could not confirm appointment.' );
 		}
 
 		await appointment.confirmAppointment();

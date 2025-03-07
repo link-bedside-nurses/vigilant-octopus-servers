@@ -12,7 +12,7 @@ export function banCaregiver() {
 		console.log( 'bannedCaregiver', bannedCaregiver );
 		if ( !bannedCaregiver ) {
 			console.log( 'No such caregiver Found' );
-			return response( StatusCodes.NOT_FOUND, null, 'No such caregiver Found' );
+			return response( StatusCodes.OK, null, 'No such caregiver Found' );
 		}
 		console.log( 'Caregiver Successfully banned from using the application' );
 		return response(

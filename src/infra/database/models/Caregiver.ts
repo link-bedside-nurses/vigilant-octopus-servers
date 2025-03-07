@@ -98,7 +98,7 @@ export class Caregiver {
 	@prop( { type: Boolean, required: false, default: false } )
 	isBanned?: boolean;
 
-	@prop( { type: Boolean, required: false, default: false } )
+	@prop( { type: Boolean, required: false, default: true } )
 	isActive?: boolean;
 
 	@prop( { type: Boolean, required: false, default: false } )
@@ -111,7 +111,17 @@ export class Caregiver {
 	} )
 	availability?: WeeklySchedule;
 
+	// New fields to support account deletion feature
+	@prop( { type: Boolean, required: false, default: false } )
+	markedForDeletion?: boolean;
+
+	@prop( { type: Date, required: false } )
+	deletionRequestDate?: Date;
+
 	public isAvailableAt( date: Date ): boolean {
+		// Don't allow scheduling for caregivers marked for deletion
+		if ( this.markedForDeletion ) return false;
+
 		const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 		const dayOfWeek = days[date.getDay()];
 		const timeStr = date.toLocaleTimeString( 'en-US', {
@@ -124,5 +134,18 @@ export class Caregiver {
 		if ( !schedule?.enabled ) return false;
 
 		return timeStr >= schedule.start && timeStr <= schedule.end;
+	}
+
+	// Helper virtual to determine if deletion grace period has expired (7 days)
+	public get isDeletionGracePeriodExpired(): boolean {
+		if ( !this.markedForDeletion || !this.deletionRequestDate ) {
+			return false;
+		}
+
+		const gracePeriodInDays = 7;
+		const gracePeriodInMs = gracePeriodInDays * 24 * 60 * 60 * 1000;
+		const currentDate = new Date();
+
+		return ( currentDate.getTime() - this.deletionRequestDate.getTime() ) >= gracePeriodInMs;
 	}
 }

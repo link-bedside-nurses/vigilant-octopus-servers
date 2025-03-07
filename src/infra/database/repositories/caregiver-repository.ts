@@ -46,13 +46,38 @@ export class CaregiverRepo {
 	}
 
 	public static async deleteCaregiver( id: string ) {
+		// Cancel any pending appointments
+		await db.appointments.updateMany(
+			{ caregiver: id, status: APPOINTMENT_STATUSES.PENDING },
+			{ $set: { status: APPOINTMENT_STATUSES.CANCELLED, cancellationReason: 'Caregiver account deleted' } }
+		);
+
+		// Remove caregiver from any in-progress appointments
+		await db.appointments.updateMany(
+			{ caregiver: id, status: APPOINTMENT_STATUSES.IN_PROGRESS },
+			{ $set: { status: APPOINTMENT_STATUSES.CANCELLED, cancellationReason: 'Caregiver account deleted' } }
+		);
+
+		// Delete the caregiver document
 		return await db.caregivers.findByIdAndDelete( id );
 	}
 
-	public static async deactivateCaregiver( id: string ) {
-		return await db.caregivers.findByIdAndUpdate( id, { $set: { isActive: true } }, { new: true } );
+	public static async markCaregiverForDeletion( id: string ) {
+		// Mark the account for deletion (to be processed within 7 days)
+		return await db.caregivers.findByIdAndUpdate(
+			id,
+			{
+				markedForDeletion: true,
+				deletionRequestDate: new Date(),
+				isActive: false // Deactivate immediately
+			},
+			{ new: true }
+		);
 	}
 
+	public static async deactivateCaregiver( id: string ) {
+		return await db.caregivers.findByIdAndUpdate( id, { $set: { isActive: false } }, { new: true } );
+	}
 	public static async findByIdAndUpdate( id: string, caregiver: UpdateCaregiverDto ) {
 		return await db.caregivers.findByIdAndUpdate(
 			id,

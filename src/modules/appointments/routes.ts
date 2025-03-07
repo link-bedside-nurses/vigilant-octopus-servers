@@ -15,34 +15,15 @@ import rescheduleAppointment from './reschedule-appointment';
 import { getAppointmentsHistory } from './get-appointments-history';
 
 const router = Router();
-
-router.get( '/', authenticate, isBanned, callback( getAllAppointments() ) );
-router.post( '/', authenticate, isBanned, callback( scheduleAppointment() ) );
-router.get( '/:id', authenticate, validateObjectID, isBanned, callback( getAppointment() ) );
-router.post( '/history', authenticate, isBanned, callback( getAppointmentsHistory() ) );
-router.patch( '/:id/update', authenticate, validateObjectID, isBanned, callback( updateAppointmentStatus() ) );
-router.patch( '/:id/reschedule', authenticate, validateObjectID, isBanned, callback( rescheduleAppointment() ) );
-router.patch(
-	'/:id/confirm',
-	authenticate,
-	validateObjectID,
-	isBanned,
-	callback( confirmAppointment() )
-);
-router.patch(
-	'/:id/cancel',
-	authenticate,
-	validateObjectID,
-	isBanned,
-	callback( cancelAppointment() )
-);
-router.delete(
-	'/:id',
-	authenticate,
-	isAdmin,
-	validateObjectID,
-	isBanned,
-	callback( deleteAppointment() )
-);
+router.use( authenticate, isBanned )
+router.get( '/', callback( getAllAppointments() ) );
+router.post( '/', callback( scheduleAppointment() ) );
+router.get( '/:id', validateObjectID, callback( getAppointment() ) );
+router.post( '/history', callback( getAppointmentsHistory() ) );
+router.patch( '/:id/update', validateObjectID, isBanned, callback( updateAppointmentStatus() ) );
+router.patch( '/:id/reschedule', validateObjectID, isBanned, callback( rescheduleAppointment() ) );
+router.patch( '/:id/confirm', validateObjectID, callback( confirmAppointment() ) );
+router.patch( '/:id/cancel', validateObjectID, callback( cancelAppointment() ) );
+router.delete( '/:id', isAdmin, validateObjectID, callback( deleteAppointment() ) );
 
 export default router;

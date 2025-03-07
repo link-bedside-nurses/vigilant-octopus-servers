@@ -13,7 +13,7 @@ export default function rescheduleAppointment() {
 
         const appointment = await AppointmentRepo.getAppointmentById( request.params.id );
         if ( !appointment ) {
-            return response( StatusCodes.NOT_FOUND, null, 'Appointment not found' );
+            return response( StatusCodes.OK, null, 'Appointment not found' );
         }
 
         const updatedAppointment = await AppointmentRepo.rescheduleAppointment( request.params.id, result.data.date );

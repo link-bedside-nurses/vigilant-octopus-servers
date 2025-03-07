@@ -12,7 +12,7 @@ export function deactivateCaregiver() {
 		console.log( 'caregiver', caregiver );
 		if ( !caregiver ) {
 			console.log( 'No caregiver Found' );
-			return response( StatusCodes.NOT_FOUND, null, 'No caregiver Found' );
+			return response( StatusCodes.OK, null, 'No caregiver Found' );
 		}
 		console.log( 'Account successfully deactivated' );
 		return response( StatusCodes.OK, caregiver, 'Account successfully deactivated' );

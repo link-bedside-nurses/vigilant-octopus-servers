@@ -12,7 +12,7 @@ export function deleteCaregiver() {
 		console.log( 'caregiver', caregiver );
 		if ( !caregiver ) {
 			console.log( 'No caregiver Found' );
-			return response( StatusCodes.NOT_FOUND, null, 'No caregiver Found' );
+			return response( StatusCodes.OK, null, 'No caregiver Found' );
 		}
 		console.log( 'caregiver deleted' );
 

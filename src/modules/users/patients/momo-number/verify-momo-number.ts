@@ -23,7 +23,7 @@ export function verifyMomoNumber() {
 
             const patient = await PatientRepo.getPatientById( request.params.id );
             if ( !patient || !patient.momoNumber ) {
-                return response( StatusCodes.NOT_FOUND, null, 'Patient or mobile money number not found' );
+                return response( StatusCodes.OK, null, 'Patient or mobile money number not found' );
             }
 
             // Verify OTP

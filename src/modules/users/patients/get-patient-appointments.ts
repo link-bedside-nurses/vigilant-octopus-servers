@@ -23,7 +23,7 @@ export function getPatientAppointments() {
 				: 'No Appointment Found';
 		console.log( 'message', message );
 		return response(
-			appointments.length > 0 ? StatusCodes.OK : StatusCodes.NOT_FOUND,
+			appointments.length > 0 ? StatusCodes.OK : StatusCodes.OK,
 			appointments,
 			message
 		);

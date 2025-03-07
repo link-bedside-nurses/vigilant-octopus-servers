@@ -11,7 +11,7 @@ export function verifyCaregiver() {
 		const verifiedCaregiver = await CaregiverRepo.verifyCaregiver( request.params.id );
 		if ( !verifiedCaregiver ) {
 			console.log( 'No such caregiver Found' );
-			return response( StatusCodes.NOT_FOUND, null, 'No such caregiver Found' );
+			return response( StatusCodes.OK, null, 'No such caregiver Found' );
 		}
 		console.log( 'Caregiver verified' );
 		return response( StatusCodes.OK, verifiedCaregiver, 'Caregiver verified' );

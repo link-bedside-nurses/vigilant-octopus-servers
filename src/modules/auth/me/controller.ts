@@ -35,7 +35,7 @@ export function getCurrentUser() {
 		console.log( 'user', user );
 		if ( !user ) {
 			console.log( 'User not found' );
-			return response( StatusCodes.NOT_FOUND, null, 'User not found' );
+			return response( StatusCodes.OK, null, 'User not found' );
 		}
 		console.log( 'User Retrieved' );
 		return response( StatusCodes.OK, user, 'User Retrieved' );

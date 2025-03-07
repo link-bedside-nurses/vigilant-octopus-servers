@@ -11,7 +11,7 @@ export function verifyPatient() {
 		const verifiedPatient = await PatientRepo.verifyPatient( request.params.id );
 		if ( !verifiedPatient ) {
 			console.log( 'No such patient Found' );
-			return response( StatusCodes.NOT_FOUND, null, 'No such patient Found' );
+			return response( StatusCodes.OK, null, 'No such patient Found' );
 		}
 		console.log( 'Patient verified!' );
 		return response( StatusCodes.OK, verifiedPatient, 'Patient verified!' );

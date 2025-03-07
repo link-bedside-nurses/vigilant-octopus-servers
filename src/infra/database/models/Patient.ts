@@ -56,7 +56,7 @@ export class Patient {
 	@prop( { type: Boolean, required: false, default: false } )
 	isVerified?: boolean;
 
-	@prop( { type: Boolean, required: false, default: false } )
+	@prop( { type: Boolean, required: false, default: true } )
 	isActive?: boolean;
 
 	@prop( {
@@ -87,4 +87,27 @@ export class Patient {
 
 	@prop( { type: Boolean, required: false, default: false } )
 	isMomoNumberVerified?: boolean;
+
+	@prop( { type: String, required: true } )
+	password!: string;
+
+	// New fields to support account deletion feature
+	@prop( { type: Boolean, required: false, default: false } )
+	markedForDeletion?: boolean;
+
+	@prop( { type: Date, required: false } )
+	deletionRequestDate?: Date;
+
+	// Helper virtual to determine if deletion grace period has expired (7 days)
+	public get isDeletionGracePeriodExpired(): boolean {
+		if ( !this.markedForDeletion || !this.deletionRequestDate ) {
+			return false;
+		}
+
+		const gracePeriodInDays = 7;
+		const gracePeriodInMs = gracePeriodInDays * 24 * 60 * 60 * 1000;
+		const currentDate = new Date();
+
+		return ( currentDate.getTime() - this.deletionRequestDate.getTime() ) >= gracePeriodInMs;
+	}
 }
