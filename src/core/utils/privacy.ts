@@ -75,7 +75,7 @@ export const privacy = `
 				<h2>Account Deletion</h2>
 				<p>You have the right to request deletion of your Link Bed Sides account and associated personal data. To delete your account:</p>
 				<ol>
-					<li>Visit our <a href="/account-deletion">Account Deletion Page</a></li>
+					<li>Visit our <a href="/api/v1.1/auth/account-deletion">Account Deletion Page</a></li>
 					<li>Enter the email address associated with your account</li>
 					<li>Confirm your deletion request</li>
 				</ol>
