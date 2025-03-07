@@ -21,12 +21,16 @@ async function processAccountDeletions() {
             deletionRequestDate: { $lte: cutoffDate }
         } );
 
+        console.log( "caregiversToDelete", caregiversToDelete )
+
+
         // Find patients marked for deletion older than 7 days
         const patientsToDelete = await db.patients.find( {
             markedForDeletion: true,
             deletionRequestDate: { $lte: cutoffDate }
         } );
 
+        console.log( "patientsToDelete", patientsToDelete )
         // Log the number of accounts to be deleted
         console.info( `Found ${caregiversToDelete.length} caregivers and ${patientsToDelete.length} patients to delete` );
 
