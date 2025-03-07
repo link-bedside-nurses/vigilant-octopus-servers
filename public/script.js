@@ -1,5 +1,3 @@
-console.log( 'This script is now allowed!' );
-alert( "hello" )
 document.getElementById( 'deletionForm' ).addEventListener( 'submit', async function ( event ) {
     event.preventDefault();
 
