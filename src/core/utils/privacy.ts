@@ -46,32 +46,23 @@ export const privacy = `
 			<h1>Privacy Policy for Link Bed Sides</h1>
 			<p>Effective Date: 07/03/2025</p>
 			<p>
-				This Privacy Policy explains how Link Bed Sides (developed by Link Bed Sides) collects, uses, and protects your personal information when you use our application available on the Google Play Store.
+				This is the privacy policy for Our privacy. It explains how we collect, use, and protect your personal
+				information.
 			</p>
 
 			<h2>Information We Collect</h2>
 			<p>We may collect the following types of information:</p>
 			<ul>
-				<li>Personal information (e.g., name, email address) when you create an account.</li>
-				<li>Device information (e.g., device model, operating system, unique device identifiers).</li>
-				<li>Usage data (e.g., interactions within the app, feature usage, crash reports).</li>
-				<li>Location data (if you grant permission for location services).</li>
+				<li>Personal information such as name and email address when you sign up for our services.</li>
+				<li>Usage information, including your interactions with our website and services.</li>
 			</ul>
 
 			<h2>How We Use Your Information</h2>
-			<p>We use the collected information to:</p>
+			<p>We use the collected information for the following purposes:</p>
 			<ul>
-				<li>Provide and improve our services.</li>
-				<li>Personalize your experience.</li>
-				<li>Analyze usage trends to enhance app performance.</li>
-				<li>Ensure security and prevent fraudulent activities.</li>
-			</ul>
-
-			<h2>Data Sharing and Third Parties</h2>
-			<p>We do not sell your personal information. However, we may share your data with:</p>
-			<ul>
-				<li>Service providers who assist in app functionality (e.g., analytics, crash reporting).</li>
-				<li>Law enforcement if required by legal obligations.</li>
+				<li>To provide and maintain our services.</li>
+				<li>To improve and personalize your experience.</li>
+				<li>To communicate with you regarding our services.</li>
 			</ul>
 
 			<h2>Data Security</h2>
@@ -84,7 +75,7 @@ export const privacy = `
 				<h2>Account Deletion</h2>
 				<p>You have the right to request deletion of your Link Bed Sides account and associated personal data. To delete your account:</p>
 				<ol>
-					<li>Visit our <a href="/account-deletion">Account Deletion Page</a></li>
+					<li>Visit our <a href="/api/v1.1/auth/account-deletion">Account Deletion Page</a></li>
 					<li>Enter the email address associated with your account</li>
 					<li>Confirm your deletion request</li>
 				</ol>
@@ -107,7 +98,7 @@ export const privacy = `
 			</ul>
 
 			<h2>Changes to This Privacy Policy</h2>
-			<p>We may update this policy. Any changes will be posted on this page with an updated effective date.</p>
+			<p>We may update our privacy policy from time to time. Any changes will be posted on this page.</p>
 
 			<h2>Contact Us</h2>
 			<p>If you have any questions, please contact us at <a href="mailto:ianbalijawa16@gmail.com">ianbalijawa16@gmail.com</a>.</p>
