@@ -18,11 +18,11 @@ import { updateAvailability } from './availability/update-availability';
 
 const router = Router();
 
-router.use( authenticate );
 router.use( isBanned );
 
 // General caregiver routes
 router.get( '/', callback( getAllCaregivers() ) );
+router.use( authenticate );
 router.get( '/search', callback( searchCaregiversByLocation() ) );
 router.get( '/nearest', callback( getNearestCaregiver() ) );
 router.get( '/:id', callback( getCaregiver() ) );
