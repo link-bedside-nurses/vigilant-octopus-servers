@@ -1,8 +1,8 @@
-import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { HTTPRequest } from '../../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { UpdateAdminSchema, UpdateCaregiverDto } from '../../../core/interfaces/dtos';
-import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
-import { response } from '../../../core/utils/http-response';
+import { UpdateAdminSchema, UpdateCaregiverDto } from '../../../interfaces/dtos';
+import { CaregiverRepo } from '../../../database/repositories/caregiver-repository';
+import { response } from '../../../utils/http-response';
 
 export function completeCaregiverProfile() {
 	return async function ( request: HTTPRequest<object, UpdateCaregiverDto> ) {

@@ -1,10 +1,10 @@
-import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { HTTPRequest } from '../../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../../infra/database';
+import { db } from '../../../database';
 import mongoose from 'mongoose';
-import { Caregiver } from '../../../infra/database/models/Caregiver';
-import { response } from '../../../core/utils/http-response';
-import HTTPException from '../../../core/utils/exception';
+import { Caregiver } from '../../../database/models/Caregiver';
+import { response } from '../../../utils/http-response';
+import HTTPException from '../../../utils/exception';
 
 const locationBasedSearch = async ( params: {
 	location: { lat: number; lng: number };

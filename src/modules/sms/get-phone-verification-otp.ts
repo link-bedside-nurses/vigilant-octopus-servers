@@ -1,13 +1,13 @@
-import { HTTPRequest } from '../../api/adapters/express-callback';
+import { HTTPRequest } from '../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { DESIGNATION } from '../../core/interfaces';
-import { response } from '../../core/utils/http-response';
+import { DESIGNATION } from '../../interfaces';
+import { response } from '../../utils/http-response';
 import { generateOTP, storeOTP } from '../../services/otp';
-import sendOTP from '../../infra/external-services/sms/sms';
-import { PhoneVerifcationOTPDto, PhoneVerifcationOTPSchema } from '../../core/interfaces/dtos';
-import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
-import logger from '../../core/utils/logger';
-import { PatientRepo } from '../../infra/database/repositories/patient-repository';
+import sendOTP from '../../services/sms';
+import { PhoneVerifcationOTPDto, PhoneVerifcationOTPSchema } from '../../interfaces/dtos';
+import { CaregiverRepo } from '../../database/repositories/caregiver-repository';
+import logger from '../../utils/logger';
+import { PatientRepo } from '../../database/repositories/patient-repository';
 
 export function getPhoneVerificationOTP() {
 	return async function ( request: HTTPRequest<object, object, PhoneVerifcationOTPDto> ) {

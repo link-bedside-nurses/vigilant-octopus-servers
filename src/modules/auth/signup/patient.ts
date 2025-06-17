@@ -1,13 +1,13 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../api/adapters/express-callback';
-import { CreatePatientDto, CreatePatientSchema } from '../../../core/interfaces/dtos';
-import { response } from '../../../core/utils/http-response';
-import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
-import { Password } from '../../../core/utils/password';
-import startPhoneVerification from '../../../core/utils/startPhoneVerification';
-import startEmailVerification from '../../../core/utils/startEmailVerification';
+import { HTTPRequest } from '../../../express-callback';
+import { CreatePatientDto, CreatePatientSchema } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
+import { PatientRepo } from '../../../database/repositories/patient-repository';
+import { Password } from '../../../utils/password';
+import startPhoneVerification from '../../../utils/startPhoneVerification';
+import startEmailVerification from '../../../utils/startEmailVerification';
 import { createAccessToken } from '../../../services/token';
-import { ACCOUNT } from '../../../core/interfaces';
+import { ACCOUNT } from '../../../interfaces';
 import mongoose from 'mongoose';
 
 export function patientSignup() {

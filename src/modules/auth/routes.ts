@@ -1,4 +1,4 @@
-import callback from '../../api/adapters/express-callback';
+import callback from '../../express-callback';
 import { Router } from 'express';
 
 import { getAccessToken, requestAccountDeletion } from '../../modules/auth/controller';
@@ -8,7 +8,7 @@ import { patientSignup } from './signup/patient';
 import { adminSignin } from './signin/admin';
 import { caregiverSignin } from './signin/caregiver';
 import { patientSignin } from './signin/patient';
-import verifyRefreshTokenMiddleware from '../../infra/security/authentication/verify-refresh-token';
+import verifyRefreshTokenMiddleware from '../../security/verify-refresh-token';
 
 const router = Router();
 

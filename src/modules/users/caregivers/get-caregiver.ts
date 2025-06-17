@@ -1,7 +1,7 @@
-import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { HTTPRequest } from '../../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
-import { response } from '../../../core/utils/http-response';
+import { CaregiverRepo } from '../../../database/repositories/caregiver-repository';
+import { response } from '../../../utils/http-response';
 
 export function getCaregiver() {
 	return async function ( request: HTTPRequest<{ id: string }> ) {

@@ -1,11 +1,11 @@
-import { HTTPRequest } from '../../api/adapters/express-callback';
+import { HTTPRequest } from '../../express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { createAccessToken } from '../../services/token';
-import { ACCOUNT } from '../../core/interfaces';
-import { response } from '../../core/utils/http-response';
-import { AdminRepo } from '../../infra/database/repositories/admin-repository';
-import { VerifyEmailDto, VerifyEmailSchema } from '../../core/interfaces/dtos';
-import startEmailVerification from '../../core/utils/startEmailVerification';
+import { ACCOUNT } from '../../interfaces';
+import { response } from '../../utils/http-response';
+import { AdminRepo } from '../../database/repositories/admin-repository';
+import { VerifyEmailDto, VerifyEmailSchema } from '../../interfaces/dtos';
+import startEmailVerification from '../../utils/startEmailVerification';
 import { getOTP } from '../../services/otp';
 import mongoose from 'mongoose';
 

@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
-import { AdminRepo } from '../../../infra/database/repositories/admin-repository';
-import { response } from '../../../core/utils/http-response';
+import { AdminRepo } from '../../../database/repositories/admin-repository';
+import { response } from '../../../utils/http-response';
 
 export function getAllAdmins() {
 	return async function () {

@@ -1,10 +1,10 @@
-import { HTTPRequest } from '../../api/adapters/express-callback';
+import { HTTPRequest } from '../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { CreateRatingDto, CreateRatingSchema } from '../../core/interfaces/dtos';
-import { response } from '../../core/utils/http-response';
-import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
-import { PatientRepo } from '../../infra/database/repositories/patient-repository';
-import { RatingRepo } from '../../infra/database/repositories/rating-repository';
+import { CreateRatingDto, CreateRatingSchema } from '../../interfaces/dtos';
+import { response } from '../../utils/http-response';
+import { CaregiverRepo } from '../../database/repositories/caregiver-repository';
+import { PatientRepo } from '../../database/repositories/patient-repository';
+import { RatingRepo } from '../../database/repositories/rating-repository';
 
 export function postRating() {
 	return async function ( request: HTTPRequest<object, CreateRatingDto, object> ) {

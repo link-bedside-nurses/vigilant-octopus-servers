@@ -1,8 +1,8 @@
-import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { HTTPRequest } from '../../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { response } from '../../../core/utils/http-response';
-import { UpdatePatientDto } from '../../../core/interfaces/dtos';
-import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
+import { response } from '../../../utils/http-response';
+import { UpdatePatientDto } from '../../../interfaces/dtos';
+import { PatientRepo } from '../../../database/repositories/patient-repository';
 
 export function updatePatient() {
 	return async function ( request: HTTPRequest<{ id: string }, UpdatePatientDto> ) {

@@ -1,10 +1,10 @@
-import { HTTPRequest } from '../../api/adapters/express-callback';
+import { HTTPRequest } from '../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { db } from '../../infra/database';
-import { response } from '../../core/utils/http-response';
-import { PatientRepo } from '../../infra/database/repositories/patient-repository';
-import { MomoCollectionsService } from '../../infra/external-services/payment-gateways/momo/collections/collections-service';
-import { AirtelCollectionsService } from '../../infra/external-services/payment-gateways/airtel/collections/collections-service';
+import { db } from '../../database';
+import { response } from '../../utils/http-response';
+import { PatientRepo } from '../../database/repositories/patient-repository';
+import { MomoCollectionsService } from '../../payments/momo/collections/collections-service';
+import { AirtelCollectionsService } from '../../payments/airtel/collections/collections-service';
 import { z } from 'zod';
 import mongoose from 'mongoose';
 

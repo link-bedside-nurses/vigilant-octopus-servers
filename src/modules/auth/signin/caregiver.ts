@@ -1,10 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../api/adapters/express-callback';
-import { ACCOUNT } from '../../../core/interfaces';
+import { HTTPRequest } from '../../../express-callback';
+import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
-import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
-import { response } from '../../../core/utils/http-response';
-import { Password } from '../../../core/utils/password';
+import { CaregiverRepo } from '../../../database/repositories/caregiver-repository';
+import { response } from '../../../utils/http-response';
+import { Password } from '../../../utils/password';
 import mongoose from 'mongoose';
 import { z } from 'zod';
 

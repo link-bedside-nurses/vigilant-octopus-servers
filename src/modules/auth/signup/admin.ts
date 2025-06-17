@@ -1,12 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../api/adapters/express-callback';
-import { ACCOUNT } from '../../../core/interfaces';
+import { HTTPRequest } from '../../../express-callback';
+import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
-import { AdminRepo } from '../../../infra/database/repositories/admin-repository';
-import { CreateAdminDto, CreateAdminSchema } from '../../../core/interfaces/dtos';
-import { response } from '../../../core/utils/http-response';
-import startEmailVerification from '../../../core/utils/startEmailVerification';
-import { Password } from '../../../core/utils/password';
+import { AdminRepo } from '../../../database/repositories/admin-repository';
+import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
+import startEmailVerification from '../../../utils/startEmailVerification';
+import { Password } from '../../../utils/password';
 import mongoose from 'mongoose';
 
 export function adminSignup() {

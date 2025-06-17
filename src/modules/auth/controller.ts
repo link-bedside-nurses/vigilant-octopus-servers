@@ -1,9 +1,9 @@
-import { HTTPRequest } from '../../api/adapters/express-callback';
+import { HTTPRequest } from '../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { response } from '../../core/utils/http-response';
-import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
-import { PatientRepo } from '../../infra/database/repositories/patient-repository';
-import { ACCOUNT, DESIGNATION } from '../../core/interfaces';
+import { response } from '../../utils/http-response';
+import { CaregiverRepo } from '../../database/repositories/caregiver-repository';
+import { PatientRepo } from '../../database/repositories/patient-repository';
+import { ACCOUNT, DESIGNATION } from '../../interfaces';
 import { createAccessToken } from '../../services/token';
 import mongoose from 'mongoose';
 

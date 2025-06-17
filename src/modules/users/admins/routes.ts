@@ -1,8 +1,8 @@
-import callback from '../../../api/adapters/express-callback';
+import callback from '../../../express-callback';
 import { Router } from 'express';
-import authenticate from '../../../infra/security/authentication/authentication';
-import isAdmin from '../../../infra/security/authorization/is-admin';
-import isBanned from '../../../infra/security/authorization/is-banned';
+import authenticate from '../../../security/authentication';
+import isAdmin from '../../../security/is-admin';
+import isBanned from '../../../security/is-banned';
 import { banAdmin } from './ban-admin';
 import { banCaregiver } from './ban-caregiver';
 import { banPatient } from './ban-patient';

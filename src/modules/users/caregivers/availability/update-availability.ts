@@ -1,7 +1,7 @@
-import { HTTPRequest } from '../../../../api/adapters/express-callback';
+import { HTTPRequest } from '../../../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { response } from '../../../../core/utils/http-response';
-import { CaregiverRepo } from '../../../../infra/database/repositories/caregiver-repository';
+import { response } from '../../../../utils/http-response';
+import { CaregiverRepo } from '../../../../database/repositories/caregiver-repository';
 import { z } from 'zod';
 
 const TimeSchema = z.string().regex( /^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:mm)' );

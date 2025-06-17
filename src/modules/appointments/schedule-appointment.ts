@@ -1,10 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import { AppointmentRepo } from '../../infra/database/repositories/appointment-repository';
-import { ScheduleAppointmentDto, ScheduleAppointmentSchema } from '../../core/interfaces/dtos';
-import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
-import { PatientRepo } from '../../infra/database/repositories/patient-repository';
-import { response } from '../../core/utils/http-response';
-import { HTTPRequest } from '../../api/adapters/express-callback';
+import { AppointmentRepo } from '../../database/repositories/appointment-repository';
+import { ScheduleAppointmentDto, ScheduleAppointmentSchema } from '../../interfaces/dtos';
+import { CaregiverRepo } from '../../database/repositories/caregiver-repository';
+import { PatientRepo } from '../../database/repositories/patient-repository';
+import { response } from '../../utils/http-response';
+import { HTTPRequest } from '../../express-callback';
 
 export function scheduleAppointment() {
 	return async function ( request: HTTPRequest<object, ScheduleAppointmentDto, { lat: string; lng: string }> ) {

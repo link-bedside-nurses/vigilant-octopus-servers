@@ -1,14 +1,14 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../api/adapters/express-callback';
-import { ACCOUNT } from '../../../core/interfaces';
+import { HTTPRequest } from '../../../express-callback';
+import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
-import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
-import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../core/interfaces/dtos';
-import { response } from '../../../core/utils/http-response';
-import { Password } from '../../../core/utils/password';
-import startPhoneVerification from '../../../core/utils/startPhoneVerification';
+import { CaregiverRepo } from '../../../database/repositories/caregiver-repository';
+import { CreateCaregiverDto, CreateCaregiverSchema } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
+import { Password } from '../../../utils/password';
+import startPhoneVerification from '../../../utils/startPhoneVerification';
 import mongoose from 'mongoose';
-import startEmailVerification from '../../../core/utils/startEmailVerification';
+import startEmailVerification from '../../../utils/startEmailVerification';
 
 export function caregiverSignup() {
 	return async function ( request: HTTPRequest<object, CreateCaregiverDto> ) {

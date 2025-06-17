@@ -1,8 +1,8 @@
-import callback from '../../../api/adapters/express-callback';
+import callback from '../../../express-callback';
 import { Router } from 'express';
 
-import authenticate from '../../../infra/security/authentication/authentication';
-import isBanned from '../../../infra/security/authorization/is-banned';
+import authenticate from '../../../security/authentication';
+import isBanned from '../../../security/is-banned';
 import { deactivatePatient } from './deactivate-patient';
 import { deletePatient } from './delete-patient';
 import { getAllPatients } from './get-all-patients';

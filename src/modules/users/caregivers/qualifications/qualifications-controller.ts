@@ -1,7 +1,7 @@
-import { CaregiverRepo } from '../../../../infra/database/repositories/caregiver-repository';
-import { HTTPRequest } from '../../../../api/adapters/express-callback';
+import { CaregiverRepo } from '../../../../database/repositories/caregiver-repository';
+import { HTTPRequest } from '../../../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { response } from '../../../../core/utils/http-response';
+import { response } from '../../../../utils/http-response';
 
 export function getQualifications() {
 	return async function ( request: HTTPRequest<{ id: string }, object, object> ) {

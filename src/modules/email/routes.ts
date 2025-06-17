@@ -1,4 +1,4 @@
-import callback from '../../api/adapters/express-callback';
+import callback from '../../express-callback';
 import { Router } from 'express';
 
 import { getEmailVerificationOTP, sendEmail, verifyEmail } from './controller';

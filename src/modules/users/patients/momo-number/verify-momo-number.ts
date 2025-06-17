@@ -1,7 +1,7 @@
-import { HTTPRequest } from '../../../../api/adapters/express-callback';
+import { HTTPRequest } from '../../../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { response } from '../../../../core/utils/http-response';
-import { PatientRepo } from '../../../../infra/database/repositories/patient-repository';
+import { response } from '../../../../utils/http-response';
+import { PatientRepo } from '../../../../database/repositories/patient-repository';
 import { z } from 'zod';
 import redis from '../../../../services/redis';
 

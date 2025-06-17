@@ -1,12 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
-import { AdminRepo } from '../../../infra/database/repositories/admin-repository';
-import { CreateAdminDto, CreateAdminSchema } from '../../../core/interfaces/dtos';
+import { AdminRepo } from '../../../database/repositories/admin-repository';
+import { CreateAdminDto, CreateAdminSchema } from '../../../interfaces/dtos';
 import { createAccessToken } from '../../../services/token';
-import { response } from '../../../core/utils/http-response';
-import { Password } from '../../../core/utils/password';
-import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { response } from '../../../utils/http-response';
+import { Password } from '../../../utils/password';
+import { HTTPRequest } from '../../../express-callback';
 import mongoose from 'mongoose';
-import { ACCOUNT } from '../../../core/interfaces';
+import { ACCOUNT } from '../../../interfaces';
 
 export function adminSignin() {
 	return async function ( request: HTTPRequest<object, Pick<CreateAdminDto, 'email' | 'password'>> ) {

@@ -16,14 +16,14 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { envars } from './config/constants';
-import errorMiddleware from './api/middlewares/error-middleware';
+import { envars } from './config';
+import errorMiddleware from './middlewares/error-middleware';
 import { otpRouter } from './modules/sms/routes';
-import { privacy } from './core/utils/privacy';
+import { privacy } from './utils/privacy';
 import { emailRouter } from './modules/email/routes';
 import { dashboardRouter } from './modules/dashboard/routes';
 import { StatusCodes } from 'http-status-codes';
-import { accountDeletionPage } from './core/utils/account-deletion-page';
+import { accountDeletionPage } from './utils/account-deletion-page';
 
 const router = express.Router();
 

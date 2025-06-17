@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../api/adapters/express-callback';
-import { response } from '../../../core/utils/http-response';
-import { CaregiverRepo } from '../../../infra/database/repositories/caregiver-repository';
+import { HTTPRequest } from '../../../express-callback';
+import { response } from '../../../utils/http-response';
+import { CaregiverRepo } from '../../../database/repositories/caregiver-repository';
 import { z } from 'zod';
 
 const GetNearestCaregiverSchema = z.object( {

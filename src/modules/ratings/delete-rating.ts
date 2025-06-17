@@ -1,7 +1,7 @@
-import { HTTPRequest } from '../../api/adapters/express-callback';
+import { HTTPRequest } from '../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { response } from '../../core/utils/http-response';
-import { RatingRepo } from '../../infra/database/repositories/rating-repository';
+import { response } from '../../utils/http-response';
+import { RatingRepo } from '../../database/repositories/rating-repository';
 
 export function deleteRating() {
 	return async function ( request: HTTPRequest<{ id: string }> ) {

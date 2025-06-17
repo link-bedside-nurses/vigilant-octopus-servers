@@ -1,9 +1,9 @@
-import callback from '../../api/adapters/express-callback';
+import callback from '../../express-callback';
 import { Router } from 'express';
-import authenticate from '../../infra/security/authentication/authentication';
-import { validateObjectID } from '../../api/middlewares/validate-objectid';
-import isBanned from '../../infra/security/authorization/is-banned';
-import isAdmin from '../../infra/security/authorization/is-admin';
+import authenticate from '../../security/authentication';
+import { validateObjectID } from '../../middlewares/validate-objectid';
+import isBanned from '../../security/is-banned';
+import isAdmin from '../../security/is-admin';
 import { cancelAppointment } from './cancel-appointment';
 import { confirmAppointment } from './confirm-appointment';
 import { deleteAppointment } from './delete-appointment';

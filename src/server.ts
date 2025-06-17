@@ -4,9 +4,9 @@ import 'dotenv/config';
 
 import express from 'express';
 import 'express-async-errors';
-import { connectToDatabase, disconnectFromDatabase } from './infra/database/connection';
+import { connectToDatabase, disconnectFromDatabase } from './database/connection';
 import router from './router';
-import { envars } from './config/constants';
+import { envars } from './config';
 import { scheduleAccountDeletionJob } from './cron/account-deletion-job';
 
 replaceTscAliasPaths().catch( ( err: Error ) => console.info( err.message ) );

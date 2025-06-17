@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
-import { AppointmentRepo } from '../../infra/database/repositories/appointment-repository';
-import { response } from '../../core/utils/http-response';
-import { HTTPRequest } from '../../api/adapters/express-callback';
+import { AppointmentRepo } from '../../database/repositories/appointment-repository';
+import { response } from '../../utils/http-response';
+import { HTTPRequest } from '../../express-callback';
 
 export function getAppointment() {
 	return async function ( request: HTTPRequest<{ id: string }> ) {

@@ -1,10 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../../api/adapters/express-callback';
-import { PatientRepo } from '../../../infra/database/repositories/patient-repository';
-import { response } from '../../../core/utils/http-response';
+import { HTTPRequest } from '../../../express-callback';
+import { PatientRepo } from '../../../database/repositories/patient-repository';
+import { response } from '../../../utils/http-response';
 import { z } from 'zod';
-import { Password } from '../../../core/utils/password';
-import { ACCOUNT } from '../../../core/interfaces';
+import { Password } from '../../../utils/password';
+import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
 import mongoose from 'mongoose';
 

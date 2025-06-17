@@ -1,8 +1,8 @@
-import { HTTPRequest } from '../../../api/adapters/express-callback';
+import { HTTPRequest } from '../../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { AdminRepo } from '../../../infra/database/repositories/admin-repository';
-import { UpdateAdminDto } from '../../../core/interfaces/dtos';
-import { response } from '../../../core/utils/http-response';
+import { AdminRepo } from '../../../database/repositories/admin-repository';
+import { UpdateAdminDto } from '../../../interfaces/dtos';
+import { response } from '../../../utils/http-response';
 
 export function updateAdmin() {
 	return async function ( request: HTTPRequest<{ id: string }, UpdateAdminDto> ) {

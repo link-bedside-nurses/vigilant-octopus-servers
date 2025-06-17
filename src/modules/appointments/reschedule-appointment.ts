@@ -1,8 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-import { HTTPRequest } from '../../api/adapters/express-callback';
-import { RescheduleAppointmentDto, RescheduleAppointmentSchema } from '../../core/interfaces/dtos';
-import { response } from '../../core/utils/http-response';
-import { AppointmentRepo } from '../../infra/database/repositories/appointment-repository';
+import { HTTPRequest } from '../../express-callback';
+import { RescheduleAppointmentDto, RescheduleAppointmentSchema } from '../../interfaces/dtos';
+import { response } from '../../utils/http-response';
+import { AppointmentRepo } from '../../database/repositories/appointment-repository';
 
 export default function rescheduleAppointment() {
     return async function ( request: HTTPRequest<{ id: string }, RescheduleAppointmentDto, object> ) {

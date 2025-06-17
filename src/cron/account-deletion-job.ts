@@ -1,7 +1,7 @@
 import cron from 'node-cron';
-import { db } from '../infra/database';
-import { CaregiverRepo } from '../infra/database/repositories/caregiver-repository';
-import { PatientRepo } from '../infra/database/repositories/patient-repository';
+import { db } from '../database';
+import { CaregiverRepo } from '../database/repositories/caregiver-repository';
+import { PatientRepo } from '../database/repositories/patient-repository';
 
 /**
  * Process accounts that have been marked for deletion

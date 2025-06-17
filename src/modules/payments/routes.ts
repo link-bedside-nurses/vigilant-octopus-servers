@@ -1,9 +1,9 @@
-import callback from '../../api/adapters/express-callback';
+import callback from '../../express-callback';
 import { Router } from 'express';
 
-import authenticate from '../../infra/security/authentication/authentication';
+import authenticate from '../../security/authentication';
 import { getAllPayments, getPayment, initiatePaymentFromPatient, checkPaymentStatus, getCaregiverEarnings, getPaymentsByPatient } from './controller';
-import isBanned from '../../infra/security/authorization/is-banned';
+import isBanned from '../../security/is-banned';
 
 const router = Router();
 

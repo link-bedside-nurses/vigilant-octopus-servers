@@ -1,12 +1,12 @@
-import { HTTPRequest } from '../../api/adapters/express-callback';
+import { HTTPRequest } from '../../express-callback';
 import { StatusCodes } from 'http-status-codes';
 import { createAccessToken } from '../../services/token';
-import { DESIGNATION, ACCOUNT } from '../../core/interfaces';
-import { response } from '../../core/utils/http-response';
+import { DESIGNATION, ACCOUNT } from '../../interfaces';
+import { response } from '../../utils/http-response';
 import { getOTP } from '../../services/otp';
-import { VerifyPhoneDto, VerifyPhoneSchema } from '../../core/interfaces/dtos';
-import { CaregiverRepo } from '../../infra/database/repositories/caregiver-repository';
-import { PatientRepo } from '../../infra/database/repositories/patient-repository';
+import { VerifyPhoneDto, VerifyPhoneSchema } from '../../interfaces/dtos';
+import { CaregiverRepo } from '../../database/repositories/caregiver-repository';
+import { PatientRepo } from '../../database/repositories/patient-repository';
 import mongoose from 'mongoose';
 
 export function verifyOTPFromPhone() {
