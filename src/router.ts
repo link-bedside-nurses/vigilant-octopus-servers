@@ -230,23 +230,24 @@ router.get('/privacy', (req: Request, res: Response) => {
 	res.send(privacy);
 });
 
+const API_PREFIX = '/api/v1';
 /**
  * API Documentation Endpoint
  */
-router.get('/api/v1/docs', (req: Request, res: Response) => {
+router.get(`${API_PREFIX}/docs`, (req: Request, res: Response) => {
 	res.json({
 		message: 'API Documentation',
 		version: '1.0.0',
 		endpoints: {
-			auth: '/api/v1/auth',
-			appointments: '/api/v1/appointments',
-			nurses: '/api/v1/nurses',
-			patients: '/api/v1/patients',
-			payments: '/api/v1/payments',
-			admins: '/api/v1/admins',
-			email: '/api/v1/email',
-			messaging: '/api/v1/messaging',
-			dashboard: '/api/v1/dashboard',
+			auth: `${API_PREFIX}/auth`,
+			appointments: `${API_PREFIX}/appointments`,
+			nurses: `${API_PREFIX}/nurses`,
+			patients: `${API_PREFIX}/patients`,
+			payments: `${API_PREFIX}/payments`,
+			admins: `${API_PREFIX}/admins`,
+			email: `${API_PREFIX}/email`,
+			messaging: `${API_PREFIX}/messaging`,
+			dashboard: `${API_PREFIX}/dashboard`,
 		},
 		health: '/health',
 		privacy: '/privacy',
@@ -263,7 +264,6 @@ router.use('/account-deletion', generalLimiter, accountDeletionRouter);
 /**
  * API Routes with Versioning
  */
-const API_PREFIX = '/api/v1';
 
 // Apply rate limiting to API routes
 router.use(API_PREFIX, apiLimiter);
