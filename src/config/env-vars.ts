@@ -31,6 +31,11 @@ const env = envalid.cleanEnv(process.env, {
 	// Airtel
 	AIRTEL_MONEY_CLIENT_ID: envalid.str(),
 	AIRTEL_MONEY_CLIENT_SECRET_KEY: envalid.str(),
+
+	// Cloudinary
+	CLOUDINARY_CLOUD_NAME: envalid.str(),
+	CLOUDINARY_API_KEY: envalid.str(),
+	CLOUDINARY_API_SECRET: envalid.str(),
 });
 
 const envars = Object.freeze({
@@ -51,6 +56,9 @@ const envars = Object.freeze({
 	OCP_APIM_SUBSCRIPTION_KEY: env.OCP_APIM_SUBSCRIPTION_KEY,
 	AIRTEL_MONEY_CLIENT_ID: env.AIRTEL_MONEY_CLIENT_ID,
 	AIRTEL_MONEY_CLIENT_SECRET_KEY: env.AIRTEL_MONEY_CLIENT_SECRET_KEY,
+	CLOUDINARY_CLOUD_NAME: env.CLOUDINARY_CLOUD_NAME,
+	CLOUDINARY_API_KEY: env.CLOUDINARY_API_KEY,
+	CLOUDINARY_API_SECRET: env.CLOUDINARY_API_SECRET,
 });
 
 export default envars;

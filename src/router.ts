@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { StatusCodes } from 'http-status-codes';
 import morgan from 'morgan';
 import errorMiddleware from './middlewares/error-middleware';
+import accountDeletionRouter from './modules/account-deletion.controller';
 import adminRouter from './modules/admins.controller';
 import appointmentRouter from './modules/appointments.controller';
 import authRouter from './modules/auth.controller';
@@ -14,7 +15,6 @@ import messagingRouter from './modules/messaging.controller';
 import nurseRouter from './modules/nurses.controller';
 import patientRouter from './modules/patients.controller';
 import paymentsRouter from './modules/payments.controller';
-import { accountDeletionPage } from './utils/account-deletion-page';
 import { privacy } from './utils/privacy';
 
 const router = express.Router();
@@ -42,10 +42,8 @@ router.get('/privacy', (_req, res) => {
 	res.send(privacy);
 });
 
-// Account deletion page
-router.get('/account-deletion', (_req, res) => {
-	res.send(accountDeletionPage);
-});
+// Account deletion routes (public and API)
+router.use('/account-deletion', accountDeletionRouter);
 
 // API routes
 const PREFIX = '/api/v1';

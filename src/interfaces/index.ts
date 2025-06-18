@@ -9,6 +9,7 @@ export type TUser = {
 
 export enum APPOINTMENT_STATUSES {
 	PENDING = 'pending',
+	ASSIGNED = 'assigned',
 	CANCELLED = 'cancelled',
 	IN_PROGRESS = 'In progress',
 	COMPLETED = 'completed',

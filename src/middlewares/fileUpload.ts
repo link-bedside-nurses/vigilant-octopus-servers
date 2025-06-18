@@ -1,35 +1,144 @@
+import { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import multer from 'multer';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { response } from '../utils/http-response';
 
-const qualificationStorage = multer.diskStorage({
-	destination: (_req, _file, cb) => {
-		cb(null, 'public/uploads/qualifications');
-	},
-	filename: (_req, file, cb) => {
-		const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
-		cb(null, uniqueName);
-	},
-});
+// Configure multer for memory storage (for Cloudinary uploads)
+const storage = multer.memoryStorage();
 
-const qualificationFileFilter = (
-	_req: any,
-	file: { mimetype: string },
-	cb: (arg0: Error | null, arg1: boolean) => void
-) => {
-	const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-	if (allowedTypes.includes(file.mimetype)) {
+// File filter function
+const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+	// Check file type
+	const allowedMimeTypes = [
+		'image/jpeg',
+		'image/jpg',
+		'image/png',
+		'image/gif',
+		'application/pdf',
+		'application/msword',
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	];
+
+	if (allowedMimeTypes.includes(file.mimetype)) {
 		cb(null, true);
 	} else {
-		cb(new Error('Invalid file type. Only PDF, JPEG, and PNG are allowed.'), false);
+		cb(new Error(`File type not allowed. Allowed types: ${allowedMimeTypes.join(', ')}`));
 	}
 };
 
-export const uploadQualifications = multer({
-	storage: qualificationStorage,
-	// @ts-ignore
-	fileFilter: qualificationFileFilter,
+// Create multer instance
+const upload = multer({
+	storage,
+	fileFilter,
 	limits: {
-		fileSize: 5 * 1024 * 1024,
+		fileSize: 15 * 1024 * 1024, // 15MB limit
+		files: 10, // Maximum 10 files
 	},
 });
+
+// Single file upload middleware
+export const uploadSingle = (fieldName: string) => {
+	return upload.single(fieldName);
+};
+
+// Multiple files upload middleware
+export const uploadMultiple = (fieldName: string, maxCount: number = 10) => {
+	return upload.array(fieldName, maxCount);
+};
+
+// Multiple fields upload middleware
+export const uploadFields = (fields: multer.Field[]) => {
+	return upload.fields(fields);
+};
+
+// Specific upload middlewares for different document types
+export const uploadProfilePicture = uploadSingle('profilePicture');
+
+export const uploadNationalID = uploadFields([
+	{ name: 'front', maxCount: 1 },
+	{ name: 'back', maxCount: 1 },
+]);
+
+export const uploadQualification = uploadSingle('document');
+
+// Error handling middleware for multer errors
+export const handleUploadError = (
+	error: any,
+	_req: Request,
+	_res: Response,
+	next: NextFunction
+) => {
+	if (error instanceof multer.MulterError) {
+		switch (error.code) {
+			case 'LIMIT_FILE_SIZE':
+				return response(StatusCodes.BAD_REQUEST, null, 'File too large. Maximum size is 15MB');
+			case 'LIMIT_FILE_COUNT':
+				return response(StatusCodes.BAD_REQUEST, null, 'Too many files. Maximum is 10 files');
+			case 'LIMIT_UNEXPECTED_FILE':
+				return response(StatusCodes.BAD_REQUEST, null, 'Unexpected file field');
+			default:
+				return response(StatusCodes.BAD_REQUEST, null, `Upload error: ${error.message}`);
+		}
+	}
+
+	if (error.message && error.message.includes('File type not allowed')) {
+		return response(StatusCodes.BAD_REQUEST, null, error.message);
+	}
+
+	return next(error);
+};
+
+// Validation middleware for file uploads
+export const validateFileUpload = (req: Request, res: Response, next: NextFunction) => {
+	const file = (req as any).file;
+	const files = (req as any).files;
+
+	if (!file && !files) {
+		return response(StatusCodes.BAD_REQUEST, null, 'No files uploaded');
+	}
+
+	return next();
+};
+
+// Validation middleware for specific file types
+export const validateImageUpload = (req: Request, res: Response, next: NextFunction) => {
+	const file = (req as any).file;
+
+	if (!file) {
+		return response(StatusCodes.BAD_REQUEST, null, 'No image uploaded');
+	}
+
+	const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+	if (!allowedImageTypes.includes(file.mimetype)) {
+		return response(StatusCodes.BAD_REQUEST, null, 'Only image files are allowed');
+	}
+
+	return next();
+};
+
+export const validateDocumentUpload = (req: Request, res: Response, next: NextFunction) => {
+	const file = (req as any).file;
+
+	if (!file) {
+		return response(StatusCodes.BAD_REQUEST, null, 'No document uploaded');
+	}
+
+	const allowedDocTypes = [
+		'image/jpeg',
+		'image/jpg',
+		'image/png',
+		'application/pdf',
+		'application/msword',
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	];
+
+	if (!allowedDocTypes.includes(file.mimetype)) {
+		return response(
+			StatusCodes.BAD_REQUEST,
+			null,
+			'Only PDF, Word documents, and images are allowed'
+		);
+	}
+
+	return next();
+};

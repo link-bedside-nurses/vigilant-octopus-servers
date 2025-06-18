@@ -5,6 +5,7 @@ import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
 import authenticate from '../middlewares/authentication';
 import { validateObjectID } from '../middlewares/validate-objectid';
+import { handleAssignmentResponse, nurseAssignmentService } from '../services/nurse-assignment';
 import { response } from '../utils/http-response';
 
 const router = Router();
@@ -149,11 +150,20 @@ router.patch(
 	validateObjectID,
 	async (req: Request, _res: Response, next: NextFunction) => {
 		try {
-			const appointment = await db.appointments.findByIdAndUpdate(
-				req.params.id,
-				{ status: APPOINTMENT_STATUSES.CANCELLED },
-				{ new: true }
-			);
+			const { reason } = req.body;
+			const adminId = (req as any).account?.id;
+
+			const updateData: any = {
+				status: APPOINTMENT_STATUSES.CANCELLED,
+				cancelledAt: new Date(),
+			};
+
+			if (reason) updateData.cancellationReason = reason;
+			if (adminId) updateData.cancelledBy = adminId;
+
+			const appointment = await db.appointments.findByIdAndUpdate(req.params.id, updateData, {
+				new: true,
+			});
 			return response(StatusCodes.OK, appointment, 'Appointment cancelled successfully');
 		} catch (err) {
 			return next(err);
@@ -169,6 +179,146 @@ router.delete(
 		try {
 			const appointment = await db.appointments.findByIdAndDelete(req.params.id);
 			return response(StatusCodes.OK, appointment, 'Appointment deleted successfully');
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
+// Nurse Assignment Endpoints (Admin Only)
+
+/**
+ * GET /appointments/pending - Get pending appointments without assigned nurses
+ */
+router.get('/pending', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const accountType = (req as any).account?.type;
+
+		if (accountType !== 'admin') {
+			return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+		}
+
+		const assignmentResponse = await nurseAssignmentService.getPendingAppointments();
+		handleAssignmentResponse(res, assignmentResponse);
+	} catch (err) {
+		return next(err);
+	}
+});
+
+/**
+ * GET /appointments/available-nurses - Get available nurses for assignment
+ */
+router.get('/available-nurses', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const accountType = (req as any).account?.type;
+
+		if (accountType !== 'admin') {
+			return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+		}
+
+		const assignmentResponse = await nurseAssignmentService.getAvailableNurses();
+		handleAssignmentResponse(res, assignmentResponse);
+	} catch (err) {
+		return next(err);
+	}
+});
+
+/**
+ * POST /appointments/:id/assign-nurse - Assign nurse to appointment
+ */
+router.post(
+	'/:id/assign-nurse',
+	validateObjectID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const accountType = (req as any).account?.type;
+			const adminId = (req as any).account?.id;
+
+			if (accountType !== 'admin') {
+				return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+			}
+
+			const { nurseId, notes } = req.body;
+
+			if (!nurseId) {
+				return response(StatusCodes.BAD_REQUEST, null, 'Nurse ID is required');
+			}
+
+			const assignmentRequest = {
+				appointmentId: req.params.id,
+				nurseId,
+				notes,
+			};
+
+			const assignmentResponse = await nurseAssignmentService.assignNurseToAppointment(
+				assignmentRequest,
+				adminId
+			);
+			handleAssignmentResponse(res, assignmentResponse);
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
+/**
+ * POST /appointments/:id/reassign-nurse - Reassign nurse to appointment
+ */
+router.post(
+	'/:id/reassign-nurse',
+	validateObjectID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const accountType = (req as any).account?.type;
+			const adminId = (req as any).account?.id;
+
+			if (accountType !== 'admin') {
+				return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+			}
+
+			const { nurseId, reason } = req.body;
+
+			if (!nurseId) {
+				return response(StatusCodes.BAD_REQUEST, null, 'Nurse ID is required');
+			}
+
+			const assignmentResponse = await nurseAssignmentService.reassignNurse(
+				req.params.id,
+				nurseId,
+				adminId,
+				reason
+			);
+			handleAssignmentResponse(res, assignmentResponse);
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
+/**
+ * GET /appointments/nurse/:nurseId - Get appointments assigned to a specific nurse
+ */
+router.get(
+	'/nurse/:nurseId',
+	validateObjectID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const accountType = (req as any).account?.type;
+			const nurseId = (req as any).account?.id;
+
+			// Allow admin to view any nurse's appointments, or nurse to view their own
+			if (accountType !== 'admin' && accountType !== 'nurse') {
+				return response(StatusCodes.FORBIDDEN, null, 'Admin or nurse access required');
+			}
+
+			if (accountType === 'nurse' && nurseId !== req.params.nurseId) {
+				return response(StatusCodes.FORBIDDEN, null, 'You can only view your own appointments');
+			}
+
+			const assignmentResponse = await nurseAssignmentService.getNurseAppointments(
+				req.params.nurseId
+			);
+			handleAssignmentResponse(res, assignmentResponse);
 		} catch (err) {
 			return next(err);
 		}

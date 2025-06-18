@@ -40,6 +40,35 @@ export class Appointment {
 	})
 	status!: APPOINTMENT_STATUSES;
 
+	// Nurse assignment fields
+	@prop({ type: Date, required: false })
+	nurseAssignedAt?: Date;
+
+	@prop({ type: mongoose.Types.ObjectId, required: false, ref: 'Admin' })
+	assignedBy?: Ref<any>; // Admin who assigned the nurse
+
+	@prop({ type: String, required: false })
+	assignmentNotes?: string;
+
+	@prop({ type: Boolean, required: false, default: false })
+	nurseNotified?: boolean;
+
+	@prop({ type: Boolean, required: false, default: false })
+	patientNotified?: boolean;
+
+	@prop({ type: Date, required: false })
+	lastNotificationSent?: Date;
+
+	// Cancellation fields
+	@prop({ type: String, required: false })
+	cancellationReason?: string;
+
+	@prop({ type: mongoose.Types.ObjectId, required: false, ref: 'Admin' })
+	cancelledBy?: Ref<any>; // Admin who cancelled
+
+	@prop({ type: Date, required: false })
+	cancelledAt?: Date;
+
 	public async confirmAppointment(this: DocumentType<Appointment>): Promise<void> {
 		this.status = APPOINTMENT_STATUSES.IN_PROGRESS;
 		await this.save();
@@ -58,8 +87,26 @@ export class Appointment {
 		await this.save();
 	}
 
-	public async assignNurse(this: DocumentType<Appointment>): Promise<void> {
-		this.status = APPOINTMENT_STATUSES.CANCELLED;
+	public async assignNurse(
+		this: DocumentType<Appointment>,
+		nurseId: string,
+		adminId: string,
+		notes?: string
+	): Promise<void> {
+		this.nurse = nurseId as any;
+		this.status = APPOINTMENT_STATUSES.ASSIGNED;
+		this.nurseAssignedAt = new Date();
+		this.assignedBy = adminId as any;
+		this.assignmentNotes = notes;
+		this.nurseNotified = false;
+		this.patientNotified = false;
+		await this.save();
+	}
+
+	public async markNotificationsSent(this: DocumentType<Appointment>): Promise<void> {
+		this.nurseNotified = true;
+		this.patientNotified = true;
+		this.lastNotificationSent = new Date();
 		await this.save();
 	}
 }

@@ -1,12 +1,18 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import fs from 'fs';
 import { StatusCodes } from 'http-status-codes';
-import path from 'path';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
 import authenticate from '../middlewares/authentication';
+import {
+	handleUploadError,
+	uploadNationalID,
+	uploadProfilePicture,
+	uploadQualification,
+	validateDocumentUpload,
+	validateImageUpload,
+} from '../middlewares/fileUpload';
+import { fileUploadService, handleFileUploadResponse } from '../services/file-upload';
 import { response } from '../utils/http-response';
-import { getMimeType } from '../utils/mime-types';
 
 const router = Router();
 
@@ -67,21 +73,147 @@ router.patch('/:id', async (req: Request, _res: Response, next: NextFunction) =>
 	}
 });
 
-router.patch('/:id/profilePicture', async (req: Request, _res: Response, next: NextFunction) => {
+// File upload routes
+router.post(
+	'/:id/profile-picture',
+	uploadProfilePicture,
+	handleUploadError,
+	validateImageUpload,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { id } = req.params;
+			const file = (req as any).file;
+
+			const uploadResponse = await fileUploadService.uploadNurseProfilePicture(id, file);
+			handleFileUploadResponse(res, uploadResponse);
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
+router.post(
+	'/:id/national-id',
+	uploadNationalID,
+	handleUploadError,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { id } = req.params;
+			const files = (req as any).files;
+
+			if (!files || !files.front || !files.back) {
+				return response(
+					StatusCodes.BAD_REQUEST,
+					null,
+					'Both front and back national ID images are required'
+				);
+			}
+
+			const uploadResponse = await fileUploadService.uploadNurseNationalID(
+				id,
+				files.front[0],
+				files.back[0]
+			);
+			handleFileUploadResponse(res, uploadResponse);
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
+router.post(
+	'/:id/qualifications',
+	uploadQualification,
+	handleUploadError,
+	validateDocumentUpload,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { id } = req.params;
+			const { title, type, description } = req.body;
+			const file = (req as any).file;
+
+			if (!title) {
+				return response(StatusCodes.BAD_REQUEST, null, 'Title is required');
+			}
+
+			const uploadResponse = await fileUploadService.uploadNurseQualification(
+				id,
+				file,
+				title,
+				type || 'certification',
+				description
+			);
+			handleFileUploadResponse(res, uploadResponse);
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
+router.delete(
+	'/:id/qualifications/:qualificationId',
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { id, qualificationId } = req.params;
+
+			const uploadResponse = await fileUploadService.deleteNurseQualification(id, qualificationId);
+			handleFileUploadResponse(res, uploadResponse);
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
+router.get('/:id/documents', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { profileImageUrl } = req.body;
-		const nurse = await db.nurses.findById(req.params.id);
-		if (!nurse) return response(StatusCodes.NOT_FOUND, null, 'Nurse not found');
-		nurse.imgUrl = profileImageUrl;
-		await nurse.save();
-		return response(StatusCodes.OK, nurse, 'Nurse profile picture updated successfully');
+		const { id } = req.params;
+
+		const uploadResponse = await fileUploadService.getNurseDocumentsSummary(id);
+		handleFileUploadResponse(res, uploadResponse);
 	} catch (err) {
 		return next(err);
 	}
 });
 
+// Admin only - Update document verification status
+router.patch(
+	'/:id/verification-status',
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { id } = req.params;
+			const { status, notes } = req.body;
+			const adminId = (req as any).account?.id;
+
+			if (!adminId) {
+				return response(StatusCodes.UNAUTHORIZED, null, 'Admin access required');
+			}
+
+			if (!['pending', 'verified', 'rejected'].includes(status)) {
+				return response(
+					StatusCodes.BAD_REQUEST,
+					null,
+					'Invalid status. Must be pending, verified, or rejected'
+				);
+			}
+
+			const uploadResponse = await fileUploadService.updateDocumentVerificationStatus(
+				id,
+				status,
+				adminId,
+				notes
+			);
+			handleFileUploadResponse(res, uploadResponse);
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
 router.delete('/:id', async (req: Request, _res: Response, next: NextFunction) => {
 	try {
+		// Clean up documents first
+		await fileUploadService.cleanupNurseDocuments(req.params.id);
+
 		// Cancel any pending or in-progress appointments
 		await db.appointments.updateMany(
 			{ nurse: req.params.id, status: APPOINTMENT_STATUSES.PENDING },
@@ -165,93 +297,6 @@ router.post(
 					'Appointment not found or not assigned to this nurse'
 				);
 			return response(StatusCodes.OK, appointment, 'Appointment cancelled successfully');
-		} catch (err) {
-			return next(err);
-		}
-	}
-);
-
-// Qualifications routes
-router.get('/:id/qualifications', async (req: Request, _res: Response, next: NextFunction) => {
-	try {
-		const nurse = await db.nurses.findById(req.params.id);
-		if (!nurse) return response(StatusCodes.NOT_FOUND, null, 'Nurse not found');
-		return response(
-			StatusCodes.OK,
-			{ nurseId: req.params.id, qualifications: nurse.qualifications || [] },
-			'Nurse qualifications fetched successfully'
-		);
-	} catch (err) {
-		return next(err);
-	}
-});
-
-router.post('/:id/qualifications', async (req: Request, _res: Response, next: NextFunction) => {
-	try {
-		const { qualificationUrls } = req.body;
-		const nurse = await db.nurses.findById(req.params.id);
-		if (!nurse) return response(StatusCodes.NOT_FOUND, null, 'Nurse not found');
-		const newQualifications = qualificationUrls.filter(
-			(url: string) => !nurse.qualifications.includes(url)
-		);
-		nurse.qualifications = [...nurse.qualifications, ...newQualifications];
-		await nurse.save();
-		return response(StatusCodes.OK, nurse, 'Nurse qualifications updated successfully');
-	} catch (err) {
-		return next(err);
-	}
-});
-
-router.put('/:id/qualifications', async (req: Request, _res: Response, next: NextFunction) => {
-	try {
-		const { qualificationUrls } = req.body;
-		const nurse = await db.nurses.findById(req.params.id);
-		if (!nurse) return response(StatusCodes.NOT_FOUND, null, 'Nurse not found');
-		nurse.qualifications = qualificationUrls;
-		await nurse.save();
-		return response(StatusCodes.OK, nurse, 'Nurse qualifications updated successfully');
-	} catch (err) {
-		return next(err);
-	}
-});
-
-router.delete('/:id/qualifications', async (req: Request, _res: Response, next: NextFunction) => {
-	try {
-		const { qualificationUrl } = req.query;
-		const nurse = await db.nurses.findById(req.params.id);
-		if (!nurse) return response(StatusCodes.NOT_FOUND, null, 'Nurse not found');
-		nurse.qualifications = nurse.qualifications.filter((url: string) => url !== qualificationUrl);
-		await nurse.save();
-		return response(StatusCodes.OK, nurse, 'Nurse qualifications updated successfully');
-	} catch (err) {
-		return next(err);
-	}
-});
-
-// Get nurse qualification document info
-router.get(
-	'/:id/qualifications/:documentPath',
-	async (req: Request, _res: Response, next: NextFunction) => {
-		try {
-			const { id, documentPath } = req.params;
-			const nurse = await db.nurses.findById(id);
-			if (!nurse) return response(StatusCodes.NOT_FOUND, null, 'Nurse not found');
-			if (!nurse.qualifications.includes(documentPath)) {
-				return response(StatusCodes.FORBIDDEN, null, 'Document not found for this nurse');
-			}
-			const fullPath = path.join(process.cwd(), documentPath);
-			if (!fs.existsSync(fullPath)) {
-				return response(StatusCodes.NOT_FOUND, null, 'Document file not found');
-			}
-			const stats = fs.statSync(fullPath);
-			const fileInfo = {
-				path: documentPath,
-				fileName: path.basename(documentPath),
-				size: stats.size,
-				uploadDate: stats.mtime,
-				mimeType: getMimeType(path.extname(documentPath).toLowerCase()),
-			};
-			return response(StatusCodes.OK, fileInfo, 'Document file info fetched successfully');
 		} catch (err) {
 			return next(err);
 		}
