@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { uris } from '../../../config';
+import { airtel } from '../../../config/base-url';
 
-export default async function getTXEnquiry( id: string, bearer: string ) {
+export default async function getTXEnquiry(id: string, bearer: string) {
 	const config = {
 		method: 'get',
 		maxBodyLength: Infinity,
-		url: `${uris.airtel}/standard/v1/payments/${id}`,
+		url: `${airtel}/standard/v1/payments/${id}`,
 		headers: {
 			'Content-Type': 'application/json',
 			Accept: '*/*',
@@ -18,5 +18,5 @@ export default async function getTXEnquiry( id: string, bearer: string ) {
 		data: '',
 	};
 
-	return await axios.request( config );
+	return await axios.request(config);
 }

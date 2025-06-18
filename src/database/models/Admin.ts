@@ -1,6 +1,6 @@
 import { modelOptions, prop, Severity } from '@typegoose/typegoose';
 
-@modelOptions( {
+@modelOptions({
 	schemaOptions: {
 		id: false,
 		virtuals: true,
@@ -8,7 +8,7 @@ import { modelOptions, prop, Severity } from '@typegoose/typegoose';
 		toObject: { virtuals: true },
 		toJSON: {
 			virtuals: true,
-			transform( _doc, ret ): void {
+			transform(_doc, ret): void {
 				delete ret.password;
 				ret.id = _doc._id;
 				delete ret._id;
@@ -17,23 +17,20 @@ import { modelOptions, prop, Severity } from '@typegoose/typegoose';
 		},
 	},
 	options: { allowMixed: Severity.ALLOW },
-} )
+})
 export class Admin {
-	@prop( {
+	@prop({
 		type: String,
 		required: true,
 		unique: true,
 		index: true,
 		trim: true,
-	} )
+	})
 	email!: string;
 
-	@prop( { type: String, required: true } )
+	@prop({ type: String, required: true })
 	password!: string;
 
-	@prop( { type: Boolean, required: false, default: false } )
-	isBanned!: boolean;
-
-	@prop( { type: Boolean, required: false, default: false } )
+	@prop({ type: Boolean, required: false, default: false })
 	isEmailVerified?: boolean;
 }

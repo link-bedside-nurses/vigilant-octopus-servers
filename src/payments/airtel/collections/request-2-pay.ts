@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { v4 as uuid4 } from 'uuid';
-import { uris } from '../../../config';
+import { airtel } from '../../../config/base-url';
 
-export default async function makeReq2Pay( token: string, msisdn: string, amount: number ) {
+export default async function makeReq2Pay(token: string, msisdn: string, amount: number) {
 	const id = uuid4();
 
-	const data = JSON.stringify( {
+	const data = JSON.stringify({
 		reference: `${amount} from ${msisdn}`,
 		subscriber: {
 			country: 'UG',
@@ -18,12 +18,12 @@ export default async function makeReq2Pay( token: string, msisdn: string, amount
 			currency: 'UGX',
 			id: id,
 		},
-	} );
+	});
 
 	const config = {
 		method: 'post',
 		maxBodyLength: Infinity,
-		url: `${uris.airtel}/merchant/v1/payments`,
+		url: `${airtel}/merchant/v1/payments`,
 		headers: {
 			'Content-Type': 'application/json',
 			Accept: '*/*',
@@ -35,5 +35,5 @@ export default async function makeReq2Pay( token: string, msisdn: string, amount
 		data: data,
 	};
 
-	return await axios.request( config );
+	return await axios.request(config);
 }

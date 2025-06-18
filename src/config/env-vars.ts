@@ -1,51 +1,56 @@
 import * as envalid from 'envalid';
 
 const env = envalid.cleanEnv(process.env, {
-	NODE_ENV: envalid.str({
-		choices: ['development', 'production'],
-	}),
+	// Process
+	NODE_ENV: envalid.str({ choices: ['development', 'production'] }),
 	PORT: envalid.num(),
+
+	// Database
 	DATABASE_URL: envalid.str(),
 	DATABASE_NAME: envalid.str(),
 
+	// App Auth
 	ACCESS_TOKEN_SECRET: envalid.str(),
-	REFRESH_TOKEN_SECRET: envalid.str(),
-	ACCESS_TOKEN_EXPIRATION: envalid.str(),
-	REFRESH_TOKEN_EXPIRATION: envalid.str(),
 
+	// Email
+	APP_PASSWORD: envalid.str(),
+	SENDER_EMAIL: envalid.str(),
+	RECIPIENT_EMAIL: envalid.str(),
+
+	// OTP/SMS
 	FROM_SMS_PHONE: envalid.str(),
 	TO_SMS_PHONE: envalid.str(),
 	INFOBIP_URL: envalid.str(),
 	INFOBIP_SECRET_KEY: envalid.str(),
-	TWILIO_ACCOUNT_SID: envalid.str(),
-	TWILIO_AUTH_TOKEN: envalid.str(),
 
+	// MOMO
 	X_REFERENCE_ID: envalid.str(),
 	API_KEY: envalid.str(),
 	OCP_APIM_SUBSCRIPTION_KEY: envalid.str(),
 
+	// Airtel
 	AIRTEL_MONEY_CLIENT_ID: envalid.str(),
 	AIRTEL_MONEY_CLIENT_SECRET_KEY: envalid.str(),
 });
 
-export default Object.freeze({
+const envars = Object.freeze({
 	NODE_ENV: env.NODE_ENV,
-	PORT: Number(env.PORT),
-	DATABASE_URL: String(env.DATABASE_URL),
-	DATABASE_NAME: String(env.DATABASE_NAME),
-	ACCESS_TOKEN_SECRET: String(env.ACCESS_TOKEN_SECRET),
-	REFRESH_TOKEN_SECRET: String(env.REFRESH_TOKEN_SECRET),
-	ACCESS_TOKEN_EXPIRATION: String(env.ACCESS_TOKEN_EXPIRATION),
-	REFRESH_TOKEN_EXPIRATION: String(env.REFRESH_TOKEN_EXPIRATION),
-	FROM_SMS_PHONE: String(env.FROM_SMS_PHONE),
-	TO_SMS_PHONE: String(env.TO_SMS_PHONE),
-	INFOBIP_SECRET_KEY: String(env.INFOBIP_SECRET_KEY),
-	INFOBIP_URL: String(env.INFOBIP_URL),
-	TWILIO_ACCOUNT_SID: String(env.TWILIO_ACCOUNT_SID),
-	TWILIO_AUTH_TOKEN: String(env.TWILIO_AUTH_TOKEN),
-	X_REFERENCE_ID: String(env.X_REFERENCE_ID),
-	API_KEY: String(env.API_KEY),
-	OCP_APIM_SUBSCRIPTION_KEY: String(env.OCP_APIM_SUBSCRIPTION_KEY),
-	AIRTEL_MONEY_CLIENT_ID: String(env.AIRTEL_MONEY_CLIENT_ID),
-	AIRTEL_MONEY_CLIENT_SECRET_KEY: String(env.AIRTEL_MONEY_CLIENT_SECRET_KEY),
+	PORT: env.PORT,
+	DATABASE_URL: env.DATABASE_URL,
+	DATABASE_NAME: env.DATABASE_NAME,
+	ACCESS_TOKEN_SECRET: env.ACCESS_TOKEN_SECRET,
+	APP_PASSWORD: env.APP_PASSWORD,
+	SENDER_EMAIL: env.SENDER_EMAIL,
+	RECIPIENT_EMAIL: env.RECIPIENT_EMAIL,
+	FROM_SMS_PHONE: env.FROM_SMS_PHONE,
+	TO_SMS_PHONE: env.TO_SMS_PHONE,
+	INFOBIP_URL: env.INFOBIP_URL,
+	INFOBIP_SECRET_KEY: env.INFOBIP_SECRET_KEY,
+	X_REFERENCE_ID: env.X_REFERENCE_ID,
+	API_KEY: env.API_KEY,
+	OCP_APIM_SUBSCRIPTION_KEY: env.OCP_APIM_SUBSCRIPTION_KEY,
+	AIRTEL_MONEY_CLIENT_ID: env.AIRTEL_MONEY_CLIENT_ID,
+	AIRTEL_MONEY_CLIENT_SECRET_KEY: env.AIRTEL_MONEY_CLIENT_SECRET_KEY,
 });
+
+export default envars;

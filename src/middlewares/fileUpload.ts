@@ -30,6 +30,6 @@ export const uploadQualifications = multer({
 	// @ts-ignore
 	fileFilter: qualificationFileFilter,
 	limits: {
-		fileSize: 5 * 1024 * 1024, // 5MB max file size
+		fileSize: 5 * 1024 * 1024,
 	},
 });

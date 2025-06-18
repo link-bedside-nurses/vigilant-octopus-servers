@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { uris, envars } from '../../../config';
-
+import { momo_sandbox } from '../../../config/base-url';
+import envars from '../../../config/env-vars';
 interface RequestToPayPayload {
 	amount: string;
 	currency: string;
@@ -21,27 +21,27 @@ export default async function makeReq2Pay(
 	try {
 		const config = {
 			method: 'post',
-			url: `${uris.momo_sandbox}/collection/v1_0/requesttopay`,
+			url: `${momo_sandbox}/collection/v1_0/requesttopay`,
 			headers: {
 				'X-Reference-Id': referenceId,
 				'X-Target-Environment': 'sandbox',
 				'Ocp-Apim-Subscription-Key': envars.OCP_APIM_SUBSCRIPTION_KEY,
-				'Authorization': `Bearer ${token}`,
-				'Content-Type': 'application/json'
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
 			},
-			data: payload
+			data: payload,
 		};
 
-		const response = await axios.request( config );
+		const response = await axios.request(config);
 
-		if ( response.status === 202 ) {
-			console.log( 'Payment request accepted' );
+		if (response.status === 202) {
+			console.log('Payment request accepted');
 			return response;
 		}
 
-		throw new Error( `Request to pay failed with status: ${response.status}` );
-	} catch ( error: any ) {
-		console.error( 'Request to pay error:', error.response?.data || error.message );
+		throw new Error(`Request to pay failed with status: ${response.status}`);
+	} catch (error: any) {
+		console.error('Request to pay error:', error.response?.data || error.message);
 		throw error;
 	}
 }

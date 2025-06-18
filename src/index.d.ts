@@ -6,5 +6,5 @@ declare global {
 			account?: ACCOUNT;
 		}
 	}
-	namespace Application { }
+	namespace Application {}
 }

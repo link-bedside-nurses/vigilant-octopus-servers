@@ -1,105 +1,66 @@
-import appointmentRouter from './modules/appointments.controller';
-import profileRouter from './modules/auth/profile/routes';
-import testRouter from './modules/heath.controller';
-import authRouter from './modules/auth/routes';
-import patientRouter from './modules/patients.controller';
-import nurseRouter from './modules/nurses.controller';
-import paymentsRouter from './modules/payments.controller';
-import adminRouter from './modules/admins.controller';
+import cors from 'cors';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import compression from 'compression';
-import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
-import path from 'node:path';
-import crypto from 'node:crypto';
-import { envars } from './config';
-import errorMiddleware from './middlewares/error-middleware';
-import otpRouter from './modules/sms.controller';
-import { privacy } from './utils/privacy';
-import emailRouter from './modules/email.controller';
-import dashboardRouter from './modules/dashboard.controller';
 import { StatusCodes } from 'http-status-codes';
+import morgan from 'morgan';
+import errorMiddleware from './middlewares/error-middleware';
+import adminRouter from './modules/admins.controller';
+import appointmentRouter from './modules/appointments.controller';
+import authRouter from './modules/auth.controller';
+import dashboardRouter from './modules/dashboard.controller';
+import emailRouter from './modules/email.controller';
+import messagingRouter from './modules/messaging.controller';
+import nurseRouter from './modules/nurses.controller';
+import patientRouter from './modules/patients.controller';
+import paymentsRouter from './modules/payments.controller';
 import { accountDeletionPage } from './utils/account-deletion-page';
+import { privacy } from './utils/privacy';
 
 const router = express.Router();
 
-router.use( cors() );
-router.use( compression() );
-router.use( helmet() );
-router.use( express.json() );
-router.use( express.urlencoded( { extended: true } ) );
-router.use( express.static( path.join( __dirname, 'public' ) ) );
-router.use( '/static', express.static( 'public' ) );
+router.use(cors());
+router.use(helmet());
+router.use(morgan('combined'));
 
-router.use( ( _req, res, next ) => {
-	const nonce = Buffer.from( crypto.randomBytes( 16 ) ).toString( "base64" ); // Generate a nonce
-	res.locals.nonce = nonce; // Store the nonce for later use
+// Rate limiting
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // limit each IP to 100 requests per windowMs
+	message: 'Too many requests from this IP, please try again later.',
+});
 
-	res.setHeader(
-		"Content-Security-Policy",
-		`script-src 'self' 'nonce-${nonce}' http://localhost:8000 https://lkb.ianbalijawa.com;`
-	);
+router.use(limiter);
 
-	next();
-} );
+// Health check
+router.get('/health', (_req, res) => {
+	res.status(StatusCodes.OK).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
-router.use( morgan( 'dev' ) );
+// Privacy policy
+router.get('/privacy', (_req, res) => {
+	res.send(privacy);
+});
 
-const ONE_MINUTE = 1 * 60 * 1000;
-router.use(
-	rateLimit( {
-		windowMs: ONE_MINUTE,
-		limit: envars.NODE_ENV === 'production' ? 60 : Number.MAX_SAFE_INTEGER,
-		validate: {
-			trustProxy: false,
-			xForwardedForHeader: false,
-		},
-	} )
-);
+// Account deletion page
+router.get('/account-deletion', (_req, res) => {
+	res.send(accountDeletionPage);
+});
 
-const PREFIX = '/api/v1.1';
+// API routes
+const PREFIX = '/api/v1';
 
-router.use( `${PREFIX}/test`, testRouter );
-router.use( `${PREFIX}/auth`, authRouter );
-router.use( `${PREFIX}/appointments`, appointmentRouter );
-router.use( `${PREFIX}/dashboard`, dashboardRouter );
-router.use( `${PREFIX}/profile`, profileRouter );
-router.use( `${PREFIX}/patients`, patientRouter );
-router.use( `${PREFIX}/nurses`, nurseRouter );
-router.use( `${PREFIX}/admins`, adminRouter );
-router.use( `${PREFIX}/payments`, paymentsRouter );
-router.use( `${PREFIX}/otp`, otpRouter );
-router.use( `${PREFIX}/mail`, emailRouter );
+router.use(`${PREFIX}/auth`, authRouter);
+router.use(`${PREFIX}/appointments`, appointmentRouter);
+router.use(`${PREFIX}/nurses`, nurseRouter);
+router.use(`${PREFIX}/patients`, patientRouter);
+router.use(`${PREFIX}/payments`, paymentsRouter);
+router.use(`${PREFIX}/admins`, adminRouter);
+router.use(`${PREFIX}/email`, emailRouter);
+router.use(`${PREFIX}/messaging`, messagingRouter);
+router.use(`${PREFIX}/dashboard`, dashboardRouter);
 
-router.use( errorMiddleware );
-
-router.get( '/privacy', function ( _, res ) {
-	res.setHeader( 'Content-Type', 'text/html' );
-	res.send( privacy );
-} );
-
-router.get( `${PREFIX}/auth/account-deletion`, function ( _, res ) {
-	res.setHeader( 'Content-Type', 'text/html' );
-	res.send( accountDeletionPage );
-} );
-
-router.get( '/linkbedsides/privacy', function ( _, res ) {
-	res.setHeader( 'Content-Type', 'text/html' );
-	res.send( privacy );
-} );
-
-router.get( '/', function ( request: express.Request, response: express.Response ) {
-	return response
-		.status( StatusCodes.OK )
-		.send( { message: 'SERVER IS ONLINE!', requestHeaders: request.headers } );
-} );
-
-router.use( '*', function ( request: express.Request, response: express.Response ) {
-	return response
-		.status( StatusCodes.OK )
-		.send( { message: 'ROUTE NOT FOUND!', requestHeaders: request.headers } );
-} );
+// Error handling middleware
+router.use(errorMiddleware);
 
 export default router;
