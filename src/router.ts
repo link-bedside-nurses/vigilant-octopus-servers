@@ -1,9 +1,12 @@
 import cors from 'cors';
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { StatusCodes } from 'http-status-codes';
 import morgan from 'morgan';
+
+import envars from './config/env-vars';
+import { healthCheck } from './database';
 import errorMiddleware from './middlewares/error-middleware';
 import accountDeletionRouter from './modules/account-deletion.controller';
 import adminRouter from './modules/admins.controller';
@@ -15,50 +18,290 @@ import messagingRouter from './modules/messaging.controller';
 import nurseRouter from './modules/nurses.controller';
 import patientRouter from './modules/patients.controller';
 import paymentsRouter from './modules/payments.controller';
+import logger from './utils/logger';
 import { privacy } from './utils/privacy';
 
 const router = express.Router();
 
-router.use(cors());
-router.use(helmet());
-router.use(morgan('combined'));
+/**
+ * Security and CORS Configuration
+ */
+const corsOptions = {
+	origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+		// Allow requests with no origin (like mobile apps or curl requests)
+		if (!origin) return callback(null, true);
 
-// Rate limiting
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // limit each IP to 100 requests per windowMs
-	message: 'Too many requests from this IP, please try again later.',
+		const allowedOrigins = [
+			'http://localhost:3000',
+			'http://localhost:3001',
+			'http://127.0.0.1:3000',
+			'http://127.0.0.1:3001',
+			'http://127.0.0.1:8080',
+			'http://127.0.0.1:8081',
+		];
+
+		// Add production origins here
+		if (envars.NODE_ENV === 'production') {
+			allowedOrigins.push(
+				'https://linkbedsides.ianbalijawa.com',
+				'https://www.linkbedsides.ianbalijawa.com'
+			);
+		}
+
+		if (allowedOrigins.includes(origin)) {
+			callback(null, true);
+		} else {
+			logger.warn(`CORS blocked request from origin: ${origin}`);
+			callback(new Error('Not allowed by CORS'));
+		}
+	},
+	credentials: true,
+	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+	allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+	exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
+	maxAge: 86400, // 24 hours
+};
+
+/**
+ * Rate Limiting Configuration
+ */
+const createRateLimiter = (windowMs: number, max: number, message?: string) => {
+	return rateLimit({
+		windowMs,
+		max,
+		message: {
+			error: message || 'Too many requests from this IP, please try again later.',
+			retryAfter: Math.ceil(windowMs / 1000),
+		},
+		standardHeaders: true,
+		legacyHeaders: false,
+		keyGenerator: (req) => {
+			// Use IP address or user ID if available
+			return (
+				(req.headers['x-forwarded-for'] as string) ||
+				req.ip ||
+				req.connection.remoteAddress ||
+				'unknown'
+			);
+		},
+		handler: (req, res) => {
+			logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
+			res.status(StatusCodes.TOO_MANY_REQUESTS).json({
+				error: 'Too many requests',
+				retryAfter: Math.ceil(windowMs / 1000),
+				timestamp: new Date().toISOString(),
+			});
+		},
+	});
+};
+
+// Different rate limits for different endpoints
+const generalLimiter = createRateLimiter(15 * 60 * 1000, 100); // 100 requests per 15 minutes
+const authLimiter = createRateLimiter(15 * 60 * 1000, 5); // 5 requests per 15 minutes for auth
+const apiLimiter = createRateLimiter(15 * 60 * 1000, 1000); // 1000 requests per 15 minutes for API
+
+/**
+ * Request ID Middleware
+ */
+const requestIdMiddleware = (req: Request, res: Response, next: NextFunction) => {
+	const requestId =
+		(req.headers['x-request-id'] as string) ||
+		`req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+	req.headers['x-request-id'] = requestId;
+	res.setHeader('X-Request-ID', requestId);
+	next();
+};
+
+/**
+ * Request Logging Middleware
+ */
+const requestLoggingMiddleware = (req: Request, res: Response, next: NextFunction) => {
+	const start = Date.now();
+
+	res.on('finish', () => {
+		const duration = Date.now() - start;
+		const requestId = req.headers['x-request-id'] as string;
+
+		logger.info('HTTP Request', {
+			method: req.method,
+			url: req.originalUrl,
+			statusCode: res.statusCode,
+			duration: `${duration}ms`,
+			userAgent: req.get('User-Agent'),
+			ip: req.ip,
+			requestId,
+		});
+	});
+
+	next();
+};
+
+/**
+ * API Response Time Middleware
+ */
+const responseTimeMiddleware = (req: Request, res: Response, next: NextFunction) => {
+	const start = Date.now();
+	res.on('finish', () => {
+		const duration = Date.now() - start;
+		res.setHeader('X-Response-Time', `${duration}ms`);
+	});
+	next();
+};
+
+/**
+ * Initialize Middlewares
+ */
+router.use(
+	helmet({
+		contentSecurityPolicy: {
+			directives: {
+				defaultSrc: ["'self'"],
+				styleSrc: ["'self'", "'unsafe-inline'"],
+				scriptSrc: ["'self'"],
+				imgSrc: ["'self'", 'data:', 'https:'],
+			},
+		},
+		crossOriginEmbedderPolicy: false,
+	})
+);
+
+router.use(cors(corsOptions));
+router.use(requestIdMiddleware);
+router.use(responseTimeMiddleware);
+router.use(requestLoggingMiddleware);
+
+// Morgan logging with custom format
+router.use(
+	morgan('combined', {
+		stream: {
+			write: (message: string) => {
+				logger.info(message.trim());
+			},
+		},
+	})
+);
+
+/**
+ * Health Check Endpoint
+ */
+router.get('/health', async (req: Request, res: Response) => {
+	try {
+		const startTime = Date.now();
+		const dbHealth = await healthCheck();
+		const responseTime = Date.now() - startTime;
+
+		const healthStatus = {
+			status: dbHealth.status === 'healthy' ? 'healthy' : 'unhealthy',
+			timestamp: new Date().toISOString(),
+			uptime: process.uptime(),
+			environment: envars.NODE_ENV,
+			version: process.env.npm_package_version || '1.0.0',
+			responseTime: `${responseTime}ms`,
+			services: {
+				database: dbHealth,
+				server: {
+					status: 'healthy',
+					memory: process.memoryUsage(),
+					cpu: process.cpuUsage(),
+				},
+			},
+			requestId: req.headers['x-request-id'],
+		};
+
+		const statusCode =
+			healthStatus.status === 'healthy' ? StatusCodes.OK : StatusCodes.SERVICE_UNAVAILABLE;
+		res.status(statusCode).json(healthStatus);
+	} catch (error) {
+		logger.error('Health check failed:', error);
+		res.status(StatusCodes.SERVICE_UNAVAILABLE).json({
+			status: 'unhealthy',
+			timestamp: new Date().toISOString(),
+			error: error instanceof Error ? error.message : 'Unknown error',
+			requestId: req.headers['x-request-id'],
+		});
+	}
 });
 
-router.use(limiter);
-
-// Health check
-router.get('/health', (_req, res) => {
-	res.status(StatusCodes.OK).json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-// Privacy policy
-router.get('/privacy', (_req, res) => {
+/**
+ * Privacy Policy Endpoint
+ */
+router.get('/privacy', (req: Request, res: Response) => {
+	res.setHeader('Content-Type', 'text/html');
 	res.send(privacy);
 });
 
-// Account deletion routes (public and API)
-router.use('/account-deletion', accountDeletionRouter);
+/**
+ * API Documentation Endpoint
+ */
+router.get('/api/v1/docs', (req: Request, res: Response) => {
+	res.json({
+		message: 'API Documentation',
+		version: '1.0.0',
+		endpoints: {
+			auth: '/api/v1/auth',
+			appointments: '/api/v1/appointments',
+			nurses: '/api/v1/nurses',
+			patients: '/api/v1/patients',
+			payments: '/api/v1/payments',
+			admins: '/api/v1/admins',
+			email: '/api/v1/email',
+			messaging: '/api/v1/messaging',
+			dashboard: '/api/v1/dashboard',
+		},
+		health: '/health',
+		privacy: '/privacy',
+		timestamp: new Date().toISOString(),
+		requestId: req.headers['x-request-id'],
+	});
+});
 
-// API routes
-const PREFIX = '/api/v1';
+/**
+ * Account Deletion Routes (Public)
+ */
+router.use('/account-deletion', generalLimiter, accountDeletionRouter);
 
-router.use(`${PREFIX}/auth`, authRouter);
-router.use(`${PREFIX}/appointments`, appointmentRouter);
-router.use(`${PREFIX}/nurses`, nurseRouter);
-router.use(`${PREFIX}/patients`, patientRouter);
-router.use(`${PREFIX}/payments`, paymentsRouter);
-router.use(`${PREFIX}/admins`, adminRouter);
-router.use(`${PREFIX}/email`, emailRouter);
-router.use(`${PREFIX}/messaging`, messagingRouter);
-router.use(`${PREFIX}/dashboard`, dashboardRouter);
+/**
+ * API Routes with Versioning
+ */
+const API_PREFIX = '/api/v1';
 
-// Error handling middleware
+// Apply rate limiting to API routes
+router.use(API_PREFIX, apiLimiter);
+
+// Auth routes with stricter rate limiting
+router.use(`${API_PREFIX}/auth`, authLimiter, authRouter);
+
+// Protected API routes
+router.use(`${API_PREFIX}/appointments`, appointmentRouter);
+router.use(`${API_PREFIX}/nurses`, nurseRouter);
+router.use(`${API_PREFIX}/patients`, patientRouter);
+router.use(`${API_PREFIX}/payments`, paymentsRouter);
+router.use(`${API_PREFIX}/admins`, adminRouter);
+router.use(`${API_PREFIX}/email`, emailRouter);
+router.use(`${API_PREFIX}/messaging`, messagingRouter);
+router.use(`${API_PREFIX}/dashboard`, dashboardRouter);
+
+/**
+ * 404 Handler
+ */
+router.use('*', (req: Request, res: Response) => {
+	logger.warn(`Route not found: ${req.method} ${req.originalUrl}`);
+	res.status(StatusCodes.NOT_FOUND).json({
+		error: 'Route not found',
+		message: `Cannot ${req.method} ${req.originalUrl}`,
+		timestamp: new Date().toISOString(),
+		requestId: req.headers['x-request-id'],
+		suggestions: [
+			'Check the URL for typos',
+			'Verify the HTTP method',
+			'Consult the API documentation at /api/v1/docs',
+		],
+	});
+});
+
+/**
+ * Error Handling Middleware (must be last)
+ */
 router.use(errorMiddleware);
 
 export default router;
