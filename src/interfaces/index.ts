@@ -4,7 +4,6 @@ export type TUser = {
 	email: string;
 	firstName: string;
 	lastName: string;
-	designation: DESIGNATION;
 	password: string;
 };
 
@@ -15,12 +14,6 @@ export enum APPOINTMENT_STATUSES {
 	COMPLETED = 'completed',
 }
 
-export enum DESIGNATION {
-	PATIENT = 'PATIENT',
-	CAREGIVER = 'CAREGIVER',
-	ADMIN = 'ADMIN',
-}
-
 export interface IToken extends NonNullable<unknown> {
 	id: Types.ObjectId;
 	expiresIn: number;
@@ -28,7 +21,6 @@ export interface IToken extends NonNullable<unknown> {
 
 export interface ACCOUNT {
 	id: string;
-	designation: DESIGNATION;
 	phone?: string;
 	email?: string;
 }

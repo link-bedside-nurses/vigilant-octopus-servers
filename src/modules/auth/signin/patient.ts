@@ -3,7 +3,6 @@ import { HTTPRequest } from '../../../express-callback';
 import { PatientRepo } from '../../../database/repositories/patient-repository';
 import { response } from '../../../utils/http-response';
 import { z } from 'zod';
-import { Password } from '../../../utils/password';
 import { ACCOUNT } from '../../../interfaces';
 import { createAccessToken } from '../../../services/token';
 import mongoose from 'mongoose';
@@ -11,7 +10,6 @@ import mongoose from 'mongoose';
 const PatientSigninSchema = z.object( {
 	type: z.enum( ['email', 'phone'] ),
 	username: z.string(),
-	password: z.string()
 } );
 
 export function patientSignin() {
@@ -28,7 +26,7 @@ export function patientSignin() {
 			);
 		}
 
-		const { type, username, password } = result.data;
+		const { type, username } = result.data;
 		let patient;
 
 		// Find patient based on type
@@ -45,15 +43,6 @@ export function patientSignin() {
 
 		// Create access token
 		const accessToken = createAccessToken( patient as mongoose.Document & ACCOUNT );
-
-		// Verify password
-		if ( !patient.password ) {
-			return response( StatusCodes.OK, { user: patient }, 'Patient has no password' );
-		}
-		const match = await Password.verify( patient.password, password );
-		if ( !match ) {
-			return response( StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
-		}
 
 		return response(
 			StatusCodes.OK,

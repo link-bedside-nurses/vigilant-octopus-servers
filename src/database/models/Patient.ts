@@ -1,6 +1,27 @@
 import { index, modelOptions, prop, Severity } from '@typegoose/typegoose';
-import { DESIGNATION } from '../../interfaces';
-import { Location } from './Location';
+
+
+@modelOptions( {
+	schemaOptions: { _id: false, versionKey: false },
+	options: { allowMixed: Severity.ALLOW },
+} )
+export class Location {
+	@prop( { type: String, default: 'Point', enum: ['Point'] } )
+	type?: string;
+
+	@prop( {
+		type: [Number],
+		validate: {
+			validator: function ( coords: number[] ) {
+				return coords.length === 2 &&
+					coords[0] >= -180 && coords[0] <= 180 && // longitude
+					coords[1] >= -90 && coords[1] <= 90;     // latitude
+			},
+			message: 'Invalid coordinates'
+		}
+	} )
+	coordinates!: number[];
+}
 
 @modelOptions( {
 	schemaOptions: {
@@ -23,56 +44,10 @@ import { Location } from './Location';
 export class Patient {
 	@prop( {
 		type: String,
-		required: false,
-		default: DESIGNATION.PATIENT,
-		enum: [DESIGNATION.PATIENT, DESIGNATION.CAREGIVER, DESIGNATION.ADMIN],
-	} )
-	designation!: DESIGNATION.PATIENT;
-
-	@prop( {
-		type: String,
 		required: true,
 		unique: true,
 		index: true,
 		trim: true,
-	} )
-	phone!: string;
-
-	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
-	firstName!: string;
-
-	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
-	lastName!: string;
-
-	@prop( { type: Boolean, required: false, default: false } )
-	isPhoneVerified?: boolean;
-
-	@prop( { type: Boolean, required: false, default: false } )
-	isBanned?: boolean;
-
-	@prop( { type: Location, index: '2dsphere' } )
-	location!: Location;
-
-	@prop( { type: Boolean, required: false, default: false } )
-	isVerified?: boolean;
-
-	@prop( { type: Boolean, required: false, default: true } )
-	isActive?: boolean;
-
-	@prop( {
-		type: String,
-		required: false,
-		unique: true,
-		trim: true,
-		sparse: true // This allows multiple null values while maintaining uniqueness for non-null values
-	} )
-	email?: string;
-
-	@prop( {
-		type: String,
-		required: false,
-		trim: true,
-		unique: true,
 		validate: {
 			validator: function ( v: string ) {
 				return /^(256|0)?(7[0578])\d{7}$/.test( v );
@@ -83,13 +58,19 @@ export class Patient {
 			return this.phone;
 		}
 	} )
-	momoNumber?: string;
+	phone!: string;
+
+	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
+	name!: string;
 
 	@prop( { type: Boolean, required: false, default: false } )
-	isMomoNumberVerified?: boolean;
+	isPhoneVerified?: boolean;
 
-	@prop( { type: String, required: true } )
-	password!: string;
+	@prop( { type: Location, index: '2dsphere' } )
+	location!: Location;
+
+	@prop( { type: Boolean, required: false, default: false } )
+	isVerified?: boolean;
 
 	// New fields to support account deletion feature
 	@prop( { type: Boolean, required: false, default: false } )

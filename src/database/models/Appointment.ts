@@ -1,8 +1,7 @@
 import { DocumentType, Ref, Severity, modelOptions, mongoose, prop } from '@typegoose/typegoose';
 import { Patient } from './Patient';
 import { APPOINTMENT_STATUSES } from '../../interfaces';
-import { Caregiver } from './Caregiver';
-import { Location } from './Location';
+import { Nurse } from './Nurse';
 
 @modelOptions( {
 	schemaOptions: {
@@ -25,8 +24,8 @@ export class Appointment {
 	@prop( { type: mongoose.Types.ObjectId, required: true, ref: Patient } )
 	patient!: Ref<Patient>;
 
-	@prop( { type: mongoose.Types.ObjectId, required: true, ref: Caregiver, index: true } )
-	caregiver!: Ref<Caregiver>;
+	@prop( { type: mongoose.Types.ObjectId, required: false, ref: Nurse, index: true } )
+	nurse: Ref<Nurse>;
 
 	@prop( { required: true, type: Array } )
 	symptoms!: string[];
@@ -34,18 +33,12 @@ export class Appointment {
 	@prop( { required: true, default: Date.now() } )
 	date!: Date;
 
-	@prop( { type: Location, index: '2dsphere' } )
-	location!: Location;
-
 	@prop( {
 		enum: APPOINTMENT_STATUSES,
 		default: APPOINTMENT_STATUSES.PENDING,
 		index: true,
 	} )
 	status!: APPOINTMENT_STATUSES;
-
-	@prop( { type: String, required: false, default: '' } )
-	cancellationReason?: string;
 
 	public async confirmAppointment( this: DocumentType<Appointment> ): Promise<void> {
 		this.status = APPOINTMENT_STATUSES.IN_PROGRESS;
@@ -59,10 +52,16 @@ export class Appointment {
 
 	public async cancelAppointment(
 		this: DocumentType<Appointment>,
-		cancellationReason?: string
 	): Promise<void> {
 		this.status = APPOINTMENT_STATUSES.CANCELLED;
-		this.cancellationReason = cancellationReason;
+		await this.save();
+	}
+
+	public async assignNurse(
+		this: DocumentType<Appointment>,
+
+	): Promise<void> {
+		this.status = APPOINTMENT_STATUSES.CANCELLED;
 		await this.save();
 	}
 }

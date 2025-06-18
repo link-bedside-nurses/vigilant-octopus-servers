@@ -1,19 +1,16 @@
 import callback from '../../express-callback';
 import { Router } from 'express';
 
-import { getAccessToken, requestAccountDeletion } from '../../modules/auth/controller';
+import { requestAccountDeletion } from '../../modules/auth/controller';
 import { adminSignup } from './signup/admin';
-import { caregiverSignup } from './signup/caregiver';
+import { nurseSignup } from './signup/nurse';
 import { patientSignup } from './signup/patient';
 import { adminSignin } from './signin/admin';
-import { caregiverSignin } from './signin/caregiver';
 import { patientSignin } from './signin/patient';
-import verifyRefreshTokenMiddleware from '../../security/verify-refresh-token';
 
 const router = Router();
 
-router.post( '/caregiver/signup', callback( caregiverSignup() ) );
-router.post( '/caregiver/signin', callback( caregiverSignin() ) );
+router.post( '/nurse/signup', callback( nurseSignup() ) );
 
 router.post( '/patient/signup', callback( patientSignup() ) );
 router.post( '/patient/signin', callback( patientSignin() ) );
@@ -23,7 +20,5 @@ router.post( '/admin/signup', callback( adminSignup() ) );
 
 // router.delete( '/accounts/deletion', callback( deleteAccount() ) );
 router.delete( '/accounts/deletion', callback( requestAccountDeletion() ) );
-
-router.get( '/token/refresh', verifyRefreshTokenMiddleware, callback( getAccessToken() ) );
 
 export default router;

@@ -12,7 +12,6 @@
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"moduleResolution": "node",
-		"types": ["jest"],
 		"esModuleInterop": true,
 		"inlineSources": true,
 		"noImplicitAny": true,

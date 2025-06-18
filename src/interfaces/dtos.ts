@@ -1,7 +1,4 @@
 import { z } from 'zod';
-import { DESIGNATION } from '.';
-
-const DesignationEnum = z.enum( Object.values( DESIGNATION ) as [string, ...string[]] );
 
 const BaseSchema = z.object( {
 	firstName: z.string().min( 1 ),
@@ -10,7 +7,6 @@ const BaseSchema = z.object( {
 	 * +256700000000 +256300000000  256700000000 256300000000 0700000000 0300000000
 	 */
 	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ), // E.164 format
-	designation: DesignationEnum,
 	password: z.string().min( 8 ),
 	email: z.string().email().optional(),
 } );
@@ -19,21 +15,21 @@ export const CreatePatientSchema = BaseSchema.extend( {
 	momoNumber: z.string().optional(),
 	isMomoNumberVerified: z.boolean().optional(),
 	password: z.string().min( 8 )
-} ).omit( { designation: true } );
+} )
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
 
 export const CreateAdminSchema = BaseSchema.extend( {
 	email: z.string().email(),
 	password: z.string().min( 8 ),
-} ).omit( { designation: true, phone: true } );
+} ).omit( { phone: true } );
 
-export const CreateCaregiverSchema = BaseSchema.extend( {
+export const CreateNurseSchema = BaseSchema.extend( {
 	email: z.string().email(),
 	password: z.string().min( 8 ),
-} ).omit( { designation: true } );
+} )
 
-export const UpdateCaregiverSchema = BaseSchema.extend( {
+export const UpdateNurseSchema = BaseSchema.extend( {
 	dateOfBirth: z.string().optional(),
 	nin: z.string().optional(),
 	experience: z.string().optional(),
@@ -51,14 +47,8 @@ export const UpdateAdminSchema = BaseSchema.extend( {
 	email: z.string().email(),
 } ).partial();
 
-export const CreateRatingSchema = z.object( {
-	caregiver: z.string(),
-	review: z.string(),
-	value: z.number().min( 1 ).max( 5 ),
-} );
-
 export const ScheduleAppointmentSchema = z.object( {
-	caregiver: z.string(),
+	nurse: z.string(),
 	symptoms: z.array( z.string() ),
 	date: z.coerce.date(),
 	description: z.string().optional(),
@@ -96,21 +86,18 @@ export const VerifyEmailSchema = z.object( {
 export const VerifyPhoneSchema = z.object( {
 	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ), // E.164 format,
 	otp: z.string().length( 6 ),
-	designation: DesignationEnum,
 } );
 
 export const PhoneVerifcationOTPSchema = z.object( {
-	designation: DesignationEnum,
 	toPhone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ), // E.164 format
 } );
 
 export type CreatePatientDto = z.infer<typeof CreatePatientSchema>;
 export type UpdatePatientDto = z.infer<typeof UpdatePatientSchema>;
 export type CreateAdminDto = z.infer<typeof CreateAdminSchema>;
-export type CreateCaregiverDto = z.infer<typeof CreateCaregiverSchema>;
-export type UpdateCaregiverDto = z.infer<typeof UpdateCaregiverSchema>;
+export type CreateNurseDto = z.infer<typeof CreateNurseSchema>;
+export type UpdateNurseDto = z.infer<typeof UpdateNurseSchema>;
 export type UpdateAdminDto = z.infer<typeof UpdateAdminSchema>;
-export type CreateRatingDto = z.infer<typeof CreateRatingSchema>;
 export type ScheduleAppointmentDto = z.infer<typeof ScheduleAppointmentSchema>;
 export type RescheduleAppointmentDto = z.infer<typeof RescheduleAppointmentSchema>;
 export type CancelAppointmentDto = z.infer<typeof CancelAppointmentSchema>;

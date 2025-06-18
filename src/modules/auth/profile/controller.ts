@@ -1,11 +1,11 @@
 import { HTTPRequest } from '../../../express-callback';
 import { StatusCodes } from 'http-status-codes';
-import { UpdateAdminSchema, UpdateCaregiverDto } from '../../../interfaces/dtos';
-import { CaregiverRepo } from '../../../database/repositories/caregiver-repository';
+import { UpdateAdminSchema, UpdateNurseDto } from '../../../interfaces/dtos';
+import { NurseRepo } from '../../../database/repositories/nurse-repository';
 import { response } from '../../../utils/http-response';
 
-export function completeCaregiverProfile() {
-	return async function ( request: HTTPRequest<object, UpdateCaregiverDto> ) {
+export function completeNurseProfile() {
+	return async function ( request: HTTPRequest<object, UpdateNurseDto> ) {
 		const result = UpdateAdminSchema.safeParse( request.body );
 
 		if ( !result.success ) {
@@ -17,11 +17,11 @@ export function completeCaregiverProfile() {
 		}
 		console.log( 'result', result );
 
-		const updatedCaregiver = await CaregiverRepo.findByIdAndUpdate(
+		const updatedNurse = await NurseRepo.findByIdAndUpdate(
 			request.account?.id!,
 			request.body
 		);
-		console.log( 'updatedCaregiver successfully', updatedCaregiver );
-		return response( StatusCodes.OK, updatedCaregiver, 'Profile updated' );
+		console.log( 'updatedNurse successfully', updatedNurse );
+		return response( StatusCodes.OK, updatedNurse, 'Profile updated' );
 	};
 }

@@ -13,7 +13,6 @@ export function createAccessToken( user: ( Document & ACCOUNT ) | null ): string
 			id: user?._id,
 			phone: user?.phone,
 			email: user?.email,
-			designation: user?.designation,
 		},
 		envVars.ACCESS_TOKEN_SECRET as jwt.Secret
 	) as string;
@@ -23,7 +22,6 @@ export function createRefreshToken( user: ( Document & ACCOUNT ) | null ): strin
 	return jwt.sign(
 		{
 			id: user?._id,
-			designation: user?.designation,
 		},
 		envVars.REFRESH_TOKEN_SECRET as jwt.Secret
 	) as string;

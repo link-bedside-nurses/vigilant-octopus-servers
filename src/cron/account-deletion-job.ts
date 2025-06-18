@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { db } from '../database';
-import { CaregiverRepo } from '../database/repositories/caregiver-repository';
+import { NurseRepo } from '../database/repositories/nurse-repository';
 import { PatientRepo } from '../database/repositories/patient-repository';
 
 /**
@@ -15,13 +15,13 @@ async function processAccountDeletions() {
         const cutoffDate = new Date();
         cutoffDate.setDate( cutoffDate.getDate() - 7 );
 
-        // Find caregivers marked for deletion older than 7 days
-        const caregiversToDelete = await db.caregivers.find( {
+        // Find nurses marked for deletion older than 7 days
+        const nursesToDelete = await db.nurses.find( {
             markedForDeletion: true,
             deletionRequestDate: { $lte: cutoffDate }
         } );
 
-        console.log( "caregiversToDelete", caregiversToDelete )
+        console.log( "nursesToDelete", nursesToDelete )
 
 
         // Find patients marked for deletion older than 7 days
@@ -32,12 +32,12 @@ async function processAccountDeletions() {
 
         console.log( "patientsToDelete", patientsToDelete )
         // Log the number of accounts to be deleted
-        console.info( `Found ${caregiversToDelete.length} caregivers and ${patientsToDelete.length} patients to delete` );
+        console.info( `Found ${nursesToDelete.length} nurses and ${patientsToDelete.length} patients to delete` );
 
-        // Delete each caregiver
-        for ( const caregiver of caregiversToDelete ) {
-            console.info( `Deleting caregiver: ${caregiver._id}` );
-            await CaregiverRepo.deleteCaregiver( caregiver._id.toString() );
+        // Delete each nurse
+        for ( const nurse of nursesToDelete ) {
+            console.info( `Deleting nurse: ${nurse._id}` );
+            await NurseRepo.deleteNurse( nurse._id.toString() );
         }
 
         // Delete each patient
@@ -46,7 +46,7 @@ async function processAccountDeletions() {
             await PatientRepo.deletePatient( patient._id.toString() );
         }
 
-        console.info( `Successfully deleted ${caregiversToDelete.length} caregivers and ${patientsToDelete.length} patients` );
+        console.info( `Successfully deleted ${nursesToDelete.length} nurses and ${patientsToDelete.length} patients` );
     } catch ( error ) {
         console.error( 'Error processing account deletions:', error );
     }

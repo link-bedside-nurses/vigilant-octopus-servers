@@ -30,37 +30,31 @@ export async function seedDatabase() {
 		// Clear all collections
 		await Promise.all( [
 			db.admins.deleteMany( {} ),
-			db.caregivers.deleteMany( {} ),
+			db.nurses.deleteMany( {} ),
 			db.patients.deleteMany( {} ),
 			db.appointments.deleteMany( {} ),
 			db.payments.deleteMany( {} ),
-			db.ratings.deleteMany( {} )
 		] );
 
 		// Seed admins
 		const admins = await seedAdmins();
 		console.log( '✓ Admins seeded', admins );
 
-		// Seed caregivers
-		const caregivers = await seedCaregivers();
-		console.log( '✓ Caregivers seeded' );
+		// Seed nurses
+		const nurses = await seedNurses();
+		console.log( '✓ Nurses seeded' );
 
 		// Seed patients
 		const patients = await seedPatients();
 		console.log( '✓ Patients seeded' );
 
 		// Seed appointments
-		const appointments = await seedAppointments( patients, caregivers );
+		const appointments = await seedAppointments( patients, nurses );
 		console.log( '✓ Appointments seeded' );
 
 		// Seed payments
 		await seedPayments( appointments, patients );
 		console.log( '✓ Payments seeded' );
-
-		// Seed ratings
-		await seedRatings( patients, caregivers );
-		console.log( '✓ Ratings seeded' );
-
 		console.log( 'Database seeding completed successfully!' );
 	} catch ( error ) {
 		console.error( 'Error seeding database:', error );
@@ -85,11 +79,11 @@ async function seedAdmins() {
 	return await db.admins.insertMany( admins );
 }
 
-async function seedCaregivers() {
-	const caregivers = [];
+async function seedNurses() {
+	const nurses = [];
 	for ( let i = 0; i < 50; i++ ) {
-		caregivers.push( {
-			designation: DESIGNATION.CAREGIVER,
+		nurses.push( {
+			designation: DESIGNATION.NURSE,
 			phone: `25677${faker.string.numeric( 7 )}`,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),
@@ -116,7 +110,7 @@ async function seedCaregivers() {
 			}
 		} );
 	}
-	return await db.caregivers.insertMany( caregivers );
+	return await db.nurses.insertMany( nurses );
 }
 
 async function seedPatients() {
@@ -139,7 +133,7 @@ async function seedPatients() {
 	return await db.patients.insertMany( patients );
 }
 
-async function seedAppointments( patients: any[], caregivers: any[] ) {
+async function seedAppointments( patients: any[], nurses: any[] ) {
 	const appointments = [];
 	const statuses = Object.values( APPOINTMENT_STATUSES );
 	const symptoms = ['Fever', 'Cough', 'Fatigue', 'Headache', 'Body ache', 'Nausea'];
@@ -148,7 +142,7 @@ async function seedAppointments( patients: any[], caregivers: any[] ) {
 		const patient = faker.helpers.arrayElement( patients );
 		appointments.push( {
 			patient: patient._id,
-			caregiver: faker.helpers.arrayElement( caregivers )._id,
+			nurse: faker.helpers.arrayElement( nurses )._id,
 			symptoms: faker.helpers.arrayElements( symptoms, { min: 1, max: 3 } ),
 			status: faker.helpers.arrayElement( statuses ),
 			date: faker.date.recent( { days: 30 } ),
@@ -160,12 +154,10 @@ async function seedAppointments( patients: any[], caregivers: any[] ) {
 	return await db.appointments.insertMany( appointments );
 }
 
-async function seedPayments( appointments: any[], patients: any[] ) {
+async function seedPayments( appointments: any[], _patients: any[] ) {
 	const payments = [];
 	const paymentMethods = ['MTN', 'AIRTEL'];
 	const statuses = ['PENDING', 'SUCCESSFUL', 'FAILED'];
-	console.log( patients )
-
 
 	for ( let i = 0; i < appointments.length; i++ ) {
 		if ( faker.number.int( { min: 1, max: 100 } ) <= 70 ) { // 70% of appointments have payments
@@ -182,17 +174,4 @@ async function seedPayments( appointments: any[], patients: any[] ) {
 		}
 	}
 	return await db.payments.insertMany( payments );
-}
-
-async function seedRatings( patients: any[], caregivers: any[] ) {
-	const ratings = [];
-	for ( let i = 0; i < 300; i++ ) {
-		ratings.push( {
-			patient: faker.helpers.arrayElement( patients )._id,
-			caregiver: faker.helpers.arrayElement( caregivers )._id,
-			review: faker.lorem.paragraph(),
-			value: faker.number.int( { min: 3, max: 5 } )
-		} );
-	}
-	return await db.ratings.insertMany( ratings );
 }

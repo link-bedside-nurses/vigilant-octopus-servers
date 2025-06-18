@@ -1,5 +1,4 @@
 import { modelOptions, prop, Severity } from '@typegoose/typegoose';
-import { DESIGNATION } from '../../interfaces';
 
 @modelOptions( {
 	schemaOptions: {
@@ -22,26 +21,12 @@ import { DESIGNATION } from '../../interfaces';
 export class Admin {
 	@prop( {
 		type: String,
-		required: false,
-		default: DESIGNATION.ADMIN,
-		enum: [DESIGNATION.PATIENT, DESIGNATION.CAREGIVER, DESIGNATION.ADMIN],
-	} )
-	designation!: DESIGNATION;
-
-	@prop( {
-		type: String,
 		required: true,
 		unique: true,
 		index: true,
 		trim: true,
 	} )
 	email!: string;
-
-	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
-	firstName!: string;
-
-	@prop( { type: String, required: true, minlength: 2, maxlength: 250, trim: true } )
-	lastName!: string;
 
 	@prop( { type: String, required: true } )
 	password!: string;
@@ -51,7 +36,4 @@ export class Admin {
 
 	@prop( { type: Boolean, required: false, default: false } )
 	isEmailVerified?: boolean;
-
-	@prop( { type: Boolean, required: false, default: false } )
-	isActive?: boolean;
 }
