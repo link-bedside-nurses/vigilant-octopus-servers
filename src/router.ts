@@ -161,7 +161,7 @@ router.use(requestLoggingMiddleware);
 
 // Morgan logging with custom format
 router.use(
-	morgan('combined', {
+	morgan('common', {
 		stream: {
 			write: (message: string) => {
 				logger.info(message.trim());

@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
 import { response } from '../utils/http-response';
 import logger from '../utils/logger';
-import { fileUploadService } from './file-upload';
+import { fileUploadService } from './upload';
 
 // Account deletion request interface
 export interface DeletionRequest {

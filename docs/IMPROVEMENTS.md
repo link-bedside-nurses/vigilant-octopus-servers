@@ -284,3 +284,34 @@ npm start
 - Enhanced security without affecting functionality
 - Better performance with minimal configuration changes
 - Comprehensive logging for better debugging and monitoring
+
+## Payment-to-Appointment Linking & Transaction Processing Improvements
+
+### 1. Robust Validation
+
+- When a patient initiates a payment, the system now validates that the appointment exists and belongs to the patient.
+- Prevents duplicate successful payments for the same appointment (no double payment).
+
+### 2. Two-Way Linking
+
+- Payments are linked to appointments via the `appointment` field in the Payment model.
+- Appointments now have a `payments` array (ObjectId references to Payment) for reverse lookup.
+
+### 3. Payment Status Tracking
+
+- Appointments have a `paymentStatus` field (`'UNPAID' | 'PENDING' | 'PAID' | 'FAILED'`).
+- When a payment is initiated, the appointment's `paymentStatus` is set to `'PENDING'`.
+- When a payment is marked as `SUCCESSFUL`, the appointment's `paymentStatus` is set to `'PAID'`.
+- If a payment fails, the appointment's `paymentStatus` is set to `'FAILED'`.
+
+### 4. Status Update Logic
+
+- Payment status checks now support both MTN and Airtel providers.
+- On status check, the payment and appointment are updated accordingly.
+
+### 5. API Changes
+
+- Payment initiation endpoint now enforces all the above checks and updates.
+- Status check endpoint updates both payment and appointment records.
+
+These changes ensure accurate, robust, and auditable payment processing for appointments.

@@ -6,7 +6,6 @@ import envars from '../config/env-vars';
 import { html } from '../config/html';
 import logger from '../utils/logger';
 
-// Redis client for OTP storage
 const redis = new Redis({
 	host: 'localhost',
 	port: 6379,
@@ -16,7 +15,6 @@ const redis = new Redis({
 redis.on('error', (err) => logger.error('Redis Client Error:', err));
 redis.once('connect', () => logger.info('✅ Connected to Redis'));
 
-// Email transporter
 const emailTransporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',
 	port: 587,
@@ -27,11 +25,9 @@ const emailTransporter = nodemailer.createTransport({
 	},
 });
 
-// OTP Configuration
-const OTP_EXPIRY_TIME = 300; // 5 minutes in seconds
+const OTP_EXPIRY_TIME = 300;
 const OTP_LENGTH = 6;
 
-// Message types
 export enum MessageType {
 	OTP = 'otp',
 	NOTIFICATION = 'notification',
@@ -40,14 +36,12 @@ export enum MessageType {
 	VERIFICATION = 'verification',
 }
 
-// Channel types
 export enum ChannelType {
 	SMS = 'sms',
 	EMAIL = 'email',
 	BOTH = 'both',
 }
 
-// Message priority
 export enum MessagePriority {
 	LOW = 'low',
 	NORMAL = 'normal',
@@ -55,7 +49,6 @@ export enum MessagePriority {
 	URGENT = 'urgent',
 }
 
-// Message status
 export enum MessageStatus {
 	PENDING = 'pending',
 	SENT = 'sent',
@@ -63,14 +56,12 @@ export enum MessageStatus {
 	DELIVERED = 'delivered',
 }
 
-// Message template interface
 export interface MessageTemplate {
 	subject?: string;
 	text: string;
 	html?: string;
 }
 
-// Message options interface
 export interface MessageOptions {
 	priority?: MessagePriority;
 	expiryTime?: number;
@@ -79,7 +70,6 @@ export interface MessageOptions {
 	metadata?: Record<string, any>;
 }
 
-// Message result interface
 export interface MessageResult {
 	success: boolean;
 	messageId?: string;
@@ -89,7 +79,6 @@ export interface MessageResult {
 	timestamp: Date;
 }
 
-// OTP result interface
 export interface OTPResult {
 	success: boolean;
 	otp?: string;
@@ -274,7 +263,6 @@ class MessagingService {
 					expiresAt: new Date(Date.now() + expiryTime * 1000),
 				};
 			} else {
-				// Clean up stored OTP if SMS failed
 				await this.expireOTP(phone);
 				return {
 					success: false,
@@ -317,7 +305,6 @@ class MessagingService {
 					expiresAt: new Date(Date.now() + expiryTime * 1000),
 				};
 			} else {
-				// Clean up stored OTP if email failed
 				await this.expireOTP(email);
 				return {
 					success: false,
@@ -353,7 +340,6 @@ class MessagingService {
 
 		const results: MessageResult[] = [];
 
-		// Determine if recipient is email or phone
 		const isEmail = recipient.includes('@');
 		const isPhone = /^\+?[\d\s\-()]+$/.test(recipient);
 
@@ -361,12 +347,10 @@ class MessagingService {
 			throw new Error('Invalid recipient format. Must be email or phone number.');
 		}
 
-		// Prepare message content
 		const subject = template?.subject || 'Notification';
 		const text = template?.text || message;
 		const htmlContent = template?.html;
 
-		// Send based on channel preference
 		if (channel === ChannelType.SMS || (channel === ChannelType.BOTH && isPhone)) {
 			const smsResult = await this.sendSMS(recipient, text);
 			results.push(smsResult);
@@ -377,7 +361,6 @@ class MessagingService {
 			results.push(emailResult);
 		}
 
-		// Log notification with priority
 		logger.info(`Notification sent to ${recipient} with priority ${priority}`, {
 			recipient,
 			priority,
@@ -432,8 +415,6 @@ class MessagingService {
 		failedMessages: number;
 		otpCount: number;
 	}> {
-		// This is a basic implementation. In a production environment,
-		// you might want to store message statistics in a database
 		return {
 			totalMessages: 0,
 			successfulMessages: 0,
@@ -457,23 +438,22 @@ class MessagingService {
 		};
 
 		try {
-			// Check Redis
 			await redis.ping();
 			health.redis = true;
 		} catch (error) {
-			logger.error('Redis health check failed:', error);
+			logger.error('Redis health check failed:' + error);
+			console.error(error);
 		}
 
 		try {
-			// Check email transporter
 			await emailTransporter.verify();
 			health.email = true;
 		} catch (error) {
-			logger.error('Email health check failed:', error);
+			logger.error('Email health check failed:' + error);
+			console.error(error);
 		}
 
 		try {
-			// Check SMS service (ping Infobip)
 			await axios.get(envars.INFOBIP_URL.replace('/sms/2/text/advanced', '/account/1/balance'), {
 				headers: {
 					Authorization: `App ${envars.INFOBIP_SECRET_KEY}`,
@@ -482,7 +462,7 @@ class MessagingService {
 			});
 			health.sms = true;
 		} catch (error) {
-			logger.error('SMS health check failed:', error);
+			logger.error('SMS health check failed:' + error);
 		}
 
 		return health;
@@ -501,5 +481,4 @@ class MessagingService {
 	}
 }
 
-// Export singleton instance
 export const messagingService = MessagingService.getInstance();

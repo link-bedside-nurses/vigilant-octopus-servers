@@ -10,6 +10,7 @@ The file upload service provides secure, scalable document storage for nurse pro
 - National ID documents (front and back)
 - Qualification documents (certifications, CVs, etc.)
 - Document verification workflow
+- **Payment-Appointment Linking**: Payments are now robustly linked to appointments, and payment status is tracked on the appointment. This enables accurate document and payment management for nurse and patient workflows.
 
 ## Features
 

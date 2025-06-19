@@ -478,3 +478,9 @@ The system includes comprehensive logging for:
 - Performance metrics
 
 All operations are logged with appropriate detail levels for debugging and monitoring.
+
+## Payment Status Tracking on Appointments
+
+- Each appointment now includes a `paymentStatus` field (`'UNPAID' | 'PENDING' | 'PAID' | 'FAILED'`).
+- The `payments` array on the appointment contains all related payment records.
+- Payment processing is robustly linked to appointments, ensuring accurate billing and workflow management.

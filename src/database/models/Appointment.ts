@@ -70,6 +70,16 @@ export class Appointment {
 	@prop({ type: Date, required: false })
 	cancelledAt?: Date;
 
+	@prop({
+		enum: ['UNPAID', 'PENDING', 'PAID', 'FAILED'],
+		default: 'UNPAID',
+		required: false,
+	})
+	paymentStatus?: 'UNPAID' | 'PENDING' | 'PAID' | 'FAILED';
+
+	@prop({ type: [mongoose.Types.ObjectId], ref: 'Payment', required: false, default: [] })
+	payments?: mongoose.Types.ObjectId[];
+
 	public async confirmAppointment(this: DocumentType<Appointment>): Promise<void> {
 		this.status = APPOINTMENT_STATUSES.IN_PROGRESS;
 		await this.save();

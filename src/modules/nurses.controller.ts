@@ -11,7 +11,7 @@ import {
 	validateDocumentUpload,
 	validateImageUpload,
 } from '../middlewares/fileUpload';
-import { fileUploadService, handleFileUploadResponse } from '../services/file-upload';
+import { fileUploadService, handleFileUploadResponse } from '../services/upload';
 import { response } from '../utils/http-response';
 
 const router = Router();

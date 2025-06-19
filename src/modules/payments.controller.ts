@@ -59,6 +59,25 @@ router.post(
 			if (!patient) {
 				return res.send(response(StatusCodes.NOT_FOUND, null, 'Patient not found'));
 			}
+			const appointment = await db.appointments.findById(result.data.appointment);
+			if (!appointment) {
+				return res.send(response(StatusCodes.NOT_FOUND, null, 'Appointment not found'));
+			}
+			if (String(appointment.patient) !== String(patient._id)) {
+				return res.send(
+					response(StatusCodes.FORBIDDEN, null, 'Appointment does not belong to patient')
+				);
+			}
+			// Prevent duplicate successful payments
+			const existingPaid = await db.payments.findOne({
+				appointment: appointment._id,
+				status: 'SUCCESSFUL',
+			});
+			if (existingPaid) {
+				return res.send(
+					response(StatusCodes.CONFLICT, null, 'Payment already completed for this appointment')
+				);
+			}
 			const paymentPhone = patient.phone;
 			const provider = result.data.provider || detectProvider(paymentPhone);
 			let referenceId: string;
@@ -76,12 +95,17 @@ router.post(
 			const payment = await db.payments.create({
 				patient: patient.id,
 				amount: result.data.amount,
-				appointment: result.data.appointment,
+				appointment: appointment._id,
 				comment: result.data.message || `Payment request for ${result.data.amount} UGX`,
 				referenceId,
 				status: 'PENDING',
 				paymentMethod: provider,
 				createdAt: new Date(),
+			});
+			// Add payment to appointment.payments array
+			await db.appointments.findByIdAndUpdate(appointment._id, {
+				$push: { payments: payment._id },
+				paymentStatus: 'PENDING',
 			});
 			return res.send(
 				response(StatusCodes.OK, { payment, referenceId }, 'Payment initiated successfully')
@@ -99,14 +123,29 @@ router.get('/:id/status', authenticate, async (req: Request, res: Response, next
 		if (!payment) {
 			return res.send(response(StatusCodes.NOT_FOUND, null, 'Payment not found'));
 		}
-		const collectionsService = MomoCollectionsService.getInstance();
-		const status = await collectionsService.getTransactionStatus(payment.referenceId);
-		payment.status = status.status;
-		if (status.financialTransactionId) {
-			payment.transactionId = status.financialTransactionId;
+		let statusResult;
+		if (payment.paymentMethod === 'MTN') {
+			const collectionsService = MomoCollectionsService.getInstance();
+			statusResult = await collectionsService.getTransactionStatus(payment.referenceId);
+			if (statusResult.status) payment.status = statusResult.status;
+			if (statusResult.financialTransactionId)
+				payment.transactionId = statusResult.financialTransactionId;
+		} else if (payment.paymentMethod === 'AIRTEL') {
+			const airtelService = AirtelCollectionsService.getInstance();
+			statusResult = await airtelService.getTransactionStatus(payment.referenceId);
+			if (statusResult.status) payment.status = statusResult.status;
+			if (statusResult.transactionId) payment.transactionId = statusResult.transactionId;
 		}
 		await payment.save();
-		return res.send(response(StatusCodes.OK, { payment, status }, 'Payment status retrieved'));
+		// Update appointment paymentStatus accordingly
+		if (payment.status === 'SUCCESSFUL') {
+			await db.appointments.findByIdAndUpdate(payment.appointment, { paymentStatus: 'PAID' });
+		} else if (payment.status === 'FAILED') {
+			await db.appointments.findByIdAndUpdate(payment.appointment, { paymentStatus: 'FAILED' });
+		}
+		return res.send(
+			response(StatusCodes.OK, { payment, status: statusResult }, 'Payment status retrieved')
+		);
 	} catch (err) {
 		return next(err);
 	}
