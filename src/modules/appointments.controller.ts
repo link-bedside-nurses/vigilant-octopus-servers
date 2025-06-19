@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
+import { z } from 'zod';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
 import authenticate from '../middlewares/authentication';
@@ -10,6 +11,15 @@ import { response } from '../utils/http-response';
 
 const router = Router();
 router.use(authenticate);
+
+// Zod schema for appointment creation
+const AppointmentCreateSchema = z.object({
+	patient: z.string(),
+	symptoms: z.array(z.string()).min(1, 'At least one symptom is required'),
+	description: z.string().optional(),
+	date: z.coerce.date().optional(),
+	// add other fields as needed
+});
 
 // GET /appointments - get all appointments
 router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
@@ -28,10 +38,19 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 // POST /appointments - schedule appointment
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const patient = req.body.patient;
-		const appointment = req.body;
-		const result = await db.appointments.create({ ...appointment, patient });
-		const populated = await (await result.populate('patient')).populate('nurse');
+		const result = AppointmentCreateSchema.safeParse(req.body);
+		if (!result.success) {
+			return res.send(response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message));
+		}
+		const { patient, symptoms, description, date } = result.data;
+		const appointmentData: any = {
+			patient,
+			symptoms,
+			description,
+		};
+		if (date) appointmentData.date = date;
+		const resultDoc = await db.appointments.create(appointmentData);
+		const populated = await (await resultDoc.populate('patient')).populate('nurse');
 		return res.send(response(StatusCodes.OK, populated, 'Appointment scheduled successfully'));
 	} catch (err) {
 		return next(err);

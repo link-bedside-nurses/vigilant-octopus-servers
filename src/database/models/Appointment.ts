@@ -80,6 +80,9 @@ export class Appointment {
 	@prop({ type: [mongoose.Types.ObjectId], ref: 'Payment', required: false, default: [] })
 	payments?: mongoose.Types.ObjectId[];
 
+	@prop({ type: String, required: false })
+	description?: string;
+
 	public async confirmAppointment(this: DocumentType<Appointment>): Promise<void> {
 		this.status = APPOINTMENT_STATUSES.IN_PROGRESS;
 		await this.save();

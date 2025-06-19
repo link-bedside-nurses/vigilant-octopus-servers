@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { z } from 'zod';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
 import authenticate from '../middlewares/authentication';
@@ -7,7 +8,6 @@ import { response } from '../utils/http-response';
 
 const router = Router();
 
-// All routes require authentication
 router.use(authenticate);
 
 // GET /patients - get all patients
@@ -73,6 +73,34 @@ router.patch('/deactivate/:id', async (req: Request, res: Response, next: NextFu
 		);
 		if (!patient) return res.send(response(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
 		return res.send(response(StatusCodes.OK, patient, 'Patient updated'));
+	} catch (err) {
+		return next(err);
+	}
+});
+
+// PATCH /patients/:id/location - update patient location only
+const LocationSchema = z.object({
+	coordinates: z
+		.array(z.number())
+		.length(2)
+		.refine(([lng, lat]) => lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90, {
+			message: 'Invalid coordinates: longitude must be [-180, 180], latitude must be [-90, 90]',
+		}),
+});
+
+router.patch('/:id/location', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const result = LocationSchema.safeParse(req.body);
+		if (!result.success) {
+			return res.send(response(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message));
+		}
+		const { coordinates } = result.data;
+		const location = { type: 'Point', coordinates };
+		const patient = await db.patients.findByIdAndUpdate(req.params.id, { location }, { new: true });
+		if (!patient) {
+			return res.send(response(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
+		}
+		return res.send(response(StatusCodes.OK, patient, 'Patient location updated'));
 	} catch (err) {
 		return next(err);
 	}

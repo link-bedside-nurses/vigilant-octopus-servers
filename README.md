@@ -12,6 +12,8 @@ A robust backend server for managing nurse appointments, payments, account delet
 - Messaging service (SMS, email, OTP)
 - Comprehensive API documentation
 - Health checks, rate limiting, and security best practices
+- **Easy patient location updates with validation**
+- **DTOs now match database models for all entities (including GeoJSON for location)**
 
 ## Getting Started
 
@@ -35,6 +37,8 @@ A robust backend server for managing nurse appointments, payments, account delet
 - **File Uploads:** Upload and manage nurse documents
 - **Account Deletion:** Request and manage account deletion
 - **Messaging:** OTP, notifications, and bulk messaging
+- **Patient Location:** Easily update patient coordinates via `PATCH /patients/:id/location`
+- **Data Consistency:** All DTOs now match the database models for patient, nurse, admin, and appointment APIs (including GeoJSON for location fields)
 
 ## Documentation
 

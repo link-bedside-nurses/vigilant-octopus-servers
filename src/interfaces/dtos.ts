@@ -1,53 +1,66 @@
 import { z } from 'zod';
 
-const BaseSchema = z.object({
-	firstName: z.string().min(1),
-	lastName: z.string().min(1),
-	/**
-	 * +256700000000 +256300000000  256700000000 256300000000 0700000000 0300000000
-	 */
-	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'), // E.164 format
-	password: z.string().min(8),
-	email: z.string().email().optional(),
+// GeoJSON Location Schema
+export const GeoJSONLocationSchema = z.object({
+	type: z.literal('Point'),
+	coordinates: z.tuple([
+		z.number().min(-180).max(180), // longitude
+		z.number().min(-90).max(90), // latitude
+	]),
 });
 
-export const CreatePatientSchema = BaseSchema.extend({
-	momoNumber: z.string().optional(),
-	isMomoNumberVerified: z.boolean().optional(),
+// Patient DTOs
+export const CreatePatientSchema = z.object({
+	name: z.string().min(2),
+	phone: z.string().regex(/^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number'),
 	password: z.string().min(8),
+	email: z.string().email().optional(),
+	isPhoneVerified: z.boolean().optional(),
+	location: GeoJSONLocationSchema.optional(),
 });
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
 
-export const CreateAdminSchema = BaseSchema.extend({
-	email: z.string().email(),
-	password: z.string().min(8),
-}).omit({ phone: true });
-
-export const CreateNurseSchema = BaseSchema.extend({
+// Admin DTOs
+export const CreateAdminSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(8),
 });
 
-export const UpdateNurseSchema = BaseSchema.extend({
-	dateOfBirth: z.string().optional(),
-	nin: z.string().optional(),
-	experience: z.string().optional(),
+export const UpdateAdminSchema = CreateAdminSchema.partial();
+
+// Nurse DTOs
+export const CreateNurseSchema = z.object({
+	firstName: z.string().min(2),
+	lastName: z.string().min(2),
+	phone: z.string().regex(/^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number'),
+	password: z.string().min(8),
+	email: z.string().email().optional(),
+	isActive: z.boolean().optional(),
+	isVerified: z.boolean().optional(),
+	location: GeoJSONLocationSchema.optional(),
+});
+
+export const UpdateNurseSchema = CreateNurseSchema.partial();
+
+// Appointment DTOs
+export const ScheduleAppointmentSchema = z.object({
+	patient: z.string(),
+	nurse: z.string().optional(),
+	symptoms: z.array(z.string()).min(1),
+	date: z.coerce.date().optional(),
 	description: z.string().optional(),
-	location: z
-		.object({
-			lng: z.number(),
-			lat: z.number(),
-		})
-		.optional(),
-	imageUrl: z.string().url().optional(),
-}).partial();
+});
 
-export const UpdateAdminSchema = BaseSchema.extend({
-	email: z.string().email(),
-}).partial();
+export const RescheduleAppointmentSchema = z.object({
+	date: z.string(),
+});
 
-// New DTOs for simplified authentication flow
+export const CancelAppointmentSchema = z.object({
+	reason: z.string().optional(),
+});
+
+// Other unchanged schemas (auth, OTP, etc.)
 export const PatientPhoneAuthSchema = z.object({
 	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'),
 });
@@ -73,28 +86,6 @@ export const AdminOTPVerificationSchema = z.object({
 	otp: z.string().length(6),
 });
 
-export const ScheduleAppointmentSchema = z.object({
-	nurse: z.string(),
-	symptoms: z.array(z.string()),
-	date: z.coerce.date(),
-	description: z.string().optional(),
-	location: z.object({
-		type: z.literal('Point'),
-		coordinates: z.tuple([
-			z.number().min(-180).max(180), // longitude
-			z.number().min(-90).max(90), // latitude
-		]),
-	}),
-});
-
-export const RescheduleAppointmentSchema = z.object({
-	date: z.string(),
-});
-
-export const CancelAppointmentSchema = z.object({
-	reason: z.string().optional(),
-});
-
 export const TResponseSchema = z.object({
 	statusCode: z.number(),
 	body: z.object({
@@ -110,12 +101,12 @@ export const VerifyEmailSchema = z.object({
 });
 
 export const VerifyPhoneSchema = z.object({
-	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'), // E.164 format,
+	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'),
 	otp: z.string().length(6),
 });
 
 export const PhoneVerifcationOTPSchema = z.object({
-	toPhone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'), // E.164 format
+	toPhone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'),
 });
 
 export type CreatePatientDto = z.infer<typeof CreatePatientSchema>;

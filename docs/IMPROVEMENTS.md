@@ -315,3 +315,10 @@ npm start
 - Status check endpoint updates both payment and appointment records.
 
 These changes ensure accurate, robust, and auditable payment processing for appointments.
+
+## DTOs and Model Consistency
+
+- All DTOs (request/response schemas) now match the database models for patient, nurse, admin, and appointment entities.
+- Location fields use GeoJSON format consistently.
+- All create/update APIs expect/request the same fields as the models.
+- This improves data consistency and reduces errors between API and database layers.

@@ -484,3 +484,48 @@ All operations are logged with appropriate detail levels for debugging and monit
 - Each appointment now includes a `paymentStatus` field (`'UNPAID' | 'PENDING' | 'PAID' | 'FAILED'`).
 - The `payments` array on the appointment contains all related payment records.
 - Payment processing is robustly linked to appointments, ensuring accurate billing and workflow management.
+
+## Patient Location Update API
+
+### Update Patient Location
+
+**Endpoint:** `PATCH /patients/:id/location`
+
+**Description:** Update a patient's location coordinates (GeoJSON Point).
+
+**Request Body:**
+
+```json
+{
+	"coordinates": [32.5678668, 0.3323315] // [longitude, latitude]
+}
+```
+
+- Longitude must be between -180 and 180
+- Latitude must be between -90 and 90
+
+**Response (Success):**
+
+```json
+{
+	"status": 200,
+	"data": {
+		/* updated patient object */
+	},
+	"message": "Patient location updated"
+}
+```
+
+**Response (Validation Error):**
+
+```json
+{
+	"status": 400,
+	"data": null,
+	"message": "Invalid coordinates: longitude must be [-180, 180], latitude must be [-90, 90]"
+}
+```
+
+This endpoint allows clients to easily and safely update a patient's location for geo-based features.
+
+> **Note:** All DTOs (request/response schemas) now match the database models, including GeoJSON for location fields. Patient, nurse, admin, and appointment APIs expect/request the same fields as the models.
