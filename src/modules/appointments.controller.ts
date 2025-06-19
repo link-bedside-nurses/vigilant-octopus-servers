@@ -4,13 +4,12 @@ import mongoose from 'mongoose';
 import { z } from 'zod';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
-import authenticate from '../middlewares/authentication';
 import { validateObjectID } from '../middlewares/validate-objectid';
 import { handleAssignmentResponse, nurseAssignmentService } from '../services/nurse-assignment';
 import { response } from '../utils/http-response';
 
 const router = Router();
-router.use(authenticate);
+// router.use(authenticate);
 
 // Zod schema for appointment creation
 const AppointmentCreateSchema = z.object({

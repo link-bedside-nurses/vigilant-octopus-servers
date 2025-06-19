@@ -124,8 +124,8 @@ async function seedAppointments(patients: any[], nurses: any[]) {
 		const nurse = faker.helpers.arrayElement(nurses);
 
 		appointments.push({
-			patient: patient.id,
-			nurse: nurse.id,
+			patient: patient._id,
+			nurse: nurse._id,
 			symptoms: faker.helpers.arrayElements(symptoms, { min: 1, max: 3 }),
 			status: faker.helpers.arrayElement(statuses),
 			date: faker.date.recent({ days: 30 }),
@@ -143,8 +143,8 @@ async function seedPayments(appointments: any[], _patients: any[]) {
 		if (faker.number.int({ min: 1, max: 100 }) <= 70) {
 			// 70% of appointments have payments
 			payments.push({
-				appointment: appointments[i].id,
-				patient: appointments[i].patient,
+				appointment: appointments[i]._id,
+				patient: appointments[i].patient._id,
 				amount: faker.number.int({ min: 20000, max: 100000 }),
 				referenceId: faker.string.alphanumeric(10).toUpperCase(),
 				status: faker.helpers.arrayElement(statuses),

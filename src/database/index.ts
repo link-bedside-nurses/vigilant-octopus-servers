@@ -69,7 +69,8 @@ export async function connectToDatabase(): Promise<void> {
 				await seedDatabase();
 				logger.info('✅ Database seeding completed');
 			} catch (error) {
-				logger.error('❌ Database seeding failed:', error);
+				logger.error('❌ Database seeding failed:' + error);
+				console.log(error);
 			}
 		}
 	} catch (error) {

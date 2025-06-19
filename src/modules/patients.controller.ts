@@ -3,12 +3,11 @@ import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
-import authenticate from '../middlewares/authentication';
 import { response } from '../utils/http-response';
 
 const router = Router();
 
-router.use(authenticate);
+// router.use(authenticate);
 
 // GET /patients - get all patients
 router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
