@@ -1,6 +1,7 @@
 import axios from 'axios';
 import envars from '../../../config/env-vars';
 import { momo_sandbox } from '../../../config/urls';
+import logger from '../../../utils/logger';
 
 interface ApiUserInfo {
 	providerCallbackHost: string;
@@ -20,7 +21,7 @@ export async function getMomoApiUserInfo(referenceId: string): Promise<ApiUserIn
 		const response = await axios.request<ApiUserInfo>(config);
 
 		if (response.status === 200) {
-			console.log('API User info retrieved successfully');
+			logger.info('API User info retrieved successfully');
 			return response.data;
 		}
 

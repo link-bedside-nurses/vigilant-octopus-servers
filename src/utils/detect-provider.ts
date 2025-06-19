@@ -536,5 +536,5 @@ export function isUgandanMobileNumber(phone: string): boolean {
 
 // const result1 = detectProviderWithConfidence('256787444814');
 // const result2 = detectProviderWithConfidence('256756008970');
-// console.log('result1: ', result1);
-// console.log('result2: ', result2);
+// logger.info('result1: ', result1);
+// logger.info('result2: ', result2);

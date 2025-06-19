@@ -2,7 +2,6 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
-import authenticate from '../middlewares/authentication';
 import {
 	handleUploadError,
 	uploadNationalID,
@@ -52,7 +51,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
-router.use(authenticate);
+// router.use(authenticate);
 
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {

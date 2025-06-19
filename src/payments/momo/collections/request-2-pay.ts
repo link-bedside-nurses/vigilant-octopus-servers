@@ -1,6 +1,7 @@
 import axios from 'axios';
 import envars from '../../../config/env-vars';
 import { momo_sandbox } from '../../../config/urls';
+import logger from '../../../utils/logger';
 interface RequestToPayPayload {
 	amount: string;
 	currency: string;
@@ -35,7 +36,7 @@ export default async function makeReq2Pay(
 		const response = await axios.request(config);
 
 		if (response.status === 202) {
-			console.log('Payment request accepted');
+			logger.info('Payment request accepted');
 			return response;
 		}
 

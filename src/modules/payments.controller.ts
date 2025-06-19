@@ -3,13 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
 import { z } from 'zod';
 import { db } from '../database';
-import authenticate from '../middlewares/authentication';
 import { AirtelCollectionsService } from '../payments/airtel/collections/collections-service';
 import { MomoCollectionsService } from '../payments/momo/collections/collections-service';
 import detectProvider from '../utils/detect-provider';
 import { response } from '../utils/http-response';
 
 const router = Router();
+// router.use(authenticate);
 
 const PaymentSchema = z.object({
 	amount: z.number(),
@@ -19,7 +19,7 @@ const PaymentSchema = z.object({
 });
 
 // GET /payments - get all payments
-router.get('/', authenticate, async (_req: Request, res: Response, next: NextFunction) => {
+router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 	try {
 		const payments = await db.payments.find({}).sort({ createdAt: 'desc' });
 		return res.send(response(StatusCodes.OK, payments, 'Payments Retrieved'));
@@ -29,7 +29,7 @@ router.get('/', authenticate, async (_req: Request, res: Response, next: NextFun
 });
 
 // GET /payments/:id - get payment by id
-router.get('/:id', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const payment = await db.payments.findById(req.params.id);
 		if (!payment) return res.send(response(StatusCodes.NOT_FOUND, null, 'No Payment Found'));
@@ -40,84 +40,80 @@ router.get('/:id', authenticate, async (req: Request, res: Response, next: NextF
 });
 
 // POST /payments/patient/:id/initiate - initiate payment from patient
-router.post(
-	'/patient/:id/initiate',
-	authenticate,
-	async (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const result = PaymentSchema.safeParse(req.body);
-			if (!result.success) {
-				return res.send(
-					response(
-						StatusCodes.BAD_REQUEST,
-						null,
-						`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
-					)
-				);
-			}
-			const patient = await db.patients.findById(req.params.id);
-			if (!patient) {
-				return res.send(response(StatusCodes.NOT_FOUND, null, 'Patient not found'));
-			}
-			const appointment = await db.appointments.findById(result.data.appointment);
-			if (!appointment) {
-				return res.send(response(StatusCodes.NOT_FOUND, null, 'Appointment not found'));
-			}
-			if (String(appointment.patient) !== String(patient._id)) {
-				return res.send(
-					response(StatusCodes.FORBIDDEN, null, 'Appointment does not belong to patient')
-				);
-			}
-			// Prevent duplicate successful payments
-			const existingPaid = await db.payments.findOne({
-				appointment: appointment._id,
-				status: 'SUCCESSFUL',
-			});
-			if (existingPaid) {
-				return res.send(
-					response(StatusCodes.CONFLICT, null, 'Payment already completed for this appointment')
-				);
-			}
-			const paymentPhone = patient.phone;
-			const provider = result.data.provider || detectProvider(paymentPhone);
-			let referenceId: string;
-			if (provider === 'MTN') {
-				const collectionsService = MomoCollectionsService.getInstance();
-				referenceId = await collectionsService.requestToPay(
-					result.data.amount.toString(),
-					paymentPhone,
-					result.data.message || `Payment request for ${result.data.amount} UGX`
-				);
-			} else {
-				const airtelService = AirtelCollectionsService.getInstance();
-				referenceId = await airtelService.requestToPay(result.data.amount, paymentPhone);
-			}
-			const payment = await db.payments.create({
-				patient: patient.id,
-				amount: result.data.amount,
-				appointment: appointment._id,
-				comment: result.data.message || `Payment request for ${result.data.amount} UGX`,
-				referenceId,
-				status: 'PENDING',
-				paymentMethod: provider,
-				createdAt: new Date(),
-			});
-			// Add payment to appointment.payments array
-			await db.appointments.findByIdAndUpdate(appointment._id, {
-				$push: { payments: payment._id },
-				paymentStatus: 'PENDING',
-			});
+router.post('/patient/:id/initiate', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const result = PaymentSchema.safeParse(req.body);
+		if (!result.success) {
 			return res.send(
-				response(StatusCodes.OK, { payment, referenceId }, 'Payment initiated successfully')
+				response(
+					StatusCodes.BAD_REQUEST,
+					null,
+					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+				)
 			);
-		} catch (err) {
-			return next(err);
 		}
+		const patient = await db.patients.findById(req.params.id);
+		if (!patient) {
+			return res.send(response(StatusCodes.NOT_FOUND, null, 'Patient not found'));
+		}
+		const appointment = await db.appointments.findById(result.data.appointment);
+		if (!appointment) {
+			return res.send(response(StatusCodes.NOT_FOUND, null, 'Appointment not found'));
+		}
+		if (String(appointment.patient) !== String(patient._id)) {
+			return res.send(
+				response(StatusCodes.FORBIDDEN, null, 'Appointment does not belong to patient')
+			);
+		}
+		// Prevent duplicate successful payments
+		const existingPaid = await db.payments.findOne({
+			appointment: appointment._id,
+			status: 'SUCCESSFUL',
+		});
+		if (existingPaid) {
+			return res.send(
+				response(StatusCodes.CONFLICT, null, 'Payment already completed for this appointment')
+			);
+		}
+		const paymentPhone = patient.phone;
+		const provider = result.data.provider || detectProvider(paymentPhone);
+		let referenceId: string;
+		if (provider === 'MTN') {
+			const collectionsService = MomoCollectionsService.getInstance();
+			referenceId = await collectionsService.requestToPay(
+				result.data.amount.toString(),
+				paymentPhone,
+				result.data.message || `Payment request for ${result.data.amount} UGX`
+			);
+		} else {
+			const airtelService = AirtelCollectionsService.getInstance();
+			referenceId = await airtelService.requestToPay(result.data.amount, paymentPhone);
+		}
+		const payment = await db.payments.create({
+			patient: patient.id,
+			amount: result.data.amount,
+			appointment: appointment._id,
+			comment: result.data.message || `Payment request for ${result.data.amount} UGX`,
+			referenceId,
+			status: 'PENDING',
+			paymentMethod: provider,
+			createdAt: new Date(),
+		});
+		// Add payment to appointment.payments array
+		await db.appointments.findByIdAndUpdate(appointment._id, {
+			$push: { payments: payment._id },
+			paymentStatus: 'PENDING',
+		});
+		return res.send(
+			response(StatusCodes.OK, { payment, referenceId }, 'Payment initiated successfully')
+		);
+	} catch (err) {
+		return next(err);
 	}
-);
+});
 
 // GET /payments/:id/status - check payment status
-router.get('/:id/status', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id/status', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const payment = await db.payments.findById(req.params.id);
 		if (!payment) {
@@ -152,66 +148,56 @@ router.get('/:id/status', authenticate, async (req: Request, res: Response, next
 });
 
 // GET /payments/nurses/:id/earnings - get nurse earnings
-router.get(
-	'/nurses/:id/earnings',
-	authenticate,
-	async (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const payments = await db.payments.aggregate([
-				{
-					$lookup: {
-						from: 'appointments',
-						localField: 'appointment',
-						foreignField: '_id',
-						as: 'appointmentDetails',
-					},
+router.get('/nurses/:id/earnings', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const payments = await db.payments.aggregate([
+			{
+				$lookup: {
+					from: 'appointments',
+					localField: 'appointment',
+					foreignField: '_id',
+					as: 'appointmentDetails',
 				},
-				{ $unwind: '$appointmentDetails' },
-				{
-					$match: {
-						'appointmentDetails.nurse': new mongoose.Types.ObjectId(req.params.id),
-						status: 'SUCCESSFUL',
-					},
+			},
+			{ $unwind: '$appointmentDetails' },
+			{
+				$match: {
+					'appointmentDetails.nurse': new mongoose.Types.ObjectId(req.params.id),
+					status: 'SUCCESSFUL',
 				},
-				{
-					$group: {
-						_id: null,
-						totalEarnings: { $sum: '$amount' },
-						payments: { $push: '$$ROOT' },
-					},
+			},
+			{
+				$group: {
+					_id: null,
+					totalEarnings: { $sum: '$amount' },
+					payments: { $push: '$$ROOT' },
 				},
-			]);
-			const result = payments[0] || { totalEarnings: 0, payments: [] };
-			return res.send(
-				response(
-					StatusCodes.OK,
-					{
-						totalEarnings: result.totalEarnings,
-						payments: result.payments,
-					},
-					'Nurse earnings retrieved successfully'
-				)
-			);
-		} catch (err) {
-			return next(err);
-		}
+			},
+		]);
+		const result = payments[0] || { totalEarnings: 0, payments: [] };
+		return res.send(
+			response(
+				StatusCodes.OK,
+				{
+					totalEarnings: result.totalEarnings,
+					payments: result.payments,
+				},
+				'Nurse earnings retrieved successfully'
+			)
+		);
+	} catch (err) {
+		return next(err);
 	}
-);
+});
 
 // GET /payments/patients/:id/payments - get payments by patient
-router.get(
-	'/patients/:id/payments',
-	authenticate,
-	async (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const payments = await db.payments
-				.find({ patient: req.params.id })
-				.sort({ createdAt: 'desc' });
-			return res.send(response(StatusCodes.OK, payments, 'Payments Retrieved'));
-		} catch (err) {
-			return next(err);
-		}
+router.get('/patients/:id/payments', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const payments = await db.payments.find({ patient: req.params.id }).sort({ createdAt: 'desc' });
+		return res.send(response(StatusCodes.OK, payments, 'Payments Retrieved'));
+	} catch (err) {
+		return next(err);
 	}
-);
+});
 
 export default router;

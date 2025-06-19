@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import envars from '../../../config/env-vars';
 import { momo_sandbox } from '../../../config/urls';
+import logger from '../../../utils/logger';
 
 interface ApiUserResponse {
 	providerCallbackHost: string;
@@ -30,7 +31,7 @@ export async function createMomoAPIUser(
 		const response = await axios.request<ApiUserResponse>(config);
 
 		if (response.status === 201) {
-			console.log('API User created successfully');
+			logger.info('API User created successfully');
 			return response;
 		}
 

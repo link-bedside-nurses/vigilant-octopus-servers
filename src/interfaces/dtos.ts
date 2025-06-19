@@ -1,15 +1,10 @@
 import { z } from 'zod';
 
-// GeoJSON Location Schema
 export const GeoJSONLocationSchema = z.object({
 	type: z.literal('Point'),
-	coordinates: z.tuple([
-		z.number().min(-180).max(180), // longitude
-		z.number().min(-90).max(90), // latitude
-	]),
+	coordinates: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]),
 });
 
-// Patient DTOs
 export const CreatePatientSchema = z.object({
 	name: z.string().min(2),
 	phone: z.string().regex(/^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number'),
@@ -21,7 +16,6 @@ export const CreatePatientSchema = z.object({
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
 
-// Admin DTOs
 export const CreateAdminSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(8),
@@ -29,7 +23,6 @@ export const CreateAdminSchema = z.object({
 
 export const UpdateAdminSchema = CreateAdminSchema.partial();
 
-// Nurse DTOs
 export const CreateNurseSchema = z.object({
 	firstName: z.string().min(2),
 	lastName: z.string().min(2),
@@ -43,7 +36,6 @@ export const CreateNurseSchema = z.object({
 
 export const UpdateNurseSchema = CreateNurseSchema.partial();
 
-// Appointment DTOs
 export const ScheduleAppointmentSchema = z.object({
 	patient: z.string(),
 	nurse: z.string().optional(),
@@ -60,7 +52,6 @@ export const CancelAppointmentSchema = z.object({
 	reason: z.string().optional(),
 });
 
-// Other unchanged schemas (auth, OTP, etc.)
 export const PatientPhoneAuthSchema = z.object({
 	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'),
 });
@@ -123,7 +114,6 @@ export type VerifyEmailDto = z.infer<typeof VerifyEmailSchema>;
 export type VerifyPhoneDto = z.infer<typeof VerifyPhoneSchema>;
 export type PhoneVerifcationOTPDto = z.infer<typeof PhoneVerifcationOTPSchema>;
 
-// New types for simplified authentication
 export type PatientPhoneAuthDto = z.infer<typeof PatientPhoneAuthSchema>;
 export type PatientOTPVerificationDto = z.infer<typeof PatientOTPVerificationSchema>;
 export type AdminSigninDto = z.infer<typeof AdminSigninSchema>;

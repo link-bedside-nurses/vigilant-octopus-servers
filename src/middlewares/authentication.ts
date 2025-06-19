@@ -6,6 +6,7 @@ import envars from '../config/env-vars';
 import { db } from '../database';
 import { ITokenPayload } from '../services/token';
 import HTTPException from '../utils/exception';
+import logger from '../utils/logger';
 
 export default async function authenticate(request: Request, res: Response, next: NextFunction) {
 	if (
@@ -30,7 +31,7 @@ export default async function authenticate(request: Request, res: Response, next
 		const admin = await db.admins.findById(decoded.id);
 
 		if (!patient && !admin) {
-			console.log('user not found');
+			logger.info('user not found');
 			return next(new HTTPException('User not found!', StatusCodes.UNAUTHORIZED));
 		}
 

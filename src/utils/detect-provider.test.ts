@@ -3,6 +3,7 @@
  * This demonstrates the comprehensive provider detection capabilities
  */
 
+import logger from '../utils/logger';
 import detectProvider, {
 	detectProviderEnhanced,
 	formatUgandanPhone,
@@ -136,7 +137,7 @@ const invalidTestCases = [
  * Run basic provider detection tests
  */
 export function runBasicTests(): void {
-	console.log('🧪 Running Basic Provider Detection Tests...\n');
+	logger.info('🧪 Running Basic Provider Detection Tests...\n');
 
 	let passed = 0;
 	let failed = 0;
@@ -145,42 +146,42 @@ export function runBasicTests(): void {
 		try {
 			const result = detectProvider(testCase.number);
 			if (result === testCase.expected) {
-				console.log(`✅ ${testCase.description}: ${testCase.number} → ${result}`);
+				logger.info(`✅ ${testCase.description}: ${testCase.number} → ${result}`);
 				passed++;
 			} else {
-				console.log(
+				logger.info(
 					`❌ ${testCase.description}: ${testCase.number} → ${result} (expected ${testCase.expected})`
 				);
 				failed++;
 			}
 		} catch (error) {
-			console.log(`❌ ${testCase.description}: ${testCase.number} → ERROR: ${error}`);
+			logger.info(`❌ ${testCase.description}: ${testCase.number} → ERROR: ${error}`);
 			failed++;
 		}
 	}
 
-	console.log(`\n📊 Basic Tests: ${passed} passed, ${failed} failed\n`);
+	logger.info(`\n📊 Basic Tests: ${passed} passed, ${failed} failed\n`);
 }
 
 /**
  * Run enhanced provider detection tests
  */
 export function runEnhancedTests(): void {
-	console.log('🔍 Running Enhanced Provider Detection Tests...\n');
+	logger.info('🔍 Running Enhanced Provider Detection Tests...\n');
 
 	for (const testCase of testCases.slice(0, 10)) {
 		// Test first 10 cases
 		try {
 			const result = detectProviderEnhanced(testCase.number);
-			console.log(`📱 ${testCase.description}:`);
-			console.log(`   Number: ${result.originalNumber}`);
-			console.log(`   Provider: ${result.provider}`);
-			console.log(`   Confidence: ${result.confidence}`);
-			console.log(`   Formatted: ${result.formattedNumber}`);
-			if (result.reason) console.log(`   Reason: ${result.reason}`);
-			console.log('');
+			logger.info(`📱 ${testCase.description}:`);
+			logger.info(`   Number: ${result.originalNumber}`);
+			logger.info(`   Provider: ${result.provider}`);
+			logger.info(`   Confidence: ${result.confidence}`);
+			logger.info(`   Formatted: ${result.formattedNumber}`);
+			if (result.reason) logger.info(`   Reason: ${result.reason}`);
+			logger.info('');
 		} catch (error) {
-			console.log(`❌ ${testCase.description}: ERROR - ${error}\n`);
+			logger.info(`❌ ${testCase.description}: ERROR - ${error}\n`);
 		}
 	}
 }
@@ -189,7 +190,7 @@ export function runEnhancedTests(): void {
  * Run phone formatting tests
  */
 export function runFormattingTests(): void {
-	console.log('📞 Running Phone Formatting Tests...\n');
+	logger.info('📞 Running Phone Formatting Tests...\n');
 
 	const formatTestCases = [
 		'7601234567',
@@ -201,11 +202,11 @@ export function runFormattingTests(): void {
 
 	for (const phone of formatTestCases) {
 		const result = formatUgandanPhone(phone);
-		console.log(`📱 ${phone}:`);
-		console.log(`   Valid: ${result.isValid}`);
-		console.log(`   Formatted: ${result.formatted}`);
-		if (result.error) console.log(`   Error: ${result.error}`);
-		console.log('');
+		logger.info(`📱 ${phone}:`);
+		logger.info(`   Valid: ${result.isValid}`);
+		logger.info(`   Formatted: ${result.formatted}`);
+		if (result.error) logger.info(`   Error: ${result.error}`);
+		logger.info('');
 	}
 }
 
@@ -213,53 +214,53 @@ export function runFormattingTests(): void {
  * Run validation tests
  */
 export function runValidationTests(): void {
-	console.log('✅ Running Validation Tests...\n');
+	logger.info('✅ Running Validation Tests...\n');
 
 	// Test valid numbers
 	for (const testCase of testCases.slice(0, 5)) {
 		const isValid = isUgandanMobileNumber(testCase.number);
-		console.log(`📱 ${testCase.number}: ${isValid ? '✅ Valid' : '❌ Invalid'}`);
+		logger.info(`📱 ${testCase.number}: ${isValid ? '✅ Valid' : '❌ Invalid'}`);
 	}
 
-	console.log('');
+	logger.info('');
 
 	// Test invalid numbers
 	for (const testCase of invalidTestCases) {
 		const isValid = isUgandanMobileNumber(testCase.number);
-		console.log(
+		logger.info(
 			`📱 ${testCase.number || '(empty)'}: ${isValid ? '❌ Should be invalid' : '✅ Correctly invalid'}`
 		);
 	}
 
-	console.log('');
+	logger.info('');
 }
 
 /**
  * Run provider prefix tests
  */
 export function runPrefixTests(): void {
-	console.log('🏷️ Running Provider Prefix Tests...\n');
+	logger.info('🏷️ Running Provider Prefix Tests...\n');
 
 	const mtnPrefixes = getProviderPrefixes('MTN');
 	const airtelPrefixes = getProviderPrefixes('AIRTEL');
 
-	console.log(`📱 MTN Prefixes (${mtnPrefixes.length}):`);
-	console.log(`   ${mtnPrefixes.slice(0, 10).join(', ')}${mtnPrefixes.length > 10 ? '...' : ''}`);
+	logger.info(`📱 MTN Prefixes (${mtnPrefixes.length}):`);
+	logger.info(`   ${mtnPrefixes.slice(0, 10).join(', ')}${mtnPrefixes.length > 10 ? '...' : ''}`);
 
-	console.log(`\n📱 Airtel Prefixes (${airtelPrefixes.length}):`);
-	console.log(
+	logger.info(`\n📱 Airtel Prefixes (${airtelPrefixes.length}):`);
+	logger.info(
 		`   ${airtelPrefixes.slice(0, 10).join(', ')}${airtelPrefixes.length > 10 ? '...' : ''}`
 	);
 
-	console.log('');
+	logger.info('');
 }
 
 /**
  * Run all tests
  */
 export function runAllTests(): void {
-	console.log('🚀 Starting Comprehensive Ugandan Provider Detection Tests\n');
-	console.log('='.repeat(60) + '\n');
+	logger.info('🚀 Starting Comprehensive Ugandan Provider Detection Tests\n');
+	logger.info('='.repeat(60) + '\n');
 
 	runBasicTests();
 	runEnhancedTests();
@@ -267,8 +268,8 @@ export function runAllTests(): void {
 	runValidationTests();
 	runPrefixTests();
 
-	console.log('='.repeat(60));
-	console.log('🎉 All tests completed!\n');
+	logger.info('='.repeat(60));
+	logger.info('🎉 All tests completed!\n');
 }
 
 // Export for use in other files

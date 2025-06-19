@@ -1,6 +1,7 @@
 import axios from 'axios';
 import envars from '../../../config/env-vars';
 import { momo_sandbox } from '../../../config/urls';
+import logger from '../../../utils/logger';
 
 interface ApiKeyResponse {
 	apiKey: string;
@@ -19,7 +20,7 @@ export async function createMomoApiKey(referenceId: string): Promise<string> {
 		const response = await axios.request<ApiKeyResponse>(config);
 
 		if (response.status === 201 && response.data.apiKey) {
-			console.log('API Key generated successfully');
+			logger.info('API Key generated successfully');
 			return response.data.apiKey;
 		}
 

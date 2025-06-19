@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import * as geolib from 'geolib';
 import { db } from '.';
 import { APPOINTMENT_STATUSES } from '../interfaces';
+import logger from '../utils/logger';
 import { Password } from '../utils/password';
 
 // Center coordinates (Kampala)
@@ -25,7 +26,7 @@ function generateRandomLocation(centerCoords: { lat: number; lng: number }) {
 
 export async function seedDatabase() {
 	try {
-		console.log('Starting database seeding...');
+		logger.debug('Starting database seeding...');
 
 		// Clear all collections
 		await Promise.all([
@@ -38,24 +39,24 @@ export async function seedDatabase() {
 
 		// Seed admins
 		const admins = await seedAdmins();
-		console.log('✓ Admins seeded', admins.length);
+		logger.debug('✓ Admins seeded', admins.length);
 
 		// Seed nurses
 		const nurses = await seedNurses();
-		console.log('✓ Nurses seeded', nurses.length);
+		logger.debug('✓ Nurses seeded', nurses.length);
 
 		// Seed patients
 		const patients = await seedPatients();
-		console.log('✓ Patients seeded', patients.length);
+		logger.debug('✓ Patients seeded', patients.length);
 
 		// Seed appointments
 		const appointments = await seedAppointments(patients, nurses);
-		console.log('✓ Appointments seeded', appointments.length);
+		logger.debug('✓ Appointments seeded', appointments.length);
 
 		// Seed payments
 		const payments = await seedPayments(appointments, patients);
-		console.log('✓ Payments seeded', payments.length);
-		console.log('Database seeding completed successfully!');
+		logger.debug('✓ Payments seeded', payments.length);
+		logger.debug('Database seeding completed successfully!');
 	} catch (error) {
 		console.error('Error seeding database:', error);
 		throw error;
@@ -76,26 +77,72 @@ async function seedAdmins() {
 
 async function seedNurses() {
 	const nurses = [];
+	const qualificationTypes = ['certification', 'cv', 'other'];
+	const docFormats = ['jpg', 'png', 'pdf', 'docx'];
 	for (let i = 0; i < 50; i++) {
+		const profilePicture = {
+			publicId: faker.string.uuid(),
+			url: faker.image.avatar(),
+			secureUrl: faker.image.avatar(),
+			format: faker.helpers.arrayElement(docFormats),
+			resourceType: 'image',
+			size: faker.number.int({ min: 10000, max: 500000 }),
+			uploadedAt: faker.date.past(),
+			originalName: faker.system.fileName(),
+		};
+		const nationalIdFront = {
+			publicId: faker.string.uuid(),
+			url: faker.image.urlPicsumPhotos(),
+			secureUrl: faker.image.urlPicsumPhotos(),
+			format: 'jpg',
+			resourceType: 'image',
+			size: faker.number.int({ min: 10000, max: 500000 }),
+			uploadedAt: faker.date.past(),
+			originalName: faker.system.fileName(),
+		};
+		const nationalIdBack = {
+			publicId: faker.string.uuid(),
+			url: faker.image.urlPicsumPhotos(),
+			secureUrl: faker.image.urlPicsumPhotos(),
+			format: 'jpg',
+			resourceType: 'image',
+			size: faker.number.int({ min: 10000, max: 500000 }),
+			uploadedAt: faker.date.past(),
+			originalName: faker.system.fileName(),
+		};
+		const qualifications = Array(faker.number.int({ min: 1, max: 3 }))
+			.fill(null)
+			.map(() => {
+				const doc = {
+					publicId: faker.string.uuid(),
+					url: faker.image.urlPicsumPhotos(),
+					secureUrl: faker.image.urlPicsumPhotos(),
+					format: faker.helpers.arrayElement(docFormats),
+					resourceType: faker.helpers.arrayElement(['image', 'raw', 'pdf']),
+					size: faker.number.int({ min: 10000, max: 500000 }),
+					uploadedAt: faker.date.past(),
+					originalName: faker.system.fileName(),
+				};
+				return {
+					id: faker.string.uuid(),
+					type: faker.helpers.arrayElement(qualificationTypes),
+					document: doc,
+					title: faker.person.jobTitle(),
+					description: faker.lorem.sentence(),
+					uploadedAt: doc.uploadedAt,
+				};
+			});
 		nurses.push({
 			phone: `25677${faker.string.numeric(7)}`,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),
 			email: faker.internet.email(),
-			qualifications: Array(3)
-				.fill(null)
-				.map(() =>
-					faker.helpers.arrayElement([
-						'Registered Nurse',
-						'Licensed Practical Nurse',
-						'Certified Nursing Assistant',
-						'Home Health Aide',
-						'Personal Care Aide',
-					])
-				),
-			imgUrl: faker.image.avatar(),
-			isActive: true,
-			isVerified: true,
+			isActive: faker.datatype.boolean(),
+			isVerified: faker.datatype.boolean(),
+			profilePicture,
+			nationalId: { front: nationalIdFront, back: nationalIdBack },
+			qualifications,
+			documentVerificationStatus: faker.helpers.arrayElement(['pending', 'verified', 'rejected']),
 		});
 	}
 	return await db.nurses.insertMany(nurses);
@@ -129,12 +176,13 @@ async function seedAppointments(patients: any[], nurses: any[]) {
 			symptoms: faker.helpers.arrayElements(symptoms, { min: 1, max: 3 }),
 			status: faker.helpers.arrayElement(statuses),
 			date: faker.date.recent({ days: 30 }),
+			description: faker.lorem.sentence(),
 		});
 	}
 	return await db.appointments.insertMany(appointments);
 }
 
-async function seedPayments(appointments: any[], _patients: any[]) {
+async function seedPayments(appointments: any[], patients: any[]) {
 	const payments = [];
 	const paymentMethods = ['MTN', 'AIRTEL'];
 	const statuses = ['PENDING', 'SUCCESSFUL', 'FAILED'];
@@ -142,9 +190,11 @@ async function seedPayments(appointments: any[], _patients: any[]) {
 	for (let i = 0; i < appointments.length; i++) {
 		if (faker.number.int({ min: 1, max: 100 }) <= 70) {
 			// 70% of appointments have payments
+			const appointment = appointments[i];
+			const patientId = appointment.patient;
 			payments.push({
-				appointment: appointments[i]._id,
-				patient: appointments[i].patient._id,
+				appointment: appointment._id,
+				patient: patientId,
 				amount: faker.number.int({ min: 20000, max: 100000 }),
 				referenceId: faker.string.alphanumeric(10).toUpperCase(),
 				status: faker.helpers.arrayElement(statuses),
@@ -157,11 +207,10 @@ async function seedPayments(appointments: any[], _patients: any[]) {
 	return await db.payments.insertMany(payments);
 }
 
-// Run seeding if this file is executed directly
 if (require.main === module) {
 	seedDatabase()
 		.then(() => {
-			console.log('Seeding completed successfully!');
+			logger.debug('Seeding completed successfully!');
 			process.exit(0);
 		})
 		.catch((error) => {

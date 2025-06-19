@@ -70,7 +70,7 @@ export async function connectToDatabase(): Promise<void> {
 				logger.info('✅ Database seeding completed');
 			} catch (error) {
 				logger.error('❌ Database seeding failed:' + error);
-				console.log(error);
+				logger.error(error);
 			}
 		}
 	} catch (error) {
