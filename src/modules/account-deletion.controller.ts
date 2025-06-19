@@ -50,11 +50,11 @@ router.post('/request', async (req: Request, res: Response, next: NextFunction) 
  */
 router.get('/status', authenticate, async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const accountId = (req as any).account?.id;
-		const accountType = (req as any).account?.type;
+		const accountId = req.account?.id;
+		const accountType = req.account?.type;
 
 		if (!accountId || !accountType) {
-			return response(StatusCodes.UNAUTHORIZED, null, 'Account information not found');
+			return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Account information not found'));
 		}
 
 		const deletionResponse = await accountDeletionService.getDeletionStatus(accountId, accountType);
@@ -70,11 +70,11 @@ router.get('/status', authenticate, async (req: Request, res: Response, next: Ne
  */
 router.post('/cancel', authenticate, async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const accountId = (req as any).account?.id;
-		const accountType = (req as any).account?.type;
+		const accountId = req.account?.id;
+		const accountType = req.account?.type;
 
 		if (!accountId || !accountType) {
-			return response(StatusCodes.UNAUTHORIZED, null, 'Account information not found');
+			return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Account information not found'));
 		}
 
 		const deletionResponse = await accountDeletionService.cancelAccountDeletion(
@@ -96,12 +96,12 @@ router.post(
 	authenticate,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const accountId = (req as any).account?.id;
-			const accountType = (req as any).account?.type;
+			const accountId = req.account?.id;
+			const accountType = req.account?.type;
 			const { reason, confirmation } = req.body;
 
 			if (!accountId || !accountType) {
-				return response(StatusCodes.UNAUTHORIZED, null, 'Account information not found');
+				return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Account information not found'));
 			}
 
 			// Get account details to find email/phone
@@ -152,10 +152,10 @@ router.get(
 	authenticate,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const accountType = (req as any).account?.type;
+			const accountType = req.account?.type;
 
 			if (accountType !== 'admin') {
-				return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+				return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 			}
 
 			// Get all accounts marked for deletion
@@ -165,7 +165,7 @@ router.get(
 
 			const pendingDeletions = {
 				nurses: nurses.map((nurse: any) => ({
-					id: nurse._id,
+					id: nurse.id,
 					type: 'nurse',
 					name: `${nurse.firstName} ${nurse.lastName}`,
 					email: nurse.email,
@@ -178,7 +178,7 @@ router.get(
 						: null,
 				})),
 				patients: patients.map((patient: any) => ({
-					id: patient._id,
+					id: patient.id,
 					type: 'patient',
 					name: patient.name,
 					phone: patient.phone,
@@ -190,7 +190,7 @@ router.get(
 						: null,
 				})),
 				admins: admins.map((admin: any) => ({
-					id: admin._id,
+					id: admin.id,
 					type: 'admin',
 					name: admin.email, // Admin only has email, no firstName/lastName
 					email: admin.email,
@@ -203,10 +203,12 @@ router.get(
 				})),
 			};
 
-			return response(
-				StatusCodes.OK,
-				pendingDeletions,
-				'Pending deletion requests retrieved successfully'
+			return res.send(
+				response(
+					StatusCodes.OK,
+					pendingDeletions,
+					'Pending deletion requests retrieved successfully'
+				)
 			);
 		} catch (err) {
 			return next(err);
@@ -223,26 +225,28 @@ router.post(
 	authenticate,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const adminId = (req as any).account?.id;
-			const accountType = (req as any).account?.type;
+			const adminId = req.account?.id;
+			const accountType = req.account?.type;
 			const { accountId, targetAccountType } = req.body;
 
 			if (accountType !== 'admin') {
-				return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+				return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 			}
 
 			if (!accountId || !targetAccountType) {
-				return response(StatusCodes.BAD_REQUEST, null, 'Account ID and type are required');
+				return res.send(
+					response(StatusCodes.BAD_REQUEST, null, 'Account ID and type are required')
+				);
 			}
 
 			if (!['nurse', 'patient', 'admin'].includes(targetAccountType)) {
-				return response(StatusCodes.BAD_REQUEST, null, 'Invalid account type');
+				return res.send(response(StatusCodes.BAD_REQUEST, null, 'Invalid account type'));
 			}
 
 			const deletionResponse = await accountDeletionService.forceDeleteAccount(
 				accountId,
 				targetAccountType,
-				adminId
+				adminId!
 			);
 			handleDeletionResponse(res, deletionResponse);
 		} catch (err) {
@@ -260,19 +264,21 @@ router.post(
 	authenticate,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const accountType = (req as any).account?.type;
+			const accountType = req.account?.type;
 			const { accountId, targetAccountType } = req.body;
 
 			if (accountType !== 'admin') {
-				return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+				return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 			}
 
 			if (!accountId || !targetAccountType) {
-				return response(StatusCodes.BAD_REQUEST, null, 'Account ID and type are required');
+				return res.send(
+					response(StatusCodes.BAD_REQUEST, null, 'Account ID and type are required')
+				);
 			}
 
 			if (!['nurse', 'patient', 'admin'].includes(targetAccountType)) {
-				return response(StatusCodes.BAD_REQUEST, null, 'Invalid account type');
+				return res.send(response(StatusCodes.BAD_REQUEST, null, 'Invalid account type'));
 			}
 
 			const deletionResponse = await accountDeletionService.cancelAccountDeletion(

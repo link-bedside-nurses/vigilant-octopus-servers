@@ -62,27 +62,26 @@ export const uploadNationalID = uploadFields([
 export const uploadQualification = uploadSingle('document');
 
 // Error handling middleware for multer errors
-export const handleUploadError = (
-	error: any,
-	_req: Request,
-	_res: Response,
-	next: NextFunction
-) => {
+export const handleUploadError = (error: any, _req: Request, res: Response, next: NextFunction) => {
 	if (error instanceof multer.MulterError) {
 		switch (error.code) {
 			case 'LIMIT_FILE_SIZE':
-				return response(StatusCodes.BAD_REQUEST, null, 'File too large. Maximum size is 15MB');
+				return res.send(
+					response(StatusCodes.BAD_REQUEST, null, 'File too large. Maximum size is 15MB')
+				);
 			case 'LIMIT_FILE_COUNT':
-				return response(StatusCodes.BAD_REQUEST, null, 'Too many files. Maximum is 10 files');
+				return res.send(
+					response(StatusCodes.BAD_REQUEST, null, 'Too many files. Maximum is 10 files')
+				);
 			case 'LIMIT_UNEXPECTED_FILE':
-				return response(StatusCodes.BAD_REQUEST, null, 'Unexpected file field');
+				return res.send(response(StatusCodes.BAD_REQUEST, null, 'Unexpected file field'));
 			default:
-				return response(StatusCodes.BAD_REQUEST, null, `Upload error: ${error.message}`);
+				return res.send(response(StatusCodes.BAD_REQUEST, null, `Upload error: ${error.message}`));
 		}
 	}
 
 	if (error.message && error.message.includes('File type not allowed')) {
-		return response(StatusCodes.BAD_REQUEST, null, error.message);
+		return res.send(response(StatusCodes.BAD_REQUEST, null, error.message));
 	}
 
 	return next(error);
@@ -90,11 +89,11 @@ export const handleUploadError = (
 
 // Validation middleware for file uploads
 export const validateFileUpload = (req: Request, res: Response, next: NextFunction) => {
-	const file = (req as any).file;
-	const files = (req as any).files;
+	const file = req.file;
+	const files = req.files;
 
 	if (!file && !files) {
-		return response(StatusCodes.BAD_REQUEST, null, 'No files uploaded');
+		return res.send(response(StatusCodes.BAD_REQUEST, null, 'No files uploaded'));
 	}
 
 	return next();
@@ -102,25 +101,25 @@ export const validateFileUpload = (req: Request, res: Response, next: NextFuncti
 
 // Validation middleware for specific file types
 export const validateImageUpload = (req: Request, res: Response, next: NextFunction) => {
-	const file = (req as any).file;
+	const file = req.file;
 
 	if (!file) {
-		return response(StatusCodes.BAD_REQUEST, null, 'No image uploaded');
+		return res.send(response(StatusCodes.BAD_REQUEST, null, 'No image uploaded'));
 	}
 
 	const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
 	if (!allowedImageTypes.includes(file.mimetype)) {
-		return response(StatusCodes.BAD_REQUEST, null, 'Only image files are allowed');
+		return res.send(response(StatusCodes.BAD_REQUEST, null, 'Only image files are allowed'));
 	}
 
 	return next();
 };
 
 export const validateDocumentUpload = (req: Request, res: Response, next: NextFunction) => {
-	const file = (req as any).file;
+	const file = req.file;
 
 	if (!file) {
-		return response(StatusCodes.BAD_REQUEST, null, 'No document uploaded');
+		return res.send(response(StatusCodes.BAD_REQUEST, null, 'No document uploaded'));
 	}
 
 	const allowedDocTypes = [
@@ -133,10 +132,8 @@ export const validateDocumentUpload = (req: Request, res: Response, next: NextFu
 	];
 
 	if (!allowedDocTypes.includes(file.mimetype)) {
-		return response(
-			StatusCodes.BAD_REQUEST,
-			null,
-			'Only PDF, Word documents, and images are allowed'
+		return res.send(
+			response(StatusCodes.BAD_REQUEST, null, 'Only PDF, Word documents, and images are allowed')
 		);
 	}
 

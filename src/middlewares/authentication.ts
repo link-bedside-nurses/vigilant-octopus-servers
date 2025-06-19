@@ -7,11 +7,7 @@ import { db } from '../database';
 import { ITokenPayload } from '../services/token';
 import HTTPException from '../utils/exception';
 
-export default async function authenticate(
-	request: Request,
-	_response: Response,
-	next: NextFunction
-) {
+export default async function authenticate(request: Request, res: Response, next: NextFunction) {
 	if (
 		!request.headers.authorization ||
 		!request.headers.authorization.split(' ').includes('Bearer')
@@ -43,11 +39,13 @@ export default async function authenticate(
 			request.account = {
 				id: decoded.id,
 				phone: patient.phone,
+				type: 'patient',
 			};
 		} else if (admin) {
 			request.account = {
 				id: decoded.id,
 				email: admin.email,
+				type: 'admin',
 			};
 		}
 

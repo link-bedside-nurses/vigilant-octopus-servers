@@ -24,4 +24,5 @@ export interface ACCOUNT {
 	id: string;
 	phone?: string;
 	email?: string;
+	type: 'admin' | 'patient' | 'nurse';
 }

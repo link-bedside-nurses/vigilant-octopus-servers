@@ -230,7 +230,7 @@ export default function errorMiddleware(
 	// Generate request ID for tracking
 	const requestId =
 		(req.headers['x-request-id'] as string) ||
-		`req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		`req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
 	// Log error with context
 	logger.error('Error occurred:', {

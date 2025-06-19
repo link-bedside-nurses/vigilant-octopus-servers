@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { airtel } from '../../../config/base-url';
+import { airtel } from '../../../config/urls';
 
 export default async function getTXEnquiry(id: string, bearer: string) {
 	const config = {

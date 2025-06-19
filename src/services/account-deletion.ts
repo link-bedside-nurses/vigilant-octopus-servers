@@ -111,14 +111,14 @@ class AccountDeletionService {
 
 			await account.save();
 
-			logger.info(`Account deletion requested for ${accountType} ${account._id} via ${source}`);
+			logger.info(`Account deletion requested for ${accountType} ${account.id} via ${source}`);
 
 			return {
 				success: true,
 				message:
 					'Account deletion request submitted successfully. Your account will be deleted within 7 days.',
 				data: {
-					accountId: account._id,
+					accountId: account.id,
 					accountType,
 					deletionRequestDate: account.deletionRequestDate,
 					estimatedDeletionDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
@@ -184,7 +184,7 @@ class AccountDeletionService {
 				success: true,
 				message: 'Account deletion request cancelled successfully',
 				data: {
-					accountId: account._id,
+					accountId: account.id,
 					accountType,
 				},
 			};
@@ -228,7 +228,7 @@ class AccountDeletionService {
 			}
 
 			const status = {
-				accountId: account._id,
+				accountId: account.id,
 				accountType,
 				markedForDeletion: account.markedForDeletion || false,
 				deletionRequestDate: account.deletionRequestDate,
@@ -288,14 +288,14 @@ class AccountDeletionService {
 
 			// Delete nurses and their documents
 			for (const nurse of nursesToDelete) {
-				logger.info(`Deleting nurse: ${nurse._id}`);
+				logger.info(`Deleting nurse: ${nurse.id}`);
 
 				// Clean up documents first
-				await fileUploadService.cleanupNurseDocuments(nurse._id.toString());
+				await fileUploadService.cleanupNurseDocuments(nurse.id.toString());
 
 				// Cancel any pending appointments
 				await db.appointments.updateMany(
-					{ nurse: nurse._id },
+					{ nurse: nurse.id },
 					{
 						$set: {
 							status: 'cancelled',
@@ -304,16 +304,16 @@ class AccountDeletionService {
 					}
 				);
 
-				await db.nurses.findByIdAndDelete(nurse._id);
+				await db.nurses.findByIdAndDelete(nurse.id);
 			}
 
 			// Delete patients
 			for (const patient of patientsToDelete) {
-				logger.info(`Deleting patient: ${patient._id}`);
+				logger.info(`Deleting patient: ${patient.id}`);
 
 				// Cancel any pending appointments
 				await db.appointments.updateMany(
-					{ patient: patient._id },
+					{ patient: patient.id },
 					{
 						$set: {
 							status: 'cancelled',
@@ -322,13 +322,13 @@ class AccountDeletionService {
 					}
 				);
 
-				await db.patients.findByIdAndDelete(patient._id);
+				await db.patients.findByIdAndDelete(patient.id);
 			}
 
 			// Delete admins
 			for (const admin of adminsToDelete) {
-				logger.info(`Deleting admin: ${admin._id}`);
-				await db.admins.findByIdAndDelete(admin._id);
+				logger.info(`Deleting admin: ${admin.id}`);
+				await db.admins.findByIdAndDelete(admin.id);
 			}
 
 			logger.info(

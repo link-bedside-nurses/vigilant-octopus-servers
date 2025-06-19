@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { momo_sandbox } from '../../../config/base-url';
 import envars from '../../../config/env-vars';
+import { momo_sandbox } from '../../../config/urls';
 
 export default async function getTXEnquiry(token: string, referenceId: string) {
 	try {

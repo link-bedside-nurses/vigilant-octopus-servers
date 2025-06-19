@@ -12,48 +12,49 @@ const router = Router();
 router.use(authenticate);
 
 // GET /appointments - get all appointments
-router.get('/', async (_req: Request, _res: Response, next: NextFunction) => {
+router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 	try {
 		const appointments = await db.appointments
 			.find({})
 			.sort({ createdAt: 'desc' })
 			.populate('nurse')
 			.populate('patient');
-		return response(StatusCodes.OK, appointments, 'Appointments fetched successfully');
+		return res.send(response(StatusCodes.OK, appointments, 'Appointments fetched successfully'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // POST /appointments - schedule appointment
-router.post('/', async (req: Request, _res: Response, next: NextFunction) => {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const patient = req.body.patient;
 		const appointment = req.body;
 		const result = await db.appointments.create({ ...appointment, patient });
 		const populated = await (await result.populate('patient')).populate('nurse');
-		return response(StatusCodes.OK, populated, 'Appointment scheduled successfully');
+		return res.send(response(StatusCodes.OK, populated, 'Appointment scheduled successfully'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // GET /appointments/:id - get appointment by id
-router.get('/:id', validateObjectID, async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const appointment = await db.appointments
 			.findById(req.params.id)
 			.populate('nurse')
 			.populate('patient');
-		if (!appointment) return response(StatusCodes.NOT_FOUND, null, 'Appointment not found');
-		return response(StatusCodes.OK, appointment, 'Appointment fetched successfully');
+		if (!appointment)
+			return res.send(response(StatusCodes.NOT_FOUND, null, 'Appointment not found'));
+		return res.send(response(StatusCodes.OK, appointment, 'Appointment fetched successfully'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // POST /appointments/history - get appointments history
-router.post('/history', async (req: Request, _res: Response, next: NextFunction) => {
+router.post('/history', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const status = req.body.status;
 		const query: mongoose.FilterQuery<any> = {};
@@ -82,7 +83,9 @@ router.post('/history', async (req: Request, _res: Response, next: NextFunction)
 			{ $unwind: { path: '$nurse', preserveNullAndEmptyArrays: true } },
 		];
 		const appointments = await db.appointments.aggregate(pipeline);
-		return response(StatusCodes.OK, appointments, 'Appointments history fetched successfully');
+		return res.send(
+			response(StatusCodes.OK, appointments, 'Appointments history fetched successfully')
+		);
 	} catch (err) {
 		return next(err);
 	}
@@ -92,7 +95,7 @@ router.post('/history', async (req: Request, _res: Response, next: NextFunction)
 router.patch(
 	'/:id/update',
 	validateObjectID,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { status } = req.body;
 			const appointment = await db.appointments.findByIdAndUpdate(
@@ -100,7 +103,9 @@ router.patch(
 				{ status },
 				{ new: true }
 			);
-			return response(StatusCodes.OK, appointment, 'Appointment status updated successfully');
+			return res.send(
+				response(StatusCodes.OK, appointment, 'Appointment status updated successfully')
+			);
 		} catch (err) {
 			return next(err);
 		}
@@ -111,7 +116,7 @@ router.patch(
 router.patch(
 	'/:id/reschedule',
 	validateObjectID,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { date } = req.body;
 			const appointment = await db.appointments.findByIdAndUpdate(
@@ -119,7 +124,9 @@ router.patch(
 				{ date },
 				{ new: true }
 			);
-			return response(StatusCodes.OK, appointment, 'Appointment rescheduled successfully');
+			return res.send(
+				response(StatusCodes.OK, appointment, 'Appointment rescheduled successfully')
+			);
 		} catch (err) {
 			return next(err);
 		}
@@ -130,14 +137,14 @@ router.patch(
 router.patch(
 	'/:id/confirm',
 	validateObjectID,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const appointment = await db.appointments.findByIdAndUpdate(
 				req.params.id,
 				{ status: APPOINTMENT_STATUSES.IN_PROGRESS },
 				{ new: true }
 			);
-			return response(StatusCodes.OK, appointment, 'Appointment confirmed successfully');
+			return res.send(response(StatusCodes.OK, appointment, 'Appointment confirmed successfully'));
 		} catch (err) {
 			return next(err);
 		}
@@ -148,10 +155,10 @@ router.patch(
 router.patch(
 	'/:id/cancel',
 	validateObjectID,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { reason } = req.body;
-			const adminId = (req as any).account?.id;
+			const adminId = req.account?.id;
 
 			const updateData: any = {
 				status: APPOINTMENT_STATUSES.CANCELLED,
@@ -164,7 +171,7 @@ router.patch(
 			const appointment = await db.appointments.findByIdAndUpdate(req.params.id, updateData, {
 				new: true,
 			});
-			return response(StatusCodes.OK, appointment, 'Appointment cancelled successfully');
+			return res.send(response(StatusCodes.OK, appointment, 'Appointment cancelled successfully'));
 		} catch (err) {
 			return next(err);
 		}
@@ -172,18 +179,14 @@ router.patch(
 );
 
 // DELETE /appointments/:id - delete appointment
-router.delete(
-	'/:id',
-	validateObjectID,
-	async (req: Request, _res: Response, next: NextFunction) => {
-		try {
-			const appointment = await db.appointments.findByIdAndDelete(req.params.id);
-			return response(StatusCodes.OK, appointment, 'Appointment deleted successfully');
-		} catch (err) {
-			return next(err);
-		}
+router.delete('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const appointment = await db.appointments.findByIdAndDelete(req.params.id);
+		return res.send(response(StatusCodes.OK, appointment, 'Appointment deleted successfully'));
+	} catch (err) {
+		return next(err);
 	}
-);
+});
 
 // Nurse Assignment Endpoints (Admin Only)
 
@@ -192,10 +195,10 @@ router.delete(
  */
 router.get('/pending', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const accountType = (req as any).account?.type;
+		const accountType = req.account?.type;
 
 		if (accountType !== 'admin') {
-			return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+			return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 		}
 
 		const assignmentResponse = await nurseAssignmentService.getPendingAppointments();
@@ -210,10 +213,10 @@ router.get('/pending', async (req: Request, res: Response, next: NextFunction) =
  */
 router.get('/available-nurses', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const accountType = (req as any).account?.type;
+		const accountType = req.account?.type;
 
 		if (accountType !== 'admin') {
-			return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+			return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 		}
 
 		const assignmentResponse = await nurseAssignmentService.getAvailableNurses();
@@ -231,17 +234,17 @@ router.post(
 	validateObjectID,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const accountType = (req as any).account?.type;
-			const adminId = (req as any).account?.id;
+			const accountType = req.account?.type;
+			const adminId = req.account?.id;
 
 			if (accountType !== 'admin') {
-				return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+				return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 			}
 
 			const { nurseId, notes } = req.body;
 
 			if (!nurseId) {
-				return response(StatusCodes.BAD_REQUEST, null, 'Nurse ID is required');
+				return res.send(response(StatusCodes.BAD_REQUEST, null, 'Nurse ID is required'));
 			}
 
 			const assignmentRequest = {
@@ -252,7 +255,7 @@ router.post(
 
 			const assignmentResponse = await nurseAssignmentService.assignNurseToAppointment(
 				assignmentRequest,
-				adminId
+				adminId!
 			);
 			handleAssignmentResponse(res, assignmentResponse);
 		} catch (err) {
@@ -269,23 +272,23 @@ router.post(
 	validateObjectID,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const accountType = (req as any).account?.type;
-			const adminId = (req as any).account?.id;
+			const accountType = req.account?.type;
+			const adminId = req.account?.id;
 
 			if (accountType !== 'admin') {
-				return response(StatusCodes.FORBIDDEN, null, 'Admin access required');
+				return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 			}
 
 			const { nurseId, reason } = req.body;
 
 			if (!nurseId) {
-				return response(StatusCodes.BAD_REQUEST, null, 'Nurse ID is required');
+				return res.send(response(StatusCodes.BAD_REQUEST, null, 'Nurse ID is required'));
 			}
 
 			const assignmentResponse = await nurseAssignmentService.reassignNurse(
 				req.params.id,
 				nurseId,
-				adminId,
+				adminId!,
 				reason
 			);
 			handleAssignmentResponse(res, assignmentResponse);
@@ -303,16 +306,18 @@ router.get(
 	validateObjectID,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const accountType = (req as any).account?.type;
-			const nurseId = (req as any).account?.id;
+			const accountType = req.account?.type;
+			const nurseId = req.account?.id;
 
 			// Allow admin to view any nurse's appointments, or nurse to view their own
 			if (accountType !== 'admin' && accountType !== 'nurse') {
-				return response(StatusCodes.FORBIDDEN, null, 'Admin or nurse access required');
+				return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin or nurse access required'));
 			}
 
 			if (accountType === 'nurse' && nurseId !== req.params.nurseId) {
-				return response(StatusCodes.FORBIDDEN, null, 'You can only view your own appointments');
+				return res.send(
+					response(StatusCodes.FORBIDDEN, null, 'You can only view your own appointments')
+				);
 			}
 
 			const assignmentResponse = await nurseAssignmentService.getNurseAppointments(

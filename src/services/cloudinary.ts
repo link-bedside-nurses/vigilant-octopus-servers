@@ -17,7 +17,7 @@ export interface UploadOptions {
 	transformation?: any;
 	resourceType?: 'image' | 'video' | 'raw' | 'auto';
 	allowedFormats?: string[];
-	maxFileSize?: number; // in bytes
+	maxFileSize?: number;
 }
 
 // Upload result interface

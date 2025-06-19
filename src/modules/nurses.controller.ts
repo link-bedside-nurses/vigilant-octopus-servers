@@ -17,7 +17,7 @@ import { response } from '../utils/http-response';
 const router = Router();
 
 // General nurse routes
-router.get('/', async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { latLng } = req.query;
 		let nurses;
@@ -25,10 +25,12 @@ router.get('/', async (req: Request, _res: Response, next: NextFunction) => {
 			const latitude = latLng.toString().split(',')[0];
 			const longitude = latLng.toString().split(',')[1];
 			if (!latitude || !longitude) {
-				return response(
-					StatusCodes.BAD_REQUEST,
-					null,
-					"Missing either latitude or longitude on the 'latLng' query key"
+				return res.send(
+					response(
+						StatusCodes.BAD_REQUEST,
+						null,
+						"Missing either latitude or longitude on the 'latLng' query key"
+					)
 				);
 			}
 			nurses = await db.nurses.find({
@@ -44,7 +46,7 @@ router.get('/', async (req: Request, _res: Response, next: NextFunction) => {
 		} else {
 			nurses = await db.nurses.find({}).sort({ createdAt: 'desc' });
 		}
-		return response(StatusCodes.OK, nurses, 'Nurses fetched successfully');
+		return res.send(response(StatusCodes.OK, nurses, 'Nurses fetched successfully'));
 	} catch (err) {
 		return next(err);
 	}
@@ -52,22 +54,22 @@ router.get('/', async (req: Request, _res: Response, next: NextFunction) => {
 
 router.use(authenticate);
 
-router.get('/:id', async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const nurse = await db.nurses.findById(req.params.id);
-		if (!nurse) return response(StatusCodes.NOT_FOUND, null, 'No nurse Found');
-		return response(StatusCodes.OK, nurse, 'Nurse fetched successfully');
+		if (!nurse) return res.send(response(StatusCodes.NOT_FOUND, null, 'No nurse Found'));
+		return res.send(response(StatusCodes.OK, nurse, 'Nurse fetched successfully'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
-router.patch('/:id', async (req: Request, _res: Response, next: NextFunction) => {
+router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const updated = req.body;
 		const nurse = await db.nurses.findByIdAndUpdate(req.params.id, updated, { new: true });
-		if (!nurse) return response(StatusCodes.NOT_FOUND, null, 'No nurse Found');
-		return response(StatusCodes.OK, nurse, 'Nurse updated successfully');
+		if (!nurse) return res.send(response(StatusCodes.NOT_FOUND, null, 'No nurse Found'));
+		return res.send(response(StatusCodes.OK, nurse, 'Nurse updated successfully'));
 	} catch (err) {
 		return next(err);
 	}
@@ -82,9 +84,9 @@ router.post(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { id } = req.params;
-			const file = (req as any).file;
+			const file = req.file;
 
-			const uploadResponse = await fileUploadService.uploadNurseProfilePicture(id, file);
+			const uploadResponse = await fileUploadService.uploadNurseProfilePicture(id, file!);
 			handleFileUploadResponse(res, uploadResponse);
 		} catch (err) {
 			return next(err);
@@ -99,19 +101,24 @@ router.post(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { id } = req.params;
-			const files = (req as any).files;
+			const files = req.files;
 
+			// @ts-ignore
 			if (!files || !files.front || !files.back) {
-				return response(
-					StatusCodes.BAD_REQUEST,
-					null,
-					'Both front and back national ID images are required'
+				return res.send(
+					response(
+						StatusCodes.BAD_REQUEST,
+						null,
+						'Both front and back national ID images are required'
+					)
 				);
 			}
 
 			const uploadResponse = await fileUploadService.uploadNurseNationalID(
 				id,
+				// @ts-ignore
 				files.front[0],
+				// @ts-ignore
 				files.back[0]
 			);
 			handleFileUploadResponse(res, uploadResponse);
@@ -130,15 +137,15 @@ router.post(
 		try {
 			const { id } = req.params;
 			const { title, type, description } = req.body;
-			const file = (req as any).file;
+			const file = req.file;
 
 			if (!title) {
-				return response(StatusCodes.BAD_REQUEST, null, 'Title is required');
+				return res.send(response(StatusCodes.BAD_REQUEST, null, 'Title is required'));
 			}
 
 			const uploadResponse = await fileUploadService.uploadNurseQualification(
 				id,
-				file,
+				file!,
 				title,
 				type || 'certification',
 				description
@@ -182,17 +189,19 @@ router.patch(
 		try {
 			const { id } = req.params;
 			const { status, notes } = req.body;
-			const adminId = (req as any).account?.id;
+			const adminId = req.account?.id;
 
 			if (!adminId) {
-				return response(StatusCodes.UNAUTHORIZED, null, 'Admin access required');
+				return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Admin access required'));
 			}
 
 			if (!['pending', 'verified', 'rejected'].includes(status)) {
-				return response(
-					StatusCodes.BAD_REQUEST,
-					null,
-					'Invalid status. Must be pending, verified, or rejected'
+				return res.send(
+					response(
+						StatusCodes.BAD_REQUEST,
+						null,
+						'Invalid status. Must be pending, verified, or rejected'
+					)
 				);
 			}
 
@@ -209,7 +218,7 @@ router.patch(
 	}
 );
 
-router.delete('/:id', async (req: Request, _res: Response, next: NextFunction) => {
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		// Clean up documents first
 		await fileUploadService.cleanupNurseDocuments(req.params.id);
@@ -235,27 +244,27 @@ router.delete('/:id', async (req: Request, _res: Response, next: NextFunction) =
 		);
 		// Delete the nurse document
 		const nurse = await db.nurses.findByIdAndDelete(req.params.id);
-		if (!nurse) return response(StatusCodes.NOT_FOUND, null, 'No nurse Found');
-		return response(StatusCodes.OK, nurse, 'Nurse deleted successfully');
+		if (!nurse) return res.send(response(StatusCodes.NOT_FOUND, null, 'No nurse Found'));
+		return res.send(response(StatusCodes.OK, nurse, 'Nurse deleted successfully'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // Appointment related routes
-router.get('/:id/appointments', async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/:id/appointments', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const appointments = await db.appointments
 			.find({ nurse: { _id: req.params.id } })
 			.populate('patient')
 			.populate('nurse');
-		return response(StatusCodes.OK, appointments, 'Appointments fetched successfully');
+		return res.send(response(StatusCodes.OK, appointments, 'Appointments fetched successfully'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
-router.get('/:id/appointment-history', async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/:id/appointment-history', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const appointments = await db.appointments
 			.find({ nurse: { _id: req.params.id } })
@@ -266,7 +275,9 @@ router.get('/:id/appointment-history', async (req: Request, _res: Response, next
 				appointment.status === APPOINTMENT_STATUSES.COMPLETED ||
 				appointment.status === APPOINTMENT_STATUSES.CANCELLED
 		);
-		return response(StatusCodes.OK, filteredAppointments, 'Appointments fetched successfully');
+		return res.send(
+			response(StatusCodes.OK, filteredAppointments, 'Appointments fetched successfully')
+		);
 	} catch (err) {
 		return next(err);
 	}
@@ -274,11 +285,12 @@ router.get('/:id/appointment-history', async (req: Request, _res: Response, next
 
 router.post(
 	'/appointments/:appointmentId/cancel',
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { appointmentId } = req.params;
-			const nurseId = (req as any).account?.id;
-			if (!nurseId) return response(StatusCodes.UNAUTHORIZED, null, 'Unauthorized access');
+			const nurseId = req.account?.id;
+			if (!nurseId)
+				return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Unauthorized access'));
 			// Update appointment status
 			const appointment = await db.appointments.findOneAndUpdate(
 				{ _id: appointmentId, nurse: nurseId },
@@ -291,12 +303,14 @@ router.post(
 				{ new: true }
 			);
 			if (!appointment)
-				return response(
-					StatusCodes.NOT_FOUND,
-					null,
-					'Appointment not found or not assigned to this nurse'
+				return res.send(
+					response(
+						StatusCodes.NOT_FOUND,
+						null,
+						'Appointment not found or not assigned to this nurse'
+					)
 				);
-			return response(StatusCodes.OK, appointment, 'Appointment cancelled successfully');
+			return res.send(response(StatusCodes.OK, appointment, 'Appointment cancelled successfully'));
 		} catch (err) {
 			return next(err);
 		}

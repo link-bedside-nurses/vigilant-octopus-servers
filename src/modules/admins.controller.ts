@@ -10,21 +10,21 @@ const router = Router();
 const adminMiddleware = [authenticate];
 
 // GET /admins - get all admins
-router.get('/', ...adminMiddleware, async (_req: Request, _res: Response, next: NextFunction) => {
+router.get('/', ...adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const admins = await db.admins.find({}).sort({ createdAt: 'desc' });
-		return response(StatusCodes.OK, admins, 'Admins Retrieved');
+		return res.send(response(StatusCodes.OK, admins, 'Admins Retrieved'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // GET /admins/:id - get admin by id
-router.get('/:id', ...adminMiddleware, async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/:id', ...adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const admin = await db.admins.findById(req.params.id);
-		if (!admin) return response(StatusCodes.NOT_FOUND, null, 'No admin Found');
-		return response(StatusCodes.OK, admin, 'Admin Retrieved');
+		if (!admin) return res.send(response(StatusCodes.NOT_FOUND, null, 'No admin Found'));
+		return res.send(response(StatusCodes.OK, admin, 'Admin Retrieved'));
 	} catch (err) {
 		return next(err);
 	}
@@ -34,15 +34,15 @@ router.get('/:id', ...adminMiddleware, async (req: Request, _res: Response, next
 router.patch(
 	'/:id',
 	...adminMiddleware,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const admin = await db.admins.findByIdAndUpdate(
 				req.params.id,
 				{ ...req.body },
 				{ new: true }
 			);
-			if (!admin) return response(StatusCodes.NOT_FOUND, null, 'No admin Found');
-			return response(StatusCodes.OK, admin, 'Admin updated');
+			if (!admin) return res.send(response(StatusCodes.NOT_FOUND, null, 'No admin Found'));
+			return res.send(response(StatusCodes.OK, admin, 'Admin updated'));
 		} catch (err) {
 			return next(err);
 		}
@@ -53,13 +53,15 @@ router.patch(
 router.patch(
 	'/:id/ban',
 	...adminMiddleware,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			if ((req as any).account?.id === req.params.id) {
-				return response(
-					StatusCodes.BAD_REQUEST,
-					null,
-					'You cannot ban yourself, Please select a different admin to ban'
+			if (req.account?.id === req.params.id) {
+				return res.send(
+					response(
+						StatusCodes.BAD_REQUEST,
+						null,
+						'You cannot ban yourself, Please select a different admin to ban'
+					)
 				);
 			}
 			const updatedAdmin = await db.admins.findByIdAndUpdate(
@@ -67,8 +69,8 @@ router.patch(
 				{ $set: { isBanned: true } },
 				{ new: true }
 			);
-			if (!updatedAdmin) return response(StatusCodes.NOT_FOUND, null, 'No admin Found');
-			return response(StatusCodes.OK, updatedAdmin, 'Admin banned');
+			if (!updatedAdmin) return res.send(response(StatusCodes.NOT_FOUND, null, 'No admin Found'));
+			return res.send(response(StatusCodes.OK, updatedAdmin, 'Admin banned'));
 		} catch (err) {
 			return next(err);
 		}
@@ -79,18 +81,21 @@ router.patch(
 router.patch(
 	'/nurse/:id/ban',
 	...adminMiddleware,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const bannedNurse = await db.nurses.findByIdAndUpdate(
 				req.params.id,
 				{ isBanned: true },
 				{ new: true }
 			);
-			if (!bannedNurse) return response(StatusCodes.NOT_FOUND, null, 'No such nurse Found');
-			return response(
-				StatusCodes.OK,
-				bannedNurse,
-				'Nurse Successfully banned from using the application'
+			if (!bannedNurse)
+				return res.send(response(StatusCodes.NOT_FOUND, null, 'No such nurse Found'));
+			return res.send(
+				response(
+					StatusCodes.OK,
+					bannedNurse,
+					'Nurse Successfully banned from using the application'
+				)
 			);
 		} catch (err) {
 			return next(err);
@@ -102,15 +107,16 @@ router.patch(
 router.patch(
 	'/nurse/:id/verify',
 	...adminMiddleware,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const verifiedNurse = await db.nurses.findByIdAndUpdate(
 				req.params.id,
 				{ isVerified: true, isActive: true },
 				{ new: true }
 			);
-			if (!verifiedNurse) return response(StatusCodes.NOT_FOUND, null, 'No such nurse Found');
-			return response(StatusCodes.OK, verifiedNurse, 'Nurse verified');
+			if (!verifiedNurse)
+				return res.send(response(StatusCodes.NOT_FOUND, null, 'No such nurse Found'));
+			return res.send(response(StatusCodes.OK, verifiedNurse, 'Nurse verified'));
 		} catch (err) {
 			return next(err);
 		}
@@ -121,18 +127,21 @@ router.patch(
 router.patch(
 	'/patient/:id/ban',
 	...adminMiddleware,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const bannedPatient = await db.patients.findByIdAndUpdate(
 				req.params.id,
 				{ isBanned: true },
 				{ new: true }
 			);
-			if (!bannedPatient) return response(StatusCodes.NOT_FOUND, null, 'No such patient Found');
-			return response(
-				StatusCodes.OK,
-				bannedPatient,
-				'Patient Successfully banned from using the application!'
+			if (!bannedPatient)
+				return res.send(response(StatusCodes.NOT_FOUND, null, 'No such patient Found'));
+			return res.send(
+				response(
+					StatusCodes.OK,
+					bannedPatient,
+					'Patient Successfully banned from using the application!'
+				)
 			);
 		} catch (err) {
 			return next(err);
@@ -144,15 +153,16 @@ router.patch(
 router.patch(
 	'/patient/:id/verify',
 	...adminMiddleware,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const verifiedPatient = await db.patients.findByIdAndUpdate(
 				req.params.id,
 				{ isVerified: true },
 				{ new: true }
 			);
-			if (!verifiedPatient) return response(StatusCodes.NOT_FOUND, null, 'No such patient Found');
-			return response(StatusCodes.OK, verifiedPatient, 'Patient verified!');
+			if (!verifiedPatient)
+				return res.send(response(StatusCodes.NOT_FOUND, null, 'No such patient Found'));
+			return res.send(response(StatusCodes.OK, verifiedPatient, 'Patient verified!'));
 		} catch (err) {
 			return next(err);
 		}

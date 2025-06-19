@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { airtel } from '../../../config/base-url';
 import envars from '../../../config/env-vars';
+import { airtel } from '../../../config/urls';
 
 export default async function createAirteMoneyBearerToken() {
 	const data = JSON.stringify({

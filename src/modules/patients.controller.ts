@@ -11,28 +11,28 @@ const router = Router();
 router.use(authenticate);
 
 // GET /patients - get all patients
-router.get('/', async (_req: Request, _res: Response, next: NextFunction) => {
+router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 	try {
 		const patients = await db.patients.find({}).sort({ createdAt: 'desc' });
-		return response(StatusCodes.OK, patients, 'Patients Retrieved');
+		return res.send(response(StatusCodes.OK, patients, 'Patients Retrieved'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // GET /patients/:id - get patient by id
-router.get('/:id', async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const patient = await db.patients.findById(req.params.id);
-		if (!patient) return response(StatusCodes.NOT_FOUND, null, 'No Patient Found');
-		return response(StatusCodes.OK, patient, 'Patient Retrieved');
+		if (!patient) return res.send(response(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
+		return res.send(response(StatusCodes.OK, patient, 'Patient Retrieved'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // GET /patients/:id/appointments - get patient appointments
-router.get('/:id/appointments', async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/:id/appointments', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { status } = req.query;
 		const filters: any = { patient: { _id: req.params.id } };
@@ -42,44 +42,44 @@ router.get('/:id/appointments', async (req: Request, _res: Response, next: NextF
 			appointments.length > 0
 				? 'Successfully fetched patient Appointments'
 				: 'No Appointment Found';
-		return response(StatusCodes.OK, appointments, message);
+		return res.send(response(StatusCodes.OK, appointments, message));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // PATCH /patients/:id - update patient
-router.patch('/:id', async (req: Request, _res: Response, next: NextFunction) => {
+router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const patient = await db.patients.findByIdAndUpdate(
 			req.params.id,
 			{ ...req.body },
 			{ new: true }
 		);
-		if (!patient) return response(StatusCodes.NOT_FOUND, null, 'No Patient Found');
-		return response(StatusCodes.OK, patient, 'Patient updated');
+		if (!patient) return res.send(response(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
+		return res.send(response(StatusCodes.OK, patient, 'Patient updated'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // PATCH /patients/deactivate/:id - deactivate patient
-router.patch('/deactivate/:id', async (req: Request, _res: Response, next: NextFunction) => {
+router.patch('/deactivate/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const patient = await db.patients.findByIdAndUpdate(
 			req.params.id,
 			{ $set: { isActive: false } },
 			{ new: true }
 		);
-		if (!patient) return response(StatusCodes.NOT_FOUND, null, 'No Patient Found');
-		return response(StatusCodes.OK, patient, 'Patient updated');
+		if (!patient) return res.send(response(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
+		return res.send(response(StatusCodes.OK, patient, 'Patient updated'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // DELETE /patients/:id - delete patient
-router.delete('/:id', async (req: Request, _res: Response, next: NextFunction) => {
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		// Cancel any pending or in-progress appointments
 		await db.appointments.updateMany(
@@ -96,8 +96,8 @@ router.delete('/:id', async (req: Request, _res: Response, next: NextFunction) =
 		);
 		// Delete the patient document
 		const patient = await db.patients.findByIdAndDelete(req.params.id);
-		if (!patient) return response(StatusCodes.NOT_FOUND, null, 'No Patient Found');
-		return response(StatusCodes.OK, patient, 'Patient deleted');
+		if (!patient) return res.send(response(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
+		return res.send(response(StatusCodes.OK, patient, 'Patient deleted'));
 	} catch (err) {
 		return next(err);
 	}

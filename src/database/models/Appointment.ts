@@ -1,5 +1,6 @@
 import { DocumentType, Ref, Severity, modelOptions, mongoose, prop } from '@typegoose/typegoose';
 import { APPOINTMENT_STATUSES } from '../../interfaces';
+import { Admin } from './Admin';
 import { Nurse } from './Nurse';
 import { Patient } from './Patient';
 
@@ -21,7 +22,7 @@ import { Patient } from './Patient';
 	options: { allowMixed: Severity.ALLOW },
 })
 export class Appointment {
-	@prop({ type: mongoose.Types.ObjectId, required: true, ref: Patient })
+	@prop({ type: mongoose.Types.ObjectId, required: true, ref: Patient, index: true })
 	patient!: Ref<Patient>;
 
 	@prop({ type: mongoose.Types.ObjectId, required: false, ref: Nurse, index: true })
@@ -45,7 +46,7 @@ export class Appointment {
 	nurseAssignedAt?: Date;
 
 	@prop({ type: mongoose.Types.ObjectId, required: false, ref: 'Admin' })
-	assignedBy?: Ref<any>; // Admin who assigned the nurse
+	assignedBy?: Ref<Admin>; // Admin who assigned the nurse
 
 	@prop({ type: String, required: false })
 	assignmentNotes?: string;
@@ -64,7 +65,7 @@ export class Appointment {
 	cancellationReason?: string;
 
 	@prop({ type: mongoose.Types.ObjectId, required: false, ref: 'Admin' })
-	cancelledBy?: Ref<any>; // Admin who cancelled
+	cancelledBy?: Ref<Admin>; // Admin who cancelled
 
 	@prop({ type: Date, required: false })
 	cancelledAt?: Date;

@@ -19,21 +19,21 @@ const PaymentSchema = z.object({
 });
 
 // GET /payments - get all payments
-router.get('/', authenticate, async (_req: Request, _res: Response, next: NextFunction) => {
+router.get('/', authenticate, async (_req: Request, res: Response, next: NextFunction) => {
 	try {
 		const payments = await db.payments.find({}).sort({ createdAt: 'desc' });
-		return response(StatusCodes.OK, payments, 'Payments Retrieved');
+		return res.send(response(StatusCodes.OK, payments, 'Payments Retrieved'));
 	} catch (err) {
 		return next(err);
 	}
 });
 
 // GET /payments/:id - get payment by id
-router.get('/:id', authenticate, async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/:id', authenticate, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const payment = await db.payments.findById(req.params.id);
-		if (!payment) return response(StatusCodes.NOT_FOUND, null, 'No Payment Found');
-		return response(StatusCodes.OK, payment, 'Payment Retrieved');
+		if (!payment) return res.send(response(StatusCodes.NOT_FOUND, null, 'No Payment Found'));
+		return res.send(response(StatusCodes.OK, payment, 'Payment Retrieved'));
 	} catch (err) {
 		return next(err);
 	}
@@ -43,19 +43,21 @@ router.get('/:id', authenticate, async (req: Request, _res: Response, next: Next
 router.post(
 	'/patient/:id/initiate',
 	authenticate,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const result = PaymentSchema.safeParse(req.body);
 			if (!result.success) {
-				return response(
-					StatusCodes.BAD_REQUEST,
-					null,
-					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+				return res.send(
+					response(
+						StatusCodes.BAD_REQUEST,
+						null,
+						`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+					)
 				);
 			}
 			const patient = await db.patients.findById(req.params.id);
 			if (!patient) {
-				return response(StatusCodes.NOT_FOUND, null, 'Patient not found');
+				return res.send(response(StatusCodes.NOT_FOUND, null, 'Patient not found'));
 			}
 			const paymentPhone = patient.phone;
 			const provider = result.data.provider || detectProvider(paymentPhone);
@@ -81,7 +83,9 @@ router.post(
 				paymentMethod: provider,
 				createdAt: new Date(),
 			});
-			return response(StatusCodes.OK, { payment, referenceId }, 'Payment initiated successfully');
+			return res.send(
+				response(StatusCodes.OK, { payment, referenceId }, 'Payment initiated successfully')
+			);
 		} catch (err) {
 			return next(err);
 		}
@@ -89,34 +93,30 @@ router.post(
 );
 
 // GET /payments/:id/status - check payment status
-router.get(
-	'/:id/status',
-	authenticate,
-	async (req: Request, _res: Response, next: NextFunction) => {
-		try {
-			const payment = await db.payments.findById(req.params.id);
-			if (!payment) {
-				return response(StatusCodes.NOT_FOUND, null, 'Payment not found');
-			}
-			const collectionsService = MomoCollectionsService.getInstance();
-			const status = await collectionsService.getTransactionStatus(payment.referenceId);
-			payment.status = status.status;
-			if (status.financialTransactionId) {
-				payment.transactionId = status.financialTransactionId;
-			}
-			await payment.save();
-			return response(StatusCodes.OK, { payment, status }, 'Payment status retrieved');
-		} catch (err) {
-			return next(err);
+router.get('/:id/status', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const payment = await db.payments.findById(req.params.id);
+		if (!payment) {
+			return res.send(response(StatusCodes.NOT_FOUND, null, 'Payment not found'));
 		}
+		const collectionsService = MomoCollectionsService.getInstance();
+		const status = await collectionsService.getTransactionStatus(payment.referenceId);
+		payment.status = status.status;
+		if (status.financialTransactionId) {
+			payment.transactionId = status.financialTransactionId;
+		}
+		await payment.save();
+		return res.send(response(StatusCodes.OK, { payment, status }, 'Payment status retrieved'));
+	} catch (err) {
+		return next(err);
 	}
-);
+});
 
 // GET /payments/nurses/:id/earnings - get nurse earnings
 router.get(
 	'/nurses/:id/earnings',
 	authenticate,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const payments = await db.payments.aggregate([
 				{
@@ -143,13 +143,15 @@ router.get(
 				},
 			]);
 			const result = payments[0] || { totalEarnings: 0, payments: [] };
-			return response(
-				StatusCodes.OK,
-				{
-					totalEarnings: result.totalEarnings,
-					payments: result.payments,
-				},
-				'Nurse earnings retrieved successfully'
+			return res.send(
+				response(
+					StatusCodes.OK,
+					{
+						totalEarnings: result.totalEarnings,
+						payments: result.payments,
+					},
+					'Nurse earnings retrieved successfully'
+				)
 			);
 		} catch (err) {
 			return next(err);
@@ -161,12 +163,12 @@ router.get(
 router.get(
 	'/patients/:id/payments',
 	authenticate,
-	async (req: Request, _res: Response, next: NextFunction) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const payments = await db.payments
 				.find({ patient: req.params.id })
 				.sort({ createdAt: 'desc' });
-			return response(StatusCodes.OK, payments, 'Payments Retrieved');
+			return res.send(response(StatusCodes.OK, payments, 'Payments Retrieved'));
 		} catch (err) {
 			return next(err);
 		}

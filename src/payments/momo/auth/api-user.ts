@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
-import { momo_sandbox } from '../../../config/base-url';
 import envars from '../../../config/env-vars';
+import { momo_sandbox } from '../../../config/urls';
 
 interface ApiUserResponse {
 	providerCallbackHost: string;

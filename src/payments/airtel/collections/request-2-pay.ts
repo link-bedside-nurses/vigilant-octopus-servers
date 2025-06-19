@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { v4 as uuid4 } from 'uuid';
-import { airtel } from '../../../config/base-url';
+import { airtel } from '../../../config/urls';
 
 export default async function makeReq2Pay(token: string, msisdn: string, amount: number) {
 	const id = uuid4();

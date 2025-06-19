@@ -138,7 +138,7 @@ class NurseAssignmentService {
 				success: true,
 				message: 'Nurse assigned successfully',
 				data: {
-					appointmentId: appointment._id,
+					appointmentId: appointment.id,
 					nurseId,
 					status: appointment.status,
 					nurseAssignedAt: appointment.nurseAssignedAt,
@@ -207,7 +207,7 @@ class NurseAssignmentService {
 				});
 			}
 
-			logger.info(`Assignment notifications sent for appointment ${appointment._id}`, results);
+			logger.info(`Assignment notifications sent for appointment ${appointment.id}`, results);
 		} catch (error) {
 			logger.error('Failed to send assignment notifications:', error);
 			results.push({
@@ -351,15 +351,15 @@ class NurseAssignmentService {
 			await this.sendReassignmentNotifications(appointment, oldNurse, newNurse);
 
 			logger.info(
-				`Nurse reassigned for appointment ${appointmentId}: ${oldNurse._id} -> ${newNurseId}`
+				`Nurse reassigned for appointment ${appointmentId}: ${oldNurse.id} -> ${newNurseId}`
 			);
 
 			return {
 				success: true,
 				message: 'Nurse reassigned successfully',
 				data: {
-					appointmentId: appointment._id,
-					oldNurseId: oldNurse._id,
+					appointmentId: appointment.id,
+					oldNurseId: oldNurse.id,
 					newNurseId,
 					status: appointment.status,
 					nurseAssignedAt: appointment.nurseAssignedAt,

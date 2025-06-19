@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { StatusCodes } from 'http-status-codes';
 import morgan from 'morgan';
+import responseTime from 'response-time';
 
 import envars from './config/env-vars';
 import { healthCheck } from './database';
@@ -80,7 +81,7 @@ const createRateLimiter = (windowMs: number, max: number, message?: string) => {
 			return (
 				(req.headers['x-forwarded-for'] as string) ||
 				req.ip ||
-				req.connection.remoteAddress ||
+				req.socket.remoteAddress ||
 				'unknown'
 			);
 		},
@@ -137,18 +138,6 @@ const requestLoggingMiddleware = (req: Request, res: Response, next: NextFunctio
 };
 
 /**
- * API Response Time Middleware
- */
-const responseTimeMiddleware = (req: Request, res: Response, next: NextFunction) => {
-	const start = Date.now();
-	res.on('finish', () => {
-		const duration = Date.now() - start;
-		res.setHeader('X-Response-Time', `${duration}ms`);
-	});
-	next();
-};
-
-/**
  * Initialize Middlewares
  */
 router.use(
@@ -167,7 +156,7 @@ router.use(
 
 router.use(cors(corsOptions));
 router.use(requestIdMiddleware);
-router.use(responseTimeMiddleware);
+router.use(responseTime());
 router.use(requestLoggingMiddleware);
 
 // Morgan logging with custom format

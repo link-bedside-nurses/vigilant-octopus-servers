@@ -10,9 +10,10 @@ export interface ITokenPayload extends ACCOUNT {
 export function createAccessToken(user: (Document & ACCOUNT) | null): string {
 	return jwt.sign(
 		{
-			id: user?._id,
+			id: user?.id,
 			phone: user?.phone,
 			email: user?.email,
+			type: user?.type,
 		},
 		envVars.ACCESS_TOKEN_SECRET as jwt.Secret
 	) as string;

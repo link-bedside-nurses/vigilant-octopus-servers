@@ -11,14 +11,16 @@ import { response } from '../utils/http-response';
 const router = Router();
 
 // GET /email/ - send email verification OTP
-router.get('/', async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const result = VerifyEmailSchema.omit({ otp: true }).safeParse(req.query);
 		if (!result.success) {
-			return response(
-				StatusCodes.BAD_REQUEST,
-				null,
-				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+			return res.send(
+				response(
+					StatusCodes.BAD_REQUEST,
+					null,
+					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+				)
 			);
 		}
 
@@ -29,26 +31,28 @@ router.get('/', async (req: Request, _res: Response, next: NextFunction) => {
 			const otpResult = await messagingService.sendOTPViaEmail(email);
 
 			if (!otpResult.success) {
-				return response(
-					StatusCodes.INTERNAL_SERVER_ERROR,
-					null,
-					otpResult.error || 'Failed to send email verification OTP'
+				return res.send(
+					response(
+						StatusCodes.INTERNAL_SERVER_ERROR,
+						null,
+						otpResult.error || 'Failed to send email verification OTP'
+					)
 				);
 			}
 
-			return response(
-				StatusCodes.OK,
-				{
-					message: 'Email verification OTP sent successfully!',
-					expiresAt: otpResult.expiresAt,
-				},
-				'Email verification OTP sent successfully!'
+			return res.send(
+				response(
+					StatusCodes.OK,
+					{
+						message: 'Email verification OTP sent successfully!',
+						expiresAt: otpResult.expiresAt,
+					},
+					'Email verification OTP sent successfully!'
+				)
 			);
 		} catch (error) {
-			return response(
-				StatusCodes.INTERNAL_SERVER_ERROR,
-				null,
-				'Failed to send email verification OTP'
+			return res.send(
+				response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send email verification OTP')
 			);
 		}
 	} catch (err) {
@@ -57,14 +61,16 @@ router.get('/', async (req: Request, _res: Response, next: NextFunction) => {
 });
 
 // POST /email/verify - verify email OTP
-router.post('/verify', async (req: Request, _res: Response, next: NextFunction) => {
+router.post('/verify', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const result = VerifyEmailSchema.safeParse(req.query);
 		if (!result.success) {
-			return response(
-				StatusCodes.BAD_REQUEST,
-				null,
-				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+			return res.send(
+				response(
+					StatusCodes.BAD_REQUEST,
+					null,
+					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+				)
 			);
 		}
 
@@ -75,20 +81,24 @@ router.post('/verify', async (req: Request, _res: Response, next: NextFunction) 
 			const isValidOTP = await messagingService.verifyOTP(email, otp);
 
 			if (!isValidOTP) {
-				return response(
-					StatusCodes.BAD_REQUEST,
-					null,
-					'Wrong or expired OTP. Try resending the OTP request'
+				return res.send(
+					response(
+						StatusCodes.BAD_REQUEST,
+						null,
+						'Wrong or expired OTP. Try resending the OTP request'
+					)
 				);
 			}
 
 			// Find and update user
 			const user = await db.admins.findOne({ email });
 			if (!user) {
-				return response(
-					StatusCodes.NOT_FOUND,
-					null,
-					'No such user with given email. Please try registering again after 5 mins'
+				return res.send(
+					response(
+						StatusCodes.NOT_FOUND,
+						null,
+						'No such user with given email. Please try registering again after 5 mins'
+					)
 				);
 			}
 
@@ -100,11 +110,13 @@ router.post('/verify', async (req: Request, _res: Response, next: NextFunction) 
 			await messagingService.expireOTP(email);
 
 			// Create access token
-			const accessToken = createAccessToken(user as mongoose.Document & ACCOUNT);
+			const accessToken = createAccessToken(user as unknown as mongoose.Document & ACCOUNT);
 
-			return response(StatusCodes.OK, { user, accessToken }, 'Email verified successfully!');
+			return res.send(
+				response(StatusCodes.OK, { user, accessToken }, 'Email verified successfully!')
+			);
 		} catch (error) {
-			return response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to verify OTP');
+			return res.send(response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to verify OTP'));
 		}
 	} catch (err) {
 		return next(err);
@@ -112,14 +124,16 @@ router.post('/verify', async (req: Request, _res: Response, next: NextFunction) 
 });
 
 // GET /email/otp - resend email verification OTP
-router.get('/otp', async (req: Request, _res: Response, next: NextFunction) => {
+router.get('/otp', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const result = VerifyEmailSchema.safeParse(req.query);
 		if (!result.success) {
-			return response(
-				StatusCodes.BAD_REQUEST,
-				null,
-				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+			return res.send(
+				response(
+					StatusCodes.BAD_REQUEST,
+					null,
+					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
+				)
 			);
 		}
 
@@ -130,26 +144,28 @@ router.get('/otp', async (req: Request, _res: Response, next: NextFunction) => {
 			const otpResult = await messagingService.sendOTPViaEmail(email);
 
 			if (!otpResult.success) {
-				return response(
-					StatusCodes.INTERNAL_SERVER_ERROR,
-					null,
-					otpResult.error || 'Failed to send email verification OTP'
+				return res.send(
+					response(
+						StatusCodes.INTERNAL_SERVER_ERROR,
+						null,
+						otpResult.error || 'Failed to send email verification OTP'
+					)
 				);
 			}
 
-			return response(
-				StatusCodes.OK,
-				{
-					message: 'Email verification OTP resent successfully!',
-					expiresAt: otpResult.expiresAt,
-				},
-				'Check email for OTP'
+			return res.send(
+				response(
+					StatusCodes.OK,
+					{
+						message: 'Email verification OTP resent successfully!',
+						expiresAt: otpResult.expiresAt,
+					},
+					'Check email for OTP'
+				)
 			);
 		} catch (error) {
-			return response(
-				StatusCodes.INTERNAL_SERVER_ERROR,
-				null,
-				'Failed to resend email verification OTP'
+			return res.send(
+				response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to resend email verification OTP')
 			);
 		}
 	} catch (err) {
@@ -158,12 +174,14 @@ router.get('/otp', async (req: Request, _res: Response, next: NextFunction) => {
 });
 
 // POST /email/send-notification - send custom email notification
-router.post('/send-notification', async (req: Request, _res: Response, next: NextFunction) => {
+router.post('/send-notification', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { recipient, subject, message, html } = req.body;
 
 		if (!recipient || !message) {
-			return response(StatusCodes.BAD_REQUEST, null, 'Recipient and message are required');
+			return res.send(
+				response(StatusCodes.BAD_REQUEST, null, 'Recipient and message are required')
+			);
 		}
 
 		try {
@@ -180,24 +198,26 @@ router.post('/send-notification', async (req: Request, _res: Response, next: Nex
 			const successCount = results.filter((r) => r.success).length;
 
 			if (successCount === 0) {
-				return response(
-					StatusCodes.INTERNAL_SERVER_ERROR,
-					null,
-					'Failed to send email notification'
+				return res.send(
+					response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send email notification')
 				);
 			}
 
-			return response(
-				StatusCodes.OK,
-				{
-					results,
-					successCount,
-					totalCount: results.length,
-				},
-				'Email notification sent successfully!'
+			return res.send(
+				response(
+					StatusCodes.OK,
+					{
+						results,
+						successCount,
+						totalCount: results.length,
+					},
+					'Email notification sent successfully!'
+				)
 			);
 		} catch (error) {
-			return response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send email notification');
+			return res.send(
+				response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send email notification')
+			);
 		}
 	} catch (err) {
 		return next(err);

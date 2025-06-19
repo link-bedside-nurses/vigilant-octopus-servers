@@ -26,7 +26,6 @@ const connectionOptions = {
 	maxPoolSize: 10, // Maintain up to 10 socket connections
 	serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
 	socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-	bufferMaxEntries: 0, // Disable mongoose buffering
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 };
@@ -41,7 +40,6 @@ const MAX_RETRIES = 5;
  */
 export async function connectToDatabase(): Promise<void> {
 	try {
-		// Check if already connected
 		if (isConnected && mongoose.connection.readyState === 1) {
 			logger.info('Database already connected');
 			return;
@@ -49,17 +47,22 @@ export async function connectToDatabase(): Promise<void> {
 
 		logger.info('Connecting to database...');
 
-		const connection = await mongoose.connect(envars.DATABASE_URL, connectionOptions);
+		let dbUrl = envars.DATABASE_URL;
+		if (envars.NODE_ENV === 'development' && envars.DATABASE_URL_LOCAL) {
+			dbUrl = envars.DATABASE_URL_LOCAL;
+		} else if (envars.NODE_ENV === 'production' && envars.DATABASE_URL_PROD) {
+			dbUrl = envars.DATABASE_URL_PROD;
+		}
+
+		const connection = await mongoose.connect(dbUrl, connectionOptions);
 
 		isConnected = true;
 		connectionRetries = 0;
 
 		logger.info(`✅ Connected to database: ${connection.connection.db.databaseName}`);
 
-		// Set up connection event listeners
 		setupConnectionListeners();
 
-		// Seed database in development mode
 		if (process.env.NODE_ENV === 'development' && process.env.SEED_DATABASE === 'true') {
 			try {
 				logger.info('🌱 Starting database seeding...');
@@ -72,8 +75,7 @@ export async function connectToDatabase(): Promise<void> {
 	} catch (error) {
 		connectionRetries++;
 		logger.error(
-			`❌ Database connection failed (attempt ${connectionRetries}/${MAX_RETRIES}):`,
-			error
+			`❌ Database connection failed (attempt ${connectionRetries}/${MAX_RETRIES}): ${error}`
 		);
 
 		if (connectionRetries < MAX_RETRIES) {
