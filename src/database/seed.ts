@@ -56,6 +56,30 @@ export async function seedDatabase() {
 		// Seed payments
 		const payments = await seedPayments(appointments, patients);
 		logger.debug('✓ Payments seeded', payments.length);
+
+		// Map appointmentId to paymentIds
+		const appointmentPaymentsMap = new Map();
+		for (const payment of payments) {
+			const aid = payment.appointment.toString();
+			if (!appointmentPaymentsMap.has(aid)) {
+				appointmentPaymentsMap.set(aid, []);
+			}
+			appointmentPaymentsMap.get(aid).push(payment._id);
+		}
+		// Update each appointment's payments array
+		const bulkOps = [];
+		for (const [aid, paymentIds] of appointmentPaymentsMap.entries()) {
+			bulkOps.push({
+				updateOne: {
+					filter: { _id: aid },
+					update: { $set: { payments: paymentIds } },
+				},
+			});
+		}
+		if (bulkOps.length > 0) {
+			await db.appointments.bulkWrite(bulkOps);
+		}
+
 		logger.debug('Database seeding completed successfully!');
 	} catch (error) {
 		console.error('Error seeding database:', error);
