@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { ChannelType, MessagePriority, messagingService } from '../services/messaging';
-import { normalizedResponse } from '../utils/http-response';
+import { sendNormalized } from '../utils/http-response';
 
 const router = Router();
 
@@ -42,12 +42,11 @@ router.post('/send-notification', async (req: Request, res: Response, _next: Nex
 		const result = SendNotificationSchema.safeParse(req.body);
 
 		if (!result.success) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.BAD_REQUEST,
-					null,
-					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
 
@@ -84,29 +83,27 @@ router.post('/send-notification', async (req: Request, res: Response, _next: Nex
 		const successCount = results.filter((r) => r.success).length;
 		const failureCount = results.length - successCount;
 
-		return res.send(
-			normalizedResponse(
-				StatusCodes.OK,
-				{
-					recipient,
-					results,
-					summary: {
-						total: results.length,
-						successful: successCount,
-						failed: failureCount,
-					},
+		return sendNormalized(
+			res,
+			StatusCodes.OK,
+			{
+				recipient,
+				results,
+				summary: {
+					total: results.length,
+					successful: successCount,
+					failed: failureCount,
 				},
-				`Notification sent. ${successCount} successful, ${failureCount} failed.`
-			)
+			},
+			`Notification sent. ${successCount} successful, ${failureCount} failed.`
 		);
 	} catch (error) {
 		console.error('Error sending notification:', error);
-		return res.send(
-			normalizedResponse(
-				StatusCodes.INTERNAL_SERVER_ERROR,
-				null,
-				'Failed to send notification. Please try again.'
-			)
+		return sendNormalized(
+			res,
+			StatusCodes.INTERNAL_SERVER_ERROR,
+			null,
+			'Failed to send notification. Please try again.'
 		);
 	}
 });
@@ -119,12 +116,11 @@ router.post(
 			const result = SendBulkNotificationSchema.safeParse(req.body);
 
 			if (!result.success) {
-				return res.send(
-					normalizedResponse(
-						StatusCodes.BAD_REQUEST,
-						null,
-						`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
-					)
+				return sendNormalized(
+					res,
+					StatusCodes.BAD_REQUEST,
+					null,
+					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 				);
 			}
 
@@ -164,29 +160,27 @@ router.post(
 			).length;
 			const failedRecipients = totalRecipients - successfulRecipients;
 
-			return res.send(
-				normalizedResponse(
-					StatusCodes.OK,
-					{
-						recipients,
-						results,
-						summary: {
-							totalRecipients,
-							successfulRecipients,
-							failedRecipients,
-						},
+			return sendNormalized(
+				res,
+				StatusCodes.OK,
+				{
+					recipients,
+					results,
+					summary: {
+						totalRecipients,
+						successfulRecipients,
+						failedRecipients,
 					},
-					`Bulk notifications sent. ${successfulRecipients} successful, ${failedRecipients} failed.`
-				)
+				},
+				`Bulk notifications sent. ${successfulRecipients} successful, ${failedRecipients} failed.`
 			);
 		} catch (error) {
 			console.error('Error sending bulk notifications:', error);
-			return res.send(
-				normalizedResponse(
-					StatusCodes.INTERNAL_SERVER_ERROR,
-					null,
-					'Failed to send bulk notifications. Please try again.'
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to send bulk notifications. Please try again.'
 			);
 		}
 	}
@@ -198,12 +192,11 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 		const result = SendOTPSchema.safeParse(req.body);
 
 		if (!result.success) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.BAD_REQUEST,
-					null,
-					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
 
@@ -214,12 +207,11 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 		const isPhone = /^\+?[\d\s\-()]+$/.test(identifier);
 
 		if (!isEmail && !isPhone) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.BAD_REQUEST,
-					null,
-					'Invalid identifier format. Must be email or phone number.'
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				'Invalid identifier format. Must be email or phone number.'
 			);
 		}
 
@@ -230,40 +222,40 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 		} else if (channel === 'email' || (!channel && isEmail)) {
 			otpResult = await messagingService.sendOTPViaEmail(identifier, expiryTime);
 		} else {
-			return res.send(
-				normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Invalid channel for identifier type.')
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				'Invalid channel for identifier type.'
 			);
 		}
 
 		if (!otpResult.success) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.INTERNAL_SERVER_ERROR,
-					null,
-					otpResult.error || 'Failed to send OTP. Please try again.'
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				otpResult.error || 'Failed to send OTP. Please try again.'
 			);
 		}
 
-		return res.send(
-			normalizedResponse(
-				StatusCodes.OK,
-				{
-					identifier,
-					channel: channel || (isEmail ? 'email' : 'sms'),
-					expiresAt: otpResult.expiresAt,
-				},
-				'OTP sent successfully.'
-			)
+		return sendNormalized(
+			res,
+			StatusCodes.OK,
+			{
+				identifier,
+				channel: channel || (isEmail ? 'email' : 'sms'),
+				expiresAt: otpResult.expiresAt,
+			},
+			'OTP sent successfully.'
 		);
 	} catch (error) {
 		console.error('Error sending OTP:', error);
-		return res.send(
-			normalizedResponse(
-				StatusCodes.INTERNAL_SERVER_ERROR,
-				null,
-				'Failed to send OTP. Please try again.'
-			)
+		return sendNormalized(
+			res,
+			StatusCodes.INTERNAL_SERVER_ERROR,
+			null,
+			'Failed to send OTP. Please try again.'
 		);
 	}
 });
@@ -274,12 +266,11 @@ router.post('/verify-otp', async (req: Request, res: Response, _next: NextFuncti
 		const result = VerifyOTPSchema.safeParse(req.body);
 
 		if (!result.success) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.BAD_REQUEST,
-					null,
-					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
 
@@ -288,33 +279,30 @@ router.post('/verify-otp', async (req: Request, res: Response, _next: NextFuncti
 		const isValid = await messagingService.verifyOTP(identifier, otp);
 
 		if (!isValid) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.BAD_REQUEST,
-					null,
-					'Invalid or expired OTP. Please try again.'
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				'Invalid or expired OTP. Please try again.'
 			);
 		}
 
 		// Expire the OTP after successful verification
 		await messagingService.expireOTP(identifier);
 
-		return res.send(
-			normalizedResponse(
-				StatusCodes.OK,
-				{ identifier, verified: true },
-				'OTP verified successfully.'
-			)
+		return sendNormalized(
+			res,
+			StatusCodes.OK,
+			{ identifier, verified: true },
+			'OTP verified successfully.'
 		);
 	} catch (error) {
 		console.error('Error verifying OTP:', error);
-		return res.send(
-			normalizedResponse(
-				StatusCodes.INTERNAL_SERVER_ERROR,
-				null,
-				'Failed to verify OTP. Please try again.'
-			)
+		return sendNormalized(
+			res,
+			StatusCodes.INTERNAL_SERVER_ERROR,
+			null,
+			'Failed to verify OTP. Please try again.'
 		);
 	}
 });
@@ -326,25 +314,23 @@ router.get('/health', async (_req: Request, res: Response, _next: NextFunction) 
 
 		const isHealthy = health.redis && health.email && health.sms;
 
-		return res.send(
-			normalizedResponse(
-				isHealthy ? StatusCodes.OK : StatusCodes.SERVICE_UNAVAILABLE,
-				{
-					status: isHealthy ? 'healthy' : 'unhealthy',
-					services: health,
-					timestamp: new Date().toISOString(),
-				},
-				isHealthy ? 'Messaging service is healthy' : 'Messaging service has issues'
-			)
+		return sendNormalized(
+			res,
+			isHealthy ? StatusCodes.OK : StatusCodes.SERVICE_UNAVAILABLE,
+			{
+				status: isHealthy ? 'healthy' : 'unhealthy',
+				services: health,
+				timestamp: new Date().toISOString(),
+			},
+			isHealthy ? 'Messaging service is healthy' : 'Messaging service has issues'
 		);
 	} catch (error) {
 		console.error('Error checking messaging health:', error);
-		return res.send(
-			normalizedResponse(
-				StatusCodes.INTERNAL_SERVER_ERROR,
-				null,
-				'Failed to check messaging service health.'
-			)
+		return sendNormalized(
+			res,
+			StatusCodes.INTERNAL_SERVER_ERROR,
+			null,
+			'Failed to check messaging service health.'
 		);
 	}
 });
@@ -354,24 +340,22 @@ router.get('/stats', async (_req: Request, res: Response, _next: NextFunction) =
 	try {
 		const stats = await messagingService.getMessageStats();
 
-		return res.send(
-			normalizedResponse(
-				StatusCodes.OK,
-				{
-					...stats,
-					timestamp: new Date().toISOString(),
-				},
-				'Messaging statistics retrieved successfully.'
-			)
+		return sendNormalized(
+			res,
+			StatusCodes.OK,
+			{
+				...stats,
+				timestamp: new Date().toISOString(),
+			},
+			'Messaging statistics retrieved successfully.'
 		);
 	} catch (error) {
 		console.error('Error getting messaging stats:', error);
-		return res.send(
-			normalizedResponse(
-				StatusCodes.INTERNAL_SERVER_ERROR,
-				null,
-				'Failed to get messaging statistics.'
-			)
+		return sendNormalized(
+			res,
+			StatusCodes.INTERNAL_SERVER_ERROR,
+			null,
+			'Failed to get messaging statistics.'
 		);
 	}
 });

@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
-import { normalizedResponse } from '../utils/http-response';
+import { sendNormalized } from '../utils/http-response';
 import logger from '../utils/logger';
 import { ChannelType, messagingService } from './messaging';
 
@@ -427,10 +427,10 @@ export const nurseAssignmentService = NurseAssignmentService.getInstance();
 export const handleAssignmentResponse = (
 	res: Response,
 	assignmentResponse: NurseAssignmentResponse
-): void => {
+) => {
 	if (assignmentResponse.success) {
-		normalizedResponse(StatusCodes.OK, assignmentResponse.data, assignmentResponse.message);
+		return sendNormalized(res, StatusCodes.OK, assignmentResponse.data, assignmentResponse.message);
 	} else {
-		normalizedResponse(StatusCodes.BAD_REQUEST, null, assignmentResponse.message);
+		return sendNormalized(res, StatusCodes.BAD_REQUEST, null, assignmentResponse.message);
 	}
 };

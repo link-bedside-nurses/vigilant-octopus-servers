@@ -6,7 +6,7 @@ import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
 import { validateObjectID } from '../middlewares/validate-objectid';
 import { handleAssignmentResponse, nurseAssignmentService } from '../services/nurse-assignment';
-import { normalizedResponse } from '../utils/http-response';
+import { sendNormalized } from '../utils/http-response';
 
 const router = Router();
 // router.use(authenticate);
@@ -29,9 +29,7 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 			.populate('nurse')
 			.populate('patient')
 			.populate('payments');
-		return res.send(
-			normalizedResponse(StatusCodes.OK, appointments, 'Appointments fetched successfully')
-		);
+		return sendNormalized(res, StatusCodes.OK, appointments, 'Appointments fetched successfully');
 	} catch (err) {
 		return next(err);
 	}
@@ -42,9 +40,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const result = AppointmentCreateSchema.safeParse(req.body);
 		if (!result.success) {
-			return res.send(
-				normalizedResponse(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message)
-			);
+			return sendNormalized(res, StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
 		}
 		const { patient, symptoms, description, date } = result.data;
 		const appointmentData: any = {
@@ -55,9 +51,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 		if (date) appointmentData.date = date;
 		const resultDoc = await db.appointments.create(appointmentData);
 		const populated = await (await resultDoc.populate('patient')).populate('nurse');
-		return res.send(
-			normalizedResponse(StatusCodes.OK, populated, 'Appointment scheduled successfully')
-		);
+		return sendNormalized(res, StatusCodes.OK, populated, 'Appointment scheduled successfully');
 	} catch (err) {
 		return next(err);
 	}
@@ -72,10 +66,8 @@ router.get('/:id', validateObjectID, async (req: Request, res: Response, next: N
 			.populate('patient')
 			.populate('payments');
 		if (!appointment)
-			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'Appointment not found'));
-		return res.send(
-			normalizedResponse(StatusCodes.OK, appointment, 'Appointment fetched successfully')
-		);
+			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Appointment not found');
+		return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment fetched successfully');
 	} catch (err) {
 		return next(err);
 	}
@@ -111,8 +103,11 @@ router.post('/history', async (req: Request, res: Response, next: NextFunction) 
 			{ $unwind: { path: '$nurse', preserveNullAndEmptyArrays: true } },
 		];
 		const appointments = await db.appointments.aggregate(pipeline);
-		return res.send(
-			normalizedResponse(StatusCodes.OK, appointments, 'Appointments history fetched successfully')
+		return sendNormalized(
+			res,
+			StatusCodes.OK,
+			appointments,
+			'Appointments history fetched successfully'
 		);
 	} catch (err) {
 		return next(err);
@@ -131,8 +126,11 @@ router.patch(
 				{ status },
 				{ new: true }
 			);
-			return res.send(
-				normalizedResponse(StatusCodes.OK, appointment, 'Appointment status updated successfully')
+			return sendNormalized(
+				res,
+				StatusCodes.OK,
+				appointment,
+				'Appointment status updated successfully'
 			);
 		} catch (err) {
 			return next(err);
@@ -152,8 +150,11 @@ router.patch(
 				{ date },
 				{ new: true }
 			);
-			return res.send(
-				normalizedResponse(StatusCodes.OK, appointment, 'Appointment rescheduled successfully')
+			return sendNormalized(
+				res,
+				StatusCodes.OK,
+				appointment,
+				'Appointment rescheduled successfully'
 			);
 		} catch (err) {
 			return next(err);
@@ -172,9 +173,7 @@ router.patch(
 				{ status: APPOINTMENT_STATUSES.IN_PROGRESS },
 				{ new: true }
 			);
-			return res.send(
-				normalizedResponse(StatusCodes.OK, appointment, 'Appointment confirmed successfully')
-			);
+			return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment confirmed successfully');
 		} catch (err) {
 			return next(err);
 		}
@@ -201,9 +200,7 @@ router.patch(
 			const appointment = await db.appointments.findByIdAndUpdate(req.params.id, updateData, {
 				new: true,
 			});
-			return res.send(
-				normalizedResponse(StatusCodes.OK, appointment, 'Appointment cancelled successfully')
-			);
+			return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment cancelled successfully');
 		} catch (err) {
 			return next(err);
 		}
@@ -214,9 +211,7 @@ router.patch(
 router.delete('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const appointment = await db.appointments.findByIdAndDelete(req.params.id);
-		return res.send(
-			normalizedResponse(StatusCodes.OK, appointment, 'Appointment deleted successfully')
-		);
+		return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment deleted successfully');
 	} catch (err) {
 		return next(err);
 	}
@@ -232,7 +227,7 @@ router.get('/pending', async (req: Request, res: Response, next: NextFunction) =
 		const accountType = req.account?.type;
 
 		if (accountType !== 'admin') {
-			return res.send(normalizedResponse(StatusCodes.FORBIDDEN, null, 'Admin access required'));
+			return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
 		}
 
 		const assignmentResponse = await nurseAssignmentService.getPendingAppointments();
@@ -250,7 +245,7 @@ router.get('/available-nurses', async (req: Request, res: Response, next: NextFu
 		const accountType = req.account?.type;
 
 		if (accountType !== 'admin') {
-			return res.send(normalizedResponse(StatusCodes.FORBIDDEN, null, 'Admin access required'));
+			return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
 		}
 
 		const assignmentResponse = await nurseAssignmentService.getAvailableNurses();
@@ -272,13 +267,13 @@ router.post(
 			const adminId = req.account?.id;
 
 			if (accountType !== 'admin') {
-				return res.send(normalizedResponse(StatusCodes.FORBIDDEN, null, 'Admin access required'));
+				return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
 			}
 
 			const { nurseId, notes } = req.body;
 
 			if (!nurseId) {
-				return res.send(normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Nurse ID is required'));
+				return sendNormalized(res, StatusCodes.BAD_REQUEST, null, 'Nurse ID is required');
 			}
 
 			const assignmentRequest = {
@@ -310,13 +305,13 @@ router.post(
 			const adminId = req.account?.id;
 
 			if (accountType !== 'admin') {
-				return res.send(normalizedResponse(StatusCodes.FORBIDDEN, null, 'Admin access required'));
+				return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
 			}
 
 			const { nurseId, reason } = req.body;
 
 			if (!nurseId) {
-				return res.send(normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Nurse ID is required'));
+				return sendNormalized(res, StatusCodes.BAD_REQUEST, null, 'Nurse ID is required');
 			}
 
 			const assignmentResponse = await nurseAssignmentService.reassignNurse(
@@ -345,14 +340,15 @@ router.get(
 
 			// Allow admin to view any nurse's appointments, or nurse to view their own
 			if (accountType !== 'admin' && accountType !== 'nurse') {
-				return res.send(
-					normalizedResponse(StatusCodes.FORBIDDEN, null, 'Admin or nurse access required')
-				);
+				return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin or nurse access required');
 			}
 
 			if (accountType === 'nurse' && nurseId !== req.params.nurseId) {
-				return res.send(
-					normalizedResponse(StatusCodes.FORBIDDEN, null, 'You can only view your own appointments')
+				return sendNormalized(
+					res,
+					StatusCodes.FORBIDDEN,
+					null,
+					'You can only view your own appointments'
 				);
 			}
 

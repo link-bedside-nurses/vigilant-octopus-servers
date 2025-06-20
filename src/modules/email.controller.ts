@@ -6,7 +6,7 @@ import { ACCOUNT } from '../interfaces';
 import { VerifyEmailSchema } from '../interfaces/dtos';
 import { ChannelType, messagingService } from '../services/messaging';
 import { createAccessToken } from '../services/token';
-import { normalizedResponse } from '../utils/http-response';
+import { sendNormalized } from '../utils/http-response';
 
 const router = Router();
 
@@ -15,12 +15,11 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const result = VerifyEmailSchema.omit({ otp: true }).safeParse(req.query);
 		if (!result.success) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.BAD_REQUEST,
-					null,
-					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
 
@@ -31,32 +30,29 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 			const otpResult = await messagingService.sendOTPViaEmail(email);
 
 			if (!otpResult.success) {
-				return res.send(
-					normalizedResponse(
-						StatusCodes.INTERNAL_SERVER_ERROR,
-						null,
-						otpResult.error || 'Failed to send email verification OTP'
-					)
+				return sendNormalized(
+					res,
+					StatusCodes.INTERNAL_SERVER_ERROR,
+					null,
+					otpResult.error || 'Failed to send email verification OTP'
 				);
 			}
 
-			return res.send(
-				normalizedResponse(
-					StatusCodes.OK,
-					{
-						message: 'Email verification OTP sent successfully!',
-						expiresAt: otpResult.expiresAt,
-					},
-					'Email verification OTP sent successfully!'
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.OK,
+				{
+					message: 'Email verification OTP sent successfully!',
+					expiresAt: otpResult.expiresAt,
+				},
+				'Email verification OTP sent successfully!'
 			);
 		} catch (error) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.INTERNAL_SERVER_ERROR,
-					null,
-					'Failed to send email verification OTP'
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to send email verification OTP'
 			);
 		}
 	} catch (err) {
@@ -69,12 +65,11 @@ router.post('/verify', async (req: Request, res: Response, next: NextFunction) =
 	try {
 		const result = VerifyEmailSchema.safeParse(req.query);
 		if (!result.success) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.BAD_REQUEST,
-					null,
-					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
 
@@ -85,24 +80,22 @@ router.post('/verify', async (req: Request, res: Response, next: NextFunction) =
 			const isValidOTP = await messagingService.verifyOTP(email, otp);
 
 			if (!isValidOTP) {
-				return res.send(
-					normalizedResponse(
-						StatusCodes.BAD_REQUEST,
-						null,
-						'Wrong or expired OTP. Try resending the OTP request'
-					)
+				return sendNormalized(
+					res,
+					StatusCodes.BAD_REQUEST,
+					null,
+					'Wrong or expired OTP. Try resending the OTP request'
 				);
 			}
 
 			// Find and update user
 			const user = await db.admins.findOne({ email });
 			if (!user) {
-				return res.send(
-					normalizedResponse(
-						StatusCodes.NOT_FOUND,
-						null,
-						'No such user with given email. Please try registering again after 5 mins'
-					)
+				return sendNormalized(
+					res,
+					StatusCodes.NOT_FOUND,
+					null,
+					'No such user with given email. Please try registering again after 5 mins'
 				);
 			}
 
@@ -116,13 +109,14 @@ router.post('/verify', async (req: Request, res: Response, next: NextFunction) =
 			// Create access token
 			const accessToken = createAccessToken(user as unknown as mongoose.Document & ACCOUNT);
 
-			return res.send(
-				normalizedResponse(StatusCodes.OK, { user, accessToken }, 'Email verified successfully!')
+			return sendNormalized(
+				res,
+				StatusCodes.OK,
+				{ user, accessToken },
+				'Email verified successfully!'
 			);
 		} catch (error) {
-			return res.send(
-				normalizedResponse(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to verify OTP')
-			);
+			return sendNormalized(res, StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to verify OTP');
 		}
 	} catch (err) {
 		return next(err);
@@ -134,12 +128,11 @@ router.get('/otp', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const result = VerifyEmailSchema.safeParse(req.query);
 		if (!result.success) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.BAD_REQUEST,
-					null,
-					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
 			);
 		}
 
@@ -150,32 +143,29 @@ router.get('/otp', async (req: Request, res: Response, next: NextFunction) => {
 			const otpResult = await messagingService.sendOTPViaEmail(email);
 
 			if (!otpResult.success) {
-				return res.send(
-					normalizedResponse(
-						StatusCodes.INTERNAL_SERVER_ERROR,
-						null,
-						otpResult.error || 'Failed to send email verification OTP'
-					)
+				return sendNormalized(
+					res,
+					StatusCodes.INTERNAL_SERVER_ERROR,
+					null,
+					otpResult.error || 'Failed to send email verification OTP'
 				);
 			}
 
-			return res.send(
-				normalizedResponse(
-					StatusCodes.OK,
-					{
-						message: 'Email verification OTP resent successfully!',
-						expiresAt: otpResult.expiresAt,
-					},
-					'Check email for OTP'
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.OK,
+				{
+					message: 'Email verification OTP resent successfully!',
+					expiresAt: otpResult.expiresAt,
+				},
+				'Check email for OTP'
 			);
 		} catch (error) {
-			return res.send(
-				normalizedResponse(
-					StatusCodes.INTERNAL_SERVER_ERROR,
-					null,
-					'Failed to resend email verification OTP'
-				)
+			return sendNormalized(
+				res,
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to resend email verification OTP'
 			);
 		}
 	} catch (err) {
@@ -189,8 +179,11 @@ router.post('/send-notification', async (req: Request, res: Response, next: Next
 		const { recipient, subject, message, html } = req.body;
 
 		if (!recipient || !message) {
-			return res.send(
-				normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Recipient and message are required')
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				'Recipient and message are required'
 			);
 		}
 
@@ -208,33 +201,30 @@ router.post('/send-notification', async (req: Request, res: Response, next: Next
 			const successCount = results.filter((r) => r.success).length;
 
 			if (successCount === 0) {
-				return res.send(
-					normalizedResponse(
-						StatusCodes.INTERNAL_SERVER_ERROR,
-						null,
-						'Failed to send email notification'
-					)
-				);
-			}
-
-			return res.send(
-				normalizedResponse(
-					StatusCodes.OK,
-					{
-						results,
-						successCount,
-						totalCount: results.length,
-					},
-					'Email notification sent successfully!'
-				)
-			);
-		} catch (error) {
-			return res.send(
-				normalizedResponse(
+				return sendNormalized(
+					res,
 					StatusCodes.INTERNAL_SERVER_ERROR,
 					null,
 					'Failed to send email notification'
-				)
+				);
+			}
+
+			return sendNormalized(
+				res,
+				StatusCodes.OK,
+				{
+					results,
+					successCount,
+					totalCount: results.length,
+				},
+				'Email notification sent successfully!'
+			);
+		} catch (error) {
+			return sendNormalized(
+				res,
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to send email notification'
 			);
 		}
 	} catch (err) {

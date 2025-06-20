@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { ZodError } from 'zod';
 import { TResponse } from '../interfaces/dtos';
@@ -18,3 +19,15 @@ export const normalizedResponse = (
 		},
 	};
 };
+
+export function sendNormalized(
+	res: Response,
+	statusCode: StatusCodes,
+	data: any,
+	message: string,
+	validationError?: ZodError
+) {
+	return res
+		.status(statusCode)
+		.send(normalizedResponse(statusCode, data, message, validationError));
+}

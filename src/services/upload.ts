@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
-import { normalizedResponse } from '../utils/http-response';
+import { sendNormalized } from '../utils/http-response';
 import logger from '../utils/logger';
 import { cloudinaryService, DocumentType, UploadOptions } from './cloudinary';
 
@@ -489,10 +489,10 @@ class FileUploadService {
 export const fileUploadService = FileUploadService.getInstance();
 
 // Express middleware for handling file upload responses
-export const handleFileUploadResponse = (res: Response, uploadResponse: UploadResponse): void => {
+export const handleFileUploadResponse = (res: Response, uploadResponse: UploadResponse) => {
 	if (uploadResponse.success) {
-		normalizedResponse(StatusCodes.OK, uploadResponse.data, uploadResponse.message);
+		return sendNormalized(res, StatusCodes.OK, uploadResponse.data, uploadResponse.message);
 	} else {
-		normalizedResponse(StatusCodes.BAD_REQUEST, null, uploadResponse.message);
+		return sendNormalized(res, StatusCodes.BAD_REQUEST, null, uploadResponse.message);
 	}
 };

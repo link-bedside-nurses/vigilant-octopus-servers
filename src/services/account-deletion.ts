@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
-import { normalizedResponse } from '../utils/http-response';
+import { sendNormalized } from '../utils/http-response';
 import logger from '../utils/logger';
 import { fileUploadService } from './upload';
 
@@ -431,10 +431,10 @@ class AccountDeletionService {
 export const accountDeletionService = AccountDeletionService.getInstance();
 
 // Express middleware for handling deletion responses
-export const handleDeletionResponse = (res: Response, deletionResponse: DeletionResponse): void => {
+export const handleDeletionResponse = (res: Response, deletionResponse: DeletionResponse) => {
 	if (deletionResponse.success) {
-		normalizedResponse(StatusCodes.OK, deletionResponse.data, deletionResponse.message);
+		return sendNormalized(res, StatusCodes.OK, deletionResponse.data, deletionResponse.message);
 	} else {
-		normalizedResponse(StatusCodes.BAD_REQUEST, null, deletionResponse.message);
+		return sendNormalized(res, StatusCodes.BAD_REQUEST, null, deletionResponse.message);
 	}
 };

@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
-import { normalizedResponse } from '../utils/http-response';
+import { sendNormalized } from '../utils/http-response';
 
 const router = Router();
 
@@ -13,7 +13,7 @@ const router = Router();
 router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 	try {
 		const patients = await db.patients.find({}).sort({ createdAt: 'desc' });
-		return res.send(normalizedResponse(StatusCodes.OK, patients, 'Patients Retrieved'));
+		return sendNormalized(res, StatusCodes.OK, patients, 'Patients Retrieved');
 	} catch (err) {
 		return next(err);
 	}
@@ -23,9 +23,8 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const patient = await db.patients.findById(req.params.id);
-		if (!patient)
-			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
-		return res.send(normalizedResponse(StatusCodes.OK, patient, 'Patient Retrieved'));
+		if (!patient) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');
+		return sendNormalized(res, StatusCodes.OK, patient, 'Patient Retrieved');
 	} catch (err) {
 		return next(err);
 	}
@@ -42,7 +41,7 @@ router.get('/:id/appointments', async (req: Request, res: Response, next: NextFu
 			appointments.length > 0
 				? 'Successfully fetched patient Appointments'
 				: 'No Appointment Found';
-		return res.send(normalizedResponse(StatusCodes.OK, appointments, message));
+		return sendNormalized(res, StatusCodes.OK, appointments, message);
 	} catch (err) {
 		return next(err);
 	}
@@ -56,9 +55,8 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
 			{ ...req.body },
 			{ new: true }
 		);
-		if (!patient)
-			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
-		return res.send(normalizedResponse(StatusCodes.OK, patient, 'Patient updated'));
+		if (!patient) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');
+		return sendNormalized(res, StatusCodes.OK, patient, 'Patient updated');
 	} catch (err) {
 		return next(err);
 	}
@@ -72,9 +70,8 @@ router.patch('/deactivate/:id', async (req: Request, res: Response, next: NextFu
 			{ $set: { isActive: false } },
 			{ new: true }
 		);
-		if (!patient)
-			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
-		return res.send(normalizedResponse(StatusCodes.OK, patient, 'Patient updated'));
+		if (!patient) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');
+		return sendNormalized(res, StatusCodes.OK, patient, 'Patient updated');
 	} catch (err) {
 		return next(err);
 	}
@@ -94,17 +91,15 @@ router.patch('/:id/location', async (req: Request, res: Response, next: NextFunc
 	try {
 		const result = LocationSchema.safeParse(req.body);
 		if (!result.success) {
-			return res.send(
-				normalizedResponse(StatusCodes.BAD_REQUEST, null, result.error.issues[0].message)
-			);
+			return sendNormalized(res, StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
 		}
 		const { coordinates } = result.data;
 		const location = { type: 'Point', coordinates };
 		const patient = await db.patients.findByIdAndUpdate(req.params.id, { location }, { new: true });
 		if (!patient) {
-			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
+			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');
 		}
-		return res.send(normalizedResponse(StatusCodes.OK, patient, 'Patient location updated'));
+		return sendNormalized(res, StatusCodes.OK, patient, 'Patient location updated');
 	} catch (err) {
 		return next(err);
 	}
@@ -128,9 +123,8 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 		);
 		// Delete the patient document
 		const patient = await db.patients.findByIdAndDelete(req.params.id);
-		if (!patient)
-			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No Patient Found'));
-		return res.send(normalizedResponse(StatusCodes.OK, patient, 'Patient deleted'));
+		if (!patient) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');
+		return sendNormalized(res, StatusCodes.OK, patient, 'Patient deleted');
 	} catch (err) {
 		return next(err);
 	}
