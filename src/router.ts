@@ -147,10 +147,12 @@ router.use(
 	})
 );
 
+const API_PREFIX = '/api/v1';
+
 /**
  * Health Check Endpoint
  */
-router.get('/health', async (req: Request, res: Response) => {
+router.get(`${API_PREFIX}/health`, async (req: Request, res: Response) => {
 	try {
 		const startTime = Date.now();
 		const dbHealth = await healthCheck();
@@ -197,7 +199,6 @@ router.get('/privacy', (req: Request, res: Response) => {
 	res.send(privacy);
 });
 
-const API_PREFIX = '/api/v1';
 /**
  * API Documentation Endpoint
  */
