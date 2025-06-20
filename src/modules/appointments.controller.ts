@@ -27,7 +27,8 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 			.find({})
 			.sort({ createdAt: 'desc' })
 			.populate('nurse')
-			.populate('patient');
+			.populate('patient')
+			.populate('payments');
 		return res.send(
 			normalizedResponse(StatusCodes.OK, appointments, 'Appointments fetched successfully')
 		);
@@ -68,7 +69,8 @@ router.get('/:id', validateObjectID, async (req: Request, res: Response, next: N
 		const appointment = await db.appointments
 			.findById(req.params.id)
 			.populate('nurse')
-			.populate('patient');
+			.populate('patient')
+			.populate('payments');
 		if (!appointment)
 			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'Appointment not found'));
 		return res.send(
