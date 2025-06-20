@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
-import { response } from '../utils/http-response';
+import { normalizedResponse } from '../utils/http-response';
 
 const router = Router();
 // router.use(authenticate);
@@ -10,7 +10,7 @@ const router = Router();
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const admins = await db.admins.find({}).sort({ createdAt: 'desc' });
-		return res.send(response(StatusCodes.OK, admins, 'Admins Retrieved'));
+		return res.send(normalizedResponse(StatusCodes.OK, admins, 'Admins Retrieved'));
 	} catch (err) {
 		return next(err);
 	}
@@ -20,8 +20,8 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const admin = await db.admins.findById(req.params.id);
-		if (!admin) return res.send(response(StatusCodes.NOT_FOUND, null, 'No admin Found'));
-		return res.send(response(StatusCodes.OK, admin, 'Admin Retrieved'));
+		if (!admin) return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No admin Found'));
+		return res.send(normalizedResponse(StatusCodes.OK, admin, 'Admin Retrieved'));
 	} catch (err) {
 		return next(err);
 	}
@@ -31,8 +31,8 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const admin = await db.admins.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true });
-		if (!admin) return res.send(response(StatusCodes.NOT_FOUND, null, 'No admin Found'));
-		return res.send(response(StatusCodes.OK, admin, 'Admin updated'));
+		if (!admin) return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No admin Found'));
+		return res.send(normalizedResponse(StatusCodes.OK, admin, 'Admin updated'));
 	} catch (err) {
 		return next(err);
 	}
@@ -43,7 +43,7 @@ router.patch('/:id/ban', async (req: Request, res: Response, next: NextFunction)
 	try {
 		if (req.account?.id === req.params.id) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					'You cannot ban yourself, Please select a different admin to ban'
@@ -55,8 +55,9 @@ router.patch('/:id/ban', async (req: Request, res: Response, next: NextFunction)
 			{ $set: { isBanned: true } },
 			{ new: true }
 		);
-		if (!updatedAdmin) return res.send(response(StatusCodes.NOT_FOUND, null, 'No admin Found'));
-		return res.send(response(StatusCodes.OK, updatedAdmin, 'Admin banned'));
+		if (!updatedAdmin)
+			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No admin Found'));
+		return res.send(normalizedResponse(StatusCodes.OK, updatedAdmin, 'Admin banned'));
 	} catch (err) {
 		return next(err);
 	}
@@ -70,9 +71,14 @@ router.patch('/nurse/:id/ban', async (req: Request, res: Response, next: NextFun
 			{ isBanned: true },
 			{ new: true }
 		);
-		if (!bannedNurse) return res.send(response(StatusCodes.NOT_FOUND, null, 'No such nurse Found'));
+		if (!bannedNurse)
+			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No such nurse Found'));
 		return res.send(
-			response(StatusCodes.OK, bannedNurse, 'Nurse Successfully banned from using the application')
+			normalizedResponse(
+				StatusCodes.OK,
+				bannedNurse,
+				'Nurse Successfully banned from using the application'
+			)
 		);
 	} catch (err) {
 		return next(err);
@@ -88,8 +94,8 @@ router.patch('/nurse/:id/verify', async (req: Request, res: Response, next: Next
 			{ new: true }
 		);
 		if (!verifiedNurse)
-			return res.send(response(StatusCodes.NOT_FOUND, null, 'No such nurse Found'));
-		return res.send(response(StatusCodes.OK, verifiedNurse, 'Nurse verified'));
+			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No such nurse Found'));
+		return res.send(normalizedResponse(StatusCodes.OK, verifiedNurse, 'Nurse verified'));
 	} catch (err) {
 		return next(err);
 	}
@@ -104,9 +110,9 @@ router.patch('/patient/:id/ban', async (req: Request, res: Response, next: NextF
 			{ new: true }
 		);
 		if (!bannedPatient)
-			return res.send(response(StatusCodes.NOT_FOUND, null, 'No such patient Found'));
+			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No such patient Found'));
 		return res.send(
-			response(
+			normalizedResponse(
 				StatusCodes.OK,
 				bannedPatient,
 				'Patient Successfully banned from using the application!'
@@ -126,8 +132,8 @@ router.patch('/patient/:id/verify', async (req: Request, res: Response, next: Ne
 			{ new: true }
 		);
 		if (!verifiedPatient)
-			return res.send(response(StatusCodes.NOT_FOUND, null, 'No such patient Found'));
-		return res.send(response(StatusCodes.OK, verifiedPatient, 'Patient verified!'));
+			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No such patient Found'));
+		return res.send(normalizedResponse(StatusCodes.OK, verifiedPatient, 'Patient verified!'));
 	} catch (err) {
 		return next(err);
 	}

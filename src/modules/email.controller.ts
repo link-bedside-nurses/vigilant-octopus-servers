@@ -6,7 +6,7 @@ import { ACCOUNT } from '../interfaces';
 import { VerifyEmailSchema } from '../interfaces/dtos';
 import { ChannelType, messagingService } from '../services/messaging';
 import { createAccessToken } from '../services/token';
-import { response } from '../utils/http-response';
+import { normalizedResponse } from '../utils/http-response';
 
 const router = Router();
 
@@ -16,7 +16,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 		const result = VerifyEmailSchema.omit({ otp: true }).safeParse(req.query);
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -32,7 +32,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
 			if (!otpResult.success) {
 				return res.send(
-					response(
+					normalizedResponse(
 						StatusCodes.INTERNAL_SERVER_ERROR,
 						null,
 						otpResult.error || 'Failed to send email verification OTP'
@@ -41,7 +41,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 			}
 
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.OK,
 					{
 						message: 'Email verification OTP sent successfully!',
@@ -52,7 +52,11 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 			);
 		} catch (error) {
 			return res.send(
-				response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send email verification OTP')
+				normalizedResponse(
+					StatusCodes.INTERNAL_SERVER_ERROR,
+					null,
+					'Failed to send email verification OTP'
+				)
 			);
 		}
 	} catch (err) {
@@ -66,7 +70,7 @@ router.post('/verify', async (req: Request, res: Response, next: NextFunction) =
 		const result = VerifyEmailSchema.safeParse(req.query);
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -82,7 +86,7 @@ router.post('/verify', async (req: Request, res: Response, next: NextFunction) =
 
 			if (!isValidOTP) {
 				return res.send(
-					response(
+					normalizedResponse(
 						StatusCodes.BAD_REQUEST,
 						null,
 						'Wrong or expired OTP. Try resending the OTP request'
@@ -94,7 +98,7 @@ router.post('/verify', async (req: Request, res: Response, next: NextFunction) =
 			const user = await db.admins.findOne({ email });
 			if (!user) {
 				return res.send(
-					response(
+					normalizedResponse(
 						StatusCodes.NOT_FOUND,
 						null,
 						'No such user with given email. Please try registering again after 5 mins'
@@ -113,10 +117,12 @@ router.post('/verify', async (req: Request, res: Response, next: NextFunction) =
 			const accessToken = createAccessToken(user as unknown as mongoose.Document & ACCOUNT);
 
 			return res.send(
-				response(StatusCodes.OK, { user, accessToken }, 'Email verified successfully!')
+				normalizedResponse(StatusCodes.OK, { user, accessToken }, 'Email verified successfully!')
 			);
 		} catch (error) {
-			return res.send(response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to verify OTP'));
+			return res.send(
+				normalizedResponse(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to verify OTP')
+			);
 		}
 	} catch (err) {
 		return next(err);
@@ -129,7 +135,7 @@ router.get('/otp', async (req: Request, res: Response, next: NextFunction) => {
 		const result = VerifyEmailSchema.safeParse(req.query);
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -145,7 +151,7 @@ router.get('/otp', async (req: Request, res: Response, next: NextFunction) => {
 
 			if (!otpResult.success) {
 				return res.send(
-					response(
+					normalizedResponse(
 						StatusCodes.INTERNAL_SERVER_ERROR,
 						null,
 						otpResult.error || 'Failed to send email verification OTP'
@@ -154,7 +160,7 @@ router.get('/otp', async (req: Request, res: Response, next: NextFunction) => {
 			}
 
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.OK,
 					{
 						message: 'Email verification OTP resent successfully!',
@@ -165,7 +171,11 @@ router.get('/otp', async (req: Request, res: Response, next: NextFunction) => {
 			);
 		} catch (error) {
 			return res.send(
-				response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to resend email verification OTP')
+				normalizedResponse(
+					StatusCodes.INTERNAL_SERVER_ERROR,
+					null,
+					'Failed to resend email verification OTP'
+				)
 			);
 		}
 	} catch (err) {
@@ -180,7 +190,7 @@ router.post('/send-notification', async (req: Request, res: Response, next: Next
 
 		if (!recipient || !message) {
 			return res.send(
-				response(StatusCodes.BAD_REQUEST, null, 'Recipient and message are required')
+				normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Recipient and message are required')
 			);
 		}
 
@@ -199,12 +209,16 @@ router.post('/send-notification', async (req: Request, res: Response, next: Next
 
 			if (successCount === 0) {
 				return res.send(
-					response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send email notification')
+					normalizedResponse(
+						StatusCodes.INTERNAL_SERVER_ERROR,
+						null,
+						'Failed to send email notification'
+					)
 				);
 			}
 
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.OK,
 					{
 						results,
@@ -216,7 +230,11 @@ router.post('/send-notification', async (req: Request, res: Response, next: Next
 			);
 		} catch (error) {
 			return res.send(
-				response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send email notification')
+				normalizedResponse(
+					StatusCodes.INTERNAL_SERVER_ERROR,
+					null,
+					'Failed to send email notification'
+				)
 			);
 		}
 	} catch (err) {

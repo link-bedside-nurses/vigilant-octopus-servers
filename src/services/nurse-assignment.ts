@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
-import { response } from '../utils/http-response';
+import { normalizedResponse } from '../utils/http-response';
 import logger from '../utils/logger';
 import { ChannelType, messagingService } from './messaging';
 
@@ -429,8 +429,8 @@ export const handleAssignmentResponse = (
 	assignmentResponse: NurseAssignmentResponse
 ): void => {
 	if (assignmentResponse.success) {
-		response(StatusCodes.OK, assignmentResponse.data, assignmentResponse.message);
+		normalizedResponse(StatusCodes.OK, assignmentResponse.data, assignmentResponse.message);
 	} else {
-		response(StatusCodes.BAD_REQUEST, null, assignmentResponse.message);
+		normalizedResponse(StatusCodes.BAD_REQUEST, null, assignmentResponse.message);
 	}
 };

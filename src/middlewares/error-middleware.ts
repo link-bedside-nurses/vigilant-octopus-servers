@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { ZodError } from 'zod';
 import HTTPException from '../utils/exception';
-import { response } from '../utils/http-response';
+import { normalizedResponse } from '../utils/http-response';
 import logger from '../utils/logger';
 
 // Error types for better categorization
@@ -287,7 +287,7 @@ export default function errorMiddleware(
 	};
 
 	// Use the HTTP response utility for consistent formatting
-	const httpResponse = response(
+	const httpResponse = normalizedResponse(
 		errorInfo.statusCode as StatusCodes,
 		null,
 		errorInfo.message,

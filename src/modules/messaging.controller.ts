@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { ChannelType, MessagePriority, messagingService } from '../services/messaging';
-import { response } from '../utils/http-response';
+import { normalizedResponse } from '../utils/http-response';
 
 const router = Router();
 
@@ -43,7 +43,7 @@ router.post('/send-notification', async (req: Request, res: Response, _next: Nex
 
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -85,7 +85,7 @@ router.post('/send-notification', async (req: Request, res: Response, _next: Nex
 		const failureCount = results.length - successCount;
 
 		return res.send(
-			response(
+			normalizedResponse(
 				StatusCodes.OK,
 				{
 					recipient,
@@ -102,7 +102,7 @@ router.post('/send-notification', async (req: Request, res: Response, _next: Nex
 	} catch (error) {
 		console.error('Error sending notification:', error);
 		return res.send(
-			response(
+			normalizedResponse(
 				StatusCodes.INTERNAL_SERVER_ERROR,
 				null,
 				'Failed to send notification. Please try again.'
@@ -120,7 +120,7 @@ router.post(
 
 			if (!result.success) {
 				return res.send(
-					response(
+					normalizedResponse(
 						StatusCodes.BAD_REQUEST,
 						null,
 						`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -165,7 +165,7 @@ router.post(
 			const failedRecipients = totalRecipients - successfulRecipients;
 
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.OK,
 					{
 						recipients,
@@ -182,7 +182,7 @@ router.post(
 		} catch (error) {
 			console.error('Error sending bulk notifications:', error);
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.INTERNAL_SERVER_ERROR,
 					null,
 					'Failed to send bulk notifications. Please try again.'
@@ -199,7 +199,7 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -215,7 +215,7 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 
 		if (!isEmail && !isPhone) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					'Invalid identifier format. Must be email or phone number.'
@@ -231,13 +231,13 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 			otpResult = await messagingService.sendOTPViaEmail(identifier, expiryTime);
 		} else {
 			return res.send(
-				response(StatusCodes.BAD_REQUEST, null, 'Invalid channel for identifier type.')
+				normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Invalid channel for identifier type.')
 			);
 		}
 
 		if (!otpResult.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.INTERNAL_SERVER_ERROR,
 					null,
 					otpResult.error || 'Failed to send OTP. Please try again.'
@@ -246,7 +246,7 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 		}
 
 		return res.send(
-			response(
+			normalizedResponse(
 				StatusCodes.OK,
 				{
 					identifier,
@@ -259,7 +259,11 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 	} catch (error) {
 		console.error('Error sending OTP:', error);
 		return res.send(
-			response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send OTP. Please try again.')
+			normalizedResponse(
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to send OTP. Please try again.'
+			)
 		);
 	}
 });
@@ -271,7 +275,7 @@ router.post('/verify-otp', async (req: Request, res: Response, _next: NextFuncti
 
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -285,7 +289,11 @@ router.post('/verify-otp', async (req: Request, res: Response, _next: NextFuncti
 
 		if (!isValid) {
 			return res.send(
-				response(StatusCodes.BAD_REQUEST, null, 'Invalid or expired OTP. Please try again.')
+				normalizedResponse(
+					StatusCodes.BAD_REQUEST,
+					null,
+					'Invalid or expired OTP. Please try again.'
+				)
 			);
 		}
 
@@ -293,12 +301,20 @@ router.post('/verify-otp', async (req: Request, res: Response, _next: NextFuncti
 		await messagingService.expireOTP(identifier);
 
 		return res.send(
-			response(StatusCodes.OK, { identifier, verified: true }, 'OTP verified successfully.')
+			normalizedResponse(
+				StatusCodes.OK,
+				{ identifier, verified: true },
+				'OTP verified successfully.'
+			)
 		);
 	} catch (error) {
 		console.error('Error verifying OTP:', error);
 		return res.send(
-			response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to verify OTP. Please try again.')
+			normalizedResponse(
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to verify OTP. Please try again.'
+			)
 		);
 	}
 });
@@ -311,7 +327,7 @@ router.get('/health', async (_req: Request, res: Response, _next: NextFunction) 
 		const isHealthy = health.redis && health.email && health.sms;
 
 		return res.send(
-			response(
+			normalizedResponse(
 				isHealthy ? StatusCodes.OK : StatusCodes.SERVICE_UNAVAILABLE,
 				{
 					status: isHealthy ? 'healthy' : 'unhealthy',
@@ -324,7 +340,11 @@ router.get('/health', async (_req: Request, res: Response, _next: NextFunction) 
 	} catch (error) {
 		console.error('Error checking messaging health:', error);
 		return res.send(
-			response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to check messaging service health.')
+			normalizedResponse(
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to check messaging service health.'
+			)
 		);
 	}
 });
@@ -335,7 +355,7 @@ router.get('/stats', async (_req: Request, res: Response, _next: NextFunction) =
 		const stats = await messagingService.getMessageStats();
 
 		return res.send(
-			response(
+			normalizedResponse(
 				StatusCodes.OK,
 				{
 					...stats,
@@ -347,7 +367,11 @@ router.get('/stats', async (_req: Request, res: Response, _next: NextFunction) =
 	} catch (error) {
 		console.error('Error getting messaging stats:', error);
 		return res.send(
-			response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to get messaging statistics.')
+			normalizedResponse(
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to get messaging statistics.'
+			)
 		);
 	}
 });

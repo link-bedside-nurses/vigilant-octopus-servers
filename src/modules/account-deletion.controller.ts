@@ -2,9 +2,13 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
 import authenticate from '../middlewares/authentication';
-import { accountDeletionService, handleDeletionResponse } from '../services/account-deletion';
+import {
+	accountDeletionService,
+	DeletionRequest,
+	handleDeletionResponse,
+} from '../services/account-deletion';
 import { accountDeletionPage } from '../utils/account-deletion-page';
-import { response } from '../utils/http-response';
+import { normalizedResponse } from '../utils/http-response';
 
 const router = Router();
 
@@ -33,7 +37,7 @@ router.post('/request', async (req: Request, res: Response, next: NextFunction) 
 			reason,
 			source: 'web' as const,
 			confirmation: !!confirmation,
-		};
+		} as DeletionRequest;
 
 		const deletionResponse = await accountDeletionService.requestAccountDeletion(deletionRequest);
 		handleDeletionResponse(res, deletionResponse);
@@ -54,7 +58,9 @@ router.get('/status', authenticate, async (req: Request, res: Response, next: Ne
 		const accountType = req.account?.type;
 
 		if (!accountId || !accountType) {
-			return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Account information not found'));
+			return res.send(
+				normalizedResponse(StatusCodes.UNAUTHORIZED, null, 'Account information not found')
+			);
 		}
 
 		const deletionResponse = await accountDeletionService.getDeletionStatus(accountId, accountType);
@@ -74,7 +80,9 @@ router.post('/cancel', authenticate, async (req: Request, res: Response, next: N
 		const accountType = req.account?.type;
 
 		if (!accountId || !accountType) {
-			return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Account information not found'));
+			return res.send(
+				normalizedResponse(StatusCodes.UNAUTHORIZED, null, 'Account information not found')
+			);
 		}
 
 		const deletionResponse = await accountDeletionService.cancelAccountDeletion(
@@ -101,7 +109,9 @@ router.post(
 			const { reason, confirmation } = req.body;
 
 			if (!accountId || !accountType) {
-				return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Account information not found'));
+				return res.send(
+					normalizedResponse(StatusCodes.UNAUTHORIZED, null, 'Account information not found')
+				);
 			}
 
 			// Get account details to find email/phone
@@ -155,7 +165,7 @@ router.get(
 			const accountType = req.account?.type;
 
 			if (accountType !== 'admin') {
-				return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
+				return res.send(normalizedResponse(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 			}
 
 			// Get all accounts marked for deletion
@@ -204,7 +214,7 @@ router.get(
 			};
 
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.OK,
 					pendingDeletions,
 					'Pending deletion requests retrieved successfully'
@@ -230,17 +240,17 @@ router.post(
 			const { accountId, targetAccountType } = req.body;
 
 			if (accountType !== 'admin') {
-				return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
+				return res.send(normalizedResponse(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 			}
 
 			if (!accountId || !targetAccountType) {
 				return res.send(
-					response(StatusCodes.BAD_REQUEST, null, 'Account ID and type are required')
+					normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Account ID and type are required')
 				);
 			}
 
 			if (!['nurse', 'patient', 'admin'].includes(targetAccountType)) {
-				return res.send(response(StatusCodes.BAD_REQUEST, null, 'Invalid account type'));
+				return res.send(normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Invalid account type'));
 			}
 
 			const deletionResponse = await accountDeletionService.forceDeleteAccount(
@@ -268,17 +278,17 @@ router.post(
 			const { accountId, targetAccountType } = req.body;
 
 			if (accountType !== 'admin') {
-				return res.send(response(StatusCodes.FORBIDDEN, null, 'Admin access required'));
+				return res.send(normalizedResponse(StatusCodes.FORBIDDEN, null, 'Admin access required'));
 			}
 
 			if (!accountId || !targetAccountType) {
 				return res.send(
-					response(StatusCodes.BAD_REQUEST, null, 'Account ID and type are required')
+					normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Account ID and type are required')
 				);
 			}
 
 			if (!['nurse', 'patient', 'admin'].includes(targetAccountType)) {
-				return res.send(response(StatusCodes.BAD_REQUEST, null, 'Invalid account type'));
+				return res.send(normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Invalid account type'));
 			}
 
 			const deletionResponse = await accountDeletionService.cancelAccountDeletion(

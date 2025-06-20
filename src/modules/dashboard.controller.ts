@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
-import { response } from '../utils/http-response';
+import { normalizedResponse } from '../utils/http-response';
 
 const router = Router();
 
@@ -21,7 +21,9 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 			appointments: appointments.length,
 			payments: payments.length,
 		};
-		return res.send(response(StatusCodes.OK, overviewData, 'Successfully returned stats overview'));
+		return res.send(
+			normalizedResponse(StatusCodes.OK, overviewData, 'Successfully returned stats overview')
+		);
 	} catch (err) {
 		return next(err);
 	}

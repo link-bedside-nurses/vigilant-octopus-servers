@@ -12,7 +12,7 @@ import {
 } from '../interfaces/dtos';
 import { messagingService } from '../services/messaging';
 import { createAccessToken } from '../services/token';
-import { response } from '../utils/http-response';
+import { normalizedResponse } from '../utils/http-response';
 import { Password } from '../utils/password';
 
 const router = Router();
@@ -26,7 +26,7 @@ router.post('/patient/signin', async (req: Request, res: Response, _next: NextFu
 
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -59,12 +59,16 @@ router.post('/patient/signin', async (req: Request, res: Response, _next: NextFu
 
 		if (!otpResult.success) {
 			return res.send(
-				response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send OTP. Please try again.')
+				normalizedResponse(
+					StatusCodes.INTERNAL_SERVER_ERROR,
+					null,
+					'Failed to send OTP. Please try again.'
+				)
 			);
 		}
 
 		return res.send(
-			response(
+			normalizedResponse(
 				StatusCodes.OK,
 				{
 					exists: !isNewUser, // true if account already existed
@@ -78,7 +82,11 @@ router.post('/patient/signin', async (req: Request, res: Response, _next: NextFu
 	} catch (error) {
 		console.error('Error in patient signin:', error);
 		return res.send(
-			response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to send OTP. Please try again.')
+			normalizedResponse(
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to send OTP. Please try again.'
+			)
 		);
 	}
 });
@@ -90,7 +98,7 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -105,7 +113,11 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 
 		if (!isValidOTP) {
 			return res.send(
-				response(StatusCodes.BAD_REQUEST, null, 'Invalid or expired OTP. Please try again.')
+				normalizedResponse(
+					StatusCodes.BAD_REQUEST,
+					null,
+					'Invalid or expired OTP. Please try again.'
+				)
 			);
 		}
 
@@ -128,7 +140,7 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 			const accessToken = createAccessToken(patient as unknown as mongoose.Document & ACCOUNT);
 
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.OK,
 					{ user: patient, accessToken, isNewUser: !patient.isPhoneVerified },
 					'Successfully signed in'
@@ -139,7 +151,11 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 			// But handle it as a fallback
 			if (!name) {
 				return res.send(
-					response(StatusCodes.BAD_REQUEST, null, 'Name is required for new user registration')
+					normalizedResponse(
+						StatusCodes.BAD_REQUEST,
+						null,
+						'Name is required for new user registration'
+					)
 				);
 			}
 
@@ -156,7 +172,7 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 			const accessToken = createAccessToken(patient as unknown as mongoose.Document & ACCOUNT);
 
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.CREATED,
 					{ user: patient, accessToken, isNewUser: true },
 					'Account created and signed in successfully'
@@ -166,7 +182,11 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 	} catch (error) {
 		console.error('Error in patient OTP verification:', error);
 		return res.send(
-			response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to verify OTP. Please try again.')
+			normalizedResponse(
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to verify OTP. Please try again.'
+			)
 		);
 	}
 });
@@ -177,7 +197,7 @@ router.post('/patient/signup', async (_req: Request, res: Response, next: NextFu
 		// This route is kept for backward compatibility
 		// New patients should use the OTP-based flow
 		return res.send(
-			response(
+			normalizedResponse(
 				StatusCodes.METHOD_NOT_ALLOWED,
 				null,
 				'Please use the OTP-based signin flow for new patient registration'
@@ -197,7 +217,7 @@ router.post('/admin/signin', async (req: Request, res: Response, _next: NextFunc
 
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -210,31 +230,35 @@ router.post('/admin/signin', async (req: Request, res: Response, _next: NextFunc
 		const admin = await db.admins.findOne({ email });
 
 		if (!admin) {
-			return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Invalid credentials'));
+			return res.send(normalizedResponse(StatusCodes.UNAUTHORIZED, null, 'Invalid credentials'));
 		}
 
 		// Check if email is verified
 		if (!admin.isEmailVerified) {
 			return res.send(
-				response(StatusCodes.UNAUTHORIZED, null, 'Please verify your email before signing in')
+				normalizedResponse(
+					StatusCodes.UNAUTHORIZED,
+					null,
+					'Please verify your email before signing in'
+				)
 			);
 		}
 
 		const match = await Password.verify(admin.password, password);
 
 		if (!match) {
-			return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Invalid credentials'));
+			return res.send(normalizedResponse(StatusCodes.UNAUTHORIZED, null, 'Invalid credentials'));
 		}
 
 		const accessToken = createAccessToken(admin as unknown as mongoose.Document & ACCOUNT);
 
 		return res.send(
-			response(StatusCodes.OK, { user: admin, accessToken }, 'Signed in successfully')
+			normalizedResponse(StatusCodes.OK, { user: admin, accessToken }, 'Signed in successfully')
 		);
 	} catch (error) {
 		console.error('Error in admin signin:', error);
 		return res.send(
-			response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'An error occurred during signin')
+			normalizedResponse(StatusCodes.INTERNAL_SERVER_ERROR, null, 'An error occurred during signin')
 		);
 	}
 });
@@ -246,7 +270,7 @@ router.post('/admin/signup', async (req: Request, res: Response, _next: NextFunc
 
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -260,7 +284,7 @@ router.post('/admin/signup', async (req: Request, res: Response, _next: NextFunc
 		const existingAdmin = await db.admins.findOne({ email });
 
 		if (existingAdmin) {
-			return res.send(response(StatusCodes.BAD_REQUEST, null, 'Email already in use'));
+			return res.send(normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Email already in use'));
 		}
 
 		const hash = await Password.hash(password);
@@ -277,7 +301,7 @@ router.post('/admin/signup', async (req: Request, res: Response, _next: NextFunc
 			// If OTP sending fails, delete the created admin and return error
 			await db.admins.findByIdAndDelete(admin.id);
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.INTERNAL_SERVER_ERROR,
 					null,
 					'Failed to send verification email. Please try again.'
@@ -286,7 +310,7 @@ router.post('/admin/signup', async (req: Request, res: Response, _next: NextFunc
 		}
 
 		return res.send(
-			response(
+			normalizedResponse(
 				StatusCodes.CREATED,
 				{
 					user: admin,
@@ -298,7 +322,7 @@ router.post('/admin/signup', async (req: Request, res: Response, _next: NextFunc
 	} catch (error) {
 		console.error('Error in admin signup:', error);
 		return res.send(
-			response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'An error occurred during signup')
+			normalizedResponse(StatusCodes.INTERNAL_SERVER_ERROR, null, 'An error occurred during signup')
 		);
 	}
 });
@@ -310,7 +334,7 @@ router.post('/admin/verify-otp', async (req: Request, res: Response, _next: Next
 
 		if (!result.success) {
 			return res.send(
-				response(
+				normalizedResponse(
 					StatusCodes.BAD_REQUEST,
 					null,
 					`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase()
@@ -325,7 +349,11 @@ router.post('/admin/verify-otp', async (req: Request, res: Response, _next: Next
 
 		if (!isValidOTP) {
 			return res.send(
-				response(StatusCodes.BAD_REQUEST, null, 'Invalid or expired OTP. Please try again.')
+				normalizedResponse(
+					StatusCodes.BAD_REQUEST,
+					null,
+					'Invalid or expired OTP. Please try again.'
+				)
 			);
 		}
 
@@ -333,7 +361,7 @@ router.post('/admin/verify-otp', async (req: Request, res: Response, _next: Next
 		const admin = await db.admins.findOne({ email });
 
 		if (!admin) {
-			return res.send(response(StatusCodes.NOT_FOUND, null, 'Admin account not found'));
+			return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'Admin account not found'));
 		}
 
 		// Mark email as verified
@@ -347,7 +375,7 @@ router.post('/admin/verify-otp', async (req: Request, res: Response, _next: Next
 		const accessToken = createAccessToken(admin as unknown as mongoose.Document & ACCOUNT);
 
 		return res.send(
-			response(
+			normalizedResponse(
 				StatusCodes.OK,
 				{ user: admin, accessToken },
 				'Email verified successfully. You can now sign in.'
@@ -356,7 +384,11 @@ router.post('/admin/verify-otp', async (req: Request, res: Response, _next: Next
 	} catch (error) {
 		console.error('Error in admin OTP verification:', error);
 		return res.send(
-			response(StatusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to verify OTP. Please try again.')
+			normalizedResponse(
+				StatusCodes.INTERNAL_SERVER_ERROR,
+				null,
+				'Failed to verify OTP. Please try again.'
+			)
 		);
 	}
 });

@@ -1,8 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-import { TResponse } from '../interfaces/dtos';
 import { ZodError } from 'zod';
+import { TResponse } from '../interfaces/dtos';
 
-export const response = (
+export const normalizedResponse = (
 	statusCode: StatusCodes,
 	data: object | null,
 	message: string,

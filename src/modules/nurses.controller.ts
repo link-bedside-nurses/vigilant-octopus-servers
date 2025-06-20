@@ -11,7 +11,7 @@ import {
 	validateImageUpload,
 } from '../middlewares/fileUpload';
 import { fileUploadService, handleFileUploadResponse } from '../services/upload';
-import { response } from '../utils/http-response';
+import { normalizedResponse } from '../utils/http-response';
 
 const router = Router();
 
@@ -25,7 +25,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 			const longitude = latLng.toString().split(',')[1];
 			if (!latitude || !longitude) {
 				return res.send(
-					response(
+					normalizedResponse(
 						StatusCodes.BAD_REQUEST,
 						null,
 						"Missing either latitude or longitude on the 'latLng' query key"
@@ -45,7 +45,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 		} else {
 			nurses = await db.nurses.find({}).sort({ createdAt: 'desc' });
 		}
-		return res.send(response(StatusCodes.OK, nurses, 'Nurses fetched successfully'));
+		return res.send(normalizedResponse(StatusCodes.OK, nurses, 'Nurses fetched successfully'));
 	} catch (err) {
 		return next(err);
 	}
@@ -56,8 +56,8 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const nurse = await db.nurses.findById(req.params.id);
-		if (!nurse) return res.send(response(StatusCodes.NOT_FOUND, null, 'No nurse Found'));
-		return res.send(response(StatusCodes.OK, nurse, 'Nurse fetched successfully'));
+		if (!nurse) return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No nurse Found'));
+		return res.send(normalizedResponse(StatusCodes.OK, nurse, 'Nurse fetched successfully'));
 	} catch (err) {
 		return next(err);
 	}
@@ -67,8 +67,8 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
 	try {
 		const updated = req.body;
 		const nurse = await db.nurses.findByIdAndUpdate(req.params.id, updated, { new: true });
-		if (!nurse) return res.send(response(StatusCodes.NOT_FOUND, null, 'No nurse Found'));
-		return res.send(response(StatusCodes.OK, nurse, 'Nurse updated successfully'));
+		if (!nurse) return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No nurse Found'));
+		return res.send(normalizedResponse(StatusCodes.OK, nurse, 'Nurse updated successfully'));
 	} catch (err) {
 		return next(err);
 	}
@@ -105,7 +105,7 @@ router.post(
 			// @ts-ignore
 			if (!files || !files.front || !files.back) {
 				return res.send(
-					response(
+					normalizedResponse(
 						StatusCodes.BAD_REQUEST,
 						null,
 						'Both front and back national ID images are required'
@@ -139,7 +139,7 @@ router.post(
 			const file = req.file;
 
 			if (!title) {
-				return res.send(response(StatusCodes.BAD_REQUEST, null, 'Title is required'));
+				return res.send(normalizedResponse(StatusCodes.BAD_REQUEST, null, 'Title is required'));
 			}
 
 			const uploadResponse = await fileUploadService.uploadNurseQualification(
@@ -191,12 +191,14 @@ router.patch(
 			const adminId = req.account?.id;
 
 			if (!adminId) {
-				return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Admin access required'));
+				return res.send(
+					normalizedResponse(StatusCodes.UNAUTHORIZED, null, 'Admin access required')
+				);
 			}
 
 			if (!['pending', 'verified', 'rejected'].includes(status)) {
 				return res.send(
-					response(
+					normalizedResponse(
 						StatusCodes.BAD_REQUEST,
 						null,
 						'Invalid status. Must be pending, verified, or rejected'
@@ -243,8 +245,8 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 		);
 		// Delete the nurse document
 		const nurse = await db.nurses.findByIdAndDelete(req.params.id);
-		if (!nurse) return res.send(response(StatusCodes.NOT_FOUND, null, 'No nurse Found'));
-		return res.send(response(StatusCodes.OK, nurse, 'Nurse deleted successfully'));
+		if (!nurse) return res.send(normalizedResponse(StatusCodes.NOT_FOUND, null, 'No nurse Found'));
+		return res.send(normalizedResponse(StatusCodes.OK, nurse, 'Nurse deleted successfully'));
 	} catch (err) {
 		return next(err);
 	}
@@ -257,7 +259,9 @@ router.get('/:id/appointments', async (req: Request, res: Response, next: NextFu
 			.find({ nurse: { _id: req.params.id } })
 			.populate('patient')
 			.populate('nurse');
-		return res.send(response(StatusCodes.OK, appointments, 'Appointments fetched successfully'));
+		return res.send(
+			normalizedResponse(StatusCodes.OK, appointments, 'Appointments fetched successfully')
+		);
 	} catch (err) {
 		return next(err);
 	}
@@ -275,7 +279,7 @@ router.get('/:id/appointment-history', async (req: Request, res: Response, next:
 				appointment.status === APPOINTMENT_STATUSES.CANCELLED
 		);
 		return res.send(
-			response(StatusCodes.OK, filteredAppointments, 'Appointments fetched successfully')
+			normalizedResponse(StatusCodes.OK, filteredAppointments, 'Appointments fetched successfully')
 		);
 	} catch (err) {
 		return next(err);
@@ -289,7 +293,7 @@ router.post(
 			const { appointmentId } = req.params;
 			const nurseId = req.account?.id;
 			if (!nurseId)
-				return res.send(response(StatusCodes.UNAUTHORIZED, null, 'Unauthorized access'));
+				return res.send(normalizedResponse(StatusCodes.UNAUTHORIZED, null, 'Unauthorized access'));
 			// Update appointment status
 			const appointment = await db.appointments.findOneAndUpdate(
 				{ _id: appointmentId, nurse: nurseId },
@@ -303,13 +307,15 @@ router.post(
 			);
 			if (!appointment)
 				return res.send(
-					response(
+					normalizedResponse(
 						StatusCodes.NOT_FOUND,
 						null,
 						'Appointment not found or not assigned to this nurse'
 					)
 				);
-			return res.send(response(StatusCodes.OK, appointment, 'Appointment cancelled successfully'));
+			return res.send(
+				normalizedResponse(StatusCodes.OK, appointment, 'Appointment cancelled successfully')
+			);
 		} catch (err) {
 			return next(err);
 		}

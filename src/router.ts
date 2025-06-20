@@ -107,33 +107,9 @@ const apiLimiter = createRateLimiter(15 * 60 * 1000, 1000); // 1000 requests per
 const requestIdMiddleware = (req: Request, res: Response, next: NextFunction) => {
 	const requestId =
 		(req.headers['x-request-id'] as string) ||
-		`req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		`req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 	req.headers['x-request-id'] = requestId;
 	res.setHeader('X-Request-ID', requestId);
-	next();
-};
-
-/**
- * Request Logging Middleware
- */
-const requestLoggingMiddleware = (req: Request, res: Response, next: NextFunction) => {
-	const start = Date.now();
-
-	res.on('finish', () => {
-		const duration = Date.now() - start;
-		const requestId = req.headers['x-request-id'] as string;
-
-		logger.info('HTTP Request', {
-			method: req.method,
-			url: req.originalUrl,
-			statusCode: res.statusCode,
-			duration: `${duration}ms`,
-			userAgent: req.get('User-Agent'),
-			ip: req.ip,
-			requestId,
-		});
-	});
-
 	next();
 };
 
@@ -157,7 +133,7 @@ router.use(
 router.use(cors(corsOptions));
 router.use(requestIdMiddleware);
 router.use(responseTime());
-router.use(requestLoggingMiddleware);
+// router.use(requestLoggingMiddleware);
 
 // Morgan logging with custom format
 router.use(
@@ -192,6 +168,7 @@ router.get('/health', async (req: Request, res: Response) => {
 					status: 'healthy',
 					memory: process.memoryUsage(),
 					cpu: process.cpuUsage(),
+					resources: process.resourceUsage(),
 				},
 			},
 			requestId: req.headers['x-request-id'],
