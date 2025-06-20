@@ -115,7 +115,7 @@ class MessagingService {
 	): Promise<void> {
 		const key = `otp:${identifier}`;
 		await redis.setex(key, expiryTime, otp);
-		logger.info(`OTP stored for ${identifier}, expires in ${expiryTime} seconds`);
+		logger.info(`OTP ${otp} stored for ${identifier}, expires in ${expiryTime} seconds`);
 	}
 
 	/**

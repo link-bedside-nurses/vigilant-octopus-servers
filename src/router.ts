@@ -98,7 +98,7 @@ const createRateLimiter = (windowMs: number, max: number, message?: string) => {
 
 // Different rate limits for different endpoints
 const generalLimiter = createRateLimiter(15 * 60 * 1000, 100); // 100 requests per 15 minutes
-const authLimiter = createRateLimiter(15 * 60 * 1000, 5); // 5 requests per 15 minutes for auth
+const authLimiter = createRateLimiter(15 * 60 * 1000, 50); // 50 requests per 15 minutes for auth
 const apiLimiter = createRateLimiter(15 * 60 * 1000, 1000); // 1000 requests per 15 minutes for API
 
 /**
