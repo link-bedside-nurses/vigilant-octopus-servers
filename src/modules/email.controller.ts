@@ -126,7 +126,7 @@ router.post('/verify', async (req: Request, res: Response, next: NextFunction) =
 // GET /email/otp - resend email verification OTP
 router.get('/otp', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const result = VerifyEmailSchema.safeParse(req.query);
+		const result = VerifyEmailSchema.omit({ otp: true }).safeParse(req.query);
 		if (!result.success) {
 			return sendNormalized(
 				res,

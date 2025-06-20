@@ -7,7 +7,7 @@ import morgan from 'morgan';
 import responseTime from 'response-time';
 
 import envars from './config/env-vars';
-import { healthCheck } from './database';
+import { db, healthCheck } from './database';
 import errorMiddleware from './middlewares/error-middleware';
 import accountDeletionRouter from './modules/account-deletion.controller';
 import adminRouter from './modules/admins.controller';
@@ -19,6 +19,7 @@ import messagingRouter from './modules/messaging.controller';
 import nurseRouter from './modules/nurses.controller';
 import patientRouter from './modules/patients.controller';
 import paymentsRouter from './modules/payments.controller';
+import { sendNormalized } from './utils/http-response';
 import logger from './utils/logger';
 import { privacy } from './utils/privacy';
 
@@ -246,6 +247,57 @@ router.use(`${API_PREFIX}/admins`, adminRouter);
 router.use(`${API_PREFIX}/email`, emailRouter);
 router.use(`${API_PREFIX}/messaging`, messagingRouter);
 router.use(`${API_PREFIX}/dashboard`, dashboardRouter);
+
+/**
+ * Dashboard Stats Endpoint
+ */
+router.get(`${API_PREFIX}/dashboard/stats`, async (req, res, next) => {
+	try {
+		const [
+			totalPatients,
+			totalNurses,
+			totalAppointments,
+			totalPayments,
+			completedAppointments,
+			pendingAppointments,
+			verifiedNurses,
+			unverifiedNurses,
+			totalRevenueAgg,
+		] = await Promise.all([
+			db.patients.countDocuments(),
+			db.nurses.countDocuments(),
+			db.appointments.countDocuments(),
+			db.payments.countDocuments(),
+			db.appointments.countDocuments({ status: 'completed' }),
+			db.appointments.countDocuments({ status: 'pending' }),
+			db.nurses.countDocuments({ isVerified: true }),
+			db.nurses.countDocuments({ isVerified: false }),
+			db.payments.aggregate([
+				{ $match: { status: 'SUCCESSFUL' } },
+				{ $group: { _id: null, total: { $sum: '$amount' } } },
+			]),
+		]);
+
+		const totalRevenue =
+			Array.isArray(totalRevenueAgg) && totalRevenueAgg[0] ? totalRevenueAgg[0].total : 0;
+
+		const stats = {
+			totalPatients,
+			totalNurses,
+			totalAppointments,
+			totalPayments,
+			completedAppointments,
+			pendingAppointments,
+			verifiedNurses,
+			unverifiedNurses,
+			totalRevenue,
+		};
+
+		return sendNormalized(res, StatusCodes.OK, stats, 'Stats retrieved');
+	} catch (error) {
+		return next(error);
+	}
+});
 
 /**
  * 404 Handler
