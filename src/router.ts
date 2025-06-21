@@ -179,15 +179,20 @@ router.get(`${API_PREFIX}/health`, async (req: Request, res: Response) => {
 
 		const statusCode =
 			healthStatus.status === 'healthy' ? StatusCodes.OK : StatusCodes.SERVICE_UNAVAILABLE;
-		res.status(statusCode).json(healthStatus);
+		return sendNormalized(res, statusCode, healthStatus, 'Fetched server health');
 	} catch (error) {
 		logger.error('Health check failed:', error);
-		res.status(StatusCodes.SERVICE_UNAVAILABLE).json({
-			status: 'unhealthy',
-			timestamp: new Date().toISOString(),
-			error: error instanceof Error ? error.message : 'Unknown error',
-			requestId: req.headers['x-request-id'],
-		});
+		return sendNormalized(
+			res,
+			StatusCodes.SERVICE_UNAVAILABLE,
+			{
+				status: 'unhealthy',
+				timestamp: new Date().toISOString(),
+				error: error instanceof Error ? error.message : 'Unknown error',
+				requestId: req.headers['x-request-id'],
+			},
+			'System unhealthy'
+		);
 	}
 });
 
