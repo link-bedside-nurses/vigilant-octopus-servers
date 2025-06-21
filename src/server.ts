@@ -147,9 +147,9 @@ class App {
 			const serializedPromise = JSON.stringify(promise);
 			const serializedReason = reason instanceof Error ? reason.stack : reason;
 
-			// logger.error(
-			// 	`Unhandled Rejection. \nPromise: ${serializedPromise} \nReason: ${serializedReason}. \nTimestamp: ${new Date().toISOString()} }`
-			// );
+			logger.error(
+				`Unhandled Rejection. \nPromise: ${serializedPromise} \nReason: ${serializedReason}. \nTimestamp: ${new Date().toISOString()} }`
+			);
 
 			// In production, we might want to exit the process
 			if (envars.NODE_ENV === 'production') {
