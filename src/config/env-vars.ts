@@ -25,6 +25,11 @@ const env = envalid.cleanEnv(process.env, {
 	INFOBIP_URL: envalid.str(),
 	INFOBIP_SECRET_KEY: envalid.str(),
 
+	// REDIS
+	REDIS_HOST: envalid.str(),
+	REDIS_PORT: envalid.str(),
+	REDIS_PASSWORD: envalid.str(),
+
 	// MOMO
 	X_REFERENCE_ID: envalid.str(),
 	API_KEY: envalid.str(),

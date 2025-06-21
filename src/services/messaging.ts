@@ -7,12 +7,34 @@ import { html } from '../config/html';
 import logger from '../utils/logger';
 
 const redis = new Redis({
-	host: 'localhost',
-	port: 6379,
+	host: process.env.REDIS_HOST || '127.0.0.1',
+	port: parseInt(process.env.REDIS_PORT || '6379'),
+	password: process.env.REDIS_PASSWORD,
+	maxRetriesPerRequest: 3,
+	connectTimeout: 10000,
+	lazyConnect: true,
 });
 
-redis.on('error', (err) => logger.error('Redis Client Error:', err));
-redis.once('connect', () => logger.info('✅ Connected to Redis'));
+redis.on('error', (err) => {
+	logger.error('Redis Client Error:', err);
+	// Don't crash the app, just log the error
+});
+
+redis.on('connect', () => {
+	logger.info('✅ Connected to Redis');
+});
+
+redis.on('ready', () => {
+	logger.info('✅ Redis is ready to accept connections');
+});
+
+redis.on('close', () => {
+	logger.warn('⚠️ Redis connection closed');
+});
+
+redis.on('reconnecting', () => {
+	logger.info('🔄 Reconnecting to Redis...');
+});
 
 const emailTransporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',
