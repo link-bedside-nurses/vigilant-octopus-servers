@@ -29,22 +29,7 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
-// GET /payments/:id - get payment by id
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const payment = await db.payments
-			.findById(req.params.id)
-			.populate('appointment')
-			.populate('nurse')
-			.populate('patient');
-		if (!payment) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Payment Found');
-		return sendNormalized(res, StatusCodes.OK, payment, 'Payment Retrieved');
-	} catch (err) {
-		return next(err);
-	}
-});
-
-// POST /payments/patient/:id/initiate - initiate payment from patient
+// POST /payments/patient/:id/initiate - initiate payment from patient (must come before /:id routes)
 router.post('/patient/:id/initiate', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const result = PaymentSchema.safeParse(req.body);
@@ -125,45 +110,7 @@ router.post('/patient/:id/initiate', async (req: Request, res: Response, next: N
 	}
 });
 
-// GET /payments/:id/status - check payment status
-router.get('/:id/status', async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const payment = await db.payments.findById(req.params.id);
-		if (!payment) {
-			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Payment not found');
-		}
-		let statusResult;
-		if (payment.paymentMethod === 'MTN') {
-			const collectionsService = MomoCollectionsService.getInstance();
-			statusResult = await collectionsService.getTransactionStatus(payment.referenceId);
-			if (statusResult.status) payment.status = statusResult.status;
-			if (statusResult.financialTransactionId)
-				payment.transactionId = statusResult.financialTransactionId;
-		} else if (payment.paymentMethod === 'AIRTEL') {
-			const airtelService = AirtelCollectionsService.getInstance();
-			statusResult = await airtelService.getTransactionStatus(payment.referenceId);
-			if (statusResult.status) payment.status = statusResult.status;
-			if (statusResult.transactionId) payment.transactionId = statusResult.transactionId;
-		}
-		await payment.save();
-		// Update appointment paymentStatus accordingly
-		if (payment.status === 'SUCCESSFUL') {
-			await db.appointments.findByIdAndUpdate(payment.appointment, { paymentStatus: 'PAID' });
-		} else if (payment.status === 'FAILED') {
-			await db.appointments.findByIdAndUpdate(payment.appointment, { paymentStatus: 'FAILED' });
-		}
-		return sendNormalized(
-			res,
-			StatusCodes.OK,
-			{ payment, status: statusResult },
-			'Payment status retrieved'
-		);
-	} catch (err) {
-		return next(err);
-	}
-});
-
-// GET /payments/nurses/:id/earnings - get nurse earnings
+// GET /payments/nurses/:id/earnings - get nurse earnings (must come before /:id routes)
 router.get('/nurses/:id/earnings', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const payments = await db.payments.aggregate([
@@ -202,11 +149,64 @@ router.get('/nurses/:id/earnings', async (req: Request, res: Response, next: Nex
 	}
 });
 
-// GET /payments/patients/:id/payments - get payments by patient
+// GET /payments/patients/:id/payments - get payments by patient (must come before /:id routes)
 router.get('/patients/:id/payments', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const payments = await db.payments.find({ patient: req.params.id }).sort({ createdAt: 'desc' });
 		return sendNormalized(res, StatusCodes.OK, payments, 'Payments Retrieved');
+	} catch (err) {
+		return next(err);
+	}
+});
+
+// GET /payments/:id - get payment by id (must come after specific routes)
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const payment = await db.payments
+			.findById(req.params.id)
+			.populate('appointment')
+			.populate('nurse')
+			.populate('patient');
+		if (!payment) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Payment Found');
+		return sendNormalized(res, StatusCodes.OK, payment, 'Payment Retrieved');
+	} catch (err) {
+		return next(err);
+	}
+});
+
+// GET /payments/:id/status - check payment status
+router.get('/:id/status', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const payment = await db.payments.findById(req.params.id);
+		if (!payment) {
+			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Payment not found');
+		}
+		let statusResult;
+		if (payment.paymentMethod === 'MTN') {
+			const collectionsService = MomoCollectionsService.getInstance();
+			statusResult = await collectionsService.getTransactionStatus(payment.referenceId);
+			if (statusResult.status) payment.status = statusResult.status;
+			if (statusResult.financialTransactionId)
+				payment.transactionId = statusResult.financialTransactionId;
+		} else if (payment.paymentMethod === 'AIRTEL') {
+			const airtelService = AirtelCollectionsService.getInstance();
+			statusResult = await airtelService.getTransactionStatus(payment.referenceId);
+			if (statusResult.status) payment.status = statusResult.status;
+			if (statusResult.transactionId) payment.transactionId = statusResult.transactionId;
+		}
+		await payment.save();
+		// Update appointment paymentStatus accordingly
+		if (payment.status === 'SUCCESSFUL') {
+			await db.appointments.findByIdAndUpdate(payment.appointment, { paymentStatus: 'PAID' });
+		} else if (payment.status === 'FAILED') {
+			await db.appointments.findByIdAndUpdate(payment.appointment, { paymentStatus: 'FAILED' });
+		}
+		return sendNormalized(
+			res,
+			StatusCodes.OK,
+			{ payment, status: statusResult },
+			'Payment status retrieved'
+		);
 	} catch (err) {
 		return next(err);
 	}

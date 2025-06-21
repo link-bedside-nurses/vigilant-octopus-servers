@@ -21,7 +21,6 @@ export default async function authenticate(request: Request, res: Response, next
 
 	try {
 		const decoded = jwt.verify(token, envars.ACCESS_TOKEN_SECRET) as { iat: number; id: string };
-		console.log('decoded::', decoded);
 
 		if (!decoded || !decoded.id)
 			return next(new HTTPException('Invalid Access Token!', StatusCodes.UNAUTHORIZED));

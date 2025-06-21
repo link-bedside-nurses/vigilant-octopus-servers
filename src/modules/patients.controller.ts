@@ -20,18 +20,7 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
-// GET /patients/:id - get patient by id
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const patient = await db.patients.findById(req.params.id);
-		if (!patient) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');
-		return sendNormalized(res, StatusCodes.OK, patient, 'Patient Retrieved');
-	} catch (err) {
-		return next(err);
-	}
-});
-
-// GET /patients/:id/appointments - get patient appointments
+// GET /patients/:id/appointments - get patient appointments (must come before /:id route)
 router.get('/:id/appointments', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { status } = req.query;
@@ -48,12 +37,12 @@ router.get('/:id/appointments', async (req: Request, res: Response, next: NextFu
 	}
 });
 
-// PATCH /patients/:id - update patient
-router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
+// PATCH /patients/deactivate/:id - deactivate patient (must come before /:id route)
+router.patch('/deactivate/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const patient = await db.patients.findByIdAndUpdate(
 			req.params.id,
-			{ ...req.body },
+			{ $set: { isActive: false } },
 			{ new: true }
 		);
 		if (!patient) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');
@@ -63,12 +52,23 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
 	}
 });
 
-// PATCH /patients/deactivate/:id - deactivate patient
-router.patch('/deactivate/:id', async (req: Request, res: Response, next: NextFunction) => {
+// GET /patients/:id - get patient by id (must come after specific routes)
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const patient = await db.patients.findById(req.params.id);
+		if (!patient) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');
+		return sendNormalized(res, StatusCodes.OK, patient, 'Patient Retrieved');
+	} catch (err) {
+		return next(err);
+	}
+});
+
+// PATCH /patients/:id - update patient
+router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const patient = await db.patients.findByIdAndUpdate(
 			req.params.id,
-			{ $set: { isActive: false } },
+			{ ...req.body },
 			{ new: true }
 		);
 		if (!patient) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');

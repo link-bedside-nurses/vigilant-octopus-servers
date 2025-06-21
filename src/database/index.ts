@@ -63,14 +63,13 @@ export async function connectToDatabase(): Promise<void> {
 
 		setupConnectionListeners();
 
-		if (process.env.NODE_ENV !== 'development' && process.env.SEED_DATABASE) {
+		if (process.env.NODE_ENV === 'development' && process.env.SEED_DATABASE) {
 			try {
 				logger.info('🌱 Starting database seeding...');
 				await seedDatabase();
 				logger.info('✅ Database seeding completed');
 			} catch (error) {
 				logger.error('❌ Database seeding failed:' + error);
-				logger.error(error);
 			}
 		}
 	} catch (error) {

@@ -81,7 +81,7 @@ console.log('\nAPI Endpoints Summary:');
 console.log('======================');
 console.log('Admin Endpoints (Admin Access Required):');
 console.log('GET    /api/v1/appointments/pending              - Get pending appointments');
-console.log('GET    /api/v1/appointments/available/nurses     - Get available nurses');
+console.log('GET    /api/v1/appointments/available-nurses     - Get available nurses');
 console.log('POST   /api/v1/appointments/:id/assign-nurse     - Assign nurse to appointment');
 console.log('POST   /api/v1/appointments/:id/reassign-nurse   - Reassign nurse to appointment');
 console.log('');

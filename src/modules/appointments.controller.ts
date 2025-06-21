@@ -58,22 +58,6 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 	}
 });
 
-// GET /appointments/:id - get appointment by id
-router.get('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const appointment = await db.appointments
-			.findById(req.params.id)
-			.populate('nurse')
-			.populate('patient')
-			.populate('payments');
-		if (!appointment)
-			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Appointment not found');
-		return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment fetched successfully');
-	} catch (err) {
-		return next(err);
-	}
-});
-
 // POST /appointments/history - get appointments history
 router.post('/history', async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -110,6 +94,95 @@ router.post('/history', async (req: Request, res: Response, next: NextFunction) 
 			appointments,
 			'Appointments history fetched successfully'
 		);
+	} catch (err) {
+		return next(err);
+	}
+});
+
+// Nurse Assignment Endpoints (Admin Only) - These must come before /:id routes
+
+/**
+ * GET /appointments/pending - Get pending appointments without assigned nurses
+ */
+router.get('/pending', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const accountType = req.account?.type;
+
+		if (accountType !== 'admin') {
+			return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
+		}
+
+		const assignmentResponse = await nurseAssignmentService.getPendingAppointments();
+		handleAssignmentResponse(res, assignmentResponse);
+	} catch (err) {
+		return next(err);
+	}
+});
+
+/**
+ * GET /appointments/available-nurses - Get available nurses for assignment
+ */
+router.get('/available-nurses', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const accountType = req.account?.type;
+
+		if (accountType !== 'admin') {
+			return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
+		}
+
+		const assignmentResponse = await nurseAssignmentService.getAvailableNurses();
+		handleAssignmentResponse(res, assignmentResponse);
+	} catch (err) {
+		return next(err);
+	}
+});
+
+/**
+ * GET /appointments/nurse/:nurseId - Get appointments assigned to a specific nurse
+ */
+router.get(
+	'/nurse/:nurseId',
+	validateObjectID,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const accountType = req.account?.type;
+			const nurseId = req.account?.id;
+
+			// Allow admin to view any nurse's appointments, or nurse to view their own
+			if (accountType !== 'admin' && accountType !== 'nurse') {
+				return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin or nurse access required');
+			}
+
+			if (accountType === 'nurse' && nurseId !== req.params.nurseId) {
+				return sendNormalized(
+					res,
+					StatusCodes.FORBIDDEN,
+					null,
+					'You can only view your own appointments'
+				);
+			}
+
+			const assignmentResponse = await nurseAssignmentService.getNurseAppointments(
+				req.params.nurseId
+			);
+			handleAssignmentResponse(res, assignmentResponse);
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
+// GET /appointments/:id - get appointment by id (must come after specific routes)
+router.get('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const appointment = await db.appointments
+			.findById(req.params.id)
+			.populate('nurse')
+			.populate('patient')
+			.populate('payments');
+		if (!appointment)
+			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Appointment not found');
+		return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment fetched successfully');
 	} catch (err) {
 		return next(err);
 	}
@@ -208,54 +281,6 @@ router.patch(
 	}
 );
 
-// DELETE /appointments/:id - delete appointment
-router.delete('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const appointment = await db.appointments.findByIdAndDelete(req.params.id);
-		return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment deleted successfully');
-	} catch (err) {
-		return next(err);
-	}
-});
-
-// Nurse Assignment Endpoints (Admin Only)
-
-/**
- * GET /appointments/pending - Get pending appointments without assigned nurses
- */
-router.get('/pending', async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const accountType = req.account?.type;
-
-		if (accountType !== 'admin') {
-			return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
-		}
-
-		const assignmentResponse = await nurseAssignmentService.getPendingAppointments();
-		handleAssignmentResponse(res, assignmentResponse);
-	} catch (err) {
-		return next(err);
-	}
-});
-
-/**
- * GET /appointments/available/nurses - Get available nurses for assignment
- */
-router.get('/available/nurses', async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const accountType = req.account?.type;
-
-		if (accountType !== 'admin') {
-			return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
-		}
-
-		const assignmentResponse = await nurseAssignmentService.getAvailableNurses();
-		handleAssignmentResponse(res, assignmentResponse);
-	} catch (err) {
-		return next(err);
-	}
-});
-
 /**
  * POST /appointments/:id/assign-nurse - Assign nurse to appointment
  */
@@ -328,39 +353,14 @@ router.post(
 	}
 );
 
-/**
- * GET /appointments/nurse/:nurseId - Get appointments assigned to a specific nurse
- */
-router.get(
-	'/nurse/:nurseId',
-	validateObjectID,
-	async (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const accountType = req.account?.type;
-			const nurseId = req.account?.id;
-
-			// Allow admin to view any nurse's appointments, or nurse to view their own
-			if (accountType !== 'admin' && accountType !== 'nurse') {
-				return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin or nurse access required');
-			}
-
-			if (accountType === 'nurse' && nurseId !== req.params.nurseId) {
-				return sendNormalized(
-					res,
-					StatusCodes.FORBIDDEN,
-					null,
-					'You can only view your own appointments'
-				);
-			}
-
-			const assignmentResponse = await nurseAssignmentService.getNurseAppointments(
-				req.params.nurseId
-			);
-			handleAssignmentResponse(res, assignmentResponse);
-		} catch (err) {
-			return next(err);
-		}
+// DELETE /appointments/:id - delete appointment
+router.delete('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const appointment = await db.appointments.findByIdAndDelete(req.params.id);
+		return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment deleted successfully');
+	} catch (err) {
+		return next(err);
 	}
-);
+});
 
 export default router;

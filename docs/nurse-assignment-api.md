@@ -60,7 +60,7 @@ Authorization: Bearer <admin-jwt-token>
 
 #### 2. Get Available Nurses
 
-**Endpoint:** `GET /api/v1/appointments/available/nurses`
+**Endpoint:** `GET /api/v1/appointments/available-nurses`
 
 **Description:** Get all active and verified nurses available for assignment
 

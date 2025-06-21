@@ -52,6 +52,41 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
 // router.use(authenticate);
 
+// Appointment related routes (must come before /:id routes)
+router.post(
+	'/appointments/:appointmentId/cancel',
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { appointmentId } = req.params;
+			const nurseId = req.account?.id;
+			if (!nurseId)
+				return sendNormalized(res, StatusCodes.UNAUTHORIZED, null, 'Unauthorized access');
+			// Update appointment status
+			const appointment = await db.appointments.findOneAndUpdate(
+				{ _id: appointmentId, nurse: nurseId },
+				{
+					$set: {
+						status: APPOINTMENT_STATUSES.CANCELLED,
+						cancellationReason: 'Cancelled by nurse',
+					},
+				},
+				{ new: true }
+			);
+			if (!appointment)
+				return sendNormalized(
+					res,
+					StatusCodes.NOT_FOUND,
+					null,
+					'Appointment not found or not assigned to this nurse'
+				);
+			return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment cancelled successfully');
+		} catch (err) {
+			return next(err);
+		}
+	}
+);
+
+// GET /nurses/:id - get nurse by id (must come after specific routes)
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const nurse = await db.nurses.findById(req.params.id);
@@ -281,38 +316,5 @@ router.get('/:id/appointment-history', async (req: Request, res: Response, next:
 		return next(err);
 	}
 });
-
-router.post(
-	'/appointments/:appointmentId/cancel',
-	async (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const { appointmentId } = req.params;
-			const nurseId = req.account?.id;
-			if (!nurseId)
-				return sendNormalized(res, StatusCodes.UNAUTHORIZED, null, 'Unauthorized access');
-			// Update appointment status
-			const appointment = await db.appointments.findOneAndUpdate(
-				{ _id: appointmentId, nurse: nurseId },
-				{
-					$set: {
-						status: APPOINTMENT_STATUSES.CANCELLED,
-						cancellationReason: 'Cancelled by nurse',
-					},
-				},
-				{ new: true }
-			);
-			if (!appointment)
-				return sendNormalized(
-					res,
-					StatusCodes.NOT_FOUND,
-					null,
-					'Appointment not found or not assigned to this nurse'
-				);
-			return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment cancelled successfully');
-		} catch (err) {
-			return next(err);
-		}
-	}
-);
 
 export default router;
