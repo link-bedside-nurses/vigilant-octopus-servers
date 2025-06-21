@@ -6,6 +6,7 @@ import compression from 'compression';
 import express, { Application, Request, Response } from 'express';
 import 'express-async-errors';
 import { createServer, Server as HTTPServer } from 'http';
+import Redis from 'ioredis';
 
 import envars from './config/env-vars';
 import { scheduleAccountDeletionJob } from './cron/account-deletion-job';
@@ -15,6 +16,54 @@ import logger from './utils/logger';
 
 // Initialize tsc-alias path replacement
 replaceTscAliasPaths().catch((err: Error) => logger.info(err.message));
+
+// Initialize Redis connection
+let redis: Redis;
+
+const initializeRedis = async (): Promise<void> => {
+	try {
+		logger.info('🔄 Initializing Redis connection...');
+
+		redis = new Redis({
+			host: process.env.REDIS_HOST || '127.0.0.1',
+			port: parseInt(process.env.REDIS_PORT || '6379'),
+			password: process.env.REDIS_PASSWORD,
+			maxRetriesPerRequest: 3,
+			connectTimeout: 10000,
+			lazyConnect: true,
+		});
+
+		redis.on('error', (err) => {
+			logger.error('Redis Client Error:', err);
+		});
+
+		redis.on('connect', () => {
+			logger.info('✅ Connected to Redis');
+		});
+
+		redis.on('ready', () => {
+			logger.info('✅ Redis is ready to accept connections');
+		});
+
+		redis.on('close', () => {
+			logger.warn('⚠️ Redis connection closed');
+		});
+
+		redis.on('reconnecting', () => {
+			logger.info('🔄 Reconnecting to Redis...');
+		});
+
+		// Test the connection
+		await redis.ping();
+		logger.info('✅ Redis ping successful');
+
+		// Make redis available globally
+		(global as any).redis = redis;
+	} catch (error) {
+		logger.error('❌ Failed to initialize Redis:', error);
+		throw error;
+	}
+};
 
 /**
  * Application class to encapsulate server logic
@@ -164,6 +213,12 @@ class App {
 				logger.info('✅ Account deletion cron job stopped');
 			}
 
+			// Close Redis connection
+			if (redis) {
+				await redis.quit();
+				logger.info('✅ Redis connection closed');
+			}
+
 			// Disconnect from database
 			await disconnectFromDatabase();
 			logger.info('✅ Database disconnected');
@@ -187,6 +242,11 @@ class App {
 	 */
 	public async start(): Promise<void> {
 		try {
+			console.clear();
+			// Initialize Redis first
+			await initializeRedis();
+			logger.info('✅ Redis initialized successfully');
+
 			// Connect to database
 			await connectToDatabase();
 			logger.info('✅ Database connected successfully');
@@ -197,7 +257,6 @@ class App {
 
 			// Start the server
 			this.server.listen(envars.PORT, () => {
-				console.clear();
 				logger.info(`🚀 Server started successfully`);
 				logger.info(`📍 Environment: ${envars.NODE_ENV}`);
 				logger.info(`🌐 Server URL: http://127.0.0.1:${envars.PORT}`);

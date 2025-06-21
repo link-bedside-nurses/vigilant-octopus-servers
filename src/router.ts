@@ -156,10 +156,29 @@ router.get(`${API_PREFIX}/health`, async (req: Request, res: Response) => {
 	try {
 		const startTime = Date.now();
 		const dbHealth = await healthCheck();
+
+		// Check Redis health
+		let redisHealth: { status: string; error?: string } = {
+			status: 'unknown',
+			error: 'Redis not initialized',
+		};
+		try {
+			if ((global as any).redis) {
+				await (global as any).redis.ping();
+				redisHealth = { status: 'healthy' };
+			}
+		} catch (error) {
+			redisHealth = {
+				status: 'unhealthy',
+				error: error instanceof Error ? error.message : 'Unknown Redis error',
+			};
+		}
+
 		const responseTime = Date.now() - startTime;
 
 		const healthStatus = {
-			status: dbHealth.status === 'healthy' ? 'healthy' : 'unhealthy',
+			status:
+				dbHealth.status === 'healthy' && redisHealth.status === 'healthy' ? 'healthy' : 'unhealthy',
 			timestamp: new Date().toISOString(),
 			uptime: process.uptime(),
 			environment: envars.NODE_ENV,
@@ -167,6 +186,7 @@ router.get(`${API_PREFIX}/health`, async (req: Request, res: Response) => {
 			responseTime: `${responseTime}ms`,
 			services: {
 				database: dbHealth,
+				redis: redisHealth,
 				server: {
 					status: 'healthy',
 					memory: process.memoryUsage(),

@@ -6,59 +6,13 @@ import envars from '../config/env-vars';
 import { html } from '../config/html';
 import logger from '../utils/logger';
 
-// Create Redis connection with retry logic
-let redis: Redis;
-
-const createRedisConnection = () => {
-	try {
-		redis = new Redis({
-			host: process.env.REDIS_HOST || '127.0.0.1',
-			port: parseInt(process.env.REDIS_PORT || '6379'),
-			password: process.env.REDIS_PASSWORD,
-			maxRetriesPerRequest: 3,
-			connectTimeout: 10000,
-			lazyConnect: true,
-		});
-
-		redis.on('error', (err) => {
-			logger.error('Redis Client Error:', err);
-			// Don't crash the app, just log the error
-		});
-
-		redis.on('connect', () => {
-			logger.info('✅ Connected to Redis');
-		});
-
-		redis.on('ready', () => {
-			logger.info('✅ Redis is ready to accept connections');
-		});
-
-		redis.on('close', () => {
-			logger.warn('⚠️ Redis connection closed');
-		});
-
-		redis.on('reconnecting', () => {
-			logger.info('🔄 Reconnecting to Redis...');
-		});
-
-		// Test the connection
-		redis
-			.ping()
-			.then(() => {
-				logger.info('✅ Redis ping successful');
-			})
-			.catch((err) => {
-				logger.error('❌ Redis ping failed:', err);
-			});
-
-		return redis;
-	} catch (error) {
-		logger.error('Failed to create Redis connection:', error);
-		throw error;
+// Use the global Redis instance from server.ts
+const getRedis = (): Redis => {
+	if (!(global as any).redis) {
+		throw new Error('Redis not initialized. Make sure the server has started.');
 	}
+	return (global as any).redis;
 };
-
-createRedisConnection();
 
 const emailTransporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',
@@ -159,7 +113,7 @@ class MessagingService {
 		expiryTime: number = OTP_EXPIRY_TIME
 	): Promise<void> {
 		const key = `otp:${identifier}`;
-		await redis.setex(key, expiryTime, otp);
+		await getRedis().setex(key, expiryTime, otp);
 		logger.info(`OTP ${otp} stored for ${identifier}, expires in ${expiryTime} seconds`);
 	}
 
@@ -168,7 +122,7 @@ class MessagingService {
 	 */
 	public async getOTP(identifier: string): Promise<string | null> {
 		const key = `otp:${identifier}`;
-		const otp = await redis.get(key);
+		const otp = await getRedis().get(key);
 		return otp;
 	}
 
@@ -189,7 +143,7 @@ class MessagingService {
 	 */
 	public async expireOTP(identifier: string): Promise<void> {
 		const key = `otp:${identifier}`;
-		await redis.del(key);
+		await getRedis().del(key);
 		logger.info(`OTP expired for ${identifier}`);
 	}
 
@@ -483,7 +437,7 @@ class MessagingService {
 		};
 
 		try {
-			await redis.ping();
+			await getRedis().ping();
 			health.redis = true;
 		} catch (error) {
 			logger.error('Redis health check failed:' + error);
@@ -518,7 +472,7 @@ class MessagingService {
 	 */
 	public async cleanup(): Promise<void> {
 		try {
-			await redis.quit();
+			await getRedis().quit();
 			logger.info('Redis connection closed');
 		} catch (error) {
 			logger.error('Error closing Redis connection:', error);
