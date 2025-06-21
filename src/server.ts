@@ -162,9 +162,9 @@ class App {
 		process.on('uncaughtException', (exception) => {
 			if (this.isShuttingDown) return;
 
-			// logger.error(
-			// 	`Uncaught Exception. ${exception}. \n${exception.stack}. \nTimestamp ${new Date().toISOString()}`
-			// );
+			logger.error(
+				`Uncaught Exception. ${exception}. \n${exception.stack}. \nTimestamp ${new Date().toISOString()}`
+			);
 
 			// Give time for logs to be written before exit
 			setTimeout(() => {
