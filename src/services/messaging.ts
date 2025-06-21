@@ -9,7 +9,6 @@ import logger from '../utils/logger';
 const redis = new Redis({
 	host: 'localhost',
 	port: 6379,
-	password: '',
 });
 
 redis.on('error', (err) => logger.error('Redis Client Error:', err));
