@@ -6,35 +6,62 @@ import envars from '../config/env-vars';
 import { html } from '../config/html';
 import logger from '../utils/logger';
 
-const redis = new Redis({
-	host: process.env.REDIS_HOST || '127.0.0.1',
-	port: parseInt(process.env.REDIS_PORT || '6379'),
-	password: process.env.REDIS_PASSWORD,
-	maxRetriesPerRequest: 3,
-	connectTimeout: 10000,
-	lazyConnect: true,
-});
+// Create Redis connection with retry logic
+let redis: Redis;
 
-redis.on('error', (err) => {
-	logger.error('Redis Client Error:', err);
-	// Don't crash the app, just log the error
-});
+const createRedisConnection = () => {
+	try {
+		redis = new Redis({
+			host: process.env.REDIS_HOST || '127.0.0.1',
+			port: parseInt(process.env.REDIS_PORT || '6379'),
+			password: process.env.REDIS_PASSWORD,
+			maxRetriesPerRequest: 3,
+			connectTimeout: 10000,
+			lazyConnect: true,
+		});
 
-redis.on('connect', () => {
-	logger.info('✅ Connected to Redis');
-});
+		redis.on('error', (err) => {
+			logger.error('Redis Client Error:', err);
+			// Don't crash the app, just log the error
+		});
 
-redis.on('ready', () => {
-	logger.info('✅ Redis is ready to accept connections');
-});
+		redis.on('connect', () => {
+			logger.info('✅ Connected to Redis');
+		});
 
-redis.on('close', () => {
-	logger.warn('⚠️ Redis connection closed');
-});
+		redis.on('ready', () => {
+			logger.info('✅ Redis is ready to accept connections');
+		});
 
-redis.on('reconnecting', () => {
-	logger.info('🔄 Reconnecting to Redis...');
-});
+		redis.on('close', () => {
+			logger.warn('⚠️ Redis connection closed');
+		});
+
+		redis.on('reconnecting', () => {
+			logger.info('🔄 Reconnecting to Redis...');
+		});
+
+		// Test the connection
+		redis
+			.ping()
+			.then(() => {
+				logger.info('✅ Redis ping successful');
+			})
+			.catch((err) => {
+				logger.error('❌ Redis ping failed:', err);
+			});
+
+		return redis;
+	} catch (error) {
+		logger.error('Failed to create Redis connection:', error);
+		throw error;
+	}
+};
+
+// Initialize Redis connection with a small delay to ensure system is ready
+setTimeout(() => {
+	redis = createRedisConnection();
+}, 1000);
 
 const emailTransporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',
