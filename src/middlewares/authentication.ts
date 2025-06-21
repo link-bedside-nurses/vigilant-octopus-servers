@@ -4,7 +4,6 @@ import * as jwt from 'jsonwebtoken';
 
 import envars from '../config/env-vars';
 import { db } from '../database';
-import { ITokenPayload } from '../services/token';
 import HTTPException from '../utils/exception';
 import logger from '../utils/logger';
 
@@ -21,7 +20,8 @@ export default async function authenticate(request: Request, res: Response, next
 	if (!token) return next(new HTTPException('Missing token!', StatusCodes.UNAUTHORIZED));
 
 	try {
-		const decoded = jwt.verify(token, envars.ACCESS_TOKEN_SECRET) as ITokenPayload;
+		const decoded = jwt.verify(token, envars.ACCESS_TOKEN_SECRET) as { iat: number; id: string };
+		console.log('decoded::', decoded);
 
 		if (!decoded || !decoded.id)
 			return next(new HTTPException('Invalid Access Token!', StatusCodes.UNAUTHORIZED));

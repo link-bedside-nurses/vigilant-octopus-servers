@@ -3,13 +3,14 @@ import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
 import { z } from 'zod';
 import { db } from '../database';
+import authenticate from '../middlewares/authentication';
 import { AirtelCollectionsService } from '../payments/airtel/collections/collections-service';
 import { MomoCollectionsService } from '../payments/momo/collections/collections-service';
 import detectProvider from '../utils/detect-provider';
 import { sendNormalized } from '../utils/http-response';
 
 const router = Router();
-// router.use(authenticate);
+router.use(authenticate);
 
 const PaymentSchema = z.object({
 	amount: z.number(),

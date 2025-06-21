@@ -221,6 +221,8 @@ router.post('/admin/signin', async (req: Request, res: Response, _next: NextFunc
 			return sendNormalized(res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials');
 		}
 
+		console.log('admin::', admin);
+
 		const accessToken = createAccessToken(admin as unknown as mongoose.Document & ACCOUNT);
 
 		return sendNormalized(

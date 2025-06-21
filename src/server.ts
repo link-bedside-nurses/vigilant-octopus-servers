@@ -98,9 +98,9 @@ class App {
 			const serializedPromise = JSON.stringify(promise);
 			const serializedReason = reason instanceof Error ? reason.stack : reason;
 
-			logger.error(
-				`Unhandled Rejection. \nPromise: ${serializedPromise} \nReason: ${serializedReason}. \nTimestamp: ${new Date().toISOString()} }`
-			);
+			// logger.error(
+			// 	`Unhandled Rejection. \nPromise: ${serializedPromise} \nReason: ${serializedReason}. \nTimestamp: ${new Date().toISOString()} }`
+			// );
 
 			// In production, we might want to exit the process
 			if (envars.NODE_ENV === 'production') {
@@ -113,9 +113,9 @@ class App {
 		process.on('uncaughtException', (exception) => {
 			if (this.isShuttingDown) return;
 
-			logger.error(
-				`Uncaught Exception. ${exception}. \n${exception.stack}. \nTimestamp ${new Date().toISOString()}`
-			);
+			// logger.error(
+			// 	`Uncaught Exception. ${exception}. \n${exception.stack}. \nTimestamp ${new Date().toISOString()}`
+			// );
 
 			// Give time for logs to be written before exit
 			setTimeout(() => {

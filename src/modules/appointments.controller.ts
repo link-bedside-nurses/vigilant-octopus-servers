@@ -4,12 +4,13 @@ import mongoose from 'mongoose';
 import { z } from 'zod';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
+import authenticate from '../middlewares/authentication';
 import { validateObjectID } from '../middlewares/validate-objectid';
 import { handleAssignmentResponse, nurseAssignmentService } from '../services/nurse-assignment';
 import { sendNormalized } from '../utils/http-response';
 
 const router = Router();
-// router.use(authenticate);
+router.use(authenticate);
 
 // Zod schema for appointment creation
 const AppointmentCreateSchema = z.object({
@@ -238,9 +239,9 @@ router.get('/pending', async (req: Request, res: Response, next: NextFunction) =
 });
 
 /**
- * GET /appointments/available-nurses - Get available nurses for assignment
+ * GET /appointments/available/nurses - Get available nurses for assignment
  */
-router.get('/available-nurses', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/available/nurses', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const accountType = req.account?.type;
 

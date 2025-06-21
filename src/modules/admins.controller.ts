@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
+import authenticate from '../middlewares/authentication';
 import { sendNormalized } from '../utils/http-response';
 
 const router = Router();
-// router.use(authenticate);
+router.use(authenticate);
 
 // GET /admins - get all admins
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {

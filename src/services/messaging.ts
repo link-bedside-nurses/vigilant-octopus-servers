@@ -305,7 +305,7 @@ class MessagingService {
 					expiresAt: new Date(Date.now() + expiryTime * 1000),
 				};
 			} else {
-				await this.expireOTP(email);
+				// await this.expireOTP(email);
 				return {
 					success: false,
 					expiresAt: new Date(),
