@@ -58,10 +58,7 @@ const createRedisConnection = () => {
 	}
 };
 
-// Initialize Redis connection with a small delay to ensure system is ready
-setTimeout(() => {
-	redis = createRedisConnection();
-}, 1000);
+createRedisConnection();
 
 const emailTransporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',
