@@ -296,8 +296,9 @@ export default function errorMiddleware(
 
 	// Add additional error information in development
 	if (process.env.NODE_ENV === 'development') {
-		httpResponse.body.error = {
-			...httpResponse.body.error,
+		httpResponse.error = {
+			...httpResponse.error,
+			// @ts-ignore
 			type: errorInfo.errorType,
 			details: errorInfo.details,
 			requestId,
@@ -307,7 +308,7 @@ export default function errorMiddleware(
 	}
 
 	// Send response
-	res.status(errorInfo.statusCode).json(httpResponse.body);
+	res.status(errorInfo.statusCode).json(httpResponse);
 
 	// Log final error summary
 	logger.info('Error response sent:', {

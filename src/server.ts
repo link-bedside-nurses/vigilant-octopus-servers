@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { replaceTscAliasPaths } from 'tsc-alias';
 
 import compression from 'compression';
-import express, { Application, Request, Response } from 'express';
+import express, { Application } from 'express';
 import 'express-async-errors';
 import { createServer, Server as HTTPServer } from 'http';
 import Redis from 'ioredis';
@@ -117,16 +117,6 @@ class App {
 		// Body parsing
 		this.app.use(express.json({ limit: '10mb' }));
 		this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-		// Request logging
-		this.app.use((req: Request, res: Response, next) => {
-			const start = Date.now();
-			res.on('finish', () => {
-				const duration = Date.now() - start;
-				logger.info(`${req.method} ${req.originalUrl} - ${res.statusCode} - ${duration}ms`);
-			});
-			next();
-		});
 	}
 
 	/**

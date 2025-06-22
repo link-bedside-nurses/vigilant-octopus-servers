@@ -9,8 +9,8 @@ module.exports = {
 			watch_options: {
 				followSymlinks: false,
 			},
-			instances: 'max',
-			exec_mode: 'cluster',
+			instances: '1',
+			exec_mode: 'fork',
 			autorestart: false,
 			env: {
 				NODE_ENV: 'development',

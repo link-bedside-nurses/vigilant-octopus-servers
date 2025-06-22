@@ -3,9 +3,10 @@ import express, { NextFunction, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { StatusCodes } from 'http-status-codes';
+// import responseTime from 'response-time';
+
 import morgan from 'morgan';
 import responseTime from 'response-time';
-
 import envars from './config/env-vars';
 import { db, healthCheck } from './database';
 import errorMiddleware from './middlewares/error-middleware';
@@ -134,15 +135,12 @@ router.use(
 router.use(cors(corsOptions));
 router.use(requestIdMiddleware);
 router.use(responseTime());
-// router.use(requestLoggingMiddleware);
 
 // Morgan logging with custom format
 router.use(
-	morgan('common', {
+	morgan('dev', {
 		stream: {
-			write: (message: string) => {
-				logger.info(message.trim());
-			},
+			write: (message: string) => logger.info(message.trim()),
 		},
 	})
 );
