@@ -45,10 +45,9 @@ export async function connectToDatabase(): Promise<void> {
 			return;
 		}
 
-		logger.info('Connecting to database...');
-
 		const dbUrl = envars.DATABASE_URL;
 
+		logger.info(`Connecting to database: ${dbUrl}`);
 		const connection = await mongoose.connect(dbUrl, connectionOptions);
 
 		isConnected = true;
