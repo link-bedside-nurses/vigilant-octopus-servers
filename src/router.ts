@@ -41,6 +41,7 @@ const corsOptions = {
 			'http://127.0.0.1:3001',
 			'http://127.0.0.1:8080',
 			'http://127.0.0.1:8081',
+			'https://linkbedsides.ianbalijawa.com',
 		];
 
 		// Add production origins here

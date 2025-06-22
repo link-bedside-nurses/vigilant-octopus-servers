@@ -5,7 +5,7 @@ import HTTPException from '../utils/exception';
 
 export const validateObjectID = (req: Request, res: Response, next: NextFunction) => {
 	if (!req.account!.id || !mongoose.isValidObjectId(req.account!.id))
-		return next(new HTTPException('Invalid object id!'));
+		return next(new HTTPException('Invalid database id!'));
 
 	next();
 };
