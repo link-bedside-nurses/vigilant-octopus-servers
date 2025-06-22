@@ -47,16 +47,9 @@ export async function connectToDatabase(): Promise<void> {
 
 		logger.info('Connecting to database...');
 
-		let dbUrl = envars.DATABASE_URL;
-		if (envars.NODE_ENV === 'development' && envars.DATABASE_URL_LOCAL) {
-			dbUrl = envars.DATABASE_URL_LOCAL;
-		} else if (envars.NODE_ENV === 'production' && envars.DATABASE_URL_PROD) {
-			dbUrl = envars.DATABASE_URL_PROD;
-		}
+		const dbUrl = envars.DATABASE_URL;
 
-		logger.info(`DATABASE URL:  ${dbUrl}`);
 		const connection = await mongoose.connect(dbUrl, connectionOptions);
-		logger.info(`DATABASE URL:  ${dbUrl}`);
 
 		isConnected = true;
 		connectionRetries = 0;
