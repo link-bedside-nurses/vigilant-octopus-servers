@@ -10,7 +10,7 @@ module.exports = {
 				followSymlinks: false,
 			},
 			instances: '1',
-			exec_mode: 'fork',
+			exec_mode: 'cluster',
 			autorestart: false,
 			env: {
 				NODE_ENV: 'development',
