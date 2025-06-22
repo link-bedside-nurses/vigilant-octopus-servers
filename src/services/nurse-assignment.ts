@@ -5,6 +5,7 @@ import { APPOINTMENT_STATUSES } from '../interfaces';
 import { sendNormalized } from '../utils/http-response';
 import logger from '../utils/logger';
 import { ChannelType, messagingService } from './messaging';
+import { NOTIFICATION_TEMPLATES } from './templates';
 
 // Nurse assignment request interface
 export interface NurseAssignmentRequest {
@@ -20,43 +21,6 @@ export interface NurseAssignmentResponse {
 	data?: any;
 	errors?: string[];
 }
-
-// Notification templates
-const NOTIFICATION_TEMPLATES = {
-	nurseAssignment: {
-		subject: 'New Appointment Assignment',
-		text: 'You have been assigned to a new appointment. Please review the details and confirm.',
-		html: (appointment: any, nurse: any) => `
-			<h2>New Appointment Assignment</h2>
-			<p>Hello ${nurse.firstName} ${nurse.lastName},</p>
-			<p>You have been assigned to a new appointment with the following details:</p>
-			<ul>
-				<li><strong>Patient:</strong> ${appointment.patient.name}</li>
-				<li><strong>Date:</strong> ${new Date(appointment.date).toLocaleDateString()}</li>
-				<li><strong>Time:</strong> ${new Date(appointment.date).toLocaleTimeString()}</li>
-				<li><strong>Symptoms:</strong> ${appointment.symptoms.join(', ')}</li>
-			</ul>
-			<p>Please review the appointment details and confirm your availability.</p>
-			<p>Best regards,<br>Link Bed Sides Team</p>
-		`,
-	},
-	patientNotification: {
-		subject: 'Nurse Assigned to Your Appointment',
-		text: 'A nurse has been assigned to your appointment. You will be contacted shortly.',
-		html: (appointment: any, nurse: any) => `
-			<h2>Nurse Assigned to Your Appointment</h2>
-			<p>Hello ${appointment.patient.name},</p>
-			<p>Great news! A nurse has been assigned to your appointment:</p>
-			<ul>
-				<li><strong>Nurse:</strong> ${nurse.firstName} ${nurse.lastName}</li>
-				<li><strong>Date:</strong> ${new Date(appointment.date).toLocaleDateString()}</li>
-				<li><strong>Time:</strong> ${new Date(appointment.date).toLocaleTimeString()}</li>
-			</ul>
-			<p>The nurse will contact you shortly to confirm the appointment details.</p>
-			<p>Best regards,<br>Link Bed Sides Team</p>
-		`,
-	},
-};
 
 class NurseAssignmentService {
 	private static instance: NurseAssignmentService;

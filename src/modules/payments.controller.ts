@@ -162,11 +162,7 @@ router.get('/patients/:id/payments', async (req: Request, res: Response, next: N
 // GET /payments/:id - get payment by id (must come after specific routes)
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const payment = await db.payments
-			.findById(req.params.id)
-			.populate('appointment')
-			.populate('nurse')
-			.populate('patient');
+		const payment = await db.payments.findById(req.params.id).populate('appointment');
 		if (!payment) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Payment Found');
 		return sendNormalized(res, StatusCodes.OK, payment, 'Payment Retrieved');
 	} catch (err) {

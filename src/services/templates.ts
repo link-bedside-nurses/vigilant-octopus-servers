@@ -597,6 +597,185 @@ export const NOTIFICATION_TEMPLATES = {
 			</html>
 		`,
 	},
+
+	// Nurse verification notification
+	nurseVerification: {
+		subject: 'Your Account Has Been Verified!',
+		text: 'Congratulations! Your Link Bed Sides nurse account has been verified and is now active. You can now start receiving assignments.',
+		html: (nurse: { firstName: string; lastName: string }) => `
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Account Verified</title>
+				<style>
+					body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #334155; }
+					.container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+					.header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center; }
+					.header h1 { color: #fff; font-size: 24px; font-weight: 700; }
+					.content { padding: 40px 30px; }
+					.greeting { font-size: 18px; color: #1e293b; margin-bottom: 20px; font-weight: 600; }
+					.message { font-size: 16px; color: #475569; margin-bottom: 30px; }
+					.footer { background: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0; }
+					.footer-text { color: #64748b; font-size: 14px; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h1>🎉 Account Verified!</h1>
+					</div>
+					<div class="content">
+						<div class="greeting">Hello ${nurse.firstName} ${nurse.lastName},</div>
+						<div class="message">
+							Congratulations! Your Link Bed Sides nurse account has been <b>verified</b> and is now <b>active</b>.<br><br>
+							You can now start receiving patient assignments and providing care.<br><br>
+							Thank you for joining our team!
+						</div>
+					</div>
+					<div class="footer">
+						<p class="footer-text">This email was sent by <span class="company-name">Link Bed Sides</span></p>
+						<p class="footer-text">Need help? Contact us at support@linkbedsides.com</p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`,
+	},
+
+	nurseBan: {
+		subject: 'Account Banned - Access Revoked',
+		text: 'Your Link Bed Sides nurse account has been banned and access is now revoked. Please contact support for more information.',
+		html: (nurse: { firstName: string; lastName: string }) => `
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Account Banned</title>
+				<style>
+					body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #334155; }
+					.container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+					.header { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 30px; text-align: center; }
+					.header h1 { color: #fff; font-size: 24px; font-weight: 700; }
+					.content { padding: 40px 30px; }
+					.greeting { font-size: 18px; color: #1e293b; margin-bottom: 20px; font-weight: 600; }
+					.message { font-size: 16px; color: #475569; margin-bottom: 30px; }
+					.footer { background: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0; }
+					.footer-text { color: #64748b; font-size: 14px; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h1>🚫 Account Banned</h1>
+					</div>
+					<div class="content">
+						<div class="greeting">Hello ${nurse.firstName} ${nurse.lastName},</div>
+						<div class="message">
+							Your Link Bed Sides nurse account has been <b>banned</b> and your access is now revoked.<br><br>
+							If you believe this is a mistake, please contact support for more information.
+						</div>
+					</div>
+					<div class="footer">
+						<p class="footer-text">This email was sent by <span class="company-name">Link Bed Sides</span></p>
+						<p class="footer-text">Need help? Contact us at support@linkbedsides.com</p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`,
+	},
+
+	patientBan: {
+		subject: 'Account Banned - Access Revoked',
+		text: 'Your Link Bed Sides account has been banned and access is now revoked. Please contact support for more information.',
+		html: (patient: { name: string }) => `
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Account Banned</title>
+				<style>
+					body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #334155; }
+					.container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+					.header { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 30px; text-align: center; }
+					.header h1 { color: #fff; font-size: 24px; font-weight: 700; }
+					.content { padding: 40px 30px; }
+					.greeting { font-size: 18px; color: #1e293b; margin-bottom: 20px; font-weight: 600; }
+					.message { font-size: 16px; color: #475569; margin-bottom: 30px; }
+					.footer { background: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0; }
+					.footer-text { color: #64748b; font-size: 14px; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h1>🚫 Account Banned</h1>
+					</div>
+					<div class="content">
+						<div class="greeting">Hello ${patient.name},</div>
+						<div class="message">
+							Your Link Bed Sides account has been <b>banned</b> and your access is now revoked.<br><br>
+							If you believe this is a mistake, please contact support for more information.
+						</div>
+					</div>
+					<div class="footer">
+						<p class="footer-text">This email was sent by <span class="company-name">Link Bed Sides</span></p>
+						<p class="footer-text">Need help? Contact us at support@linkbedsides.com</p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`,
+	},
+
+	patientVerification: {
+		subject: 'Your Account Has Been Verified!',
+		text: 'Congratulations! Your Link Bed Sides account has been verified and is now active. You can now book appointments and access services.',
+		html: (patient: { name: string }) => `
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Account Verified</title>
+				<style>
+					body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #334155; }
+					.container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+					.header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center; }
+					.header h1 { color: #fff; font-size: 24px; font-weight: 700; }
+					.content { padding: 40px 30px; }
+					.greeting { font-size: 18px; color: #1e293b; margin-bottom: 20px; font-weight: 600; }
+					.message { font-size: 16px; color: #475569; margin-bottom: 30px; }
+					.footer { background: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0; }
+					.footer-text { color: #64748b; font-size: 14px; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h1>🎉 Account Verified!</h1>
+					</div>
+					<div class="content">
+						<div class="greeting">Hello ${patient.name},</div>
+						<div class="message">
+							Congratulations! Your Link Bed Sides account has been <b>verified</b> and is now <b>active</b>.<br><br>
+							You can now book appointments and access our services.<br><br>
+							Thank you for joining us!
+						</div>
+					</div>
+					<div class="footer">
+						<p class="footer-text">This email was sent by <span class="company-name">Link Bed Sides</span></p>
+						<p class="footer-text">Need help? Contact us at support@linkbedsides.com</p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`,
+	},
 };
 
 // SMS Notification Templates
@@ -740,6 +919,19 @@ const SMS_TEMPLATES = {
 		) =>
 			`💳 PAYMENT CONFIRMED\n\nHi ${appointment.patient.name},\n\nWe received your payment of ${amount} for the appointment on ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.\n\nReceipt: ${process.env.APP_URL}/receipt/${appointment.id}\n\n- Link Bed Sides`,
 	},
+
+	// Nurse verification SMS
+	nurseVerification: (nurse: { firstName: string }) =>
+		`✅ Hi ${nurse.firstName}, your Link Bed Sides account is now VERIFIED and active! You can now receive assignments. Welcome aboard!`,
+
+	nurseBan: (nurse: { firstName: string }) =>
+		`🚫 Hi ${nurse.firstName}, your Link Bed Sides account has been BANNED. Access revoked. Contact support if you believe this is a mistake.`,
+
+	patientBan: (patient: { name: string }) =>
+		`🚫 Hi ${patient.name}, your Link Bed Sides account has been BANNED. Access revoked. Contact support if you believe this is a mistake.`,
+
+	patientVerification: (patient: { name: string }) =>
+		`✅ Hi ${patient.name}, your Link Bed Sides account is now VERIFIED and active! You can now book appointments. Welcome!`,
 };
 
 // Helper function to get character count
