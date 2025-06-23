@@ -349,13 +349,13 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 		if (nurse.email) {
 			await messagingService.sendNotification(
 				nurse.email,
-				NOTIFICATION_TEMPLATES.nurseVerification.text,
+				NOTIFICATION_TEMPLATES.nurseWelcome.text,
 				{
 					channel: ChannelType.EMAIL,
 					template: {
-						subject: NOTIFICATION_TEMPLATES.nurseVerification.subject,
-						text: NOTIFICATION_TEMPLATES.nurseVerification.text,
-						html: NOTIFICATION_TEMPLATES.nurseVerification.html({
+						subject: NOTIFICATION_TEMPLATES.nurseWelcome.subject,
+						text: NOTIFICATION_TEMPLATES.nurseWelcome.text,
+						html: NOTIFICATION_TEMPLATES.nurseWelcome.html({
 							firstName: nurse.firstName,
 							lastName: nurse.lastName,
 						}),

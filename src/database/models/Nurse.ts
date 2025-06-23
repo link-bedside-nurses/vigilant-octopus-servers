@@ -37,7 +37,6 @@ export interface QualificationDocument {
 		toJSON: {
 			virtuals: true,
 			transform(_doc, ret): void {
-				delete ret.password;
 				ret.id = _doc._id;
 				delete ret._id;
 				delete ret.__v;
