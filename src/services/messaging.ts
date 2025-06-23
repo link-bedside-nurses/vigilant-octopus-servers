@@ -1,3 +1,4 @@
+import { AuthType, Infobip } from '@infobip-api/sdk';
 import axios from 'axios';
 import { randomInt } from 'crypto';
 import Redis from 'ioredis';
@@ -97,6 +98,13 @@ class MessagingService {
 		return MessagingService.instance;
 	}
 
+	// Infobip SDK instance
+	private infobip = new Infobip({
+		baseUrl: envars.INFOBIP_API_BASE_URL,
+		apiKey: envars.INFOBIP_API_KEY,
+		authType: AuthType.ApiKey,
+	});
+
 	/**
 	 * Generate OTP
 	 */
@@ -154,32 +162,16 @@ class MessagingService {
 		try {
 			logger.info(`Sending SMS to ${phone}`);
 
-			const response = await axios.post(
-				envars.INFOBIP_URL,
-				{
-					messages: [
-						{
-							destinations: [{ to: phone }],
-							from: 'ServiceSMS',
-							text: message,
-						},
-					],
-				},
-				{
-					headers: {
-						Authorization: `App ${envars.INFOBIP_SECRET_KEY}`,
-						'Content-Type': 'application/json',
-						Accept: 'application/json',
-					},
-					maxRedirects: 20,
-					timeout: 10000,
-				}
-			);
+			const response = await this.infobip.channels.sms.send({
+				from: envars.FROM_SMS_PHONE,
+				to: phone,
+				text: message,
+			});
 
 			logger.info(`SMS sent successfully to ${phone}`);
 			return {
 				success: true,
-				messageId: response.data?.messages?.[0]?.messageId,
+				messageId: response.messages?.[0]?.messageId,
 				status: MessageStatus.SENT,
 				channel: ChannelType.SMS,
 				timestamp: new Date(),

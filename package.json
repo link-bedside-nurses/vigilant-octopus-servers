@@ -46,6 +46,7 @@
 		"typescript": "^5.3.3"
 	},
 	"dependencies": {
+		"@infobip-api/sdk": "^0.3.2",
 		"@typegoose/typegoose": "^11.4.1",
 		"argon2": "^0.31.0",
 		"axios": "^1.6.2",

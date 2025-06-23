@@ -22,6 +22,8 @@ const env = envalid.cleanEnv(process.env, {
 	TO_SMS_PHONE: envalid.str(),
 	INFOBIP_URL: envalid.str(),
 	INFOBIP_SECRET_KEY: envalid.str(),
+	INFOBIP_API_BASE_URL: envalid.str(),
+	INFOBIP_API_KEY: envalid.str(),
 
 	// REDIS
 	REDIS_HOST: envalid.str(),
@@ -56,6 +58,8 @@ const envars = Object.freeze({
 	TO_SMS_PHONE: env.TO_SMS_PHONE,
 	INFOBIP_URL: env.INFOBIP_URL,
 	INFOBIP_SECRET_KEY: env.INFOBIP_SECRET_KEY,
+	INFOBIP_API_BASE_URL: env.INFOBIP_API_BASE_URL,
+	INFOBIP_API_KEY: env.INFOBIP_API_KEY,
 	X_REFERENCE_ID: env.X_REFERENCE_ID,
 	API_KEY: env.API_KEY,
 	OCP_APIM_SUBSCRIPTION_KEY: env.OCP_APIM_SUBSCRIPTION_KEY,
