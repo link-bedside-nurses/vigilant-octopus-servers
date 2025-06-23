@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
+import { CreateNurseSchema } from '../interfaces/dtos';
 import {
 	handleUploadError,
 	uploadNationalID,
@@ -10,6 +11,8 @@ import {
 	validateDocumentUpload,
 	validateImageUpload,
 } from '../middlewares/fileUpload';
+import { ChannelType, messagingService } from '../services/messaging';
+import { NOTIFICATION_TEMPLATES, SMS_TEMPLATES } from '../services/templates';
 import { fileUploadService, handleFileUploadResponse } from '../services/upload';
 import { sendNormalized } from '../utils/http-response';
 
@@ -312,6 +315,56 @@ router.get('/:id/appointment-history', async (req: Request, res: Response, next:
 			filteredAppointments,
 			'Appointments fetched successfully'
 		);
+	} catch (err) {
+		return next(err);
+	}
+});
+
+// Public nurse registration route
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const parseResult = CreateNurseSchema.safeParse(req.body);
+		if (!parseResult.success) {
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				'Invalid nurse registration data',
+				parseResult.error
+			);
+		}
+		const nurseData = parseResult.data;
+
+		const nurse = await db.nurses.create(nurseData);
+
+		// Send welcome SMS if phone is provided
+		if (nurse.phone) {
+			await messagingService.sendNotification(
+				nurse.phone,
+				SMS_TEMPLATES.admin.nurseWelcome({ firstName: nurse.firstName }),
+				{ channel: ChannelType.SMS }
+			);
+		}
+		// Optionally, send welcome email if email is provided (uncomment if needed)
+		if (nurse.email) {
+			await messagingService.sendNotification(
+				nurse.email,
+				NOTIFICATION_TEMPLATES.nurseVerification.text,
+				{
+					channel: ChannelType.EMAIL,
+					template: {
+						subject: NOTIFICATION_TEMPLATES.nurseVerification.subject,
+						text: NOTIFICATION_TEMPLATES.nurseVerification.text,
+						html: NOTIFICATION_TEMPLATES.nurseVerification.html({
+							firstName: nurse.firstName,
+							lastName: nurse.lastName,
+						}),
+					},
+				}
+			);
+		}
+
+		return sendNormalized(res, StatusCodes.CREATED, nurse, 'Nurse registered successfully');
 	} catch (err) {
 		return next(err);
 	}
