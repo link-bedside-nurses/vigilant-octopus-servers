@@ -99,7 +99,7 @@ class MessagingService {
 	}
 
 	// Infobip SDK instance
-	private infobip = new Infobip({
+	private infobipClient = new Infobip({
 		baseUrl: envars.INFOBIP_API_BASE_URL,
 		apiKey: envars.INFOBIP_API_KEY,
 		authType: AuthType.ApiKey,
@@ -156,22 +156,29 @@ class MessagingService {
 	}
 
 	/**
-	 * Send SMS via Infobip
+	 * Send SMS via Infobip (latest SDK usage)
 	 */
 	private async sendSMS(phone: string, message: string): Promise<MessageResult> {
 		try {
 			logger.info(`Sending SMS to ${phone}`);
 
-			const response = await this.infobip.channels.sms.send({
-				from: envars.FROM_SMS_PHONE,
-				to: phone,
-				text: message,
+			const infobipResponse = await this.infobipClient.channels.sms.send({
+				type: 'text',
+				messages: [
+					{
+						destinations: [{ to: phone }],
+						from: envars.FROM_SMS_PHONE,
+						text: message,
+					},
+				],
 			});
 
-			logger.info(`SMS sent successfully to ${phone}`);
+			const { data } = infobipResponse;
+			logger.info('Infobip SMS response:', JSON.stringify(data));
+
 			return {
 				success: true,
-				messageId: response.messages?.[0]?.messageId,
+				messageId: data?.messages?.[0]?.messageId,
 				status: MessageStatus.SENT,
 				channel: ChannelType.SMS,
 				timestamp: new Date(),
