@@ -20,8 +20,6 @@ const env = envalid.cleanEnv(process.env, {
 	// OTP/SMS
 	FROM_SMS_PHONE: envalid.str(),
 	TO_SMS_PHONE: envalid.str(),
-	INFOBIP_URL: envalid.str(),
-	INFOBIP_SECRET_KEY: envalid.str(),
 	INFOBIP_API_BASE_URL: envalid.str(),
 	INFOBIP_API_KEY: envalid.str(),
 
@@ -56,8 +54,6 @@ const envars = Object.freeze({
 	RECIPIENT_EMAIL: env.RECIPIENT_EMAIL,
 	FROM_SMS_PHONE: env.FROM_SMS_PHONE,
 	TO_SMS_PHONE: env.TO_SMS_PHONE,
-	INFOBIP_URL: env.INFOBIP_URL,
-	INFOBIP_SECRET_KEY: env.INFOBIP_SECRET_KEY,
 	INFOBIP_API_BASE_URL: env.INFOBIP_API_BASE_URL,
 	INFOBIP_API_KEY: env.INFOBIP_API_KEY,
 	X_REFERENCE_ID: env.X_REFERENCE_ID,

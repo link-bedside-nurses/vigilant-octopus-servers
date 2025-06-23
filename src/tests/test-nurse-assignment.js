@@ -13,8 +13,8 @@ const requiredEnvVars = [
 	'ACCESS_TOKEN_SECRET',
 	'SENDER_EMAIL',
 	'APP_PASSWORD',
-	'INFOBIP_URL',
-	'INFOBIP_SECRET_KEY',
+	'INFOBIP_API_BASE_URL',
+	'INFOBIP_API_KEY',
 ];
 
 console.log('\nChecking environment variables...');

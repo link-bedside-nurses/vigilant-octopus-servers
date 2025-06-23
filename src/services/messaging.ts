@@ -445,12 +445,15 @@ class MessagingService {
 		}
 
 		try {
-			await axios.get(envars.INFOBIP_URL.replace('/sms/2/text/advanced', '/account/1/balance'), {
-				headers: {
-					Authorization: `App ${envars.INFOBIP_SECRET_KEY}`,
-				},
-				timeout: 5000,
-			});
+			await axios.get(
+				envars.INFOBIP_API_BASE_URL.replace('/sms/2/text/advanced', '/account/1/balance'),
+				{
+					headers: {
+						Authorization: `App ${envars.INFOBIP_API_KEY}`,
+					},
+					timeout: 5000,
+				}
+			);
 			health.sms = true;
 		} catch (error) {
 			logger.error('SMS health check failed:' + error);
