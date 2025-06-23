@@ -5,7 +5,7 @@ export const NOTIFICATION_TEMPLATES = {
 		text: 'You have been assigned to a new appointment. Please review the details and confirm your availability within 2 hours.',
 		html: (
 			appointment: {
-				patient: { name: string };
+				patient: { name: string, phone: string };
 				date: string | number | Date;
 				location: any;
 				symptoms: string[];
@@ -21,7 +21,7 @@ export const NOTIFICATION_TEMPLATES = {
 				<title>New Appointment Assignment</title>
 				<style>
 					* { margin: 0; padding: 0; box-sizing: border-box; }
-					body { 
+					body {
 						font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 						background-color: #f8fafc;
 						line-height: 1.6;
@@ -194,64 +194,63 @@ export const NOTIFICATION_TEMPLATES = {
 						<h1>🏥 New Assignment</h1>
 						<p>You have a new patient appointment</p>
 					</div>
-					
+
 					<div class="content">
 						<div class="greeting">
 							Hello ${nurse.firstName} ${nurse.lastName} 👋
 						</div>
-						
+
 						<div class="message">
 							You have been assigned to a new appointment. Please review the details below and confirm your availability.
 						</div>
-						
+
 						<div class="appointment-card">
 							<div class="appointment-title">
 								📅 Appointment Details
 							</div>
-							
+
 							<div class="detail-row">
 								<div class="detail-label">👤 Patient:</div>
-								<div class="detail-value">${appointment.patient.name}</div>
+								<div class="detail-value">${appointment.patient.name} ${appointment.patient.phone}</div>
 							</div>
-							
+
 							<div class="detail-row">
 								<div class="detail-label">📅 Date:</div>
-								<div class="detail-value">${new Date(appointment.date).toLocaleDateString('en-US', {
-									weekday: 'long',
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-								})}</div>
+								<div class="detail-value">${new Date( appointment.date ).toLocaleDateString( 'en-US', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		} )}</div>
 							</div>
-							
+
 							<div class="detail-row">
 								<div class="detail-label">🕐 Time:</div>
-								<div class="detail-value">${new Date(appointment.date).toLocaleTimeString('en-US', {
-									hour: 'numeric',
-									minute: '2-digit',
-									hour12: true,
-								})}</div>
+								<div class="detail-value">${new Date( appointment.date ).toLocaleTimeString( 'en-US', {
+			hour: 'numeric',
+			minute: '2-digit',
+			hour12: true,
+		} )}</div>
 							</div>
-							
+
 							<div class="detail-row">
 								<div class="detail-label">📍 Location:</div>
 								<div class="detail-value">${appointment.location || 'Patient Home'}</div>
 							</div>
 						</div>
-						
-						${
-							appointment.symptoms && appointment.symptoms.length > 0
-								? `
+
+						${appointment.symptoms && appointment.symptoms.length > 0
+				? `
 						<div class="symptoms-list">
 							<div class="symptoms-title">🩺 Reported Symptoms</div>
 							<div class="symptoms-tags">
-								${appointment.symptoms.map((symptom: any) => `<span class="symptom-tag">${symptom}</span>`).join('')}
+								${appointment.symptoms.map( ( symptom: any ) => `<span class="symptom-tag">${symptom}</span>` ).join( '' )}
 							</div>
 						</div>
 						`
-								: ''
-						}
-						
+				: ''
+			}
+
 						<div class="action-section">
 							<div class="action-title">⏰ Action Required</div>
 							<div class="action-text">
@@ -265,7 +264,7 @@ export const NOTIFICATION_TEMPLATES = {
 							</a>
 						</div>
 					</div>
-					
+
 					<div class="footer">
 						<p class="footer-text">
 							This email was sent by <span class="company-name">Link Bed Sides</span>
@@ -306,7 +305,7 @@ export const NOTIFICATION_TEMPLATES = {
 				<title>Nurse Assigned</title>
 				<style>
 					* { margin: 0; padding: 0; box-sizing: border-box; }
-					body { 
+					body {
 						font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 						background-color: #f8fafc;
 						line-height: 1.6;
@@ -500,27 +499,27 @@ export const NOTIFICATION_TEMPLATES = {
 						<h1>🎉 Nurse Assigned!</h1>
 						<p>Your healthcare journey continues</p>
 					</div>
-					
+
 					<div class="content">
 						<div class="greeting">
 							Hello ${appointment.patient.name} 👋
 						</div>
-						
+
 						<div class="good-news">
 							<div class="good-news-title">✨ Great News!</div>
 							<div class="good-news-text">
 								A qualified nurse has been assigned to your appointment and will provide excellent care.
 							</div>
 						</div>
-						
+
 						<div class="nurse-card">
 							<div class="nurse-title">
 								👩‍⚕️ Your Assigned Nurse
 							</div>
-							
+
 							<div class="nurse-info">
 								<div class="nurse-avatar">
-									${nurse.firstName.charAt(0)}${nurse.lastName.charAt(0)}
+									${nurse.firstName.charAt( 0 )}${nurse.lastName.charAt( 0 )}
 								</div>
 								<div class="nurse-details">
 									<h3>${nurse.firstName} ${nurse.lastName}</h3>
@@ -530,40 +529,40 @@ export const NOTIFICATION_TEMPLATES = {
 								</div>
 							</div>
 						</div>
-						
+
 						<div class="appointment-summary">
 							<div class="summary-title">📋 Appointment Summary</div>
-							
+
 							<div class="detail-row">
 								<div class="detail-label">📅 Date:</div>
-								<div class="detail-value">${new Date(appointment.date).toLocaleDateString('en-US', {
-									weekday: 'long',
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-								})}</div>
+								<div class="detail-value">${new Date( appointment.date ).toLocaleDateString( 'en-US', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		} )}</div>
 							</div>
-							
+
 							<div class="detail-row">
 								<div class="detail-label">🕐 Time:</div>
-								<div class="detail-value">${new Date(appointment.date).toLocaleTimeString('en-US', {
-									hour: 'numeric',
-									minute: '2-digit',
-									hour12: true,
-								})}</div>
+								<div class="detail-value">${new Date( appointment.date ).toLocaleTimeString( 'en-US', {
+			hour: 'numeric',
+			minute: '2-digit',
+			hour12: true,
+		} )}</div>
 							</div>
-							
+
 							<div class="detail-row">
 								<div class="detail-label">📍 Location:</div>
 								<div class="detail-value">${appointment.location || 'Your Home'}</div>
 							</div>
-							
+
 							<div class="detail-row">
 								<div class="detail-label">👩‍⚕️ Nurse:</div>
 								<div class="detail-value">${nurse.firstName} ${nurse.lastName}</div>
 							</div>
 						</div>
-						
+
 						<div class="next-steps">
 							<div class="next-steps-title">📞 What Happens Next?</div>
 							<ul class="next-steps-list">
@@ -573,7 +572,7 @@ export const NOTIFICATION_TEMPLATES = {
 								<li>Prepare any questions or concerns you'd like to discuss</li>
 							</ul>
 						</div>
-						
+
 						<div class="contact-section">
 							<a href="tel:${nurse.phone || '+1234567890'}" class="contact-button">
 								📞 Contact Your Nurse
@@ -583,7 +582,7 @@ export const NOTIFICATION_TEMPLATES = {
 							</a>
 						</div>
 					</div>
-					
+
 					<div class="footer">
 						<p class="footer-text">
 							This email was sent by <span class="company-name">Link Bed Sides</span>
@@ -602,7 +601,7 @@ export const NOTIFICATION_TEMPLATES = {
 	nurseVerification: {
 		subject: 'Your Account Has Been Verified!',
 		text: 'Congratulations! Your Link Bed Sides nurse account has been verified and is now active. You can now start receiving assignments.',
-		html: (nurse: { firstName: string; lastName: string }) => `
+		html: ( nurse: { firstName: string; lastName: string } ) => `
 			<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -647,7 +646,7 @@ export const NOTIFICATION_TEMPLATES = {
 	nurseBan: {
 		subject: 'Account Banned - Access Revoked',
 		text: 'Your Link Bed Sides nurse account has been banned and access is now revoked. Please contact support for more information.',
-		html: (nurse: { firstName: string; lastName: string }) => `
+		html: ( nurse: { firstName: string; lastName: string } ) => `
 			<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -691,7 +690,7 @@ export const NOTIFICATION_TEMPLATES = {
 	patientBan: {
 		subject: 'Account Banned - Access Revoked',
 		text: 'Your Link Bed Sides account has been banned and access is now revoked. Please contact support for more information.',
-		html: (patient: { name: string }) => `
+		html: ( patient: { name: string } ) => `
 			<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -735,7 +734,7 @@ export const NOTIFICATION_TEMPLATES = {
 	patientVerification: {
 		subject: 'Your Account Has Been Verified!',
 		text: 'Congratulations! Your Link Bed Sides account has been verified and is now active. You can now book appointments and access services.',
-		html: (patient: { name: string }) => `
+		html: ( patient: { name: string } ) => `
 			<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -791,7 +790,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`🏥 NEW ASSIGNMENT\n\nHi ${nurse.firstName}, you've been assigned to:\n\n👤 Patient: ${appointment.patient.name}\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n📍 ${appointment.location || 'Patient Home'}\n\n⏰ CONFIRM within 2 hours\n\nConfirm: ${process.env.APP_URL}/confirm/${appointment.id}\nDecline: ${process.env.APP_URL}/decline/${appointment.id}\n\n- Link Bed Sides`,
+			`🏥 NEW ASSIGNMENT\n\nHi ${nurse.firstName}, you've been assigned to:\n\n👤 Patient: ${appointment.patient.name}\n📅 ${new Date( appointment.date ).toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } )} at ${new Date( appointment.date ).toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true } )}\n📍 ${appointment.location || 'Patient Home'}\n\n⏰ CONFIRM within 2 hours\n\nConfirm: ${process.env.APP_URL}/confirm/${appointment.id}\nDecline: ${process.env.APP_URL}/decline/${appointment.id}\n\n- Link Bed Sides`,
 
 		// Reminder for unconfirmed assignments
 		reminder: (
@@ -803,7 +802,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`⚠️ REMINDER\n\nHi ${nurse.firstName}, please confirm your assignment for ${appointment.patient.name} on ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.\n\n⏰ ${Math.floor((new Date(appointment.confirmBy).getTime() - new Date().getTime()) / (1000 * 60))} minutes left to confirm\n\nConfirm now: ${process.env.APP_URL}/confirm/${appointment.id}\n\n- Link Bed Sides`,
+			`⚠️ REMINDER\n\nHi ${nurse.firstName}, please confirm your assignment for ${appointment.patient.name} on ${new Date( appointment.date ).toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } )}.\n\n⏰ ${Math.floor( ( new Date( appointment.confirmBy ).getTime() - new Date().getTime() ) / ( 1000 * 60 ) )} minutes left to confirm\n\nConfirm now: ${process.env.APP_URL}/confirm/${appointment.id}\n\n- Link Bed Sides`,
 
 		// Assignment confirmed
 		confirmed: (
@@ -814,7 +813,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`✅ CONFIRMED\n\nThank you ${nurse.firstName}! Your assignment is confirmed:\n\n👤 ${appointment.patient.name}\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\nPatient contact: ${appointment.patient.phone}\nView details: ${process.env.APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
+			`✅ CONFIRMED\n\nThank you ${nurse.firstName}! Your assignment is confirmed:\n\n👤 ${appointment.patient.name}\n📅 ${new Date( appointment.date ).toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } )} at ${new Date( appointment.date ).toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true } )}\n\nPatient contact: ${appointment.patient.phone}\nView details: ${process.env.APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
 
 		// 24-hour reminder
 		dayBeforeReminder: (
@@ -826,7 +825,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`📅 TOMORROW\n\nHi ${nurse.firstName}, reminder for your appointment:\n\n👤 ${appointment.patient.name}\n🕐 ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n📍 ${appointment.location || 'Patient Home'}\n\nPatient: ${appointment.patient.phone}\nDetails: ${process.env.APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
+			`📅 TOMORROW\n\nHi ${nurse.firstName}, reminder for your appointment:\n\n👤 ${appointment.patient.name}\n🕐 ${new Date( appointment.date ).toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true } )}\n📍 ${appointment.location || 'Patient Home'}\n\nPatient: ${appointment.patient.phone}\nDetails: ${process.env.APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
 
 		// 2-hour reminder
 		finalReminder: (
@@ -837,7 +836,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`🔔 STARTING SOON\n\nHi ${nurse.firstName}, your appointment starts in 2 hours:\n\n👤 ${appointment.patient.name}\n🕐 ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n📍 ${appointment.location || 'Patient Home'}\n\nPatient: ${appointment.patient.phone}\n\n- Link Bed Sides`,
+			`🔔 STARTING SOON\n\nHi ${nurse.firstName}, your appointment starts in 2 hours:\n\n👤 ${appointment.patient.name}\n🕐 ${new Date( appointment.date ).toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true } )}\n📍 ${appointment.location || 'Patient Home'}\n\nPatient: ${appointment.patient.phone}\n\n- Link Bed Sides`,
 	},
 
 	patientNotification: {
@@ -846,28 +845,28 @@ const SMS_TEMPLATES = {
 			appointment: { patient: { name: string }; date: string | number | Date; id: string },
 			nurse: { firstName: string; lastName: string }
 		) =>
-			`🎉 NURSE ASSIGNED\n\nHi ${appointment.patient.name}, great news!\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} has been assigned to your appointment\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\n📞 Your nurse will call you within 2 hours to confirm details.\n\nView appointment: ${process.env.APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
+			`🎉 NURSE ASSIGNED\n\nHi ${appointment.patient.name}, great news!\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} has been assigned to your appointment\n📅 ${new Date( appointment.date ).toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } )} at ${new Date( appointment.date ).toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true } )}\n\n📞 Your nurse will call you within 2 hours to confirm details.\n\nView appointment: ${process.env.APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
 
 		// Appointment confirmed by nurse
 		appointmentConfirmed: (
 			appointment: { patient: { name: string }; date: string | number | Date },
 			nurse: { firstName: string; lastName: string; phone: string }
 		) =>
-			`✅ APPOINTMENT CONFIRMED\n\nHi ${appointment.patient.name},\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} confirmed your appointment:\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\nNurse contact: ${nurse.phone || 'Available in app'}\n\n- Link Bed Sides`,
+			`✅ APPOINTMENT CONFIRMED\n\nHi ${appointment.patient.name},\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} confirmed your appointment:\n📅 ${new Date( appointment.date ).toLocaleDateString( 'en-US', { weekday: 'short', month: 'short', day: 'numeric' } )} at ${new Date( appointment.date ).toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true } )}\n\nNurse contact: ${nurse.phone || 'Available in app'}\n\n- Link Bed Sides`,
 
 		// 24-hour reminder
 		dayBeforeReminder: (
 			appointment: { patient: { name: string }; date: string | number | Date; location: any },
 			nurse: { firstName: string; lastName: string; phone: string }
 		) =>
-			`📅 TOMORROW\n\nHi ${appointment.patient.name}, reminder:\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} will visit you tomorrow\n🕐 ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n📍 ${appointment.location || 'Your Home'}\n\n📞 Nurse: ${nurse.phone || 'Contact via app'}\n\nPrepare any questions you have!\n\n- Link Bed Sides`,
+			`📅 TOMORROW\n\nHi ${appointment.patient.name}, reminder:\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} will visit you tomorrow\n🕐 ${new Date( appointment.date ).toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true } )}\n📍 ${appointment.location || 'Your Home'}\n\n📞 Nurse: ${nurse.phone || 'Contact via app'}\n\nPrepare any questions you have!\n\n- Link Bed Sides`,
 
 		// 2-hour reminder
 		finalReminder: (
 			appointment: { patient: { name: string }; date: string | number | Date },
 			nurse: { firstName: string; lastName: string; phone: string }
 		) =>
-			`🔔 APPOINTMENT SOON\n\nHi ${appointment.patient.name},\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} will arrive in 2 hours\n🕐 ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\nPlease be ready at your location.\n📞 Nurse: ${nurse.phone || 'Contact via app'}\n\n- Link Bed Sides`,
+			`🔔 APPOINTMENT SOON\n\nHi ${appointment.patient.name},\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} will arrive in 2 hours\n🕐 ${new Date( appointment.date ).toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit', hour12: true } )}\n\nPlease be ready at your location.\n📞 Nurse: ${nurse.phone || 'Contact via app'}\n\n- Link Bed Sides`,
 
 		// Nurse is on the way
 		nurseEnRoute: (
@@ -891,25 +890,25 @@ const SMS_TEMPLATES = {
 			appointment: { patient: { name: string }; date: string | number | Date },
 			reason: any
 		) =>
-			`⚠️ APPOINTMENT UPDATE\n\nHi ${appointment.patient.name},\n\nWe need to reassign your nurse for ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} due to ${reason || 'unforeseen circumstances'}.\n\nWe're finding a replacement and will update you within 30 minutes.\n\nCall us: ${process.env.SUPPORT_PHONE || '+256-XXX-XXXX'}\n\n- Link Bed Sides`,
+			`⚠️ APPOINTMENT UPDATE\n\nHi ${appointment.patient.name},\n\nWe need to reassign your nurse for ${new Date( appointment.date ).toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } )} due to ${reason || 'unforeseen circumstances'}.\n\nWe're finding a replacement and will update you within 30 minutes.\n\nCall us: ${process.env.SUPPORT_PHONE || '+256-XXX-XXXX'}\n\n- Link Bed Sides`,
 
 		// System maintenance
 		systemMaintenance: () =>
 			`🔧 MAINTENANCE NOTICE\n\nOur app will be under maintenance from 2:00 AM - 4:00 AM tonight.\n\nFor emergencies during this time, call: ${process.env.EMERGENCY_PHONE || '+256-XXX-XXXX'}\n\nSorry for any inconvenience.\n\n- Link Bed Sides`,
 
 		// Weather alert
-		weatherAlert: (appointment: { patient: { name: string } }, nurse: { firstName: string }) =>
+		weatherAlert: ( appointment: { patient: { name: string } }, nurse: { firstName: string } ) =>
 			`🌧️ WEATHER ALERT\n\nHi ${appointment.patient.name},\n\nDue to severe weather, your appointment with ${nurse.firstName} may be delayed.\n\n📞 Your nurse will call you with updates.\n\nFor urgent care, call: ${process.env.EMERGENCY_PHONE || '+256-XXX-XXXX'}\n\n- Link Bed Sides`,
 	},
 
 	// Administrative notifications
 	admin: {
 		// New nurse registration
-		nurseWelcome: (nurse: { firstName: string }) =>
+		nurseWelcome: ( nurse: { firstName: string } ) =>
 			`🎉 WELCOME TO LINK BED SIDES!\n\nHi ${nurse.firstName},\n\nYour nurse account is now active. You'll start receiving appointment assignments based on your availability.\n\n📱 Download our app: ${process.env.APP_DOWNLOAD_URL}\n\nQuestions? Call: ${process.env.SUPPORT_PHONE || '+256-XXX-XXXX'}\n\n- Link Bed Sides Team`,
 
 		// Patient registration
-		patientWelcome: (patient: { firstName: string }) =>
+		patientWelcome: ( patient: { firstName: string } ) =>
 			`🏥 WELCOME TO LINK BED SIDES!\n\nHi ${patient.firstName},\n\nYour account is ready! You can now book home healthcare visits with qualified nurses.\n\n📱 Book your first appointment: ${process.env.APP_URL}/book\n\nNeed help? Call: ${process.env.SUPPORT_PHONE || '+256-XXX-XXXX'}\n\n- Link Bed Sides Team`,
 
 		// Payment received
@@ -917,38 +916,38 @@ const SMS_TEMPLATES = {
 			appointment: { patient: { name: string }; date: string | number | Date; id: string },
 			amount: any
 		) =>
-			`💳 PAYMENT CONFIRMED\n\nHi ${appointment.patient.name},\n\nWe received your payment of ${amount} for the appointment on ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.\n\nReceipt: ${process.env.APP_URL}/receipt/${appointment.id}\n\n- Link Bed Sides`,
+			`💳 PAYMENT CONFIRMED\n\nHi ${appointment.patient.name},\n\nWe received your payment of ${amount} for the appointment on ${new Date( appointment.date ).toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } )}.\n\nReceipt: ${process.env.APP_URL}/receipt/${appointment.id}\n\n- Link Bed Sides`,
 	},
 
 	// Nurse verification SMS
-	nurseVerification: (nurse: { firstName: string }) =>
+	nurseVerification: ( nurse: { firstName: string } ) =>
 		`✅ Hi ${nurse.firstName}, your Link Bed Sides account is now VERIFIED and active! You can now receive assignments. Welcome aboard!`,
 
-	nurseBan: (nurse: { firstName: string }) =>
+	nurseBan: ( nurse: { firstName: string } ) =>
 		`🚫 Hi ${nurse.firstName}, your Link Bed Sides account has been BANNED. Access revoked. Contact support if you believe this is a mistake.`,
 
-	patientBan: (patient: { name: string }) =>
+	patientBan: ( patient: { name: string } ) =>
 		`🚫 Hi ${patient.name}, your Link Bed Sides account has been BANNED. Access revoked. Contact support if you believe this is a mistake.`,
 
-	patientVerification: (patient: { name: string }) =>
+	patientVerification: ( patient: { name: string } ) =>
 		`✅ Hi ${patient.name}, your Link Bed Sides account is now VERIFIED and active! You can now book appointments. Welcome!`,
 };
 
 // Helper function to get character count
-const getCharacterCount = (template: string | any[]) => {
+const getCharacterCount = ( template: string | any[] ) => {
 	return template.length;
 };
 
 // Helper function to validate SMS length (160 chars for single SMS)
-const validateSMSLength = (message: string | any[]) => {
-	if (message.length <= 160) {
+const validateSMSLength = ( message: string | any[] ) => {
+	if ( message.length <= 160 ) {
 		return { isValid: true, segments: 1, length: message.length };
-	} else if (message.length <= 306) {
+	} else if ( message.length <= 306 ) {
 		return { isValid: true, segments: 2, length: message.length };
-	} else if (message.length <= 459) {
+	} else if ( message.length <= 459 ) {
 		return { isValid: true, segments: 3, length: message.length };
 	} else {
-		return { isValid: false, segments: Math.ceil(message.length / 153), length: message.length };
+		return { isValid: false, segments: Math.ceil( message.length / 153 ), length: message.length };
 	}
 };
 
@@ -962,11 +961,11 @@ const sendNurseAssignmentSMS = async (
 	},
 	nurse: { firstName: string }
 ) => {
-	const message = SMS_TEMPLATES.nurseAssignment.assignment(appointment, nurse);
-	const validation = validateSMSLength(message);
+	const message = SMS_TEMPLATES.nurseAssignment.assignment( appointment, nurse );
+	const validation = validateSMSLength( message );
 
-	console.log(`SMS Length: ${validation.length} characters`);
-	console.log(`SMS Segments: ${validation.segments}`);
+	console.log( `SMS Length: ${validation.length} characters` );
+	console.log( `SMS Segments: ${validation.segments}` );
 
 	// Send via your SMS provider (Twilio, AWS SNS, etc.)
 	// await smsProvider.send({
