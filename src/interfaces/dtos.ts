@@ -27,7 +27,6 @@ export const CreateNurseSchema = z.object({
 	firstName: z.string().min(2),
 	lastName: z.string().min(2),
 	phone: z.string().regex(/^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number'),
-	password: z.string().min(8),
 	email: z.string().email().optional(),
 	isActive: z.boolean().optional(),
 	isVerified: z.boolean().optional(),
