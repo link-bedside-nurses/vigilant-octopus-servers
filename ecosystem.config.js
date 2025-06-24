@@ -9,7 +9,7 @@ module.exports = {
 			watch_options: {
 				followSymlinks: false,
 			},
-			instances: '1',
+			instances: 'max',
 			exec_mode: 'cluster',
 			autorestart: false,
 			env: {
