@@ -1,15 +1,19 @@
 import pino from 'pino';
 
-const loggerInstance = pino({
-	transport: {
-		target: 'pino-pretty',
-		options: {
-			colorize: true,
-			translateTime: 'SYS:standard',
-			ignore: 'pid,hostname',
-		},
-	},
-});
+const isDev = process.env.NODE_ENV !== 'production' && !process.env.PM2_HOME;
+
+const loggerInstance = isDev
+	? pino({
+			transport: {
+				target: 'pino-pretty',
+				options: {
+					colorize: true,
+					translateTime: 'SYS:standard',
+					ignore: 'pid,hostname',
+				},
+			},
+		})
+	: pino(); // plain JSON logs for PM2/production
 
 const logger = {
 	info: (msg: any, meta?: any) => {
