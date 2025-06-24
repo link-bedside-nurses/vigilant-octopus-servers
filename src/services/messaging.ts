@@ -172,9 +172,9 @@ class MessagingService {
 					},
 				],
 			});
-
+			console.log('infobipResponse', infobipResponse);
 			const { data } = infobipResponse;
-			logger.info('Infobip SMS response:', JSON.stringify(data));
+			logger.info('Infobip SMS response:' + JSON.stringify(data));
 
 			return {
 				success: true,
