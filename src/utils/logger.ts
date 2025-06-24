@@ -1,53 +1,45 @@
-import pino from 'pino';
+import winston from 'winston';
 
-const isDev = process.env.NODE_ENV !== 'production' && !process.env.PM2_HOME;
+const isDev = process.env.NODE_ENV !== 'production';
 
-const loggerInstance = isDev
-	? pino({
-			transport: {
-				target: 'pino-pretty',
-				options: {
-					colorize: true,
-					translateTime: 'SYS:standard',
-					ignore: 'pid,hostname',
-				},
-			},
+const loggerInstance = winston.createLogger({
+	level: isDev ? 'debug' : 'info',
+	format: winston.format.combine(
+		winston.format.timestamp(),
+		isDev ? winston.format.colorize() : winston.format.uncolorize(),
+		winston.format.printf(({ timestamp, level, message, ...meta }) => {
+			const metaString = Object.keys(meta).length ? JSON.stringify(meta) : '';
+			return `${timestamp} [${level}]: ${message} ${metaString}`;
 		})
-	: pino(); // plain JSON logs for PM2/production
+	),
+	transports: [new winston.transports.Console()],
+});
 
 const logger = {
 	info: (msg: any, meta?: any) => {
 		if (meta !== undefined) {
-			loggerInstance.info(meta, msg);
-		} else if (typeof msg === 'object') {
-			loggerInstance.info({ ...msg });
+			loggerInstance.info(msg, meta);
 		} else {
 			loggerInstance.info(msg);
 		}
 	},
 	warn: (msg: any, meta?: any) => {
 		if (meta !== undefined) {
-			loggerInstance.warn(meta, msg);
-		} else if (typeof msg === 'object') {
-			loggerInstance.warn({ ...msg });
+			loggerInstance.warn(msg, meta);
 		} else {
 			loggerInstance.warn(msg);
 		}
 	},
 	error: (msg: any, meta?: any) => {
 		if (meta !== undefined) {
-			loggerInstance.error(meta, msg);
-		} else if (typeof msg === 'object') {
-			loggerInstance.error({ ...msg });
+			loggerInstance.error(msg, meta);
 		} else {
 			loggerInstance.error(msg);
 		}
 	},
 	debug: (msg: any, meta?: any) => {
 		if (meta !== undefined) {
-			loggerInstance.debug(meta, msg);
-		} else if (typeof msg === 'object') {
-			loggerInstance.debug({ ...msg });
+			loggerInstance.debug(msg, meta);
 		} else {
 			loggerInstance.debug(msg);
 		}

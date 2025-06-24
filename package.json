@@ -73,14 +73,13 @@
 		"nanoid": "3.3.4",
 		"node-cron": "^3.0.3",
 		"nodemailer": "^6.9.6",
-		"pino": "^8.16.0",
-		"pino-pretty": "^10.2.3",
 		"reflect-metadata": "^0.1.13",
 		"response-time": "^2.3.3",
 		"sanitize-html": "^2.11.0",
 		"tsc-alias": "^1.8.7",
 		"twilio": "^4.18.1",
 		"uuid": "^9.0.1",
+		"winston": "^3.10.0",
 		"zod": "^3.22.3"
 	}
 }
