@@ -37,7 +37,10 @@ export class MomoAuthService {
 			// Step 3: Verify API User creation
 			const momoApiUserInfo = await getMomoApiUserInfo(this.referenceId);
 
-			logger.info(`MOMO API User initialized successfully: ${momoApiUserInfo}`);
+			console.log(`MOMO API User initialized successfully: ${momoApiUserInfo}`);
+			console.log(`momoApiUserInfo.providerCallbackHost: ${momoApiUserInfo.providerCallbackHost}`);
+			console.log(`momoApiUserInfo.targetEnvironment: ${momoApiUserInfo.targetEnvironment}`);
+
 			this.isInitialized = true;
 		} catch (error) {
 			console.error('Failed to initialize MOMO API User:', error);
