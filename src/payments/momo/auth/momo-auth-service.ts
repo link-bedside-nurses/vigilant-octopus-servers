@@ -32,15 +32,11 @@ export class MomoAuthService {
 
 			// Step 2: Generate API Key
 			this.apiKey = await createMomoApiKey(this.referenceId);
-			logger.info(`MOMO API Key: ${this.apiKey}`);
 
 			// Step 3: Verify API User creation
-			const momoApiUserInfo = await getMomoApiUserInfo(this.referenceId);
+			await getMomoApiUserInfo(this.referenceId);
 
-			console.log(`MOMO API User initialized successfully: ${momoApiUserInfo}`);
-			console.log(`momoApiUserInfo.providerCallbackHost: ${momoApiUserInfo.providerCallbackHost}`);
-			console.log(`momoApiUserInfo.targetEnvironment: ${momoApiUserInfo.targetEnvironment}`);
-
+			logger.info('MOMO API User initialized successfully');
 			this.isInitialized = true;
 		} catch (error) {
 			console.error('Failed to initialize MOMO API User:', error);
