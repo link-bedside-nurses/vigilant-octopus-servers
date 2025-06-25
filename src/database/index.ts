@@ -57,7 +57,9 @@ export async function connectToDatabase(): Promise<void> {
 
 		setupConnectionListeners();
 
-		if (process.env.NODE_ENV === 'development' && process.env.SEED_DATABASE) {
+		console.log('seed env: ', envars.SEED_DATABASE);
+
+		if (envars.NODE_ENV === 'development' && envars.SEED_DATABASE) {
 			try {
 				logger.info('🌱 Starting database seeding...');
 				await seedDatabase();

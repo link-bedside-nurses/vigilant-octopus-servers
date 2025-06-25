@@ -8,6 +8,7 @@ const env = envalid.cleanEnv(process.env, {
 	// Database
 	DATABASE_URL: envalid.str(),
 	DATABASE_NAME: envalid.str(),
+	SEED_DATABASE: envalid.bool(),
 
 	// App Auth
 	ACCESS_TOKEN_SECRET: envalid.str(),
@@ -48,6 +49,7 @@ const envars = Object.freeze({
 	PORT: env.PORT,
 	DATABASE_URL: env.DATABASE_URL,
 	DATABASE_NAME: env.DATABASE_NAME,
+	SEED_DATABASE: env.SEED_DATABASE,
 	ACCESS_TOKEN_SECRET: env.ACCESS_TOKEN_SECRET,
 	APP_PASSWORD: env.APP_PASSWORD,
 	SENDER_EMAIL: env.SENDER_EMAIL,
