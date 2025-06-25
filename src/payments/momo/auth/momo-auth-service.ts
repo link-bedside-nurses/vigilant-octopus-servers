@@ -32,11 +32,12 @@ export class MomoAuthService {
 
 			// Step 2: Generate API Key
 			this.apiKey = await createMomoApiKey(this.referenceId);
+			logger.info(`MOMO API Key: ${this.apiKey}`);
 
 			// Step 3: Verify API User creation
-			await getMomoApiUserInfo(this.referenceId);
+			const momoApiUserInfo = await getMomoApiUserInfo(this.referenceId);
 
-			logger.info('MOMO API User initialized successfully');
+			logger.info(`MOMO API User initialized successfully: ${momoApiUserInfo}`);
 			this.isInitialized = true;
 		} catch (error) {
 			console.error('Failed to initialize MOMO API User:', error);
