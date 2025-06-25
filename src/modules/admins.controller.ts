@@ -7,28 +7,28 @@ import { NOTIFICATION_TEMPLATES, SMS_TEMPLATES } from '../services/templates';
 import { sendNormalized } from '../utils/http-response';
 
 const router = Router();
-router.use(authenticate);
+router.use( authenticate );
 
 // GET /admins - get all admins
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+router.get( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
-		const admins = await db.admins.find({}).sort({ createdAt: 'desc' });
-		return sendNormalized(res, StatusCodes.OK, admins, 'Admins Retrieved');
-	} catch (err) {
-		return next(err);
+		const admins = await db.admins.find( {} ).sort( { createdAt: 'desc' } );
+		return sendNormalized( res, StatusCodes.OK, admins, 'Admins Retrieved' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // PATCH /admins/nurse/:id/ban - ban nurse (must come before /:id routes)
-router.patch('/nurse/:id/ban', async (req: Request, res: Response, next: NextFunction) => {
+router.patch( '/nurse/:id/ban', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const bannedNurse = await db.nurses.findByIdAndUpdate(
 			req.params.id,
 			{ isBanned: true, isVerified: false, isActive: false },
 			{ new: true }
 		);
-		if (!bannedNurse)
-			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No such nurse Found');
+		if ( !bannedNurse )
+			return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No such nurse Found' );
 
 		// Send ban notification (email and SMS)
 		const nurse = bannedNurse;
@@ -37,20 +37,20 @@ router.patch('/nurse/:id/ban', async (req: Request, res: Response, next: NextFun
 		const firstName = nurse.firstName;
 		const lastName = nurse.lastName;
 
-		if (email) {
-			await messagingService.sendNotification(email, '', {
+		if ( email ) {
+			await messagingService.sendNotification( email, '', {
 				channel: ChannelType.EMAIL,
 				template: {
 					subject: NOTIFICATION_TEMPLATES.nurseBan.subject,
 					text: NOTIFICATION_TEMPLATES.nurseBan.text,
-					html: NOTIFICATION_TEMPLATES.nurseBan.html({ firstName, lastName }),
+					html: NOTIFICATION_TEMPLATES.nurseBan.html( { firstName, lastName } ),
 				},
-			});
+			} );
 		}
-		if (phone) {
-			await messagingService.sendNotification(phone, SMS_TEMPLATES.nurseBan({ firstName }), {
+		if ( phone ) {
+			await messagingService.sendNotification( phone, SMS_TEMPLATES.nurseBan( { firstName } ), {
 				channel: ChannelType.SMS,
-			});
+			} );
 		}
 
 		return sendNormalized(
@@ -59,21 +59,21 @@ router.patch('/nurse/:id/ban', async (req: Request, res: Response, next: NextFun
 			bannedNurse,
 			'Nurse Successfully banned from using the application'
 		);
-	} catch (err) {
-		return next(err);
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // PATCH /admins/nurse/:id/verify - verify nurse (must come before /:id routes)
-router.patch('/nurse/:id/verify', async (req: Request, res: Response, next: NextFunction) => {
+router.patch( '/nurse/:id/verify', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const verifiedNurse = await db.nurses.findByIdAndUpdate(
 			req.params.id,
 			{ isVerified: true, isActive: true, documentVerificationStatus: 'verified' },
 			{ new: true }
 		);
-		if (!verifiedNurse)
-			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No such nurse Found');
+		if ( !verifiedNurse )
+			return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No such nurse Found' );
 
 		// Send verification notification (email and SMS)
 		const nurse = verifiedNurse;
@@ -83,54 +83,54 @@ router.patch('/nurse/:id/verify', async (req: Request, res: Response, next: Next
 		const lastName = nurse.lastName;
 
 		// Email notification
-		if (email) {
-			await messagingService.sendNotification(email, '', {
+		if ( email ) {
+			await messagingService.sendNotification( email, '', {
 				channel: ChannelType.EMAIL,
 				template: {
 					subject: NOTIFICATION_TEMPLATES.nurseVerification.subject,
 					text: NOTIFICATION_TEMPLATES.nurseVerification.text,
-					html: NOTIFICATION_TEMPLATES.nurseVerification.html({ firstName, lastName }),
+					html: NOTIFICATION_TEMPLATES.nurseVerification.html( { firstName, lastName } ),
 				},
-			});
+			} );
 		}
 
 		// SMS notification
-		if (phone) {
+		if ( phone ) {
 			await messagingService.sendNotification(
 				phone,
-				SMS_TEMPLATES.nurseVerification({ firstName }),
+				SMS_TEMPLATES.nurseVerification( { firstName } ),
 				{
 					channel: ChannelType.SMS,
 				}
 			);
 		}
 
-		return sendNormalized(res, StatusCodes.OK, verifiedNurse, 'Nurse verified');
-	} catch (err) {
-		return next(err);
+		return sendNormalized( res, StatusCodes.OK, verifiedNurse, 'Nurse verified' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // PATCH /admins/patient/:id/ban - ban patient (must come before /:id routes)
-router.patch('/patient/:id/ban', async (req: Request, res: Response, next: NextFunction) => {
+router.patch( '/patient/:id/ban', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const bannedPatient = await db.patients.findByIdAndUpdate(
 			req.params.id,
 			{ isBanned: true, isPhoneVerified: false },
 			{ new: true }
 		);
-		if (!bannedPatient)
-			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No such patient Found');
+		if ( !bannedPatient )
+			return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No such patient Found' );
 
 		// Send ban notification (SMS only, fallback to email if available in future)
 		const patient = bannedPatient;
 		const phone = patient.phone;
 		const name = patient.name;
 
-		if (phone) {
-			await messagingService.sendNotification(phone, SMS_TEMPLATES.patientBan({ name }), {
+		if ( phone ) {
+			await messagingService.sendNotification( phone, SMS_TEMPLATES.patientBan( { name: name! } ), {
 				channel: ChannelType.SMS,
-			});
+			} );
 		}
 
 		return sendNormalized(
@@ -139,65 +139,65 @@ router.patch('/patient/:id/ban', async (req: Request, res: Response, next: NextF
 			bannedPatient,
 			'Patient Successfully banned from using the application!'
 		);
-	} catch (err) {
-		return next(err);
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // PATCH /admins/patient/:id/verify - verify patient (must come before /:id routes)
-router.patch('/patient/:id/verify', async (req: Request, res: Response, next: NextFunction) => {
+router.patch( '/patient/:id/verify', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const verifiedPatient = await db.patients.findByIdAndUpdate(
 			req.params.id,
 			{ isVerified: true },
 			{ new: true }
 		);
-		if (!verifiedPatient)
-			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No such patient Found');
+		if ( !verifiedPatient )
+			return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No such patient Found' );
 
 		// Send verification notification (SMS only, fallback to email if available in future)
 		const patient = verifiedPatient;
 		const phone = patient.phone;
 		const name = patient.name;
 
-		if (phone) {
-			await messagingService.sendNotification(phone, SMS_TEMPLATES.patientVerification({ name }), {
+		if ( phone ) {
+			await messagingService.sendNotification( phone, SMS_TEMPLATES.patientVerification( { name: name! } ), {
 				channel: ChannelType.SMS,
-			});
+			} );
 		}
 
-		return sendNormalized(res, StatusCodes.OK, verifiedPatient, 'Patient verified!');
-	} catch (err) {
-		return next(err);
+		return sendNormalized( res, StatusCodes.OK, verifiedPatient, 'Patient verified!' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // GET /admins/:id - get admin by id (must come after specific routes)
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get( '/:id', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
-		const admin = await db.admins.findById(req.params.id);
-		if (!admin) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No admin Found');
-		return sendNormalized(res, StatusCodes.OK, admin, 'Admin Retrieved');
-	} catch (err) {
-		return next(err);
+		const admin = await db.admins.findById( req.params.id );
+		if ( !admin ) return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No admin Found' );
+		return sendNormalized( res, StatusCodes.OK, admin, 'Admin Retrieved' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // PATCH /admins/:id - update admin
-router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.patch( '/:id', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
-		const admin = await db.admins.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true });
-		if (!admin) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No admin Found');
-		return sendNormalized(res, StatusCodes.OK, admin, 'Admin updated');
-	} catch (err) {
-		return next(err);
+		const admin = await db.admins.findByIdAndUpdate( req.params.id, { ...req.body }, { new: true } );
+		if ( !admin ) return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No admin Found' );
+		return sendNormalized( res, StatusCodes.OK, admin, 'Admin updated' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // PATCH /admins/:id/ban - ban admin
-router.patch('/:id/ban', async (req: Request, res: Response, next: NextFunction) => {
+router.patch( '/:id/ban', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
-		if (req.account?.id === req.params.id) {
+		if ( req.account?.id === req.params.id ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -210,11 +210,11 @@ router.patch('/:id/ban', async (req: Request, res: Response, next: NextFunction)
 			{ $set: { isBanned: true } },
 			{ new: true }
 		);
-		if (!updatedAdmin) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No admin Found');
-		return sendNormalized(res, StatusCodes.OK, updatedAdmin, 'Admin banned');
-	} catch (err) {
-		return next(err);
+		if ( !updatedAdmin ) return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No admin Found' );
+		return sendNormalized( res, StatusCodes.OK, updatedAdmin, 'Admin banned' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 export default router;
