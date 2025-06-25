@@ -29,42 +29,42 @@ const router = express.Router();
 /**
  * Security and CORS Configuration
  */
-const corsOptions = {
-	origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-		// Allow requests with no origin (like mobile apps or curl requests)
-		if (!origin) return callback(null, true);
+// const corsOptions = {
+// 	origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+// 		// Allow requests with no origin (like mobile apps or curl requests)
+// 		if (!origin) return callback(null, true);
 
-		const allowedOrigins = [
-			'http://localhost:3000',
-			'http://localhost:3001',
-			'http://127.0.0.1:3000',
-			'http://127.0.0.1:3001',
-			'http://127.0.0.1:8080',
-			'http://127.0.0.1:8081',
-			'https://linkbedsides.ianbalijawa.com',
-		];
+// 		const allowedOrigins = [
+// 			'http://localhost:3000',
+// 			'http://localhost:3001',
+// 			'http://127.0.0.1:3000',
+// 			'http://127.0.0.1:3001',
+// 			'http://127.0.0.1:8080',
+// 			'http://127.0.0.1:8081',
+// 			'https://linkbedsides.ianbalijawa.com',
+// 		];
 
-		// Add production origins here
-		if (envars.NODE_ENV === 'production') {
-			allowedOrigins.push(
-				'https://linkbedsides.ianbalijawa.com',
-				'https://www.linkbedsides.ianbalijawa.com'
-			);
-		}
+// 		// Add production origins here
+// 		if (envars.NODE_ENV === 'production') {
+// 			allowedOrigins.push(
+// 				'https://linkbedsides.ianbalijawa.com',
+// 				'https://www.linkbedsides.ianbalijawa.com'
+// 			);
+// 		}
 
-		if (allowedOrigins.includes(origin)) {
-			callback(null, true);
-		} else {
-			logger.warn(`CORS blocked request from origin: ${origin}`);
-			callback(new Error('Not allowed by CORS'));
-		}
-	},
-	credentials: true,
-	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-	allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-	exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
-	maxAge: 86400, // 24 hours
-};
+// 		if (allowedOrigins.includes(origin)) {
+// 			callback(null, true);
+// 		} else {
+// 			logger.warn(`CORS blocked request from origin: ${origin}`);
+// 			callback(new Error('Not allowed by CORS'));
+// 		}
+// 	},
+// 	credentials: true,
+// 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+// 	allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+// 	exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
+// 	maxAge: 86400, // 24 hours
+// };
 
 /**
  * Rate Limiting Configuration
@@ -133,7 +133,8 @@ router.use(
 	})
 );
 
-router.use(cors(corsOptions));
+// router.use(cors(corsOptions));
+router.use(cors());
 router.use(requestIdMiddleware);
 router.use(responseTime());
 
