@@ -1007,30 +1007,5 @@ const validateSMSLength = (message: string | any[]) => {
 	}
 };
 
-// Usage example
-const sendNurseAssignmentSMS = async (
-	appointment: {
-		patient: { name: string };
-		date: string | number | Date;
-		location: any;
-		id: string;
-	},
-	nurse: { firstName: string }
-) => {
-	const message = SMS_TEMPLATES.nurseAssignment.assignment(appointment, nurse);
-	const validation = validateSMSLength(message);
-
-	console.log(`SMS Length: ${validation.length} characters`);
-	console.log(`SMS Segments: ${validation.segments}`);
-
-	// Send via your SMS provider (Twilio, AWS SNS, etc.)
-	// await smsProvider.send({
-	//     to: nurse.phone,
-	//     message: message
-	// });
-
-	return message;
-};
-
 // Export templates
-export { getCharacterCount, sendNurseAssignmentSMS, SMS_TEMPLATES, validateSMSLength };
+export { getCharacterCount, SMS_TEMPLATES, validateSMSLength };
