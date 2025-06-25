@@ -11,6 +11,7 @@ import Redis from 'ioredis';
 import envars from './config/env-vars';
 import { scheduleAccountDeletionJob } from './cron/account-deletion-job';
 import { connectToDatabase, disconnectFromDatabase } from './database';
+import { MomoAuthService } from './payments/momo/auth/momo-auth-service';
 import router from './router';
 import logger from './utils/logger';
 
@@ -240,6 +241,16 @@ class App {
 			// Connect to database
 			await connectToDatabase();
 			logger.info('✅ Database connected successfully');
+
+			// Initialize MomoAuthService
+			try {
+				await MomoAuthService.getInstance().initialize(envars.MOMO_CALLBACK_HOST);
+				logger.info('✅ Momo Auth Service initialized successfully');
+			} catch (error) {
+				logger.error('❌ Failed to initialize Momo Auth Service:', error);
+				// Depending on requirements, you might want to exit the process
+				// process.exit(1);
+			}
 
 			// Schedule the account deletion cron job
 			this.accountDeletionCronJob = scheduleAccountDeletionJob();

@@ -6,7 +6,6 @@ const loggerInstance = winston.createLogger({
 	level: isDev ? 'debug' : 'info',
 	format: winston.format.combine(
 		winston.format.timestamp(),
-		// isDev ? winston.format.colorize() : winston.format.uncolorize(),
 		winston.format.colorize(),
 		winston.format.printf(({ timestamp, level, message, ...meta }) => {
 			const metaString = Object.keys(meta).length ? JSON.stringify(meta) : '';

@@ -28,6 +28,7 @@ const env = envalid.cleanEnv(process.env, {
 	REDIS_PASSWORD: envalid.str(),
 
 	// MOMO
+	MOMO_CALLBACK_HOST: envalid.str(),
 	X_REFERENCE_ID: envalid.str(),
 	API_KEY: envalid.str(),
 	OCP_APIM_SUBSCRIPTION_KEY: envalid.str(),
@@ -54,6 +55,7 @@ const envars = Object.freeze({
 	FROM_SMS_PHONE: env.FROM_SMS_PHONE,
 	INFOBIP_API_BASE_URL: env.INFOBIP_API_BASE_URL,
 	INFOBIP_API_KEY: env.INFOBIP_API_KEY,
+	MOMO_CALLBACK_HOST: env.MOMO_CALLBACK_HOST,
 	X_REFERENCE_ID: env.X_REFERENCE_ID,
 	API_KEY: env.API_KEY,
 	OCP_APIM_SUBSCRIPTION_KEY: env.OCP_APIM_SUBSCRIPTION_KEY,

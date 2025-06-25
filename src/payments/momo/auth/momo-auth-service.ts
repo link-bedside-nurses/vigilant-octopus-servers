@@ -8,6 +8,7 @@ export class MomoAuthService {
 	private static instance: MomoAuthService;
 	private apiKey?: string;
 	private referenceId: string;
+	private isInitialized = false;
 
 	private constructor() {
 		this.referenceId = uuidv4();
@@ -21,6 +22,10 @@ export class MomoAuthService {
 	}
 
 	public async initialize(callbackHost: string): Promise<void> {
+		if (this.isInitialized) {
+			logger.info('MOMO API User already initialized.');
+			return;
+		}
 		try {
 			// Step 1: Create API User
 			await createMomoAPIUser(this.referenceId, callbackHost);
@@ -32,6 +37,7 @@ export class MomoAuthService {
 			await getMomoApiUserInfo(this.referenceId);
 
 			logger.info('MOMO API User initialized successfully');
+			this.isInitialized = true;
 		} catch (error) {
 			console.error('Failed to initialize MOMO API User:', error);
 			throw error;
@@ -39,7 +45,7 @@ export class MomoAuthService {
 	}
 
 	public getApiKey(): string {
-		if (!this.apiKey) {
+		if (!this.apiKey || !this.isInitialized) {
 			throw new Error('API Key not initialized. Call initialize() first.');
 		}
 		return this.apiKey;
