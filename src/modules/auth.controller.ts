@@ -20,11 +20,11 @@ const router = Router();
 // Patient Authentication Routes
 
 // POST /auth/patient/signin - initiate patient signin with phone
-router.post('/patient/signin', async (req: Request, res: Response, _next: NextFunction) => {
+router.post( '/patient/signin', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = PatientPhoneAuthSchema.safeParse(req.body);
+		const result = PatientPhoneAuthSchema.safeParse( req.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -36,22 +36,20 @@ router.post('/patient/signin', async (req: Request, res: Response, _next: NextFu
 
 		const { phone } = result.data;
 
-		let patient = await db.patients.findOne({ phone });
+		let patient = await db.patients.findOne( { phone } );
 		let isNewUser = false;
 
-		if (!patient) {
+		if ( !patient ) {
 			isNewUser = true;
-			const tempName = `User_${phone.slice(-4)}`;
-			patient = await db.patients.create({
+			patient = await db.patients.create( {
 				phone,
-				name: tempName,
 				isPhoneVerified: false,
-			});
+			} );
 		}
 
-		const otpResult = await messagingService.sendOTPViaSMS(phone);
+		const otpResult = await messagingService.sendOTPViaSMS( phone );
 
-		if (!otpResult.success) {
+		if ( !otpResult.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.INTERNAL_SERVER_ERROR,
@@ -71,8 +69,8 @@ router.post('/patient/signin', async (req: Request, res: Response, _next: NextFu
 			},
 			isNewUser ? 'Account created and OTP sent for verification' : 'OTP sent for signin'
 		);
-	} catch (error) {
-		console.error('Error in patient signin:', error);
+	} catch ( error ) {
+		console.error( 'Error in patient signin:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -80,14 +78,14 @@ router.post('/patient/signin', async (req: Request, res: Response, _next: NextFu
 			'Failed to send OTP. Please try again.'
 		);
 	}
-});
+} );
 
 // POST /auth/patient/verify-otp
-router.post('/patient/verify-otp', async (req: Request, res: Response, _next: NextFunction) => {
+router.post( '/patient/verify-otp', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = PatientOTPVerificationSchema.safeParse(req.body);
+		const result = PatientOTPVerificationSchema.safeParse( req.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -97,11 +95,11 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 			);
 		}
 
-		const { phone, otp, name } = result.data;
+		const { phone, otp } = result.data;
 
-		const isValidOTP = await messagingService.verifyOTP(phone, otp);
+		const isValidOTP = await messagingService.verifyOTP( phone, otp );
 
-		if (!isValidOTP) {
+		if ( !isValidOTP ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -110,18 +108,15 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 			);
 		}
 
-		let patient = await db.patients.findOne({ phone });
+		let patient = await db.patients.findOne( { phone } );
 
-		if (patient) {
-			if (name && !patient.isPhoneVerified) {
-				patient.name = name;
-			}
+		if ( patient ) {
 			patient.isPhoneVerified = true;
 			patient = await patient.save();
 
-			await messagingService.expireOTP(phone);
+			await messagingService.expireOTP( phone );
 
-			const accessToken = createAccessToken(patient as unknown as mongoose.Document & ACCOUNT);
+			const accessToken = createAccessToken( patient as unknown as mongoose.Document & ACCOUNT );
 
 			return sendNormalized(
 				res,
@@ -130,24 +125,14 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 				'Successfully signed in'
 			);
 		} else {
-			if (!name) {
-				return sendNormalized(
-					res,
-					StatusCodes.BAD_REQUEST,
-					null,
-					'Name is required for new user registration'
-				);
-			}
-
-			patient = await db.patients.create({
+			patient = await db.patients.create( {
 				phone,
-				name,
 				isPhoneVerified: true,
-			});
+			} );
 
-			await messagingService.expireOTP(phone);
+			await messagingService.expireOTP( phone );
 
-			const accessToken = createAccessToken(patient as unknown as mongoose.Document & ACCOUNT);
+			const accessToken = createAccessToken( patient as unknown as mongoose.Document & ACCOUNT );
 
 			return sendNormalized(
 				res,
@@ -156,8 +141,8 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 				'Account created and signed in successfully'
 			);
 		}
-	} catch (error) {
-		console.error('Error in patient OTP verification:', error);
+	} catch ( error ) {
+		console.error( 'Error in patient OTP verification:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -165,10 +150,10 @@ router.post('/patient/verify-otp', async (req: Request, res: Response, _next: Ne
 			'Failed to verify OTP. Please try again.'
 		);
 	}
-});
+} );
 
 // POST /auth/patient/signup
-router.post('/patient/signup', async (_req: Request, res: Response, next: NextFunction) => {
+router.post( '/patient/signup', async ( _req: Request, res: Response, next: NextFunction ) => {
 	try {
 		return sendNormalized(
 			res,
@@ -176,19 +161,19 @@ router.post('/patient/signup', async (_req: Request, res: Response, next: NextFu
 			null,
 			'Please use the OTP-based signin flow for new patient registration'
 		);
-	} catch (error) {
-		return next(error);
+	} catch ( error ) {
+		return next( error );
 	}
-});
+} );
 
 // Admin Authentication Routes
 
 // POST /auth/admin/signin
-router.post('/admin/signin', async (req: Request, res: Response, _next: NextFunction) => {
+router.post( '/admin/signin', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = AdminSigninSchema.safeParse(req.body);
+		const result = AdminSigninSchema.safeParse( req.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -200,13 +185,13 @@ router.post('/admin/signin', async (req: Request, res: Response, _next: NextFunc
 
 		const { email, password } = result.data;
 
-		const admin = await db.admins.findOne({ email });
+		const admin = await db.admins.findOne( { email } );
 
-		if (!admin) {
-			return sendNormalized(res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials');
+		if ( !admin ) {
+			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
 		}
 
-		if (!admin.isEmailVerified) {
+		if ( !admin.isEmailVerified ) {
 			return sendNormalized(
 				res,
 				StatusCodes.UNAUTHORIZED,
@@ -215,13 +200,13 @@ router.post('/admin/signin', async (req: Request, res: Response, _next: NextFunc
 			);
 		}
 
-		const match = await Password.verify(admin.password, password);
+		const match = await Password.verify( admin.password, password );
 
-		if (!match) {
-			return sendNormalized(res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials');
+		if ( !match ) {
+			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
 		}
 
-		const accessToken = createAccessToken(admin as unknown as mongoose.Document & ACCOUNT);
+		const accessToken = createAccessToken( admin as unknown as mongoose.Document & ACCOUNT );
 
 		return sendNormalized(
 			res,
@@ -229,8 +214,8 @@ router.post('/admin/signin', async (req: Request, res: Response, _next: NextFunc
 			{ user: admin, accessToken },
 			'Signed in successfully'
 		);
-	} catch (error) {
-		console.error('Error in admin signin:', error);
+	} catch ( error ) {
+		console.error( 'Error in admin signin:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -238,14 +223,14 @@ router.post('/admin/signin', async (req: Request, res: Response, _next: NextFunc
 			'An error occurred during signin'
 		);
 	}
-});
+} );
 
 // POST /auth/admin/signup
-router.post('/admin/signup', async (req: Request, res: Response, _next: NextFunction) => {
+router.post( '/admin/signup', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = AdminSignupSchema.safeParse(req.body);
+		const result = AdminSignupSchema.safeParse( req.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -257,20 +242,20 @@ router.post('/admin/signup', async (req: Request, res: Response, _next: NextFunc
 
 		const { email, password } = result.data;
 
-		const existingAdmin = await db.admins.findOne({ email });
+		const existingAdmin = await db.admins.findOne( { email } );
 
-		if (existingAdmin) {
-			return sendNormalized(res, StatusCodes.BAD_REQUEST, null, 'Email already in use');
+		if ( existingAdmin ) {
+			return sendNormalized( res, StatusCodes.BAD_REQUEST, null, 'Email already in use' );
 		}
 
-		const hash = await Password.hash(password);
+		const hash = await Password.hash( password );
 
-		const admin = await db.admins.create({ email, password: hash });
+		const admin = await db.admins.create( { email, password: hash } );
 
-		const otpResult = await messagingService.sendOTPViaEmail(email);
+		const otpResult = await messagingService.sendOTPViaEmail( email );
 
-		if (!otpResult.success) {
-			await db.admins.findByIdAndDelete(admin.id);
+		if ( !otpResult.success ) {
+			await db.admins.findByIdAndDelete( admin.id );
 			return sendNormalized(
 				res,
 				StatusCodes.INTERNAL_SERVER_ERROR,
@@ -285,8 +270,8 @@ router.post('/admin/signup', async (req: Request, res: Response, _next: NextFunc
 			{ user: admin, expiresAt: otpResult.expiresAt },
 			'Admin account created. Please check your email for verification OTP.'
 		);
-	} catch (error) {
-		console.error('Error in admin signup:', error);
+	} catch ( error ) {
+		console.error( 'Error in admin signup:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -294,14 +279,14 @@ router.post('/admin/signup', async (req: Request, res: Response, _next: NextFunc
 			'An error occurred during signup'
 		);
 	}
-});
+} );
 
 // POST /auth/admin/verify-otp
-router.post('/admin/verify-otp', async (req: Request, res: Response, _next: NextFunction) => {
+router.post( '/admin/verify-otp', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = AdminOTPVerificationSchema.safeParse(req.body);
+		const result = AdminOTPVerificationSchema.safeParse( req.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -313,9 +298,9 @@ router.post('/admin/verify-otp', async (req: Request, res: Response, _next: Next
 
 		const { email, otp } = result.data;
 
-		const isValidOTP = await messagingService.verifyOTP(email, otp);
+		const isValidOTP = await messagingService.verifyOTP( email, otp );
 
-		if (!isValidOTP) {
+		if ( !isValidOTP ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -324,18 +309,18 @@ router.post('/admin/verify-otp', async (req: Request, res: Response, _next: Next
 			);
 		}
 
-		const admin = await db.admins.findOne({ email });
+		const admin = await db.admins.findOne( { email } );
 
-		if (!admin) {
-			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Admin account not found');
+		if ( !admin ) {
+			return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'Admin account not found' );
 		}
 
 		admin.isEmailVerified = true;
 		await admin.save();
 
-		await messagingService.expireOTP(email);
+		await messagingService.expireOTP( email );
 
-		const accessToken = createAccessToken(admin as unknown as mongoose.Document & ACCOUNT);
+		const accessToken = createAccessToken( admin as unknown as mongoose.Document & ACCOUNT );
 
 		return sendNormalized(
 			res,
@@ -343,8 +328,8 @@ router.post('/admin/verify-otp', async (req: Request, res: Response, _next: Next
 			{ user: admin, accessToken },
 			'Email verified successfully. You can now sign in.'
 		);
-	} catch (error) {
-		console.error('Error in admin OTP verification:', error);
+	} catch ( error ) {
+		console.error( 'Error in admin OTP verification:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -352,6 +337,6 @@ router.post('/admin/verify-otp', async (req: Request, res: Response, _next: Next
 			'Failed to verify OTP. Please try again.'
 		);
 	}
-});
+} );
 
 export default router;

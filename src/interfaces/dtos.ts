@@ -1,103 +1,103 @@
 import { z } from 'zod';
 
-export const GeoJSONLocationSchema = z.object({
-	type: z.literal('Point'),
-	coordinates: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]),
-});
+export const GeoJSONLocationSchema = z.object( {
+	type: z.literal( 'Point' ),
+	coordinates: z.tuple( [z.number().min( -180 ).max( 180 ), z.number().min( -90 ).max( 90 )] ),
+} );
 
-export const CreatePatientSchema = z.object({
-	name: z.string().min(2),
-	phone: z.string().regex(/^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number'),
-	password: z.string().min(8),
+export const CreatePatientSchema = z.object( {
+	name: z.string().min( 2 ),
+	phone: z.string().regex( /^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number' ),
+	password: z.string().min( 8 ),
 	email: z.string().email().optional(),
 	isPhoneVerified: z.boolean().optional(),
 	location: GeoJSONLocationSchema.optional(),
-});
+} );
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
 
-export const CreateAdminSchema = z.object({
+export const CreateAdminSchema = z.object( {
 	email: z.string().email(),
-	password: z.string().min(8),
-});
+	password: z.string().min( 8 ),
+} );
 
 export const UpdateAdminSchema = CreateAdminSchema.partial();
 
-export const CreateNurseSchema = z.object({
-	firstName: z.string().min(2),
-	lastName: z.string().min(2),
-	phone: z.string().regex(/^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number'),
+export const CreateNurseSchema = z.object( {
+	firstName: z.string().min( 2 ),
+	lastName: z.string().min( 2 ),
+	phone: z.string().regex( /^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number' ),
 	email: z.string().email().optional(),
 	isActive: z.boolean().optional(),
 	isVerified: z.boolean().optional(),
 	location: GeoJSONLocationSchema.optional(),
-});
+} );
 
 export const UpdateNurseSchema = CreateNurseSchema.partial();
 
-export const ScheduleAppointmentSchema = z.object({
+export const ScheduleAppointmentSchema = z.object( {
 	patient: z.string(),
 	nurse: z.string().optional(),
-	symptoms: z.array(z.string()).min(1),
+	symptoms: z.array( z.string() ).min( 1 ),
 	date: z.coerce.date().optional(),
 	description: z.string().optional(),
-});
+} );
 
-export const RescheduleAppointmentSchema = z.object({
+export const RescheduleAppointmentSchema = z.object( {
 	date: z.string(),
-});
+} );
 
-export const CancelAppointmentSchema = z.object({
+export const CancelAppointmentSchema = z.object( {
 	reason: z.string().optional(),
-});
+} );
 
-export const PatientPhoneAuthSchema = z.object({
-	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'),
-});
+export const PatientPhoneAuthSchema = z.object( {
+	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ),
+} );
 
-export const PatientOTPVerificationSchema = z.object({
-	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'),
-	otp: z.string().length(6),
-	name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-});
+export const PatientOTPVerificationSchema = z.object( {
+	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ),
+	otp: z.string().length( 6 ),
+	name: z.string().optional(),
+} );
 
-export const AdminSigninSchema = z.object({
+export const AdminSigninSchema = z.object( {
 	email: z.string().email(),
-	password: z.string().min(8),
-});
+	password: z.string().min( 8 ),
+} );
 
-export const AdminSignupSchema = z.object({
+export const AdminSignupSchema = z.object( {
 	email: z.string().email(),
-	password: z.string().min(8),
-});
+	password: z.string().min( 8 ),
+} );
 
-export const AdminOTPVerificationSchema = z.object({
+export const AdminOTPVerificationSchema = z.object( {
 	email: z.string().email(),
-	otp: z.string().length(6),
-});
+	otp: z.string().length( 6 ),
+} );
 
-export const TResponseSchema = z.object({
+export const TResponseSchema = z.object( {
 	statusCode: z.number(),
-	body: z.object({
-		data: z.object({}).nullable(),
-		error: z.object({}).optional(),
+	body: z.object( {
+		data: z.object( {} ).nullable(),
+		error: z.object( {} ).optional(),
 		message: z.string(),
-	}),
-});
+	} ),
+} );
 
-export const VerifyEmailSchema = z.object({
+export const VerifyEmailSchema = z.object( {
 	email: z.string().email(),
-	otp: z.string().length(6),
-});
+	otp: z.string().length( 6 ),
+} );
 
-export const VerifyPhoneSchema = z.object({
-	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'),
-	otp: z.string().length(6),
-});
+export const VerifyPhoneSchema = z.object( {
+	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ),
+	otp: z.string().length( 6 ),
+} );
 
-export const PhoneVerifcationOTPSchema = z.object({
-	toPhone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number'),
-});
+export const PhoneVerifcationOTPSchema = z.object( {
+	toPhone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ),
+} );
 
 export type CreatePatientDto = z.infer<typeof CreatePatientSchema>;
 export type UpdatePatientDto = z.infer<typeof UpdatePatientSchema>;
