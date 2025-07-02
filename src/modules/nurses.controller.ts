@@ -19,51 +19,22 @@ import { sendNormalized } from '../utils/http-response';
 const router = Router();
 
 // General nurse routes
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const { latLng } = req.query;
-		let nurses;
-		if (latLng) {
-			const latitude = latLng.toString().split(',')[0];
-			const longitude = latLng.toString().split(',')[1];
-			if (!latitude || !longitude) {
-				return sendNormalized(
-					res,
-					StatusCodes.BAD_REQUEST,
-					null,
-					"Missing either latitude or longitude on the 'latLng' query key"
-				);
-			}
-			nurses = await db.nurses.find({
-				location: {
-					$near: {
-						$geometry: {
-							type: 'Point',
-							coordinates: [longitude, latitude],
-						},
-					},
-				},
-			});
-		} else {
-			nurses = await db.nurses.find({}).sort({ createdAt: 'desc' });
-		}
-		return sendNormalized(res, StatusCodes.OK, nurses, 'Nurses fetched successfully');
-	} catch (err) {
-		return next(err);
-	}
-});
+router.get( '/', async ( _req: Request, res: Response ) => {
+	const nurses = await db.nurses.find( {} ).sort( { createdAt: 'desc' } );
+	return sendNormalized( res, StatusCodes.OK, nurses, 'Nurses fetched successfully' );
+} );
 
 // router.use(authenticate);
 
 // Appointment related routes (must come before /:id routes)
 router.post(
 	'/appointments/:appointmentId/cancel',
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { appointmentId } = req.params;
 			const nurseId = req.account?.id;
-			if (!nurseId)
-				return sendNormalized(res, StatusCodes.UNAUTHORIZED, null, 'Unauthorized access');
+			if ( !nurseId )
+				return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Unauthorized access' );
 			// Update appointment status
 			const appointment = await db.appointments.findOneAndUpdate(
 				{ _id: appointmentId, nurse: nurseId },
@@ -75,41 +46,41 @@ router.post(
 				},
 				{ new: true }
 			);
-			if (!appointment)
+			if ( !appointment )
 				return sendNormalized(
 					res,
 					StatusCodes.NOT_FOUND,
 					null,
 					'Appointment not found or not assigned to this nurse'
 				);
-			return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment cancelled successfully');
-		} catch (err) {
-			return next(err);
+			return sendNormalized( res, StatusCodes.OK, appointment, 'Appointment cancelled successfully' );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
 
 // GET /nurses/:id - get nurse by id (must come after specific routes)
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get( '/:id', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
-		const nurse = await db.nurses.findById(req.params.id);
-		if (!nurse) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No nurse Found');
-		return sendNormalized(res, StatusCodes.OK, nurse, 'Nurse fetched successfully');
-	} catch (err) {
-		return next(err);
+		const nurse = await db.nurses.findById( req.params.id );
+		if ( !nurse ) return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No nurse Found' );
+		return sendNormalized( res, StatusCodes.OK, nurse, 'Nurse fetched successfully' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
-router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.patch( '/:id', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const updated = req.body;
-		const nurse = await db.nurses.findByIdAndUpdate(req.params.id, updated, { new: true });
-		if (!nurse) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No nurse Found');
-		return sendNormalized(res, StatusCodes.OK, nurse, 'Nurse updated successfully');
-	} catch (err) {
-		return next(err);
+		const nurse = await db.nurses.findByIdAndUpdate( req.params.id, updated, { new: true } );
+		if ( !nurse ) return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No nurse Found' );
+		return sendNormalized( res, StatusCodes.OK, nurse, 'Nurse updated successfully' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // File upload routes
 router.post(
@@ -117,15 +88,15 @@ router.post(
 	uploadProfilePicture,
 	handleUploadError,
 	validateImageUpload,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { id } = req.params;
 			const file = req.file;
 
-			const uploadResponse = await fileUploadService.uploadNurseProfilePicture(id, file!);
-			handleFileUploadResponse(res, uploadResponse);
-		} catch (err) {
-			return next(err);
+			const uploadResponse = await fileUploadService.uploadNurseProfilePicture( id, file! );
+			handleFileUploadResponse( res, uploadResponse );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
@@ -134,13 +105,13 @@ router.post(
 	'/:id/national-id',
 	uploadNationalID,
 	handleUploadError,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { id } = req.params;
 			const files = req.files;
 
 			// @ts-ignore
-			if (!files || !files.front || !files.back) {
+			if ( !files || !files.front || !files.back ) {
 				return sendNormalized(
 					res,
 					StatusCodes.BAD_REQUEST,
@@ -156,9 +127,9 @@ router.post(
 				// @ts-ignore
 				files.back[0]
 			);
-			handleFileUploadResponse(res, uploadResponse);
-		} catch (err) {
-			return next(err);
+			handleFileUploadResponse( res, uploadResponse );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
@@ -168,14 +139,14 @@ router.post(
 	uploadQualification,
 	handleUploadError,
 	validateDocumentUpload,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { id } = req.params;
 			const { title, type, description } = req.body;
 			const file = req.file;
 
-			if (!title) {
-				return sendNormalized(res, StatusCodes.BAD_REQUEST, null, 'Title is required');
+			if ( !title ) {
+				return sendNormalized( res, StatusCodes.BAD_REQUEST, null, 'Title is required' );
 			}
 
 			const uploadResponse = await fileUploadService.uploadNurseQualification(
@@ -185,52 +156,52 @@ router.post(
 				type || 'certification',
 				description
 			);
-			handleFileUploadResponse(res, uploadResponse);
-		} catch (err) {
-			return next(err);
+			handleFileUploadResponse( res, uploadResponse );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
 
 router.delete(
 	'/:id/qualifications/:qualificationId',
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { id, qualificationId } = req.params;
 
-			const uploadResponse = await fileUploadService.deleteNurseQualification(id, qualificationId);
-			handleFileUploadResponse(res, uploadResponse);
-		} catch (err) {
-			return next(err);
+			const uploadResponse = await fileUploadService.deleteNurseQualification( id, qualificationId );
+			handleFileUploadResponse( res, uploadResponse );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
 
-router.get('/:id/documents', async (req: Request, res: Response, next: NextFunction) => {
+router.get( '/:id/documents', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const { id } = req.params;
 
-		const uploadResponse = await fileUploadService.getNurseDocumentsSummary(id);
-		handleFileUploadResponse(res, uploadResponse);
-	} catch (err) {
-		return next(err);
+		const uploadResponse = await fileUploadService.getNurseDocumentsSummary( id );
+		handleFileUploadResponse( res, uploadResponse );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // Admin only - Update document verification status
 router.patch(
 	'/:id/verification-status',
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { id } = req.params;
 			const { status, notes } = req.body;
 			const adminId = req.account?.id;
 
-			if (!adminId) {
-				return sendNormalized(res, StatusCodes.UNAUTHORIZED, null, 'Admin access required');
+			if ( !adminId ) {
+				return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Admin access required' );
 			}
 
-			if (!['pending', 'verified', 'rejected'].includes(status)) {
+			if ( !['pending', 'verified', 'rejected'].includes( status ) ) {
 				return sendNormalized(
 					res,
 					StatusCodes.BAD_REQUEST,
@@ -245,17 +216,17 @@ router.patch(
 				adminId,
 				notes
 			);
-			handleFileUploadResponse(res, uploadResponse);
-		} catch (err) {
-			return next(err);
+			handleFileUploadResponse( res, uploadResponse );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
 
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete( '/:id', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		// Clean up documents first
-		await fileUploadService.cleanupNurseDocuments(req.params.id);
+		await fileUploadService.cleanupNurseDocuments( req.params.id );
 
 		// Cancel any pending or in-progress appointments
 		await db.appointments.updateMany(
@@ -277,35 +248,35 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 			}
 		);
 		// Delete the nurse document
-		const nurse = await db.nurses.findByIdAndDelete(req.params.id);
-		if (!nurse) return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No nurse Found');
-		return sendNormalized(res, StatusCodes.OK, nurse, 'Nurse deleted successfully');
-	} catch (err) {
-		return next(err);
+		const nurse = await db.nurses.findByIdAndDelete( req.params.id );
+		if ( !nurse ) return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'No nurse Found' );
+		return sendNormalized( res, StatusCodes.OK, nurse, 'Nurse deleted successfully' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // Appointment related routes
-router.get('/:id/appointments', async (req: Request, res: Response, next: NextFunction) => {
+router.get( '/:id/appointments', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const appointments = await db.appointments
-			.find({ nurse: { _id: req.params.id } })
-			.populate('patient')
-			.populate('nurse');
-		return sendNormalized(res, StatusCodes.OK, appointments, 'Appointments fetched successfully');
-	} catch (err) {
-		return next(err);
+			.find( { nurse: { _id: req.params.id } } )
+			.populate( 'patient' )
+			.populate( 'nurse' );
+		return sendNormalized( res, StatusCodes.OK, appointments, 'Appointments fetched successfully' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
-router.get('/:id/appointment-history', async (req: Request, res: Response, next: NextFunction) => {
+router.get( '/:id/appointment-history', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const appointments = await db.appointments
-			.find({ nurse: { _id: req.params.id } })
-			.populate('patient')
-			.populate('nurse');
+			.find( { nurse: { _id: req.params.id } } )
+			.populate( 'patient' )
+			.populate( 'nurse' );
 		const filteredAppointments = appointments.filter(
-			(appointment: any) =>
+			( appointment: any ) =>
 				appointment.status === APPOINTMENT_STATUSES.COMPLETED ||
 				appointment.status === APPOINTMENT_STATUSES.CANCELLED
 		);
@@ -315,16 +286,16 @@ router.get('/:id/appointment-history', async (req: Request, res: Response, next:
 			filteredAppointments,
 			'Appointments fetched successfully'
 		);
-	} catch (err) {
-		return next(err);
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // Public nurse registration route
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
-		const parseResult = CreateNurseSchema.safeParse(req.body);
-		if (!parseResult.success) {
+		const parseResult = CreateNurseSchema.safeParse( req.body );
+		if ( !parseResult.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -335,18 +306,18 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 		}
 		const nurseData = parseResult.data;
 
-		const nurse = await db.nurses.create(nurseData);
+		const nurse = await db.nurses.create( nurseData );
 
 		// Send welcome SMS if phone is provided
-		if (nurse.phone) {
+		if ( nurse.phone ) {
 			await messagingService.sendNotification(
 				nurse.phone,
-				SMS_TEMPLATES.admin.nurseWelcome({ firstName: nurse.firstName }),
+				SMS_TEMPLATES.admin.nurseWelcome( { firstName: nurse.firstName } ),
 				{ channel: ChannelType.SMS }
 			);
 		}
 		// Optionally, send welcome email if email is provided (uncomment if needed)
-		if (nurse.email) {
+		if ( nurse.email ) {
 			await messagingService.sendNotification(
 				nurse.email,
 				NOTIFICATION_TEMPLATES.nurseWelcome.text,
@@ -355,19 +326,19 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 					template: {
 						subject: NOTIFICATION_TEMPLATES.nurseWelcome.subject,
 						text: NOTIFICATION_TEMPLATES.nurseWelcome.text,
-						html: NOTIFICATION_TEMPLATES.nurseWelcome.html({
+						html: NOTIFICATION_TEMPLATES.nurseWelcome.html( {
 							firstName: nurse.firstName,
 							lastName: nurse.lastName,
-						}),
+						} ),
 					},
 				}
 			);
 		}
 
-		return sendNormalized(res, StatusCodes.CREATED, nurse, 'Nurse registered successfully');
-	} catch (err) {
-		return next(err);
+		return sendNormalized( res, StatusCodes.CREATED, nurse, 'Nurse registered successfully' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 export default router;

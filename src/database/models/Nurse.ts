@@ -45,7 +45,6 @@ export interface QualificationDocument {
 	},
 	options: { allowMixed: Severity.ALLOW },
 })
-@index({ title: 'text', location: '2dsphere' })
 export class Nurse {
 	@prop({
 		type: String,
