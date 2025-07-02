@@ -234,13 +234,9 @@ class App {
 	public async start(): Promise<void> {
 		try {
 			console.clear();
-			// Initialize Redis first
 			await initializeRedis();
-			logger.info('✅ Redis initialized successfully');
 
-			// Connect to database
 			await connectToDatabase();
-			logger.info('✅ Database connected successfully');
 
 			// Initialize MomoAuthService
 			try {
@@ -254,7 +250,6 @@ class App {
 
 			// Schedule the account deletion cron job
 			this.accountDeletionCronJob = scheduleAccountDeletionJob();
-			logger.info('✅ Account deletion cron job scheduled successfully');
 
 			// Start the server
 			this.server.listen(envars.PORT, () => {
@@ -290,7 +285,7 @@ const app = new App();
 
 // Start the application
 app.start().catch((error) => {
-	logger.error('❌ Failed to initialize application:', error);
+	logger.error('❌ Failed to initialize application:' + error);
 	process.exit(1);
 });
 
