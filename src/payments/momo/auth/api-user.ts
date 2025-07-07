@@ -21,23 +21,23 @@ export async function createMomoAPIUser(
 			method: 'post',
 			url: `${momo_sandbox}/v1_0/apiuser`,
 			headers: {
-				'Content-Type': 'application/json',
+				'Content-Type': 'Application/json',
 				'X-Reference-Id': referenceId,
 				'Ocp-Apim-Subscription-Key': envars.OCP_APIM_SUBSCRIPTION_KEY,
 			},
 			data,
 		};
 
-		const response = await axios.request<ApiUserResponse>(config);
+		const response = await axios.request<ApiUserResponse>( config );
 
-		if (response.status === 201) {
-			logger.info('API User created successfully');
+		if ( response.status === 201 ) {
+			logger.info( 'API User created successfully' );
 			return response;
 		}
 
-		throw new Error(`Failed to create API user: ${response.status}`);
-	} catch (error: any) {
-		console.error('Error creating API user:', error.response?.data || error.message);
+		throw new Error( `Failed to create API user: ${response.status}` );
+	} catch ( error: any ) {
+		console.error( 'Error creating API user:', error.response?.data || error.message );
 		throw error;
 	}
 }
