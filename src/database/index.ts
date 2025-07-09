@@ -10,13 +10,13 @@ import { Patient } from './models/Patient';
 import { Payment } from './models/Payment';
 import { seedDatabase } from './seed';
 
-export const db = Object.freeze({
-	appointments: getModelForClass(Appointment),
-	nurses: getModelForClass(Nurse),
-	patients: getModelForClass(Patient),
-	admins: getModelForClass(Admin),
-	payments: getModelForClass(Payment),
-});
+export const db = Object.freeze( {
+	appointments: getModelForClass( Appointment ),
+	nurses: getModelForClass( Nurse ),
+	patients: getModelForClass( Patient ),
+	admins: getModelForClass( Admin ),
+	payments: getModelForClass( Payment ),
+} );
 
 export type DatabaseType = typeof db;
 
@@ -40,42 +40,42 @@ const MAX_RETRIES = 5;
  */
 export async function connectToDatabase(): Promise<void> {
 	try {
-		if (isConnected && mongoose.connection.readyState === 1) {
-			logger.info('Database already connected');
+		if ( isConnected && mongoose.connection.readyState === 1 ) {
+			logger.info( 'Database already connected' );
 			return;
 		}
 
 		const dbUrl = envars.DATABASE_URL;
-		const connection = await mongoose.connect(dbUrl, connectionOptions);
+		const connection = await mongoose.connect( dbUrl, connectionOptions );
 
 		isConnected = true;
 		connectionRetries = 0;
 
-		logger.info(`✅ Connected to database: ${connection.connection.db.databaseName}`);
+		logger.info( `✅ Connected to database: ${connection.connection.db.databaseName}` );
 
 		setupConnectionListeners();
 
-		if (envars.NODE_ENV === 'development' && envars.SEED_DATABASE) {
+		if ( envars.NODE_ENV === 'development' && envars.SEED_DATABASE ) {
 			try {
-				logger.info('🌱 Starting database seeding...');
+				logger.info( '🌱 Starting database seeding...' );
 				await seedDatabase();
-				logger.info('✅ Database seeding completed');
-			} catch (error) {
-				logger.error('❌ Database seeding failed:' + error);
+				logger.info( '✅ Database seeding completed' );
+			} catch ( error ) {
+				logger.error( '❌ Database seeding failed:' + error );
 			}
 		}
-	} catch (error) {
+	} catch ( error ) {
 		connectionRetries++;
 		logger.error(
 			`❌ Database connection failed (attempt ${connectionRetries}/${MAX_RETRIES}): ${error}`
 		);
 
-		if (connectionRetries < MAX_RETRIES) {
-			logger.info(`🔄 Retrying connection in 5 seconds...`);
-			setTimeout(() => connectToDatabase(), 5000);
+		if ( connectionRetries < MAX_RETRIES ) {
+			logger.info( `🔄 Retrying connection in 5 seconds...` );
+			setTimeout( () => connectToDatabase(), 5000 );
 		} else {
-			logger.error('❌ Max connection retries reached. Exiting...');
-			process.exit(1);
+			logger.error( '❌ Max connection retries reached. Exiting...' );
+			process.exit( 1 );
 		}
 	}
 }
@@ -85,13 +85,13 @@ export async function connectToDatabase(): Promise<void> {
  */
 export async function disconnectFromDatabase(): Promise<void> {
 	try {
-		if (mongoose.connection.readyState !== 0) {
+		if ( mongoose.connection.readyState !== 0 ) {
 			await mongoose.connection.close();
 			isConnected = false;
-			logger.info('✅ Disconnected from database');
+			logger.info( '✅ Disconnected from database' );
 		}
-	} catch (error) {
-		logger.error('❌ Error disconnecting from database:', error);
+	} catch ( error ) {
+		logger.error( '❌ Error disconnecting from database:', error );
 		throw error;
 	}
 }
@@ -100,37 +100,37 @@ export async function disconnectFromDatabase(): Promise<void> {
  * Setup database connection event listeners
  */
 function setupConnectionListeners(): void {
-	mongoose.connection.on('connected', () => {
-		logger.info('✅ MongoDB connected');
-	});
+	mongoose.connection.on( 'connected', () => {
+		logger.info( '✅ MongoDB connected' );
+	} );
 
-	mongoose.connection.on('error', (error) => {
-		logger.error('❌ MongoDB connection error:', error);
+	mongoose.connection.on( 'error', ( error ) => {
+		logger.error( '❌ MongoDB connection error:', error );
 		isConnected = false;
-	});
+	} );
 
-	mongoose.connection.on('disconnected', () => {
-		logger.warn('⚠️ MongoDB disconnected');
+	mongoose.connection.on( 'disconnected', () => {
+		logger.warn( '⚠️ MongoDB disconnected' );
 		isConnected = false;
-	});
+	} );
 
-	mongoose.connection.on('reconnected', () => {
-		logger.info('🔄 MongoDB reconnected');
+	mongoose.connection.on( 'reconnected', () => {
+		logger.info( '🔄 MongoDB reconnected' );
 		isConnected = true;
-	});
+	} );
 
 	// Graceful shutdown
-	process.on('SIGINT', async () => {
-		logger.info('🛑 Received SIGINT. Closing database connection...');
+	process.on( 'SIGINT', async () => {
+		logger.info( '🛑 Received SIGINT. Closing database connection...' );
 		await disconnectFromDatabase();
-		process.exit(0);
-	});
+		process.exit( 0 );
+	} );
 
-	process.on('SIGTERM', async () => {
-		logger.info('🛑 Received SIGTERM. Closing database connection...');
+	process.on( 'SIGTERM', async () => {
+		logger.info( '🛑 Received SIGTERM. Closing database connection...' );
 		await disconnectFromDatabase();
-		process.exit(0);
-	});
+		process.exit( 0 );
+	} );
 }
 
 /**
@@ -162,7 +162,7 @@ export function getDatabaseStatus(): {
  */
 export async function healthCheck(): Promise<{ status: 'healthy' | 'unhealthy'; details: any }> {
 	try {
-		if (!isDatabaseConnected()) {
+		if ( !isDatabaseConnected() ) {
 			return {
 				status: 'unhealthy',
 				details: { error: 'Database not connected' },
@@ -176,7 +176,7 @@ export async function healthCheck(): Promise<{ status: 'healthy' | 'unhealthy'; 
 			status: 'healthy',
 			details: getDatabaseStatus(),
 		};
-	} catch (error) {
+	} catch ( error ) {
 		return {
 			status: 'unhealthy',
 			details: { error: error instanceof Error ? error.message : 'Unknown error' },
