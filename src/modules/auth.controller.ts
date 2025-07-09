@@ -9,6 +9,7 @@ import {
 	AdminSignupSchema,
 	PatientOTPVerificationSchema,
 	PatientPhoneAuthSchema,
+	PatientSetNameSchema, // <-- add this
 } from '../interfaces/dtos';
 import { messagingService } from '../services/messaging';
 import { createAccessToken } from '../services/token';
@@ -37,13 +38,10 @@ router.post( '/patient/signin', async ( req: Request, res: Response, _next: Next
 		const { phone } = result.data;
 
 		let patient = await db.patients.findOne( { phone } );
-		let isNewUser = false;
 
 		if ( !patient ) {
-			isNewUser = true;
 			patient = await db.patients.create( {
 				phone,
-				isPhoneVerified: false,
 			} );
 		}
 
@@ -62,12 +60,11 @@ router.post( '/patient/signin', async ( req: Request, res: Response, _next: Next
 			res,
 			StatusCodes.OK,
 			{
-				exists: !isNewUser,
 				message: 'OTP sent to your phone number',
 				user: patient,
 				expiresAt: otpResult.expiresAt,
 			},
-			isNewUser ? 'Account created and OTP sent for verification' : 'OTP sent for signin'
+			'Check your phone for OTP'
 		);
 	} catch ( error ) {
 		console.error( 'Error in patient signin:', error );
@@ -116,13 +113,11 @@ router.post( '/patient/verify-otp', async ( req: Request, res: Response, _next: 
 
 			await messagingService.expireOTP( phone );
 
-			const accessToken = createAccessToken( patient as unknown as mongoose.Document & ACCOUNT );
-
 			return sendNormalized(
 				res,
 				StatusCodes.OK,
-				{ user: patient, accessToken, isNewUser: false },
-				'Successfully signed in'
+				{ user: patient },
+				'Phone verified'
 			);
 		} else {
 			patient = await db.patients.create( {
@@ -132,13 +127,11 @@ router.post( '/patient/verify-otp', async ( req: Request, res: Response, _next: 
 
 			await messagingService.expireOTP( phone );
 
-			const accessToken = createAccessToken( patient as unknown as mongoose.Document & ACCOUNT );
-
 			return sendNormalized(
 				res,
 				StatusCodes.CREATED,
-				{ user: patient, accessToken, isNewUser: true },
-				'Account created and signed in successfully'
+				{ user: patient },
+				'Phone verified'
 			);
 		}
 	} catch ( error ) {
@@ -148,6 +141,57 @@ router.post( '/patient/verify-otp', async ( req: Request, res: Response, _next: 
 			StatusCodes.INTERNAL_SERVER_ERROR,
 			null,
 			'Failed to verify OTP. Please try again.'
+		);
+	}
+} );
+
+// POST /auth/patient/set-name
+router.post( '/patient/set-name', async ( req: Request, res: Response, _next: NextFunction ) => {
+	try {
+		const result = PatientSetNameSchema.safeParse( req.body );
+		if ( !result.success ) {
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase(),
+				result.error
+			);
+		}
+		const { phone, name } = result.data;
+		const patient = await db.patients.findOne( { phone } );
+		if ( !patient ) {
+			return sendNormalized(
+				res,
+				StatusCodes.NOT_FOUND,
+				null,
+				'Patient not found. Please verify your phone first.'
+			);
+		}
+		if ( !patient.isPhoneVerified ) {
+			return sendNormalized(
+				res,
+				StatusCodes.FORBIDDEN,
+				null,
+				'Phone not verified. Please verify your phone first.'
+			);
+		}
+		patient.name = name;
+		await patient.save();
+		const accessToken = createAccessToken( patient as unknown as mongoose.Document & ACCOUNT );
+		return sendNormalized(
+			res,
+			StatusCodes.OK,
+			{ user: patient, accessToken },
+			'Account created and signed in successfully.'
+		);
+	} catch ( error ) {
+		console.error( 'Error in patient set-name:', error );
+		return sendNormalized(
+			res,
+			StatusCodes.INTERNAL_SERVER_ERROR,
+			null,
+			'Failed to set name. Please try again.'
 		);
 	}
 } );

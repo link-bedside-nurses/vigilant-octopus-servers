@@ -99,6 +99,11 @@ export const PhoneVerifcationOTPSchema = z.object( {
 	toPhone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ),
 } );
 
+export const PatientSetNameSchema = z.object( {
+	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ),
+	name: z.string().min( 2 ).max( 250 ),
+} );
+
 export type CreatePatientDto = z.infer<typeof CreatePatientSchema>;
 export type UpdatePatientDto = z.infer<typeof UpdatePatientSchema>;
 export type CreateAdminDto = z.infer<typeof CreateAdminSchema>;
@@ -112,6 +117,7 @@ export type TResponse = z.infer<typeof TResponseSchema>;
 export type VerifyEmailDto = z.infer<typeof VerifyEmailSchema>;
 export type VerifyPhoneDto = z.infer<typeof VerifyPhoneSchema>;
 export type PhoneVerifcationOTPDto = z.infer<typeof PhoneVerifcationOTPSchema>;
+export type PatientSetNameDto = z.infer<typeof PatientSetNameSchema>;
 
 export type PatientPhoneAuthDto = z.infer<typeof PatientPhoneAuthSchema>;
 export type PatientOTPVerificationDto = z.infer<typeof PatientOTPVerificationSchema>;
