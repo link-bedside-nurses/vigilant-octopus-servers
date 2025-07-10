@@ -166,7 +166,7 @@ class MessagingService {
 				type: 'text',
 				messages: [
 					{
-						destinations: [{ to: phone }],
+						destinations: [{ to: `+${phone}` }],
 						from: envars.FROM_SMS_PHONE,
 						text: message,
 					},
@@ -186,7 +186,7 @@ class MessagingService {
 			};
 		} catch ( error ) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown SMS error';
-			logger.error( `SMS sending failed to ${phone}:`, errorMessage );
+			logger.error( `SMS sending failed to ${phone}:` + JSON.stringify( errorMessage ) );
 			return {
 				success: false,
 				status: MessageStatus.FAILED,
