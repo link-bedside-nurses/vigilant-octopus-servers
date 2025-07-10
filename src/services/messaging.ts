@@ -9,13 +9,13 @@ import logger from '../utils/logger';
 
 // Use the global Redis instance from server.ts
 const getRedis = (): Redis => {
-	if (!(global as any).redis) {
-		throw new Error('Redis not initialized. Make sure the server has started.');
+	if ( !( global as any ).redis ) {
+		throw new Error( 'Redis not initialized. Make sure the server has started.' );
 	}
-	return (global as any).redis;
+	return ( global as any ).redis;
 };
 
-const emailTransporter = nodemailer.createTransport({
+const emailTransporter = nodemailer.createTransport( {
 	host: 'smtp.gmail.com',
 	port: 587,
 	secure: false,
@@ -23,7 +23,7 @@ const emailTransporter = nodemailer.createTransport({
 		user: envars.SENDER_EMAIL,
 		pass: envars.APP_PASSWORD,
 	},
-});
+} );
 
 const OTP_EXPIRY_TIME = 300;
 const OTP_LENGTH = 6;
@@ -89,27 +89,27 @@ export interface OTPResult {
 class MessagingService {
 	private static instance: MessagingService;
 
-	private constructor() {}
+	private constructor() { }
 
 	public static getInstance(): MessagingService {
-		if (!MessagingService.instance) {
+		if ( !MessagingService.instance ) {
 			MessagingService.instance = new MessagingService();
 		}
 		return MessagingService.instance;
 	}
 
 	// Infobip SDK instance
-	private infobipClient = new Infobip({
+	private infobipClient = new Infobip( {
 		baseUrl: envars.INFOBIP_API_BASE_URL,
 		apiKey: envars.INFOBIP_API_KEY,
 		authType: AuthType.ApiKey,
-	});
+	} );
 
 	/**
 	 * Generate OTP
 	 */
 	private generateOTP(): string {
-		return randomInt(10 ** (OTP_LENGTH - 1), 10 ** OTP_LENGTH).toString();
+		return randomInt( 10 ** ( OTP_LENGTH - 1 ), 10 ** OTP_LENGTH ).toString();
 	}
 
 	/**
@@ -121,26 +121,26 @@ class MessagingService {
 		expiryTime: number = OTP_EXPIRY_TIME
 	): Promise<void> {
 		const key = `otp:${identifier}`;
-		await getRedis().setex(key, expiryTime, otp);
-		logger.info(`OTP ${otp} stored for ${identifier}, expires in ${expiryTime} seconds`);
+		await getRedis().setex( key, expiryTime, otp );
+		logger.info( `OTP ${otp} stored for ${identifier}, expires in ${expiryTime} seconds` );
 	}
 
 	/**
 	 * Get OTP from Redis
 	 */
-	public async getOTP(identifier: string): Promise<string | null> {
+	public async getOTP( identifier: string ): Promise<string | null> {
 		const key = `otp:${identifier}`;
-		const otp = await getRedis().get(key);
+		const otp = await getRedis().get( key );
 		return otp;
 	}
 
 	/**
 	 * Verify OTP
 	 */
-	public async verifyOTP(identifier: string, suppliedOTP: string): Promise<boolean> {
-		const storedOTP = await this.getOTP(identifier);
-		if (!storedOTP) {
-			logger.warn(`No OTP found for ${identifier}`);
+	public async verifyOTP( identifier: string, suppliedOTP: string ): Promise<boolean> {
+		const storedOTP = await this.getOTP( identifier );
+		if ( !storedOTP ) {
+			logger.warn( `No OTP found for ${identifier}` );
 			return false;
 		}
 		return storedOTP === suppliedOTP;
@@ -149,32 +149,33 @@ class MessagingService {
 	/**
 	 * Expire OTP
 	 */
-	public async expireOTP(identifier: string): Promise<void> {
+	public async expireOTP( identifier: string ): Promise<void> {
 		const key = `otp:${identifier}`;
-		await getRedis().del(key);
-		logger.info(`OTP expired for ${identifier}`);
+		await getRedis().del( key );
+		logger.info( `OTP expired for ${identifier}` );
 	}
 
 	/**
 	 * Send SMS via Infobip (latest SDK usage)
 	 */
-	private async sendSMS(phone: string, message: string): Promise<MessageResult> {
+	private async sendSMS( phone: string, message: string ): Promise<MessageResult> {
 		try {
-			logger.info(`Sending SMS to ${phone}`);
+			logger.info( `Sending SMS to ${phone}` );
 
-			const infobipResponse = await this.infobipClient.channels.sms.send({
+			const infobipResponse = await this.infobipClient.channels.sms.send( {
 				type: 'text',
 				messages: [
 					{
-						destinations: [{ to: phone }],
+						destinations: [{ to: +phone }],
 						from: envars.FROM_SMS_PHONE,
 						text: message,
 					},
 				],
-			});
+			} );
 
 			const { data } = infobipResponse;
-			logger.info('Infobip SMS response:' + JSON.stringify(data));
+			logger.info( 'Infobip SMS response:' + JSON.stringify( data ) );
+			logger.info( 'SMS response:' + JSON.stringify( infobipResponse ) );
 
 			return {
 				success: true,
@@ -183,9 +184,9 @@ class MessagingService {
 				channel: ChannelType.SMS,
 				timestamp: new Date(),
 			};
-		} catch (error) {
+		} catch ( error ) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown SMS error';
-			logger.error(`SMS sending failed to ${phone}:`, errorMessage);
+			logger.error( `SMS sending failed to ${phone}:`, errorMessage );
 			return {
 				success: false,
 				status: MessageStatus.FAILED,
@@ -206,9 +207,9 @@ class MessagingService {
 		htmlContent?: string
 	): Promise<MessageResult> {
 		try {
-			logger.info(`Sending email to ${to}`);
+			logger.info( `Sending email to ${to}` );
 
-			const info = await emailTransporter.sendMail({
+			const info = await emailTransporter.sendMail( {
 				from: `"LinkBedside Nurses" <${envars.SENDER_EMAIL}>`,
 				to,
 				subject,
@@ -217,9 +218,9 @@ class MessagingService {
 				bcc: '',
 				cc: '',
 				attachments: [],
-			});
+			} );
 
-			logger.info(`Email sent successfully to ${to}, Message ID: ${info.messageId}`);
+			logger.info( `Email sent successfully to ${to}, Message ID: ${info.messageId}` );
 			return {
 				success: true,
 				messageId: info.messageId,
@@ -227,9 +228,9 @@ class MessagingService {
 				channel: ChannelType.EMAIL,
 				timestamp: new Date(),
 			};
-		} catch (error) {
+		} catch ( error ) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown email error';
-			logger.error(`Email sending failed to ${to}:`, errorMessage);
+			logger.error( `Email sending failed to ${to}:`, errorMessage );
 			return {
 				success: false,
 				status: MessageStatus.FAILED,
@@ -249,28 +250,28 @@ class MessagingService {
 	): Promise<OTPResult> {
 		try {
 			const otp = this.generateOTP();
-			await this.storeOTP(phone, otp, expiryTime);
+			await this.storeOTP( phone, otp, expiryTime );
 
-			const message = `Your verification code is ${otp}. Valid for ${Math.floor(expiryTime / 60)} minutes.`;
-			const result = await this.sendSMS(phone, message);
+			const message = `Your verification code is ${otp}. Valid for ${Math.floor( expiryTime / 60 )} minutes.`;
+			const result = await this.sendSMS( phone, message );
 
-			if (result.success) {
+			if ( result.success ) {
 				return {
 					success: true,
 					otp,
-					expiresAt: new Date(Date.now() + expiryTime * 1000),
+					expiresAt: new Date( Date.now() + expiryTime * 1000 ),
 				};
 			} else {
-				await this.expireOTP(phone);
+				await this.expireOTP( phone );
 				return {
 					success: false,
 					expiresAt: new Date(),
 					error: result.error,
 				};
 			}
-		} catch (error) {
+		} catch ( error ) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`OTP SMS sending failed to ${phone}:`, errorMessage);
+			logger.error( `OTP SMS sending failed to ${phone}:`, errorMessage );
 			return {
 				success: false,
 				expiresAt: new Date(),
@@ -288,19 +289,19 @@ class MessagingService {
 	): Promise<OTPResult> {
 		try {
 			const otp = this.generateOTP();
-			await this.storeOTP(email, otp, expiryTime);
+			await this.storeOTP( email, otp, expiryTime );
 
 			const subject = 'Email Verification Code';
-			const text = `Your verification code is ${otp}. Valid for ${Math.floor(expiryTime / 60)} minutes.`;
-			const htmlContent = html(otp);
+			const text = `Your verification code is ${otp}. Valid for ${Math.floor( expiryTime / 60 )} minutes.`;
+			const htmlContent = html( otp );
 
-			const result = await this.sendEmail(email, subject, text, htmlContent);
+			const result = await this.sendEmail( email, subject, text, htmlContent );
 
-			if (result.success) {
+			if ( result.success ) {
 				return {
 					success: true,
 					otp,
-					expiresAt: new Date(Date.now() + expiryTime * 1000),
+					expiresAt: new Date( Date.now() + expiryTime * 1000 ),
 				};
 			} else {
 				// await this.expireOTP(email);
@@ -310,9 +311,9 @@ class MessagingService {
 					error: result.error,
 				};
 			}
-		} catch (error) {
+		} catch ( error ) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`OTP email sending failed to ${email}:`, errorMessage);
+			logger.error( `OTP email sending failed to ${email}:`, errorMessage );
 			return {
 				success: false,
 				expiresAt: new Date(),
@@ -338,34 +339,34 @@ class MessagingService {
 
 		const results: MessageResult[] = [];
 
-		const isEmail = recipient.includes('@');
-		const isPhone = /^\+?[\d\s\-()]+$/.test(recipient);
+		const isEmail = recipient.includes( '@' );
+		const isPhone = /^\+?[\d\s\-()]+$/.test( recipient );
 
-		if (!isEmail && !isPhone) {
-			throw new Error('Invalid recipient format. Must be email or phone number.');
+		if ( !isEmail && !isPhone ) {
+			throw new Error( 'Invalid recipient format. Must be email or phone number.' );
 		}
 
 		const subject = template?.subject || 'Notification';
 		const text = template?.text || message;
 		const htmlContent = template?.html;
 
-		if (channel === ChannelType.SMS || (channel === ChannelType.BOTH && isPhone)) {
-			const smsResult = await this.sendSMS(recipient, text);
-			results.push(smsResult);
+		if ( channel === ChannelType.SMS || ( channel === ChannelType.BOTH && isPhone ) ) {
+			const smsResult = await this.sendSMS( recipient, text );
+			results.push( smsResult );
 		}
 
-		if (channel === ChannelType.EMAIL || (channel === ChannelType.BOTH && isEmail)) {
-			const emailResult = await this.sendEmail(recipient, subject, text, htmlContent);
-			results.push(emailResult);
+		if ( channel === ChannelType.EMAIL || ( channel === ChannelType.BOTH && isEmail ) ) {
+			const emailResult = await this.sendEmail( recipient, subject, text, htmlContent );
+			results.push( emailResult );
 		}
 
-		logger.info(`Notification sent to ${recipient} with priority ${priority}`, {
+		logger.info( `Notification sent to ${recipient} with priority ${priority}`, {
 			recipient,
 			priority,
 			channel,
-			results: results.map((r) => ({ success: r.success, status: r.status })),
+			results: results.map( ( r ) => ( { success: r.success, status: r.status } ) ),
 			metadata,
-		});
+		} );
 
 		return results;
 	}
@@ -380,13 +381,13 @@ class MessagingService {
 	): Promise<{ recipient: string; results: MessageResult[] }[]> {
 		const results = [];
 
-		for (const recipient of recipients) {
+		for ( const recipient of recipients ) {
 			try {
-				const recipientResults = await this.sendNotification(recipient, message, options);
-				results.push({ recipient, results: recipientResults });
-			} catch (error) {
-				logger.error(`Failed to send notification to ${recipient}:`, error);
-				results.push({
+				const recipientResults = await this.sendNotification( recipient, message, options );
+				results.push( { recipient, results: recipientResults } );
+			} catch ( error ) {
+				logger.error( `Failed to send notification to ${recipient}:`, error );
+				results.push( {
 					recipient,
 					results: [
 						{
@@ -397,7 +398,7 @@ class MessagingService {
 							timestamp: new Date(),
 						},
 					],
-				});
+				} );
 			}
 		}
 
@@ -438,22 +439,22 @@ class MessagingService {
 		try {
 			await getRedis().ping();
 			health.redis = true;
-		} catch (error) {
-			logger.error('Redis health check failed:' + error);
-			console.error(error);
+		} catch ( error ) {
+			logger.error( 'Redis health check failed:' + error );
+			console.error( error );
 		}
 
 		try {
 			await emailTransporter.verify();
 			health.email = true;
-		} catch (error) {
-			logger.error('Email health check failed:' + error);
-			console.error(error);
+		} catch ( error ) {
+			logger.error( 'Email health check failed:' + error );
+			console.error( error );
 		}
 
 		try {
 			await axios.get(
-				envars.INFOBIP_API_BASE_URL.replace('/sms/2/text/advanced', '/account/1/balance'),
+				envars.INFOBIP_API_BASE_URL.replace( '/sms/2/text/advanced', '/account/1/balance' ),
 				{
 					headers: {
 						Authorization: `App ${envars.INFOBIP_API_KEY}`,
@@ -462,8 +463,8 @@ class MessagingService {
 				}
 			);
 			health.sms = true;
-		} catch (error) {
-			logger.error('SMS health check failed:' + error);
+		} catch ( error ) {
+			logger.error( 'SMS health check failed:' + error );
 		}
 
 		return health;
@@ -475,9 +476,9 @@ class MessagingService {
 	public async cleanup(): Promise<void> {
 		try {
 			await getRedis().quit();
-			logger.info('Redis connection closed');
-		} catch (error) {
-			logger.error('Error closing Redis connection:', error);
+			logger.info( 'Redis connection closed' );
+		} catch ( error ) {
+			logger.error( 'Error closing Redis connection:', error );
 		}
 	}
 }
