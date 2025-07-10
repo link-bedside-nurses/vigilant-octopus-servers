@@ -174,8 +174,8 @@ class MessagingService {
 			} );
 
 			const { data } = infobipResponse;
-			logger.info( 'Infobip SMS response:' + JSON.stringify( data ) );
-			logger.info( 'SMS response:' + JSON.stringify( infobipResponse ) );
+			logger.info( 'Infobip SMS response:' + data );
+			logger.info( 'SMS response:' + infobipResponse );
 
 			return {
 				success: true,
@@ -186,7 +186,7 @@ class MessagingService {
 			};
 		} catch ( error ) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown SMS error';
-			logger.error( `SMS sending failed to ${phone}:` + JSON.stringify( errorMessage ) );
+			logger.error( `SMS sending failed to ${phone}:` + errorMessage );
 			return {
 				success: false,
 				status: MessageStatus.FAILED,
