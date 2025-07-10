@@ -166,7 +166,7 @@ class MessagingService {
 				type: 'text',
 				messages: [
 					{
-						destinations: [{ to: +phone }],
+						destinations: [{ to: phone }],
 						from: envars.FROM_SMS_PHONE,
 						text: message,
 					},
