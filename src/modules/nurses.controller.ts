@@ -10,7 +10,7 @@ import {
 	uploadQualification,
 	validateDocumentUpload,
 	validateImageUpload,
-} from '../middlewares/fileUpload';
+} from '../middlewares/file-upload';
 import { ChannelType, messagingService } from '../services/messaging';
 import { NOTIFICATION_TEMPLATES, SMS_TEMPLATES } from '../services/templates';
 import { fileUploadService, handleFileUploadResponse } from '../services/upload';

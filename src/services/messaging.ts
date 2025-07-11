@@ -175,7 +175,6 @@ class MessagingService {
 
 			const { data } = infobipResponse;
 			logger.info( 'Infobip SMS response:' + data );
-			logger.info( 'SMS response:' + infobipResponse );
 
 			return {
 				success: true,
@@ -304,7 +303,7 @@ class MessagingService {
 					expiresAt: new Date( Date.now() + expiryTime * 1000 ),
 				};
 			} else {
-				// await this.expireOTP(email);
+				await this.expireOTP( email );
 				return {
 					success: false,
 					expiresAt: new Date(),
