@@ -40,8 +40,8 @@ router.get( '/', async ( _req: Request, res: Response, next: NextFunction ) => {
 router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const result = AppointmentCreateSchema.safeParse( req.body );
-
-		console.log( result );
+		
+		console.log( JSON.stringify( result ) );
 
 		if ( !result.success ) {
 			return sendNormalized( res, StatusCodes.BAD_REQUEST, null, result.error.issues[0].message );
