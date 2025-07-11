@@ -57,7 +57,7 @@ export const PatientPhoneAuthSchema = z.object( {
 
 export const PatientOTPVerificationSchema = z.object( {
 	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ),
-	otp: z.string().length( 6 ),
+	otp: z.string().length( 5 ),
 	name: z.string().optional(),
 } );
 
@@ -73,7 +73,7 @@ export const AdminSignupSchema = z.object( {
 
 export const AdminOTPVerificationSchema = z.object( {
 	email: z.string().email(),
-	otp: z.string().length( 6 ),
+	otp: z.string().length( 5 ),
 } );
 
 export const TResponseSchema = z.object( {
@@ -87,12 +87,12 @@ export const TResponseSchema = z.object( {
 
 export const VerifyEmailSchema = z.object( {
 	email: z.string().email(),
-	otp: z.string().length( 6 ),
+	otp: z.string().length( 5 ),
 } );
 
 export const VerifyPhoneSchema = z.object( {
 	phone: z.string().regex( /^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid ug phone number' ),
-	otp: z.string().length( 6 ),
+	otp: z.string().length( 5 ),
 } );
 
 export const PhoneVerifcationOTPSchema = z.object( {

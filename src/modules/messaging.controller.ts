@@ -7,41 +7,41 @@ import { sendNormalized } from '../utils/http-response';
 const router = Router();
 
 // Validation schemas
-const SendNotificationSchema = z.object({
-	recipient: z.string().min(1, 'Recipient is required'),
-	message: z.string().min(1, 'Message is required'),
-	channel: z.enum(['sms', 'email', 'both']).optional(),
-	priority: z.enum(['low', 'normal', 'high', 'urgent']).optional(),
+const SendNotificationSchema = z.object( {
+	recipient: z.string().min( 1, 'Recipient is required' ),
+	message: z.string().min( 1, 'Message is required' ),
+	channel: z.enum( ['sms', 'email', 'both'] ).optional(),
+	priority: z.enum( ['low', 'normal', 'high', 'urgent'] ).optional(),
 	subject: z.string().optional(),
-	metadata: z.record(z.any()).optional(),
-});
+	metadata: z.record( z.any() ).optional(),
+} );
 
-const SendBulkNotificationSchema = z.object({
-	recipients: z.array(z.string()).min(1, 'At least one recipient is required'),
-	message: z.string().min(1, 'Message is required'),
-	channel: z.enum(['sms', 'email', 'both']).optional(),
-	priority: z.enum(['low', 'normal', 'high', 'urgent']).optional(),
+const SendBulkNotificationSchema = z.object( {
+	recipients: z.array( z.string() ).min( 1, 'At least one recipient is required' ),
+	message: z.string().min( 1, 'Message is required' ),
+	channel: z.enum( ['sms', 'email', 'both'] ).optional(),
+	priority: z.enum( ['low', 'normal', 'high', 'urgent'] ).optional(),
 	subject: z.string().optional(),
-	metadata: z.record(z.any()).optional(),
-});
+	metadata: z.record( z.any() ).optional(),
+} );
 
-const SendOTPSchema = z.object({
-	identifier: z.string().min(1, 'Identifier (email or phone) is required'),
-	channel: z.enum(['sms', 'email']).optional(),
-	expiryTime: z.number().min(60).max(3600).optional(), // 1 minute to 1 hour
-});
+const SendOTPSchema = z.object( {
+	identifier: z.string().min( 1, 'Identifier (email or phone) is required' ),
+	channel: z.enum( ['sms', 'email'] ).optional(),
+	expiryTime: z.number().min( 60 ).max( 3600 ).optional(), // 1 minute to 1 hour
+} );
 
-const VerifyOTPSchema = z.object({
-	identifier: z.string().min(1, 'Identifier (email or phone) is required'),
-	otp: z.string().min(4, 'OTP is required'),
-});
+const VerifyOTPSchema = z.object( {
+	identifier: z.string().min( 1, 'Identifier (email or phone) is required' ),
+	otp: z.string().length( 5, 'OTP is required' ),
+} );
 
 // POST /messaging/send-notification - Send a single notification
-router.post('/send-notification', async (req: Request, res: Response, _next: NextFunction) => {
+router.post( '/send-notification', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = SendNotificationSchema.safeParse(req.body);
+		const result = SendNotificationSchema.safeParse( req.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -73,14 +73,14 @@ router.post('/send-notification', async (req: Request, res: Response, _next: Nex
 		// Prepare template if subject is provided
 		const template = subject ? { subject, text: message } : undefined;
 
-		const results = await messagingService.sendNotification(recipient, message, {
+		const results = await messagingService.sendNotification( recipient, message, {
 			channel: channelType,
 			priority: messagePriority,
 			template,
 			metadata,
-		});
+		} );
 
-		const successCount = results.filter((r) => r.success).length;
+		const successCount = results.filter( ( r ) => r.success ).length;
 		const failureCount = results.length - successCount;
 
 		return sendNormalized(
@@ -97,8 +97,8 @@ router.post('/send-notification', async (req: Request, res: Response, _next: Nex
 			},
 			`Notification sent. ${successCount} successful, ${failureCount} failed.`
 		);
-	} catch (error) {
-		console.error('Error sending notification:', error);
+	} catch ( error ) {
+		console.error( 'Error sending notification:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -106,16 +106,16 @@ router.post('/send-notification', async (req: Request, res: Response, _next: Nex
 			'Failed to send notification. Please try again.'
 		);
 	}
-});
+} );
 
 // POST /messaging/send-bulk-notifications - Send bulk notifications
 router.post(
 	'/send-bulk-notifications',
-	async (req: Request, res: Response, _next: NextFunction) => {
+	async ( req: Request, res: Response, _next: NextFunction ) => {
 		try {
-			const result = SendBulkNotificationSchema.safeParse(req.body);
+			const result = SendBulkNotificationSchema.safeParse( req.body );
 
-			if (!result.success) {
+			if ( !result.success ) {
 				return sendNormalized(
 					res,
 					StatusCodes.BAD_REQUEST,
@@ -147,16 +147,16 @@ router.post(
 			// Prepare template if subject is provided
 			const template = subject ? { subject, text: message } : undefined;
 
-			const results = await messagingService.sendBulkNotifications(recipients, message, {
+			const results = await messagingService.sendBulkNotifications( recipients, message, {
 				channel: channelType,
 				priority: messagePriority,
 				template,
 				metadata,
-			});
+			} );
 
 			const totalRecipients = results.length;
-			const successfulRecipients = results.filter((r) =>
-				r.results.some((result) => result.success)
+			const successfulRecipients = results.filter( ( r ) =>
+				r.results.some( ( result ) => result.success )
 			).length;
 			const failedRecipients = totalRecipients - successfulRecipients;
 
@@ -174,8 +174,8 @@ router.post(
 				},
 				`Bulk notifications sent. ${successfulRecipients} successful, ${failedRecipients} failed.`
 			);
-		} catch (error) {
-			console.error('Error sending bulk notifications:', error);
+		} catch ( error ) {
+			console.error( 'Error sending bulk notifications:', error );
 			return sendNormalized(
 				res,
 				StatusCodes.INTERNAL_SERVER_ERROR,
@@ -187,11 +187,11 @@ router.post(
 );
 
 // POST /messaging/send-otp - Send OTP
-router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction) => {
+router.post( '/send-otp', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = SendOTPSchema.safeParse(req.body);
+		const result = SendOTPSchema.safeParse( req.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -203,10 +203,10 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 		const { identifier, channel, expiryTime } = result.data;
 
 		// Determine if identifier is email or phone
-		const isEmail = identifier.includes('@');
-		const isPhone = /^\+?[\d\s\-()]+$/.test(identifier);
+		const isEmail = identifier.includes( '@' );
+		const isPhone = /^\+?[\d\s\-()]+$/.test( identifier );
 
-		if (!isEmail && !isPhone) {
+		if ( !isEmail && !isPhone ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -217,10 +217,10 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 
 		let otpResult;
 
-		if (channel === 'sms' || (!channel && isPhone)) {
-			otpResult = await messagingService.sendOTPViaSMS(identifier, expiryTime);
-		} else if (channel === 'email' || (!channel && isEmail)) {
-			otpResult = await messagingService.sendOTPViaEmail(identifier, expiryTime);
+		if ( channel === 'sms' || ( !channel && isPhone ) ) {
+			otpResult = await messagingService.sendOTPViaSMS( identifier, expiryTime );
+		} else if ( channel === 'email' || ( !channel && isEmail ) ) {
+			otpResult = await messagingService.sendOTPViaEmail( identifier, expiryTime );
 		} else {
 			return sendNormalized(
 				res,
@@ -230,7 +230,7 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 			);
 		}
 
-		if (!otpResult.success) {
+		if ( !otpResult.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.INTERNAL_SERVER_ERROR,
@@ -244,13 +244,13 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 			StatusCodes.OK,
 			{
 				identifier,
-				channel: channel || (isEmail ? 'email' : 'sms'),
+				channel: channel || ( isEmail ? 'email' : 'sms' ),
 				expiresAt: otpResult.expiresAt,
 			},
 			'OTP sent successfully.'
 		);
-	} catch (error) {
-		console.error('Error sending OTP:', error);
+	} catch ( error ) {
+		console.error( 'Error sending OTP:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -258,14 +258,14 @@ router.post('/send-otp', async (req: Request, res: Response, _next: NextFunction
 			'Failed to send OTP. Please try again.'
 		);
 	}
-});
+} );
 
 // POST /messaging/verify-otp - Verify OTP
-router.post('/verify-otp', async (req: Request, res: Response, _next: NextFunction) => {
+router.post( '/verify-otp', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = VerifyOTPSchema.safeParse(req.body);
+		const result = VerifyOTPSchema.safeParse( req.body );
 
-		if (!result.success) {
+		if ( !result.success ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -276,9 +276,9 @@ router.post('/verify-otp', async (req: Request, res: Response, _next: NextFuncti
 
 		const { identifier, otp } = result.data;
 
-		const isValid = await messagingService.verifyOTP(identifier, otp);
+		const isValid = await messagingService.verifyOTP( identifier, otp );
 
-		if (!isValid) {
+		if ( !isValid ) {
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -288,7 +288,7 @@ router.post('/verify-otp', async (req: Request, res: Response, _next: NextFuncti
 		}
 
 		// Expire the OTP after successful verification
-		await messagingService.expireOTP(identifier);
+		await messagingService.expireOTP( identifier );
 
 		return sendNormalized(
 			res,
@@ -296,8 +296,8 @@ router.post('/verify-otp', async (req: Request, res: Response, _next: NextFuncti
 			{ identifier, verified: true },
 			'OTP verified successfully.'
 		);
-	} catch (error) {
-		console.error('Error verifying OTP:', error);
+	} catch ( error ) {
+		console.error( 'Error verifying OTP:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -305,10 +305,10 @@ router.post('/verify-otp', async (req: Request, res: Response, _next: NextFuncti
 			'Failed to verify OTP. Please try again.'
 		);
 	}
-});
+} );
 
 // GET /messaging/health - Health check for messaging service
-router.get('/health', async (_req: Request, res: Response, _next: NextFunction) => {
+router.get( '/health', async ( _req: Request, res: Response, _next: NextFunction ) => {
 	try {
 		const health = await messagingService.healthCheck();
 
@@ -324,8 +324,8 @@ router.get('/health', async (_req: Request, res: Response, _next: NextFunction) 
 			},
 			isHealthy ? 'Messaging service is healthy' : 'Messaging service has issues'
 		);
-	} catch (error) {
-		console.error('Error checking messaging health:', error);
+	} catch ( error ) {
+		console.error( 'Error checking messaging health:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -333,10 +333,10 @@ router.get('/health', async (_req: Request, res: Response, _next: NextFunction) 
 			'Failed to check messaging service health.'
 		);
 	}
-});
+} );
 
 // GET /messaging/stats - Get messaging statistics
-router.get('/stats', async (_req: Request, res: Response, _next: NextFunction) => {
+router.get( '/stats', async ( _req: Request, res: Response, _next: NextFunction ) => {
 	try {
 		const stats = await messagingService.getMessageStats();
 
@@ -349,8 +349,8 @@ router.get('/stats', async (_req: Request, res: Response, _next: NextFunction) =
 			},
 			'Messaging statistics retrieved successfully.'
 		);
-	} catch (error) {
-		console.error('Error getting messaging stats:', error);
+	} catch ( error ) {
+		console.error( 'Error getting messaging stats:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
@@ -358,6 +358,6 @@ router.get('/stats', async (_req: Request, res: Response, _next: NextFunction) =
 			'Failed to get messaging statistics.'
 		);
 	}
-});
+} );
 
 export default router;

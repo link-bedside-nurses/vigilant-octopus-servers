@@ -26,7 +26,7 @@ const emailTransporter = nodemailer.createTransport( {
 } );
 
 const OTP_EXPIRY_TIME = 300;
-const OTP_LENGTH = 6;
+const OTP_LENGTH = 5;
 
 export enum MessageType {
 	OTP = 'otp',
