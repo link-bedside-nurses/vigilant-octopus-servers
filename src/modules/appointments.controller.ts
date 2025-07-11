@@ -10,38 +10,41 @@ import { handleAssignmentResponse, nurseAssignmentService } from '../services/nu
 import { sendNormalized } from '../utils/http-response';
 
 const router = Router();
-router.use(authenticate);
+router.use( authenticate );
 
 // Zod schema for appointment creation
-const AppointmentCreateSchema = z.object({
+const AppointmentCreateSchema = z.object( {
 	patient: z.string(),
-	symptoms: z.array(z.string()).min(1, 'At least one symptom is required'),
+	symptoms: z.array( z.string() ).min( 1, 'At least one symptom is required' ),
 	description: z.string().optional(),
 	date: z.coerce.date().optional(),
 	// add other fields as needed
-});
+} );
 
 // GET /appointments - get all appointments
-router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
+router.get( '/', async ( _req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const appointments = await db.appointments
-			.find({})
-			.sort({ createdAt: 'desc' })
-			.populate('nurse')
-			.populate('patient')
-			.populate('payments');
-		return sendNormalized(res, StatusCodes.OK, appointments, 'Appointments fetched successfully');
-	} catch (err) {
-		return next(err);
+			.find( {} )
+			.sort( { createdAt: 'desc' } )
+			.populate( 'nurse' )
+			.populate( 'patient' )
+			.populate( 'payments' );
+		return sendNormalized( res, StatusCodes.OK, appointments, 'Appointments fetched successfully' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // POST /appointments - schedule appointment
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
-		const result = AppointmentCreateSchema.safeParse(req.body);
-		if (!result.success) {
-			return sendNormalized(res, StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
+		const result = AppointmentCreateSchema.safeParse( req.body );
+
+		console.log( result );
+
+		if ( !result.success ) {
+			return sendNormalized( res, StatusCodes.BAD_REQUEST, null, result.error.issues[0].message );
 		}
 		const { patient, symptoms, description, date } = result.data;
 		const appointmentData: any = {
@@ -49,21 +52,21 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 			symptoms,
 			description,
 		};
-		if (date) appointmentData.date = date;
-		const resultDoc = await db.appointments.create(appointmentData);
-		const populated = await (await resultDoc.populate('patient')).populate('nurse');
-		return sendNormalized(res, StatusCodes.OK, populated, 'Appointment scheduled successfully');
-	} catch (err) {
-		return next(err);
+		if ( date ) appointmentData.date = date;
+		const resultDoc = await db.appointments.create( appointmentData );
+		const populated = await ( await resultDoc.populate( 'patient' ) ).populate( 'nurse' );
+		return sendNormalized( res, StatusCodes.OK, populated, 'Appointment scheduled successfully' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // POST /appointments/history - get appointments history
-router.post('/history', async (req: Request, res: Response, next: NextFunction) => {
+router.post( '/history', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const status = req.body.status;
 		const query: mongoose.FilterQuery<any> = {};
-		if (status) query.status = status;
+		if ( status ) query.status = status;
 		const pipeline: mongoose.PipelineStage[] = [
 			{ $match: query },
 			{
@@ -87,55 +90,55 @@ router.post('/history', async (req: Request, res: Response, next: NextFunction) 
 			{ $unwind: { path: '$patient', preserveNullAndEmptyArrays: true } },
 			{ $unwind: { path: '$nurse', preserveNullAndEmptyArrays: true } },
 		];
-		const appointments = await db.appointments.aggregate(pipeline);
+		const appointments = await db.appointments.aggregate( pipeline );
 		return sendNormalized(
 			res,
 			StatusCodes.OK,
 			appointments,
 			'Appointments history fetched successfully'
 		);
-	} catch (err) {
-		return next(err);
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // Nurse Assignment Endpoints (Admin Only) - These must come before /:id routes
 
 /**
  * GET /appointments/pending - Get pending appointments without assigned nurses
  */
-router.get('/pending', async (req: Request, res: Response, next: NextFunction) => {
+router.get( '/pending', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const accountType = req.account?.type;
 
-		if (accountType !== 'admin') {
-			return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
+		if ( accountType !== 'admin' ) {
+			return sendNormalized( res, StatusCodes.FORBIDDEN, null, 'Admin access required' );
 		}
 
 		const assignmentResponse = await nurseAssignmentService.getPendingAppointments();
-		handleAssignmentResponse(res, assignmentResponse);
-	} catch (err) {
-		return next(err);
+		handleAssignmentResponse( res, assignmentResponse );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 /**
  * GET /appointments/available-nurses - Get available nurses for assignment
  */
-router.get('/available-nurses', async (req: Request, res: Response, next: NextFunction) => {
+router.get( '/available-nurses', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const accountType = req.account?.type;
 
-		if (accountType !== 'admin') {
-			return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
+		if ( accountType !== 'admin' ) {
+			return sendNormalized( res, StatusCodes.FORBIDDEN, null, 'Admin access required' );
 		}
 
 		const assignmentResponse = await nurseAssignmentService.getAvailableNurses();
-		handleAssignmentResponse(res, assignmentResponse);
-	} catch (err) {
-		return next(err);
+		handleAssignmentResponse( res, assignmentResponse );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 /**
  * GET /appointments/nurse/:nurseId - Get appointments assigned to a specific nurse
@@ -143,17 +146,17 @@ router.get('/available-nurses', async (req: Request, res: Response, next: NextFu
 router.get(
 	'/nurse/:nurseId',
 	validateObjectID,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const accountType = req.account?.type;
 			const nurseId = req.account?.id;
 
 			// Allow admin to view any nurse's appointments, or nurse to view their own
-			if (accountType !== 'admin' && accountType !== 'nurse') {
-				return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin or nurse access required');
+			if ( accountType !== 'admin' && accountType !== 'nurse' ) {
+				return sendNormalized( res, StatusCodes.FORBIDDEN, null, 'Admin or nurse access required' );
 			}
 
-			if (accountType === 'nurse' && nurseId !== req.params.nurseId) {
+			if ( accountType === 'nurse' && nurseId !== req.params.nurseId ) {
 				return sendNormalized(
 					res,
 					StatusCodes.FORBIDDEN,
@@ -165,34 +168,34 @@ router.get(
 			const assignmentResponse = await nurseAssignmentService.getNurseAppointments(
 				req.params.nurseId
 			);
-			handleAssignmentResponse(res, assignmentResponse);
-		} catch (err) {
-			return next(err);
+			handleAssignmentResponse( res, assignmentResponse );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
 
 // GET /appointments/:id - get appointment by id (must come after specific routes)
-router.get('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
+router.get( '/:id', validateObjectID, async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const appointment = await db.appointments
-			.findById(req.params.id)
-			.populate('nurse')
-			.populate('patient')
-			.populate('payments');
-		if (!appointment)
-			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Appointment not found');
-		return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment fetched successfully');
-	} catch (err) {
-		return next(err);
+			.findById( req.params.id )
+			.populate( 'nurse' )
+			.populate( 'patient' )
+			.populate( 'payments' );
+		if ( !appointment )
+			return sendNormalized( res, StatusCodes.NOT_FOUND, null, 'Appointment not found' );
+		return sendNormalized( res, StatusCodes.OK, appointment, 'Appointment fetched successfully' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 // PATCH /appointments/:id/update - update appointment status
 router.patch(
 	'/:id/update',
 	validateObjectID,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { status } = req.body;
 			const appointment = await db.appointments.findByIdAndUpdate(
@@ -206,8 +209,8 @@ router.patch(
 				appointment,
 				'Appointment status updated successfully'
 			);
-		} catch (err) {
-			return next(err);
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
@@ -216,7 +219,7 @@ router.patch(
 router.patch(
 	'/:id/reschedule',
 	validateObjectID,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { date } = req.body;
 			const appointment = await db.appointments.findByIdAndUpdate(
@@ -230,8 +233,8 @@ router.patch(
 				appointment,
 				'Appointment rescheduled successfully'
 			);
-		} catch (err) {
-			return next(err);
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
@@ -240,16 +243,16 @@ router.patch(
 router.patch(
 	'/:id/confirm',
 	validateObjectID,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const appointment = await db.appointments.findByIdAndUpdate(
 				req.params.id,
 				{ status: APPOINTMENT_STATUSES.IN_PROGRESS },
 				{ new: true }
 			);
-			return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment confirmed successfully');
-		} catch (err) {
-			return next(err);
+			return sendNormalized( res, StatusCodes.OK, appointment, 'Appointment confirmed successfully' );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
@@ -258,7 +261,7 @@ router.patch(
 router.patch(
 	'/:id/cancel',
 	validateObjectID,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { reason } = req.body;
 			const adminId = req.account?.id;
@@ -268,15 +271,15 @@ router.patch(
 				cancelledAt: new Date(),
 			};
 
-			if (reason) updateData.cancellationReason = reason;
-			if (adminId) updateData.cancelledBy = adminId;
+			if ( reason ) updateData.cancellationReason = reason;
+			if ( adminId ) updateData.cancelledBy = adminId;
 
-			const appointment = await db.appointments.findByIdAndUpdate(req.params.id, updateData, {
+			const appointment = await db.appointments.findByIdAndUpdate( req.params.id, updateData, {
 				new: true,
-			});
-			return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment cancelled successfully');
-		} catch (err) {
-			return next(err);
+			} );
+			return sendNormalized( res, StatusCodes.OK, appointment, 'Appointment cancelled successfully' );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
@@ -287,19 +290,19 @@ router.patch(
 router.post(
 	'/:id/assign-nurse',
 	validateObjectID,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const accountType = req.account?.type;
 			const adminId = req.account?.id;
 
-			if (accountType !== 'admin') {
-				return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
+			if ( accountType !== 'admin' ) {
+				return sendNormalized( res, StatusCodes.FORBIDDEN, null, 'Admin access required' );
 			}
 
 			const { nurseId, notes } = req.body;
 
-			if (!nurseId) {
-				return sendNormalized(res, StatusCodes.BAD_REQUEST, null, 'Nurse ID is required');
+			if ( !nurseId ) {
+				return sendNormalized( res, StatusCodes.BAD_REQUEST, null, 'Nurse ID is required' );
 			}
 
 			const assignmentRequest = {
@@ -312,9 +315,9 @@ router.post(
 				assignmentRequest,
 				adminId!
 			);
-			handleAssignmentResponse(res, assignmentResponse);
-		} catch (err) {
-			return next(err);
+			handleAssignmentResponse( res, assignmentResponse );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
@@ -325,19 +328,19 @@ router.post(
 router.post(
 	'/:id/reassign-nurse',
 	validateObjectID,
-	async (req: Request, res: Response, next: NextFunction) => {
+	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const accountType = req.account?.type;
 			const adminId = req.account?.id;
 
-			if (accountType !== 'admin') {
-				return sendNormalized(res, StatusCodes.FORBIDDEN, null, 'Admin access required');
+			if ( accountType !== 'admin' ) {
+				return sendNormalized( res, StatusCodes.FORBIDDEN, null, 'Admin access required' );
 			}
 
 			const { nurseId, reason } = req.body;
 
-			if (!nurseId) {
-				return sendNormalized(res, StatusCodes.BAD_REQUEST, null, 'Nurse ID is required');
+			if ( !nurseId ) {
+				return sendNormalized( res, StatusCodes.BAD_REQUEST, null, 'Nurse ID is required' );
 			}
 
 			const assignmentResponse = await nurseAssignmentService.reassignNurse(
@@ -346,21 +349,21 @@ router.post(
 				adminId!,
 				reason
 			);
-			handleAssignmentResponse(res, assignmentResponse);
-		} catch (err) {
-			return next(err);
+			handleAssignmentResponse( res, assignmentResponse );
+		} catch ( err ) {
+			return next( err );
 		}
 	}
 );
 
 // DELETE /appointments/:id - delete appointment
-router.delete('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
+router.delete( '/:id', validateObjectID, async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
-		const appointment = await db.appointments.findByIdAndDelete(req.params.id);
-		return sendNormalized(res, StatusCodes.OK, appointment, 'Appointment deleted successfully');
-	} catch (err) {
-		return next(err);
+		const appointment = await db.appointments.findByIdAndDelete( req.params.id );
+		return sendNormalized( res, StatusCodes.OK, appointment, 'Appointment deleted successfully' );
+	} catch ( err ) {
+		return next( err );
 	}
-});
+} );
 
 export default router;
