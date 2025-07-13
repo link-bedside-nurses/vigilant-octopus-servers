@@ -7,41 +7,42 @@ import { db } from '../database';
 import HTTPException from '../utils/exception';
 import logger from '../utils/logger';
 
-export default async function authenticate(request: Request, res: Response, next: NextFunction) {
+export default async function authenticate( request: Request, res: Response, next: NextFunction ) {
 	if (
 		!request.headers.authorization ||
-		!request.headers.authorization.split(' ').includes('Bearer')
+		!request.headers.authorization.split( ' ' ).includes( 'Bearer' )
 	) {
-		return next(new HTTPException('Unauthorized!', StatusCodes.UNAUTHORIZED));
+		return next( new HTTPException( 'Unauthorized!', StatusCodes.UNAUTHORIZED ) );
 	}
 
-	const token = request.headers.authorization.split('Bearer ')[1]?.trim();
+	const token = request.headers.authorization.split( 'Bearer ' )[1]?.trim();
 
-	if (!token) return next(new HTTPException('Missing token!', StatusCodes.UNAUTHORIZED));
+	if ( !token ) return next( new HTTPException( 'Missing token!', StatusCodes.UNAUTHORIZED ) );
 
 	try {
-		const decoded = jwt.verify(token, envars.ACCESS_TOKEN_SECRET) as { iat: number; id: string };
+		const decoded = jwt.verify( token, envars.ACCESS_TOKEN_SECRET ) as { iat: number; id: string };
 
-		if (!decoded || !decoded.id)
-			return next(new HTTPException('Invalid Access Token!', StatusCodes.UNAUTHORIZED));
+		if ( !decoded || !decoded.id )
+			return next( new HTTPException( 'Invalid Access Token!', StatusCodes.UNAUTHORIZED ) );
 
 		// check if the user with this id exists
-		const patient = await db.patients.findById(decoded.id);
-		const admin = await db.admins.findById(decoded.id);
+		const patient = await db.patients.findById( decoded.id );
+		const admin = await db.admins.findById( decoded.id );
 
-		if (!patient && !admin) {
-			logger.info('user not found');
-			return next(new HTTPException('User not found!', StatusCodes.UNAUTHORIZED));
+		if ( !patient && !admin ) {
+			logger.info( 'user not found' );
+			return next( new HTTPException( 'User not found!', StatusCodes.UNAUTHORIZED ) );
 		}
 
 		// Set account info based on user type
-		if (patient) {
+		if ( patient ) {
 			request.account = {
 				id: decoded.id,
 				phone: patient.phone,
 				type: 'patient',
+				name: patient.name,
 			};
-		} else if (admin) {
+		} else if ( admin ) {
 			request.account = {
 				id: decoded.id,
 				email: admin.email,
@@ -50,7 +51,7 @@ export default async function authenticate(request: Request, res: Response, next
 		}
 
 		next();
-	} catch (error) {
-		return next(new HTTPException('Invalid token!', StatusCodes.UNAUTHORIZED));
+	} catch ( error ) {
+		return next( new HTTPException( 'Invalid token!', StatusCodes.UNAUTHORIZED ) );
 	}
 }

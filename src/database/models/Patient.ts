@@ -72,6 +72,9 @@ export class Patient {
 	@prop( { type: Location, required: false, index: '2dsphere' } )
 	location?: Location;
 
+	@prop( { type: String, required: true, minlength: 8 } )
+	password!: string;
+
 	// Account deletion fields (Google Play Store compliance)
 	@prop( { type: Boolean, required: false, default: false } )
 	markedForDeletion?: boolean;

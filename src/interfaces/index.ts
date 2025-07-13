@@ -10,4 +10,5 @@ export interface ACCOUNT {
 	phone?: string;
 	email?: string;
 	type: 'admin' | 'patient' | 'nurse';
+	name?: string;
 }

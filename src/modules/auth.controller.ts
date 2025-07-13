@@ -7,9 +7,8 @@ import {
 	AdminOTPVerificationSchema,
 	AdminSigninSchema,
 	AdminSignupSchema,
-	PatientOTPVerificationSchema,
-	PatientPhoneAuthSchema,
-	PatientSetNameSchema, // <-- add this
+	PatientSigninSchema,
+	PatientSignupSchema,
 } from '../interfaces/dtos';
 import { messagingService } from '../services/messaging';
 import { createAccessToken } from '../services/token';
@@ -20,11 +19,10 @@ const router = Router();
 
 // Patient Authentication Routes
 
-// POST /auth/patient/signin - initiate patient signin with phone
+// POST /auth/patient/signin - legacy phone+password
 router.post( '/patient/signin', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = PatientPhoneAuthSchema.safeParse( req.body );
-
+		const result = PatientSigninSchema.safeParse( req.body );
 		if ( !result.success ) {
 			return sendNormalized(
 				res,
@@ -34,37 +32,21 @@ router.post( '/patient/signin', async ( req: Request, res: Response, _next: Next
 				result.error
 			);
 		}
-
-		const { phone } = result.data;
-
-		let patient = await db.patients.findOne( { phone } );
-
+		const { phone, password } = result.data;
+		const patient = await db.patients.findOne( { phone } );
 		if ( !patient ) {
-			patient = await db.patients.create( {
-				phone,
-			} );
+			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
 		}
-
-		const otpResult = await messagingService.sendOTPViaSMS( phone );
-
-		if ( !otpResult.success ) {
-			return sendNormalized(
-				res,
-				StatusCodes.INTERNAL_SERVER_ERROR,
-				null,
-				'Failed to send OTP. Please try again.'
-			);
+		const match = await Password.verify( patient.password, password );
+		if ( !match ) {
+			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
 		}
-
+		const accessToken = createAccessToken( patient as unknown as mongoose.Document & ACCOUNT );
 		return sendNormalized(
 			res,
 			StatusCodes.OK,
-			{
-				message: 'OTP sent to your phone number',
-				user: patient,
-				expiresAt: otpResult.expiresAt,
-			},
-			'Check your phone for OTP'
+			{ user: patient, accessToken },
+			'Signed in successfully.'
 		);
 	} catch ( error ) {
 		console.error( 'Error in patient signin:', error );
@@ -72,16 +54,15 @@ router.post( '/patient/signin', async ( req: Request, res: Response, _next: Next
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
 			null,
-			'Failed to send OTP. Please try again.'
+			'Failed to sign in. Please try again.'
 		);
 	}
 } );
 
-// POST /auth/patient/verify-otp
-router.post( '/patient/verify-otp', async ( req: Request, res: Response, _next: NextFunction ) => {
+// POST /auth/patient/signup - legacy phone+password
+router.post( '/patient/signup', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
-		const result = PatientOTPVerificationSchema.safeParse( req.body );
-
+		const result = PatientSignupSchema.safeParse( req.body );
 		if ( !result.success ) {
 			return sendNormalized(
 				res,
@@ -91,122 +72,28 @@ router.post( '/patient/verify-otp', async ( req: Request, res: Response, _next: 
 				result.error
 			);
 		}
-
-		const { phone, otp } = result.data;
-
-		const isValidOTP = await messagingService.verifyOTP( phone, otp );
-
-		if ( !isValidOTP ) {
-			return sendNormalized(
-				res,
-				StatusCodes.BAD_REQUEST,
-				null,
-				'Invalid or expired OTP. Please try again.'
-			);
+		const { name, phone, password } = result.data;
+		const existingPatient = await db.patients.findOne( { phone } );
+		if ( existingPatient ) {
+			return sendNormalized( res, StatusCodes.BAD_REQUEST, null, 'Phone already in use' );
 		}
-
-		let patient = await db.patients.findOne( { phone } );
-
-		if ( patient ) {
-			patient.isPhoneVerified = true;
-			patient = await patient.save();
-
-			await messagingService.expireOTP( phone );
-
-			return sendNormalized(
-				res,
-				StatusCodes.OK,
-				{ user: patient },
-				'Phone verified'
-			);
-		} else {
-			patient = await db.patients.create( {
-				phone,
-				isPhoneVerified: true,
-			} );
-
-			await messagingService.expireOTP( phone );
-
-			return sendNormalized(
-				res,
-				StatusCodes.CREATED,
-				{ user: patient },
-				'Phone verified'
-			);
-		}
-	} catch ( error ) {
-		console.error( 'Error in patient OTP verification:', error );
-		return sendNormalized(
-			res,
-			StatusCodes.INTERNAL_SERVER_ERROR,
-			null,
-			'Failed to verify OTP. Please try again.'
-		);
-	}
-} );
-
-// POST /auth/patient/set-name
-router.post( '/patient/set-name', async ( req: Request, res: Response, _next: NextFunction ) => {
-	try {
-		const result = PatientSetNameSchema.safeParse( req.body );
-		if ( !result.success ) {
-			return sendNormalized(
-				res,
-				StatusCodes.BAD_REQUEST,
-				null,
-				`${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase(),
-				result.error
-			);
-		}
-		const { phone, name } = result.data;
-		const patient = await db.patients.findOne( { phone } );
-		if ( !patient ) {
-			return sendNormalized(
-				res,
-				StatusCodes.NOT_FOUND,
-				null,
-				'Patient not found. Please verify your phone first.'
-			);
-		}
-		if ( !patient.isPhoneVerified ) {
-			return sendNormalized(
-				res,
-				StatusCodes.FORBIDDEN,
-				null,
-				'Phone not verified. Please verify your phone first.'
-			);
-		}
-		patient.name = name;
-		await patient.save();
+		const hash = await Password.hash( password );
+		const patient = await db.patients.create( { name, phone, password: hash } );
 		const accessToken = createAccessToken( patient as unknown as mongoose.Document & ACCOUNT );
 		return sendNormalized(
 			res,
-			StatusCodes.OK,
+			StatusCodes.CREATED,
 			{ user: patient, accessToken },
 			'Account created and signed in successfully.'
 		);
 	} catch ( error ) {
-		console.error( 'Error in patient set-name:', error );
+		console.error( 'Error in patient signup:', error );
 		return sendNormalized(
 			res,
 			StatusCodes.INTERNAL_SERVER_ERROR,
 			null,
-			'Failed to set name. Please try again.'
+			'Failed to sign up. Please try again.'
 		);
-	}
-} );
-
-// POST /auth/patient/signup
-router.post( '/patient/signup', async ( _req: Request, res: Response, next: NextFunction ) => {
-	try {
-		return sendNormalized(
-			res,
-			StatusCodes.METHOD_NOT_ALLOWED,
-			null,
-			'Please use the OTP-based signin flow for new patient registration'
-		);
-	} catch ( error ) {
-		return next( error );
 	}
 } );
 

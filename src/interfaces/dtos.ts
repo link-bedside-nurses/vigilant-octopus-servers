@@ -124,3 +124,18 @@ export type PatientOTPVerificationDto = z.infer<typeof PatientOTPVerificationSch
 export type AdminSigninDto = z.infer<typeof AdminSigninSchema>;
 export type AdminSignupDto = z.infer<typeof AdminSignupSchema>;
 export type AdminOTPVerificationDto = z.infer<typeof AdminOTPVerificationSchema>;
+
+// Patient legacy phone+password auth schemas
+export const PatientSigninSchema = z.object( {
+	phone: z.string().regex( /^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number' ),
+	password: z.string().min( 8 ),
+} );
+
+export const PatientSignupSchema = z.object( {
+	name: z.string().min( 2 ),
+	phone: z.string().regex( /^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number' ),
+	password: z.string().min( 8 ),
+} );
+
+export type PatientSigninDto = z.infer<typeof PatientSigninSchema>;
+export type PatientSignupDto = z.infer<typeof PatientSignupSchema>;
