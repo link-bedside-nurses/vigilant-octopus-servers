@@ -39,6 +39,9 @@ router.post( '/patient/signin', async ( req: Request, res: Response, _next: Next
 		if ( !patient ) {
 			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials!' );
 		}
+
+		console.log( patient )
+
 		const match = await Password.verify( patient.password, password );
 		if ( !match ) {
 			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials!' );
