@@ -428,7 +428,7 @@ export const privacy = `
             <a href="/" class="logo">Link Bed Sides</a>
             <nav class="nav-links">
                 <a href="/">Home</a>
-                <a href="/api/v1.1/auth/account-deletion">Account Deletion</a>
+                <a href="/account-deletion">Account Deletion</a>
                 <a href="/support">Support</a>
             </nav>
         </div>
