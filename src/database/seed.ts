@@ -11,12 +11,12 @@ const centerCoords = {
 	lng: 32.5678668,
 };
 
-function generateRandomLocation(centerCoords: { lat: number; lng: number }) {
+function generateRandomLocation( centerCoords: { lat: number; lng: number } ) {
 	const maxDistance = 10000; // 10 km in meters
 	const randomDistance = Math.random() * maxDistance;
 	const randomBearing = Math.random() * 360;
 
-	const newCoords = geolib.computeDestinationPoint(centerCoords, randomDistance, randomBearing);
+	const newCoords = geolib.computeDestinationPoint( centerCoords, randomDistance, randomBearing );
 
 	return {
 		type: 'Point',
@@ -26,91 +26,91 @@ function generateRandomLocation(centerCoords: { lat: number; lng: number }) {
 
 export async function seedDatabase() {
 	try {
-		logger.debug('Starting database seeding...');
+		logger.debug( 'Starting database seeding...' );
 
 		// Clear all collections
-		await Promise.all([
-			db.admins.deleteMany({}),
-			db.nurses.deleteMany({}),
-			db.patients.deleteMany({}),
-			db.appointments.deleteMany({}),
-			db.payments.deleteMany({}),
-		]);
+		await Promise.all( [
+			db.admins.deleteMany( {} ),
+			db.nurses.deleteMany( {} ),
+			db.patients.deleteMany( {} ),
+			db.appointments.deleteMany( {} ),
+			db.payments.deleteMany( {} ),
+		] );
 
 		// Seed admins
 		const admins = await seedAdmins();
-		logger.debug('✓ Admins seeded' + admins.length);
+		logger.debug( '✓ Admins seeded' + admins.length );
 
 		// Seed nurses
 		const nurses = await seedNurses();
-		logger.debug('✓ Nurses seeded' + nurses.length);
+		logger.debug( '✓ Nurses seeded' + nurses.length );
 
 		// Seed patients
 		const patients = await seedPatients();
-		logger.debug('✓ Patients seeded' + patients.length);
+		logger.debug( '✓ Patients seeded' + patients.length );
 
 		// Seed appointments
-		const appointments = await seedAppointments(patients, nurses);
-		logger.debug('✓ Appointments seeded' + appointments.length);
+		const appointments = await seedAppointments( patients, nurses );
+		logger.debug( '✓ Appointments seeded' + appointments.length );
 
 		// Seed payments
-		const payments = await seedPayments(appointments, patients);
-		logger.debug('✓ Payments seeded' + payments.length);
+		const payments = await seedPayments( appointments, patients );
+		logger.debug( '✓ Payments seeded' + payments.length );
 
 		// Map appointmentId to paymentIds
 		const appointmentPaymentsMap = new Map();
-		for (const payment of payments) {
+		for ( const payment of payments ) {
 			const aid = payment.appointment.toString();
-			if (!appointmentPaymentsMap.has(aid)) {
-				appointmentPaymentsMap.set(aid, []);
+			if ( !appointmentPaymentsMap.has( aid ) ) {
+				appointmentPaymentsMap.set( aid, [] );
 			}
-			appointmentPaymentsMap.get(aid).push(payment._id);
+			appointmentPaymentsMap.get( aid ).push( payment._id );
 		}
 		// Update each appointment's payments array
 		const bulkOps = [];
-		for (const [aid, paymentIds] of appointmentPaymentsMap.entries()) {
-			bulkOps.push({
+		for ( const [aid, paymentIds] of appointmentPaymentsMap.entries() ) {
+			bulkOps.push( {
 				updateOne: {
 					filter: { _id: aid },
 					update: { $set: { payments: paymentIds } },
 				},
-			});
+			} );
 		}
-		if (bulkOps.length > 0) {
-			await db.appointments.bulkWrite(bulkOps);
+		if ( bulkOps.length > 0 ) {
+			await db.appointments.bulkWrite( bulkOps );
 		}
 
-		logger.debug('Database seeding completed successfully!');
-	} catch (error) {
-		console.error('Error seeding database:', error);
+		logger.debug( 'Database seeding completed successfully!' );
+	} catch ( error ) {
+		console.error( 'Error seeding database:', error );
 		throw error;
 	}
 }
 
 async function seedAdmins() {
 	const admins = [];
-	for (let i = 0; i < 5; i++) {
-		admins.push({
+	for ( let i = 0; i < 5; i++ ) {
+		admins.push( {
 			email: faker.internet.email(),
-			password: await Password.hash('password'),
+			password: await Password.hash( 'password' ),
 			isEmailVerified: true,
-		});
+		} );
 	}
-	return await db.admins.insertMany(admins);
+	return await db.admins.insertMany( admins );
 }
 
 async function seedNurses() {
 	const nurses = [];
 	const qualificationTypes = ['certification', 'cv', 'other'];
 	const docFormats = ['jpg', 'png', 'pdf', 'docx'];
-	for (let i = 0; i < 50; i++) {
+	for ( let i = 0; i < 50; i++ ) {
 		const profilePicture = {
 			publicId: faker.string.uuid(),
 			url: faker.image.avatar(),
 			secureUrl: faker.image.avatar(),
-			format: faker.helpers.arrayElement(docFormats),
+			format: faker.helpers.arrayElement( docFormats ),
 			resourceType: 'image',
-			size: faker.number.int({ min: 10000, max: 500000 }),
+			size: faker.number.int( { min: 10000, max: 500000 } ),
 			uploadedAt: faker.date.past(),
 			originalName: faker.system.fileName(),
 		};
@@ -120,7 +120,7 @@ async function seedNurses() {
 			secureUrl: faker.image.urlPicsumPhotos(),
 			format: 'jpg',
 			resourceType: 'image',
-			size: faker.number.int({ min: 10000, max: 500000 }),
+			size: faker.number.int( { min: 10000, max: 500000 } ),
 			uploadedAt: faker.date.past(),
 			originalName: faker.system.fileName(),
 		};
@@ -130,34 +130,34 @@ async function seedNurses() {
 			secureUrl: faker.image.urlPicsumPhotos(),
 			format: 'jpg',
 			resourceType: 'image',
-			size: faker.number.int({ min: 10000, max: 500000 }),
+			size: faker.number.int( { min: 10000, max: 500000 } ),
 			uploadedAt: faker.date.past(),
 			originalName: faker.system.fileName(),
 		};
-		const qualifications = Array(faker.number.int({ min: 1, max: 3 }))
-			.fill(null)
-			.map(() => {
+		const qualifications = Array( faker.number.int( { min: 1, max: 3 } ) )
+			.fill( null )
+			.map( () => {
 				const doc = {
 					publicId: faker.string.uuid(),
 					url: faker.image.urlPicsumPhotos(),
 					secureUrl: faker.image.urlPicsumPhotos(),
-					format: faker.helpers.arrayElement(docFormats),
-					resourceType: faker.helpers.arrayElement(['image', 'raw', 'pdf']),
-					size: faker.number.int({ min: 10000, max: 500000 }),
+					format: faker.helpers.arrayElement( docFormats ),
+					resourceType: faker.helpers.arrayElement( ['image', 'raw', 'pdf'] ),
+					size: faker.number.int( { min: 10000, max: 500000 } ),
 					uploadedAt: faker.date.past(),
 					originalName: faker.system.fileName(),
 				};
 				return {
 					id: faker.string.uuid(),
-					type: faker.helpers.arrayElement(qualificationTypes),
+					type: faker.helpers.arrayElement( qualificationTypes ),
 					document: doc,
 					title: faker.person.jobTitle(),
 					description: faker.lorem.sentence(),
 					uploadedAt: doc.uploadedAt,
 				};
-			});
-		nurses.push({
-			phone: `25677${faker.string.numeric(7)}`,
+			} );
+		nurses.push( {
+			phone: `25677${faker.string.numeric( 7 )}`,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),
 			email: faker.internet.email(),
@@ -166,76 +166,76 @@ async function seedNurses() {
 			profilePicture,
 			nationalId: { front: nationalIdFront, back: nationalIdBack },
 			qualifications,
-			documentVerificationStatus: faker.helpers.arrayElement(['pending', 'verified', 'rejected']),
-		});
+			documentVerificationStatus: faker.helpers.arrayElement( ['pending', 'verified', 'rejected'] ),
+		} );
 	}
-	return await db.nurses.insertMany(nurses);
+	return await db.nurses.insertMany( nurses );
 }
 
 async function seedPatients() {
 	const patients = [];
-	for (let i = 0; i < 100; i++) {
-		patients.push({
-			phone: `25677${faker.string.numeric(7)}`,
+	for ( let i = 0; i < 100; i++ ) {
+		patients.push( {
+			phone: `25677${faker.string.numeric( 7 )}`,
 			name: `${faker.person.firstName()} ${faker.person.lastName()}`,
-			isPhoneVerified: true,
-			location: generateRandomLocation(centerCoords),
-		});
+			password: await Password.hash( 'password' ),
+			location: generateRandomLocation( centerCoords ),
+		} );
 	}
-	return await db.patients.insertMany(patients);
+	return await db.patients.insertMany( patients );
 }
 
-async function seedAppointments(patients: any[], nurses: any[]) {
+async function seedAppointments( patients: any[], nurses: any[] ) {
 	const appointments = [];
 	const symptoms = ['Fever', 'Cough', 'Fatigue', 'Headache', 'Body ache', 'Nausea'];
 
-	for (let i = 0; i < 200; i++) {
-		const patient = faker.helpers.arrayElement(patients);
+	for ( let i = 0; i < 200; i++ ) {
+		const patient = faker.helpers.arrayElement( patients );
 
 		// 40% chance of not having a nurse assigned
-		const shouldHaveNurse = faker.number.int({ min: 1, max: 100 }) > 40;
-		const nurse = shouldHaveNurse ? faker.helpers.arrayElement(nurses) : undefined;
+		const shouldHaveNurse = faker.number.int( { min: 1, max: 100 } ) > 40;
+		const nurse = shouldHaveNurse ? faker.helpers.arrayElement( nurses ) : undefined;
 
 		// Status distribution based on nurse assignment
 		let status;
-		if (!nurse) {
+		if ( !nurse ) {
 			// Without nurse, can only be PENDING or CANCELLED
-			status = faker.helpers.arrayElement([
+			status = faker.helpers.arrayElement( [
 				APPOINTMENT_STATUSES.PENDING,
 				APPOINTMENT_STATUSES.PENDING,
 				APPOINTMENT_STATUSES.PENDING,
 				APPOINTMENT_STATUSES.CANCELLED,
-			]); // More weight to PENDING
+			] ); // More weight to PENDING
 		} else {
 			// With nurse, can be any status but weighted
-			status = faker.helpers.arrayElement([
+			status = faker.helpers.arrayElement( [
 				APPOINTMENT_STATUSES.ASSIGNED,
 				APPOINTMENT_STATUSES.ASSIGNED,
 				APPOINTMENT_STATUSES.IN_PROGRESS,
 				APPOINTMENT_STATUSES.IN_PROGRESS,
 				APPOINTMENT_STATUSES.COMPLETED,
 				APPOINTMENT_STATUSES.CANCELLED,
-			]);
+			] );
 		}
 
-		const appointmentDate = faker.date.recent({ days: 30 });
+		const appointmentDate = faker.date.recent( { days: 30 } );
 		const appointment: any = {
 			patient: patient._id,
-			symptoms: faker.helpers.arrayElements(symptoms, { min: 1, max: 3 }),
+			symptoms: faker.helpers.arrayElements( symptoms, { min: 1, max: 3 } ),
 			status,
 			date: appointmentDate,
 			description: faker.lorem.sentence(),
 		};
 
 		// Only add nurse-related fields if nurse is assigned
-		if (nurse) {
+		if ( nurse ) {
 			appointment.nurse = nurse._id;
-			appointment.nurseAssignedAt = faker.date.between({
+			appointment.nurseAssignedAt = faker.date.between( {
 				from: appointmentDate,
 				to: new Date(),
-			});
+			} );
 			appointment.assignedBy = faker.helpers.arrayElement(
-				[...Array(5)].map(() => faker.database.mongodbObjectId())
+				[...Array( 5 )].map( () => faker.database.mongodbObjectId() )
 			); // Random admin ID
 			appointment.nurseNotified = true;
 			appointment.patientNotified = true;
@@ -243,61 +243,61 @@ async function seedAppointments(patients: any[], nurses: any[]) {
 		}
 
 		// Add cancellation details for cancelled appointments
-		if (status === APPOINTMENT_STATUSES.CANCELLED) {
-			appointment.cancellationReason = faker.helpers.arrayElement([
+		if ( status === APPOINTMENT_STATUSES.CANCELLED ) {
+			appointment.cancellationReason = faker.helpers.arrayElement( [
 				'Patient request',
 				'Nurse unavailable',
 				'Emergency',
 				'Schedule conflict',
 				'Weather conditions',
-			]);
-			appointment.cancelledAt = faker.date.between({
+			] );
+			appointment.cancelledAt = faker.date.between( {
 				from: appointmentDate,
 				to: new Date(),
-			});
+			} );
 			appointment.cancelledBy = faker.helpers.arrayElement(
-				[...Array(5)].map(() => faker.database.mongodbObjectId())
+				[...Array( 5 )].map( () => faker.database.mongodbObjectId() )
 			); // Random admin ID
 		}
 
-		appointments.push(appointment);
+		appointments.push( appointment );
 	}
-	return await db.appointments.insertMany(appointments);
+	return await db.appointments.insertMany( appointments );
 }
 
-async function seedPayments(appointments: any[], patients: any[]) {
+async function seedPayments( appointments: any[], patients: any[] ) {
 	const payments = [];
 	const paymentMethods = ['MTN', 'AIRTEL'];
 	const statuses = ['PENDING', 'SUCCESSFUL', 'FAILED'];
 
-	for (let i = 0; i < appointments.length; i++) {
-		if (faker.number.int({ min: 1, max: 100 }) <= 70) {
+	for ( let i = 0; i < appointments.length; i++ ) {
+		if ( faker.number.int( { min: 1, max: 100 } ) <= 70 ) {
 			// 70% of appointments have payments
 			const appointment = appointments[i];
 			const patientId = appointment.patient;
-			payments.push({
+			payments.push( {
 				appointment: appointment._id,
 				patient: patientId,
-				amount: faker.number.int({ min: 20000, max: 100000 }),
-				referenceId: faker.string.alphanumeric(10).toUpperCase(),
-				status: faker.helpers.arrayElement(statuses),
-				paymentMethod: faker.helpers.arrayElement(paymentMethods),
+				amount: faker.number.int( { min: 20000, max: 100000 } ),
+				referenceId: faker.string.alphanumeric( 10 ).toUpperCase(),
+				status: faker.helpers.arrayElement( statuses ),
+				paymentMethod: faker.helpers.arrayElement( paymentMethods ),
 				comment: faker.lorem.sentence(),
-				transactionId: faker.string.alphanumeric(15).toUpperCase(),
-			});
+				transactionId: faker.string.alphanumeric( 15 ).toUpperCase(),
+			} );
 		}
 	}
-	return await db.payments.insertMany(payments);
+	return await db.payments.insertMany( payments );
 }
 
-if (require.main === module) {
+if ( require.main === module ) {
 	seedDatabase()
-		.then(() => {
-			logger.debug('Seeding completed successfully!');
-			process.exit(0);
-		})
-		.catch((error) => {
-			console.error('Seeding failed:', error);
-			process.exit(1);
-		});
+		.then( () => {
+			logger.debug( 'Seeding completed successfully!' );
+			process.exit( 0 );
+		} )
+		.catch( ( error ) => {
+			console.error( 'Seeding failed:', error );
+			process.exit( 1 );
+		} );
 }
