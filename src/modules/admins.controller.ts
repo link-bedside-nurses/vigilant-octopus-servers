@@ -116,7 +116,7 @@ router.patch( '/patient/:id/ban', async ( req: Request, res: Response, next: Nex
 	try {
 		const bannedPatient = await db.patients.findByIdAndUpdate(
 			req.params.id,
-			{ isBanned: true, isPhoneVerified: false },
+			{ isBanned: true },
 			{ new: true }
 		);
 		if ( !bannedPatient )

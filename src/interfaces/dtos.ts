@@ -10,7 +10,6 @@ export const CreatePatientSchema = z.object( {
 	phone: z.string().regex( /^(256|0)?(7[0578])\d{7}$/, 'Not a valid Uganda phone number' ),
 	password: z.string().min( 8 ),
 	email: z.string().email().optional(),
-	isPhoneVerified: z.boolean().optional(),
 	location: GeoJSONLocationSchema.optional(),
 } );
 

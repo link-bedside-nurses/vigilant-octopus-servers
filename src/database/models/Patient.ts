@@ -66,9 +66,6 @@ export class Patient {
 	@prop( { type: String, required: false, minlength: 2, maxlength: 250, trim: true } )
 	name?: string;
 
-	@prop( { type: Boolean, required: false, default: false } )
-	isPhoneVerified?: boolean;
-
 	@prop( { type: Location, required: false, index: '2dsphere' } )
 	location?: Location;
 

@@ -20,6 +20,14 @@ This implementation follows Google Play Store requirements:
 - ✅ **Multiple Access Methods**: Web page and mobile app integration
 - ✅ **Admin Oversight**: Administrators can manage and force delete accounts
 
+## Authentication Note
+
+The system supports both legacy phone+password authentication and email+password authentication:
+
+- **Patients**: Use phone number and password for authentication
+- **Nurses**: Use email and password for authentication
+- **Admins**: Use email and password for authentication
+
 ## Public Web Page
 
 ### URL: `/account-deletion`
@@ -63,7 +71,7 @@ A public HTML page that allows anyone to request account deletion by providing t
 	"message": "Account deletion request submitted successfully. Your account will be deleted within 7 days.",
 	"data": {
 		"accountId": "507f1f77bcf86cd799439011",
-		"accountType": "nurse",
+		"accountType": "patient",
 		"deletionRequestDate": "2024-01-15T10:30:00.000Z",
 		"estimatedDeletionDate": "2024-01-22T10:30:00.000Z"
 	}
@@ -92,7 +100,7 @@ Authorization: Bearer <jwt-token>
 	"message": "Account deletion status retrieved successfully",
 	"data": {
 		"accountId": "507f1f77bcf86cd799439011",
-		"accountType": "nurse",
+		"accountType": "patient",
 		"markedForDeletion": true,
 		"deletionRequestDate": "2024-01-15T10:30:00.000Z",
 		"deletionReason": "User requested account deletion",
@@ -123,7 +131,7 @@ Authorization: Bearer <jwt-token>
 	"message": "Account deletion request cancelled successfully",
 	"data": {
 		"accountId": "507f1f77bcf86cd799439011",
-		"accountType": "nurse"
+		"accountType": "patient"
 	}
 }
 ```
@@ -157,7 +165,7 @@ Authorization: Bearer <jwt-token>
 	"message": "Account deletion request submitted successfully. Your account will be deleted within 7 days.",
 	"data": {
 		"accountId": "507f1f77bcf86cd799439011",
-		"accountType": "nurse",
+		"accountType": "patient",
 		"deletionRequestDate": "2024-01-15T10:30:00.000Z",
 		"estimatedDeletionDate": "2024-01-22T10:30:00.000Z"
 	}
@@ -243,7 +251,7 @@ Authorization: Bearer <admin-jwt-token>
 ```json
 {
 	"accountId": "507f1f77bcf86cd799439011",
-	"targetAccountType": "nurse"
+	"targetAccountType": "patient"
 }
 ```
 
@@ -252,10 +260,10 @@ Authorization: Bearer <admin-jwt-token>
 ```json
 {
 	"success": true,
-	"message": "nurse account deleted successfully",
+	"message": "patient account deleted successfully",
 	"data": {
 		"accountId": "507f1f77bcf86cd799439011",
-		"accountType": "nurse",
+		"accountType": "patient",
 		"deletedBy": "admin123",
 		"deletedAt": "2024-01-15T11:00:00.000Z"
 	}
@@ -279,7 +287,7 @@ Authorization: Bearer <admin-jwt-token>
 ```json
 {
 	"accountId": "507f1f77bcf86cd799439011",
-	"targetAccountType": "nurse"
+	"targetAccountType": "patient"
 }
 ```
 
@@ -291,7 +299,7 @@ Authorization: Bearer <admin-jwt-token>
 	"message": "Account deletion request cancelled successfully",
 	"data": {
 		"accountId": "507f1f77bcf86cd799439011",
-		"accountType": "nurse"
+		"accountType": "patient"
 	}
 }
 ```
@@ -311,6 +319,15 @@ deletionRequestSource?: 'web' | 'mobile' | 'admin'; // How deletion was requeste
 deletionConfirmed?: boolean;           // Whether admin confirmed deletion
 deletionConfirmedDate?: Date;          // When deletion was confirmed
 deletionConfirmedBy?: string;          // Who confirmed deletion (admin ID or 'system')
+```
+
+### Patient Model Updates
+
+The Patient model now includes a password field for legacy phone+password authentication:
+
+```typescript
+@prop({ type: String, required: true, minlength: 8 })
+password!: string;
 ```
 
 ## Deletion Process
@@ -450,19 +467,16 @@ const result = await response.json();
 ### Test Account Deletion Flow
 
 1. **Public Page Test:**
-
    - Visit `/account-deletion`
    - Fill out form with valid email/phone
    - Submit and verify confirmation
 
 2. **Mobile App Test:**
-
    - Use authenticated endpoint
    - Request deletion and check status
    - Cancel deletion request
 
 3. **Admin Test:**
-
    - View pending deletion requests
    - Force delete an account
    - Cancel a deletion request

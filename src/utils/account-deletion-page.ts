@@ -161,6 +161,13 @@ export const accountDeletionPage = `
             padding: 15px;
             margin-top: 20px;
         }
+
+        .auth-note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -171,6 +178,15 @@ export const accountDeletionPage = `
     <div class="container">
         <div class="card">
             <h1>Account Deletion Request</h1>
+
+            <div class="auth-note">
+                <p><strong>Authentication Information:</strong></p>
+                <ul>
+                    <li><strong>Patients:</strong> Use your phone number and password to sign in</li>
+                    <li><strong>Nurses:</strong> Use your email address and password to sign in</li>
+                    <li><strong>Admins:</strong> Use your email address and password to sign in</li>
+                </ul>
+            </div>
 
             <div class="info-box">
                 <p><strong>Important Information:</strong></p>
@@ -234,7 +250,7 @@ export const accountDeletionPage = `
         </div>
 
         <p style="text-align: center; margin-top: 30px;">
-            <a href="/privacy">Privacy Policy</a> | 
+            <a href="/privacy">Privacy Policy</a> |
             <a href="/">Back to Home</a>
         </p>
     </div>
