@@ -520,7 +520,7 @@ export const privacy = `
                         <li>Provide a reason for deletion (optional but helpful)</li>
                         <li>Confirm your deletion request</li>
                     </ol>
-                    <a href="/api/v1.1/auth/account-deletion" class="cta-button">Delete My Account</a>
+                    <a href="/account-deletion" class="cta-button">Delete My Account</a>
                     <p><strong>What happens next:</strong></p>
                     <ul class="info-list">
                         <li>We verify your identity to ensure account security</li>
@@ -574,7 +574,7 @@ export const privacy = `
     <footer class="footer">
         <div class="footer-links">
             <a href="/">Home</a>
-            <a href="/api/v1.1/auth/account-deletion">Account Deletion</a>
+            <a href="/account-deletion">Account Deletion</a>
             <a href="/support">Support</a>
             <a href="/terms">Terms of Service</a>
         </div>
