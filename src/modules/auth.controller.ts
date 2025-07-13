@@ -35,11 +35,11 @@ router.post( '/patient/signin', async ( req: Request, res: Response, _next: Next
 		const { phone, password } = result.data;
 		const patient = await db.patients.findOne( { phone } );
 		if ( !patient ) {
-			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
+			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials!' );
 		}
 		const match = await Password.verify( patient.password, password );
 		if ( !match ) {
-			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
+			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials!' );
 		}
 		const accessToken = createAccessToken( patient as unknown as mongoose.Document & ACCOUNT );
 		return sendNormalized(
