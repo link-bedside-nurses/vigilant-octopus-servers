@@ -40,7 +40,9 @@ router.get( '/', async ( _req: Request, res: Response, next: NextFunction ) => {
 router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 	try {
 		const result = AppointmentCreateSchema.safeParse( req.body );
-		
+
+		console.log(req.body)
+
 		console.log( JSON.stringify( result ) );
 
 		if ( !result.success ) {
