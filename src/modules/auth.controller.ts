@@ -23,6 +23,8 @@ const router = Router();
 router.post( '/patient/signin', async ( req: Request, res: Response, _next: NextFunction ) => {
 	try {
 		const result = PatientSigninSchema.safeParse( req.body );
+		console.log( result )
+		console.log( req.body )
 		if ( !result.success ) {
 			return sendNormalized(
 				res,
