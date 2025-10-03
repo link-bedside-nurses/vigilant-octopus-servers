@@ -76,9 +76,20 @@ export const AdminSignupSchema = z.object( {
 } );
 
 export const AdminOTPVerificationSchema = z.object( {
-	email: z.string().email(),
-	otp: z.string().length( 5 ),
+    email: z.string().email(),
+    otp: z.string().length( 5 ),
 } );
+
+// Admin password reset
+export const AdminPasswordResetRequestSchema = z.object({
+    email: z.string().email(),
+});
+
+export const AdminPasswordResetSchema = z.object({
+    email: z.string().email(),
+    otp: z.string().length(5),
+    newPassword: z.string().min(8),
+});
 
 export const TResponseSchema = z.object( {
 	statusCode: z.number(),
@@ -128,3 +139,5 @@ export type PatientOTPVerificationDto = z.infer<typeof PatientOTPVerificationSch
 export type AdminSigninDto = z.infer<typeof AdminSigninSchema>;
 export type AdminSignupDto = z.infer<typeof AdminSignupSchema>;
 export type AdminOTPVerificationDto = z.infer<typeof AdminOTPVerificationSchema>;
+export type AdminPasswordResetRequestDto = z.infer<typeof AdminPasswordResetRequestSchema>;
+export type AdminPasswordResetDto = z.infer<typeof AdminPasswordResetSchema>;

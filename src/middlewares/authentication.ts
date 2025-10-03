@@ -42,6 +42,10 @@ export default async function authenticate(request: Request, res: Response, next
 				type: 'patient',
 			};
 		} else if (admin) {
+			// Block access for unverified admin accounts
+			if (!admin.isEmailVerified) {
+				return next(new HTTPException('Email not verified', StatusCodes.FORBIDDEN));
+			}
 			request.account = {
 				id: decoded.id,
 				email: admin.email,

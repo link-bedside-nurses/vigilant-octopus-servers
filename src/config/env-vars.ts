@@ -22,6 +22,9 @@ const env = envalid.cleanEnv(process.env, {
 	// SMS Sender (optional, used for phone normalization)
 	FROM_SMS_PHONE: envalid.str({ default: '' }),
 
+	// OTP expiry configuration (seconds)
+	OTP_EXPIRY_SECONDS: envalid.num({ default: 300 }),
+
 	// EgoSMS Provider
 	SMS_USERNAME: envalid.str(),
 	SMS_PASSWORD: envalid.str(),
@@ -55,6 +58,7 @@ const envars = Object.freeze({
 	SENDER_EMAIL: env.SENDER_EMAIL,
 	RECIPIENT_EMAIL: env.RECIPIENT_EMAIL,
 	FROM_SMS_PHONE: env.FROM_SMS_PHONE,
+	OTP_EXPIRY_SECONDS: env.OTP_EXPIRY_SECONDS,
 	SMS_USERNAME: env.SMS_USERNAME,
 	SMS_PASSWORD: env.SMS_PASSWORD,
 	SMS_SENDER_ID: env.SMS_SENDER_ID,

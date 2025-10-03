@@ -4,14 +4,17 @@ import mongoose from 'mongoose';
 import { db } from '../database';
 import { ACCOUNT } from '../interfaces';
 import {
-	AdminOTPVerificationSchema,
-	AdminSigninSchema,
-	AdminSignupSchema,
-	PatientOTPVerificationSchema,
-	PatientPhoneAuthSchema,
-	PatientSetNameSchema, // <-- add this
+    AdminOTPVerificationSchema,
+    AdminSigninSchema,
+    AdminSignupSchema,
+    AdminPasswordResetRequestSchema,
+    AdminPasswordResetSchema,
+    PatientOTPVerificationSchema,
+    PatientPhoneAuthSchema,
+    PatientSetNameSchema, // <-- add this
 } from '../interfaces/dtos';
 import { messagingService } from '../services/messaging';
+import envars from '../config/env-vars';
 import { createAccessToken } from '../services/token';
 import { sendNormalized } from '../utils/http-response';
 import { Password } from '../utils/password';
@@ -235,14 +238,24 @@ router.post( '/admin/signin', async ( req: Request, res: Response, _next: NextFu
 			return sendNormalized( res, StatusCodes.UNAUTHORIZED, null, 'Invalid credentials' );
 		}
 
-		if ( !admin.isEmailVerified ) {
-			return sendNormalized(
-				res,
-				StatusCodes.UNAUTHORIZED,
-				null,
-				'Please verify your email before signing in'
-			);
-		}
+        if ( !admin.isEmailVerified ) {
+            const otpResult = await messagingService.sendOTPViaEmail( email );
+            if ( !otpResult.success ) {
+                return sendNormalized(
+                    res,
+                    StatusCodes.INTERNAL_SERVER_ERROR,
+                    null,
+                    'Failed to send verification email. Please try again.'
+                );
+            }
+
+            return sendNormalized(
+                res,
+                StatusCodes.UNAUTHORIZED,
+                { expiresAt: otpResult.expiresAt },
+                'Email not verified. Verification OTP has been sent.'
+            );
+        }
 
 		const match = await Password.verify( admin.password, password );
 
@@ -382,5 +395,103 @@ router.post( '/admin/verify-otp', async ( req: Request, res: Response, _next: Ne
 		);
 	}
 } );
+
+router.post('/admin/forgot-password', async (req: Request, res: Response, _next: NextFunction) => {
+  try {
+    const result = AdminPasswordResetRequestSchema.safeParse(req.body);
+    if (!result.success) {
+      return sendNormalized(
+        res,
+        StatusCodes.BAD_REQUEST,
+        null,
+        `${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase(),
+        result.error
+      );
+    }
+
+    const { email } = result.data;
+    const admin = await db.admins.findOne({ email });
+    if (!admin) {
+      return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Admin account not found');
+    }
+
+    const otpResult = await messagingService.sendOTPViaEmail(email, envars.OTP_EXPIRY_SECONDS);
+    if (!otpResult.success) {
+      return sendNormalized(
+        res,
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        null,
+        'Failed to send reset OTP. Please try again.'
+      );
+    }
+
+    return sendNormalized(
+      res,
+      StatusCodes.OK,
+      { expiresAt: otpResult.expiresAt },
+      'Password reset OTP sent to your email'
+    );
+  } catch (error) {
+    console.error('Error in admin forgot-password:', error);
+    return sendNormalized(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      null,
+      'Failed to initiate password reset. Please try again.'
+    );
+  }
+});
+
+// POST /auth/admin/reset-password - submit OTP and new password
+router.post('/admin/reset-password', async (req: Request, res: Response, _next: NextFunction) => {
+  try {
+    const result = AdminPasswordResetSchema.safeParse(req.body);
+    if (!result.success) {
+      return sendNormalized(
+        res,
+        StatusCodes.BAD_REQUEST,
+        null,
+        `${result.error.issues[0].path} ${result.error.issues[0].message}`.toLowerCase(),
+        result.error
+      );
+    }
+
+    const { email, otp, newPassword } = result.data;
+    const isValidOTP = await messagingService.verifyOTP(email, otp);
+    if (!isValidOTP) {
+      return sendNormalized(
+        res,
+        StatusCodes.BAD_REQUEST,
+        null,
+        'Invalid or expired OTP. Please try again.'
+      );
+    }
+
+    const admin = await db.admins.findOne({ email });
+    if (!admin) {
+      return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Admin account not found');
+    }
+
+    const hash = await Password.hash(newPassword);
+    admin.password = hash;
+    await admin.save();
+    await messagingService.expireOTP(email);
+
+    return sendNormalized(
+      res,
+      StatusCodes.OK,
+      { user: admin },
+      'Password reset successful. You can now sign in.'
+    );
+  } catch (error) {
+    console.error('Error in admin reset-password:', error);
+    return sendNormalized(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      null,
+      'Failed to reset password. Please try again.'
+    );
+  }
+});
 
 export default router;

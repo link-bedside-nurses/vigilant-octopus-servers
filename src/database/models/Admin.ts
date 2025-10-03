@@ -54,5 +54,5 @@ export class Admin {
 	deletionConfirmedDate?: Date;
 
 	@prop({ type: String, required: false })
-	deletionConfirmedBy?: string; // admin ID or 'system'
+	deletionConfirmedBy?: string;
 }
