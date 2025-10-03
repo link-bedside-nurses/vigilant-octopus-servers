@@ -4,6 +4,7 @@ const env = envalid.cleanEnv(process.env, {
 	// Process
 	NODE_ENV: envalid.str({ choices: ['development', 'production'] }),
 	PORT: envalid.num(),
+	HOST: envalid.str(),
 
 	// Database
 	DATABASE_URL: envalid.str(),
@@ -23,6 +24,11 @@ const env = envalid.cleanEnv(process.env, {
 	INFOBIP_API_BASE_URL: envalid.str(),
 	INFOBIP_API_KEY: envalid.str(),
 
+	// EgoSMS Provider
+	SMS_USERNAME: envalid.str(),
+	SMS_PASSWORD: envalid.str(),
+	SMS_SENDER_ID: envalid.str(),
+
 	// REDIS
 	REDIS_HOST: envalid.str(),
 	REDIS_PORT: envalid.str(),
@@ -37,16 +43,12 @@ const env = envalid.cleanEnv(process.env, {
 	// Airtel
 	AIRTEL_MONEY_CLIENT_ID: envalid.str(),
 	AIRTEL_MONEY_CLIENT_SECRET_KEY: envalid.str(),
-
-	// Cloudinary
-	CLOUDINARY_CLOUD_NAME: envalid.str(),
-	CLOUDINARY_API_KEY: envalid.str(),
-	CLOUDINARY_API_SECRET: envalid.str(),
 });
 
 const envars = Object.freeze({
 	NODE_ENV: env.NODE_ENV,
 	PORT: env.PORT,
+	HOST: env.HOST,
 	DATABASE_URL: env.DATABASE_URL,
 	DATABASE_NAME: env.DATABASE_NAME,
 	SEED_DATABASE: env.SEED_DATABASE,
@@ -57,15 +59,15 @@ const envars = Object.freeze({
 	FROM_SMS_PHONE: env.FROM_SMS_PHONE,
 	INFOBIP_API_BASE_URL: env.INFOBIP_API_BASE_URL,
 	INFOBIP_API_KEY: env.INFOBIP_API_KEY,
+	SMS_USERNAME: env.SMS_USERNAME,
+	SMS_PASSWORD: env.SMS_PASSWORD,
+	SMS_SENDER_ID: env.SMS_SENDER_ID,
 	MOMO_CALLBACK_HOST: env.MOMO_CALLBACK_HOST,
 	X_REFERENCE_ID: env.X_REFERENCE_ID,
 	API_KEY: env.API_KEY,
 	OCP_APIM_SUBSCRIPTION_KEY: env.OCP_APIM_SUBSCRIPTION_KEY,
 	AIRTEL_MONEY_CLIENT_ID: env.AIRTEL_MONEY_CLIENT_ID,
 	AIRTEL_MONEY_CLIENT_SECRET_KEY: env.AIRTEL_MONEY_CLIENT_SECRET_KEY,
-	CLOUDINARY_CLOUD_NAME: env.CLOUDINARY_CLOUD_NAME,
-	CLOUDINARY_API_KEY: env.CLOUDINARY_API_KEY,
-	CLOUDINARY_API_SECRET: env.CLOUDINARY_API_SECRET,
 });
 
 export default envars;

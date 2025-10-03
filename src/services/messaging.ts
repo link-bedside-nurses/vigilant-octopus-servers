@@ -1,4 +1,3 @@
-import { AuthType, Infobip } from '@infobip-api/sdk';
 import axios from 'axios';
 import { randomInt } from 'crypto';
 import Redis from 'ioredis';
@@ -25,8 +24,10 @@ const emailTransporter = nodemailer.createTransport( {
 	},
 } );
 
-const OTP_EXPIRY_TIME = 300;
-const OTP_LENGTH = 5;
+const OTP_EXPIRY_TIME = 300; // seconds
+const OTP_LENGTH = 5; // digits
+const OTP_RATE_LIMIT_TTL = 60; // seconds
+const OTP_RATE_LIMIT_MAX = 5; // requests per TTL window
 
 export enum MessageType {
 	OTP = 'otp',
@@ -98,18 +99,29 @@ class MessagingService {
 		return MessagingService.instance;
 	}
 
-	// Infobip SDK instance
-	private infobipClient = new Infobip( {
-		baseUrl: envars.INFOBIP_API_BASE_URL,
-		apiKey: envars.INFOBIP_API_KEY,
-		authType: AuthType.ApiKey,
-	} );
+	// EgoSMS API configuration
+	private readonly egoSmsApiUrl = 'https://www.egosms.co/api/v1/json/';
+	private readonly smsDefaultPriority = '1';
 
 	/**
 	 * Generate OTP
 	 */
 	private generateOTP(): string {
 		return randomInt( 10 ** ( OTP_LENGTH - 1 ), 10 ** OTP_LENGTH ).toString();
+	}
+
+	/**
+	 * Rate limit OTP requests per identifier
+	 */
+	private async checkAndIncrementOtpRate( identifier: string ): Promise<void> {
+		const rateKey = `otp:rate:${identifier}`;
+		const rateStr = await getRedis().get( rateKey );
+		const rate = parseInt( rateStr || '0', 10 );
+		logger.info( `OTP request rate for ${identifier}: ${rate}` );
+		if ( rate >= OTP_RATE_LIMIT_MAX ) {
+			throw new Error( 'Too many OTP requests. Please try again later.' );
+		}
+		await getRedis().set( rateKey, ( rate + 1 ).toString(), 'EX', OTP_RATE_LIMIT_TTL );
 	}
 
 	/**
@@ -156,36 +168,64 @@ class MessagingService {
 	}
 
 	/**
-	 * Send SMS via Infobip (latest SDK usage)
+	 * Normalize phone number to E.164-like format (best effort)
+	 */
+	private normalizePhone( input: string ): string {
+		const digits = ( input || '' ).replace( /\D+/g, '' );
+		if ( input.startsWith( '+' ) ) return `+${digits}`;
+		if ( digits.startsWith( '0' ) && envars.FROM_SMS_PHONE?.startsWith( '+' ) ) {
+			// naive local-to-international conversion: replace leading 0 with sender country code
+			const country = envars.FROM_SMS_PHONE.replace( /\D+/g, '' ).slice( 0, 3 );
+			return `+${country}${digits.slice( 1 )}`;
+		}
+		return `+${digits}`;
+	}
+
+	/**
+	 * Send SMS via EgoSMS provider
 	 */
 	private async sendSMS( phone: string, message: string ): Promise<MessageResult> {
 		try {
 			logger.info( `Sending SMS to ${phone}` );
 
-			const infobipResponse = await this.infobipClient.channels.sms.send( {
-				type: 'text',
-				messages: [
+			const payload = {
+				method: 'SendSms',
+				userdata: {
+					username: envars.SMS_USERNAME,
+					password: envars.SMS_PASSWORD,
+				},
+				msgdata: [
 					{
-						destinations: [{ to: `+${phone}` }],
-						from: envars.FROM_SMS_PHONE,
-						text: message,
+						number: this.normalizePhone( phone ),
+						message,
+						senderid: envars.SMS_SENDER_ID,
+						priority: this.smsDefaultPriority,
 					},
 				],
+			};
+
+			const response = await axios.post( this.egoSmsApiUrl, payload, {
+				timeout: 10000,
+				headers: { 'Content-Type': 'application/json' },
 			} );
 
-			const { data } = infobipResponse;
-			logger.info( 'Infobip SMS response:' + data );
-
+			logger.info( `EgoSMS response: ${JSON.stringify( response.data )}` );
 			return {
-				success: true,
-				messageId: data?.messages?.[0]?.messageId,
+				success: response.data?.Status === 'OK' || response.status === 200,
 				status: MessageStatus.SENT,
 				channel: ChannelType.SMS,
 				timestamp: new Date(),
 			};
-		} catch ( error ) {
-			const errorMessage = error instanceof Error ? error.message : 'Unknown SMS error';
-			logger.error( `SMS sending failed to ${phone}:` + errorMessage );
+		} catch ( error: any ) {
+			let errorMessage = 'Unknown SMS error';
+			if ( error?.response ) {
+				errorMessage = `HTTP ${error.response.status}: ${JSON.stringify( error.response.data )}`;
+			} else if ( error?.request ) {
+				errorMessage = 'Network error - no response received';
+			} else if ( error instanceof Error ) {
+				errorMessage = error.message;
+			}
+			logger.error( `SMS sending failed to ${phone}: ${errorMessage}` );
 			return {
 				success: false,
 				status: MessageStatus.FAILED,
@@ -248,6 +288,7 @@ class MessagingService {
 		expiryTime: number = OTP_EXPIRY_TIME
 	): Promise<OTPResult> {
 		try {
+			await this.checkAndIncrementOtpRate( phone );
 			const otp = this.generateOTP();
 			await this.storeOTP( phone, otp, expiryTime );
 
@@ -287,6 +328,7 @@ class MessagingService {
 		expiryTime: number = OTP_EXPIRY_TIME
 	): Promise<OTPResult> {
 		try {
+			await this.checkAndIncrementOtpRate( email );
 			const otp = this.generateOTP();
 			await this.storeOTP( email, otp, expiryTime );
 
@@ -452,16 +494,9 @@ class MessagingService {
 		}
 
 		try {
-			await axios.get(
-				envars.INFOBIP_API_BASE_URL.replace( '/sms/2/text/advanced', '/account/1/balance' ),
-				{
-					headers: {
-						Authorization: `App ${envars.INFOBIP_API_KEY}`,
-					},
-					timeout: 5000,
-				}
-			);
-			health.sms = true;
+			// Minimal health check: attempt to reach EgoSMS API endpoint
+			await axios.get( this.egoSmsApiUrl, { timeout: 5000 } );
+			health.sms = Boolean( envars.SMS_USERNAME && envars.SMS_PASSWORD && envars.SMS_SENDER_ID );
 		} catch ( error ) {
 			logger.error( 'SMS health check failed:' + error );
 		}

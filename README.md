@@ -7,7 +7,7 @@ A robust backend server for managing nurse appointments, payments, account delet
 - Secure authentication for patients, nurses, and admins
 - Appointment scheduling and nurse assignment
 - **Robust payment-to-appointment linking and status tracking**
-- File upload and document management (Cloudinary)
+- File upload and document management
 - Account deletion (Google Play Store compliant)
 - Messaging service (SMS, email, OTP)
 - Comprehensive API documentation

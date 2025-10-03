@@ -1,31 +1,31 @@
 import { index, modelOptions, prop, Severity } from '@typegoose/typegoose';
 
-// Document interface for Cloudinary storage
-export interface CloudinaryDocument {
-	publicId: string;
-	url: string;
-	secureUrl: string;
-	format: string;
-	resourceType: string;
-	size: number;
-	uploadedAt: Date;
-	originalName: string;
+// Document interface for Disk storage with streaming
+export interface DiskDocument {
+    publicId: string;
+    url: string; // stored filename
+    streamingUrl: string; // generated streaming endpoint
+    mimeType: string;
+    size: number;
+    uploadedAt: Date;
+    originalName: string;
+    hash?: string;
 }
 
 // National ID interface
 export interface NationalID {
-	front: CloudinaryDocument;
-	back: CloudinaryDocument;
+    front: DiskDocument;
+    back: DiskDocument;
 }
 
 // Qualification document interface
 export interface QualificationDocument {
-	id: string;
-	type: 'certification' | 'cv' | 'other';
-	document: CloudinaryDocument;
-	title: string;
-	description?: string;
-	uploadedAt: Date;
+    id: string;
+    type: 'certification' | 'cv' | 'other';
+    document: DiskDocument;
+    title: string;
+    description?: string;
+    uploadedAt: Date;
 }
 
 @modelOptions({
@@ -72,7 +72,7 @@ export class Nurse {
 
 	// Profile picture (passport photo)
 	@prop({ type: Object, required: false })
-	profilePicture?: CloudinaryDocument;
+	profilePicture?: DiskDocument;
 
 	// National ID documents
 	@prop({ type: Object, required: false })

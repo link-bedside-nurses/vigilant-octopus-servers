@@ -3,14 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
 import { sendNormalized } from '../utils/http-response';
 import logger from '../utils/logger';
-import { cloudinaryService, DocumentType, UploadOptions } from './cloudinary';
+import { diskStorageService, DiskUploadResult } from './disk-storage';
 
 // File upload middleware options
 export interface FileUploadOptions {
 	maxFiles?: number;
 	maxFileSize?: number; // in bytes
 	allowedFormats?: string[];
-	documentType: DocumentType;
 	folder?: string;
 }
 
@@ -25,7 +24,7 @@ export interface UploadResponse {
 class FileUploadService {
 	private static instance: FileUploadService;
 
-	private constructor() {}
+	private constructor() { }
 
 	public static getInstance(): FileUploadService {
 		if (!FileUploadService.instance) {
@@ -51,35 +50,24 @@ class FileUploadService {
 				};
 			}
 
-			// Upload to Cloudinary
-			const uploadOptions: UploadOptions = {
-				folder: `nurses/${nurseId}/profile`,
-				allowedFormats: ['jpg', 'jpeg', 'png'],
-				maxFileSize: 5 * 1024 * 1024, // 5MB
-				resourceType: 'image',
-			};
-
-			const result = await cloudinaryService.uploadFile(
-				file,
-				DocumentType.PROFILE_PICTURE,
-				uploadOptions
-			);
+			// Upload to disk
+			const result: DiskUploadResult = await diskStorageService.uploadFile(file);
 
 			// Delete old profile picture if exists
 			if (nurse.profilePicture?.publicId) {
-				await cloudinaryService.deleteFile(nurse.profilePicture.publicId, 'image');
+				await diskStorageService.deleteFile(nurse.profilePicture.publicId);
 			}
 
 			// Update nurse profile picture
 			nurse.profilePicture = {
 				publicId: result.publicId,
 				url: result.url,
-				secureUrl: result.secureUrl,
-				format: result.format,
-				resourceType: result.resourceType,
+				streamingUrl: result.streamingUrl,
+				mimeType: result.mimeType,
 				size: result.size,
-				uploadedAt: result.uploadedAt,
-				originalName: result.originalName,
+				uploadedAt: new Date(),
+				originalName: result.filename,
+				hash: result.hash,
 			};
 
 			await nurse.save();
@@ -122,30 +110,18 @@ class FileUploadService {
 				};
 			}
 
-			const uploadOptions: UploadOptions = {
-				folder: `nurses/${nurseId}/national-id`,
-				allowedFormats: ['jpg', 'jpeg', 'png', 'pdf'],
-				maxFileSize: 10 * 1024 * 1024, // 10MB
-			};
-
-			// Upload both files
+			// Upload both files to disk
 			const [frontResult, backResult] = await Promise.all([
-				cloudinaryService.uploadFile(frontFile, DocumentType.NATIONAL_ID, {
-					...uploadOptions,
-					publicId: `${nurseId}_national_id_front`,
-				}),
-				cloudinaryService.uploadFile(backFile, DocumentType.NATIONAL_ID, {
-					...uploadOptions,
-					publicId: `${nurseId}_national_id_back`,
-				}),
+				diskStorageService.uploadFile(frontFile),
+				diskStorageService.uploadFile(backFile),
 			]);
 
 			// Delete old documents if they exist
 			if (nurse.nationalId?.front?.publicId) {
-				await cloudinaryService.deleteFile(nurse.nationalId.front.publicId);
+				await diskStorageService.deleteFile(nurse.nationalId.front.publicId);
 			}
 			if (nurse.nationalId?.back?.publicId) {
-				await cloudinaryService.deleteFile(nurse.nationalId.back.publicId);
+				await diskStorageService.deleteFile(nurse.nationalId.back.publicId);
 			}
 
 			// Update nurse national ID documents
@@ -153,22 +129,22 @@ class FileUploadService {
 				front: {
 					publicId: frontResult.publicId,
 					url: frontResult.url,
-					secureUrl: frontResult.secureUrl,
-					format: frontResult.format,
-					resourceType: frontResult.resourceType,
+					streamingUrl: frontResult.streamingUrl,
+					mimeType: frontResult.mimeType,
 					size: frontResult.size,
-					uploadedAt: frontResult.uploadedAt,
-					originalName: frontResult.originalName,
+					uploadedAt: new Date(),
+					originalName: frontResult.filename,
+					hash: frontResult.hash,
 				},
 				back: {
 					publicId: backResult.publicId,
 					url: backResult.url,
-					secureUrl: backResult.secureUrl,
-					format: backResult.format,
-					resourceType: backResult.resourceType,
+					streamingUrl: backResult.streamingUrl,
+					mimeType: backResult.mimeType,
 					size: backResult.size,
-					uploadedAt: backResult.uploadedAt,
-					originalName: backResult.originalName,
+					uploadedAt: new Date(),
+					originalName: backResult.filename,
+					hash: backResult.hash,
 				},
 			};
 
@@ -217,17 +193,7 @@ class FileUploadService {
 				};
 			}
 
-			const uploadOptions: UploadOptions = {
-				folder: `nurses/${nurseId}/qualifications`,
-				allowedFormats: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
-				maxFileSize: 15 * 1024 * 1024, // 15MB
-			};
-
-			const result = await cloudinaryService.uploadFile(
-				file,
-				DocumentType.CERTIFICATION,
-				uploadOptions
-			);
+			const result = await diskStorageService.uploadFile(file);
 
 			// Create qualification document
 			const qualificationDocument = {
@@ -236,12 +202,12 @@ class FileUploadService {
 				document: {
 					publicId: result.publicId,
 					url: result.url,
-					secureUrl: result.secureUrl,
-					format: result.format,
-					resourceType: result.resourceType,
+					streamingUrl: result.streamingUrl,
+					mimeType: result.mimeType,
 					size: result.size,
-					uploadedAt: result.uploadedAt,
-					originalName: result.originalName,
+					uploadedAt: new Date(),
+					originalName: result.filename,
+					hash: result.hash,
 				},
 				title,
 				description,
@@ -300,11 +266,8 @@ class FileUploadService {
 
 			const qualification = nurse.qualifications[qualificationIndex];
 
-			// Delete from Cloudinary
-			await cloudinaryService.deleteFile(
-				qualification.document.publicId,
-				qualification.document.resourceType
-			);
+			// Delete from disk
+			await diskStorageService.deleteFile(qualification.document.publicId);
 
 			// Remove from nurse qualifications
 			nurse.qualifications.splice(qualificationIndex, 1);
@@ -352,24 +315,24 @@ class FileUploadService {
 				documents: {
 					profilePicture: nurse.profilePicture
 						? {
-								url: nurse.profilePicture.secureUrl,
-								size: nurse.profilePicture.size,
-								uploadedAt: nurse.profilePicture.uploadedAt,
-							}
+							url: nurse.profilePicture.streamingUrl,
+							size: nurse.profilePicture.size,
+							uploadedAt: nurse.profilePicture.uploadedAt,
+						}
 						: null,
 					nationalId: nurse.nationalId
 						? {
-								front: {
-									url: nurse.nationalId.front.secureUrl,
-									size: nurse.nationalId.front.size,
-									uploadedAt: nurse.nationalId.front.uploadedAt,
-								},
-								back: {
-									url: nurse.nationalId.back.secureUrl,
-									size: nurse.nationalId.back.size,
-									uploadedAt: nurse.nationalId.back.uploadedAt,
-								},
-							}
+							front: {
+								url: nurse.nationalId.front.streamingUrl,
+								size: nurse.nationalId.front.size,
+								uploadedAt: nurse.nationalId.front.uploadedAt,
+							},
+							back: {
+								url: nurse.nationalId.back.streamingUrl,
+								size: nurse.nationalId.back.size,
+								uploadedAt: nurse.nationalId.back.uploadedAt,
+							},
+						}
 						: null,
 					qualifications:
 						nurse.qualifications?.map((q) => ({
@@ -377,7 +340,7 @@ class FileUploadService {
 							type: q.type,
 							title: q.title,
 							description: q.description,
-							url: q.document.secureUrl,
+							url: q.document.streamingUrl,
 							size: q.document.size,
 							uploadedAt: q.uploadedAt,
 						})) || [],
@@ -450,29 +413,26 @@ class FileUploadService {
 			const nurse = await db.nurses.findById(nurseId);
 			if (!nurse) return;
 
-			const deletePromises: Promise<boolean>[] = [];
+			const deletePromises: Promise<void>[] = [];
 
 			// Delete profile picture
 			if (nurse.profilePicture?.publicId) {
-				deletePromises.push(cloudinaryService.deleteFile(nurse.profilePicture.publicId, 'image'));
+				deletePromises.push(diskStorageService.deleteFile(nurse.profilePicture.publicId));
 			}
 
 			// Delete national ID documents
 			if (nurse.nationalId?.front?.publicId) {
-				deletePromises.push(cloudinaryService.deleteFile(nurse.nationalId.front.publicId));
+				deletePromises.push(diskStorageService.deleteFile(nurse.nationalId.front.publicId));
 			}
 			if (nurse.nationalId?.back?.publicId) {
-				deletePromises.push(cloudinaryService.deleteFile(nurse.nationalId.back.publicId));
+				deletePromises.push(diskStorageService.deleteFile(nurse.nationalId.back.publicId));
 			}
 
 			// Delete qualification documents
 			if (nurse.qualifications?.length) {
 				nurse.qualifications.forEach((qualification) => {
 					deletePromises.push(
-						cloudinaryService.deleteFile(
-							qualification.document.publicId,
-							qualification.document.resourceType
-						)
+						diskStorageService.deleteFile(qualification.document.publicId)
 					);
 				});
 			}

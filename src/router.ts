@@ -20,6 +20,7 @@ import messagingRouter from './modules/messaging.controller';
 import nurseRouter from './modules/nurses.controller';
 import patientRouter from './modules/patients.controller';
 import paymentsRouter from './modules/payments.controller';
+import streamingRouter from './modules/streaming.controller';
 import { sendNormalized } from './utils/http-response';
 import logger from './utils/logger';
 import { privacy } from './utils/privacy';
@@ -272,6 +273,7 @@ router.use( `${API_PREFIX}/admins`, adminRouter );
 router.use( `${API_PREFIX}/email`, emailRouter );
 router.use( `${API_PREFIX}/messaging`, messagingRouter );
 router.use( `${API_PREFIX}/dashboard`, dashboardRouter );
+router.use( `${API_PREFIX}/stream`, streamingRouter );
 
 /**
  * Dashboard Stats Endpoint
