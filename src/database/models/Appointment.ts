@@ -1,8 +1,9 @@
-import { DocumentType, Ref, Severity, modelOptions, mongoose, prop } from '@typegoose/typegoose';
+import { DocumentType, Ref, Severity, modelOptions, mongoose, prop, index } from '@typegoose/typegoose';
 import { APPOINTMENT_STATUSES } from '../../interfaces';
 import { Admin } from './Admin';
 import { Nurse } from './Nurse';
 import { Patient } from './Patient';
+import { Location } from './Patient';
 
 @modelOptions({
 	schemaOptions: {
@@ -21,6 +22,7 @@ import { Patient } from './Patient';
 	},
 	options: { allowMixed: Severity.ALLOW },
 })
+@index({ location: '2dsphere' })
 export class Appointment {
 	@prop({ type: mongoose.Types.ObjectId, required: true, ref: Patient, index: true })
 	patient!: Ref<Patient>;
@@ -59,6 +61,10 @@ export class Appointment {
 
 	@prop({ type: Date, required: false })
 	lastNotificationSent?: Date;
+
+	// Location for this appointment (GeoJSON Point)
+	@prop({ type: Location, required: false, index: '2dsphere' })
+	location?: Location;
 
 	// Cancellation fields
 	@prop({ type: String, required: false })

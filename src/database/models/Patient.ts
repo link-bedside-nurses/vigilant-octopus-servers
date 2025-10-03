@@ -43,7 +43,6 @@ export class Location {
 	},
 	options: { allowMixed: Severity.ALLOW },
 } )
-@index( { title: 'text', location: '2dsphere' } )
 export class Patient {
 	@prop( {
 		type: String,
@@ -68,9 +67,6 @@ export class Patient {
 
 	@prop( { type: Boolean, required: false, default: false } )
 	isPhoneVerified?: boolean;
-
-	@prop( { type: Location, required: false, index: '2dsphere' } )
-	location?: Location;
 
 	// Account deletion fields (Google Play Store compliance)
 	@prop( { type: Boolean, required: false, default: false } )

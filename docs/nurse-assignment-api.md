@@ -485,47 +485,38 @@ All operations are logged with appropriate detail levels for debugging and monit
 - The `payments` array on the appointment contains all related payment records.
 - Payment processing is robustly linked to appointments, ensuring accurate billing and workflow management.
 
-## Patient Location Update API
+## Appointment Location Capture
 
-### Update Patient Location
+Location coordinates are now collected during appointment scheduling and stored on the appointment.
 
-**Endpoint:** `PATCH /patients/:id/location`
+**Endpoint:** `POST /appointments`
 
-**Description:** Update a patient's location coordinates (GeoJSON Point).
+**Description:** Schedule an appointment. Optionally include location via a GeoJSON `location` field or a raw `coordinates` tuple `[longitude, latitude]`. If provided, the server normalizes into a GeoJSON Point and indexes it for geospatial queries.
 
-**Request Body:**
-
-```json
-{
-	"coordinates": [32.5678668, 0.3323315] // [longitude, latitude]
-}
-```
-
-- Longitude must be between -180 and 180
-- Latitude must be between -90 and 90
-
-**Response (Success):**
+**Request Body (examples):**
 
 ```json
 {
-	"status": 200,
-	"data": {
-		/* updated patient object */
-	},
-	"message": "Patient location updated"
+  "patientId": "...",
+  "nurseId": "...",
+  "scheduledAt": "2025-01-01T10:00:00Z",
+  "location": { "type": "Point", "coordinates": [32.5678668, 0.3323315] }
 }
 ```
-
-**Response (Validation Error):**
 
 ```json
 {
-	"status": 400,
-	"data": null,
-	"message": "Invalid coordinates: longitude must be [-180, 180], latitude must be [-90, 90]"
+  "patientId": "...",
+  "scheduledAt": "2025-01-01T10:00:00Z",
+  "coordinates": [32.5678668, 0.3323315]
 }
 ```
 
-This endpoint allows clients to easily and safely update a patient's location for geo-based features.
+> Longitude must be between -180 and 180; Latitude must be between -90 and 90.
 
-> **Note:** All DTOs (request/response schemas) now match the database models, including GeoJSON for location fields. Patient, nurse, admin, and appointment APIs expect/request the same fields as the models.
+**Behavior:**
+- If `location` or `coordinates` are provided, the server sets `appointment.location` to a GeoJSON Point.
+- If neither is provided, the appointment is created without a location.
+- Existing patient APIs no longer accept or expose location coordinates.
+
+> **Note:** DTOs and models remain aligned. Appointment `location` uses GeoJSON for consistency across the platform.

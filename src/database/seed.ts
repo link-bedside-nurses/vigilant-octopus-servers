@@ -173,21 +173,20 @@ async function seedNurses() {
 }
 
 async function seedPatients() {
-	const patients = [];
-	for (let i = 0; i < 100; i++) {
-		patients.push({
-			phone: `25677${faker.string.numeric(7)}`,
-			name: `${faker.person.firstName()} ${faker.person.lastName()}`,
-			isPhoneVerified: true,
-			location: generateRandomLocation(centerCoords),
-		});
-	}
-	return await db.patients.insertMany(patients);
+    const patients = [];
+    for (let i = 0; i < 100; i++) {
+        patients.push({
+            phone: `25677${faker.string.numeric(7)}`,
+            name: `${faker.person.firstName()} ${faker.person.lastName()}`,
+            isPhoneVerified: true,
+        });
+    }
+    return await db.patients.insertMany(patients);
 }
 
 async function seedAppointments(patients: any[], nurses: any[]) {
-	const appointments = [];
-	const symptoms = ['Fever', 'Cough', 'Fatigue', 'Headache', 'Body ache', 'Nausea'];
+    const appointments = [];
+    const symptoms = ['Fever', 'Cough', 'Fatigue', 'Headache', 'Body ache', 'Nausea'];
 
 	for (let i = 0; i < 200; i++) {
 		const patient = faker.helpers.arrayElement(patients);
@@ -219,13 +218,15 @@ async function seedAppointments(patients: any[], nurses: any[]) {
 		}
 
 		const appointmentDate = faker.date.recent({ days: 30 });
-		const appointment: any = {
-			patient: patient._id,
-			symptoms: faker.helpers.arrayElements(symptoms, { min: 1, max: 3 }),
-			status,
-			date: appointmentDate,
-			description: faker.lorem.sentence(),
-		};
+        const appointment: any = {
+            patient: patient._id,
+            symptoms: faker.helpers.arrayElements(symptoms, { min: 1, max: 3 }),
+            status,
+            date: appointmentDate,
+            description: faker.lorem.sentence(),
+            // Assign a random location to appointments to simulate scheduling coordinates
+            location: generateRandomLocation(centerCoords),
+        };
 
 		// Only add nurse-related fields if nurse is assigned
 		if (nurse) {

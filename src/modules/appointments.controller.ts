@@ -13,12 +13,20 @@ const router = Router();
 router.use( authenticate );
 
 // Zod schema for appointment creation
+const GeoJSONLocationSchema = z.object( {
+    type: z.literal( 'Point' ),
+    coordinates: z.tuple( [z.number().min( -180 ).max( 180 ), z.number().min( -90 ).max( 90 )] ),
+} );
+
 const AppointmentCreateSchema = z.object( {
-	patient: z.string(),
-	symptoms: z.array( z.string() ).min( 1, 'At least one symptom is required' ),
-	description: z.string().optional(),
-	date: z.coerce.date().optional(),
-	// add other fields as needed
+    patient: z.string(),
+    symptoms: z.array( z.string() ).min( 1, 'At least one symptom is required' ),
+    description: z.string().optional(),
+    date: z.coerce.date().optional(),
+    location: GeoJSONLocationSchema.optional(),
+    coordinates: z
+        .tuple( [z.number().min( -180 ).max( 180 ), z.number().min( -90 ).max( 90 )] )
+        .optional(),
 } );
 
 // GET /appointments - get all appointments
@@ -48,14 +56,20 @@ router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 		if ( !result.success ) {
 			return sendNormalized( res, StatusCodes.BAD_REQUEST, null, result.error.issues[0].message );
 		}
-		const { patient, symptoms, description, date } = result.data;
-		const appointmentData: any = {
-			patient,
-			symptoms,
-			description,
-		};
-		if ( date ) appointmentData.date = date;
-		const resultDoc = await db.appointments.create( appointmentData );
+        const { patient, symptoms, description, date, location, coordinates } = result.data;
+        const appointmentData: any = {
+            patient,
+            symptoms,
+            description,
+        };
+        if ( date ) appointmentData.date = date;
+        // Backward compatibility: accept either `location` or raw `coordinates`
+        if ( location ) {
+            appointmentData.location = location;
+        } else if ( coordinates ) {
+            appointmentData.location = { type: 'Point', coordinates };
+        }
+        const resultDoc = await db.appointments.create( appointmentData );
 		const populated = await ( await resultDoc.populate( 'patient' ) ).populate( 'nurse' );
 		return sendNormalized( res, StatusCodes.OK, populated, 'Appointment scheduled successfully' );
 	} catch ( err ) {

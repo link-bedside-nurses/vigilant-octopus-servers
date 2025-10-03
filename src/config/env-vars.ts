@@ -19,10 +19,8 @@ const env = envalid.cleanEnv(process.env, {
 	SENDER_EMAIL: envalid.str(),
 	RECIPIENT_EMAIL: envalid.str(),
 
-	// OTP/SMS
-	FROM_SMS_PHONE: envalid.str(),
-	INFOBIP_API_BASE_URL: envalid.str(),
-	INFOBIP_API_KEY: envalid.str(),
+	// SMS Sender (optional, used for phone normalization)
+	FROM_SMS_PHONE: envalid.str({ default: '' }),
 
 	// EgoSMS Provider
 	SMS_USERNAME: envalid.str(),
@@ -57,8 +55,6 @@ const envars = Object.freeze({
 	SENDER_EMAIL: env.SENDER_EMAIL,
 	RECIPIENT_EMAIL: env.RECIPIENT_EMAIL,
 	FROM_SMS_PHONE: env.FROM_SMS_PHONE,
-	INFOBIP_API_BASE_URL: env.INFOBIP_API_BASE_URL,
-	INFOBIP_API_KEY: env.INFOBIP_API_KEY,
 	SMS_USERNAME: env.SMS_USERNAME,
 	SMS_PASSWORD: env.SMS_PASSWORD,
 	SMS_SENDER_ID: env.SMS_SENDER_ID,

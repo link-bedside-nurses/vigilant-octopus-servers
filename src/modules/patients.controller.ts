@@ -1,7 +1,6 @@
 // import authenticate from '../middlewares/authentication';
 import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
 import { sendNormalized } from '../utils/http-response';
@@ -78,33 +77,7 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
 	}
 });
 
-// PATCH /patients/:id/location - update patient location only
-const LocationSchema = z.object({
-	coordinates: z
-		.array(z.number())
-		.length(2)
-		.refine(([lng, lat]) => lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90, {
-			message: 'Invalid coordinates: longitude must be [-180, 180], latitude must be [-90, 90]',
-		}),
-});
-
-router.patch('/:id/location', async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const result = LocationSchema.safeParse(req.body);
-		if (!result.success) {
-			return sendNormalized(res, StatusCodes.BAD_REQUEST, null, result.error.issues[0].message);
-		}
-		const { coordinates } = result.data;
-		const location = { type: 'Point', coordinates };
-		const patient = await db.patients.findByIdAndUpdate(req.params.id, { location }, { new: true });
-		if (!patient) {
-			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'No Patient Found');
-		}
-		return sendNormalized(res, StatusCodes.OK, patient, 'Patient location updated');
-	} catch (err) {
-		return next(err);
-	}
-});
+// Patient location handling removed: location is now collected on appointments
 
 // DELETE /patients/:id - delete patient
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {

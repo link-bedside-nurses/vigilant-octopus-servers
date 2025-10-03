@@ -11,7 +11,6 @@ export const CreatePatientSchema = z.object( {
 	password: z.string().min( 8 ),
 	email: z.string().email().optional(),
 	isPhoneVerified: z.boolean().optional(),
-	location: GeoJSONLocationSchema.optional(),
 } );
 
 export const UpdatePatientSchema = CreatePatientSchema.partial();
@@ -41,6 +40,11 @@ export const ScheduleAppointmentSchema = z.object( {
 	symptoms: z.array( z.string() ).min( 1 ),
 	date: z.coerce.date().optional(),
 	description: z.string().optional(),
+	// Optional location collection at scheduling time
+	location: GeoJSONLocationSchema.optional(),
+	coordinates: z
+		.tuple( [z.number().min( -180 ).max( 180 ), z.number().min( -90 ).max( 90 )] )
+		.optional(),
 } );
 
 export const RescheduleAppointmentSchema = z.object( {
