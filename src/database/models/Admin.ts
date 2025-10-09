@@ -34,6 +34,15 @@ export class Admin {
 	@prop({ type: Boolean, required: false, default: false })
 	isEmailVerified?: boolean;
 
+	@prop({ type: Boolean, required: false, default: false })
+	isActive?: boolean;
+
+	@prop({ type: String, required: true, trim: true, index: true })
+	firstName!: string;
+
+	@prop({ type: String, required: true, trim: true, index: true })
+	lastName!: string;
+
 	// Account deletion fields (Google Play Store compliance)
 	@prop({ type: Boolean, required: false, default: false })
 	markedForDeletion?: boolean;

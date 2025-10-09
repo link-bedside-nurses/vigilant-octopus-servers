@@ -831,6 +831,96 @@ export const NOTIFICATION_TEMPLATES = {
 			</html>
 		`,
 	},
+
+	adminAccountActivated: {
+		subject: 'Your Admin Account Has Been Activated!',
+		text: 'Your administrator account for Link Bed Sides has been successfully verified and activated.',
+		html: (admin: { name: string }) => `
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Admin Account Activated</title>
+				<style>
+					body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #334155; margin: 0; }
+					.container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+					.header { background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%); padding: 30px; text-align: center; }
+					.header h1 { color: #fff; font-size: 24px; font-weight: 700; margin: 0; }
+					.content { padding: 40px 30px; }
+					.greeting { font-size: 18px; color: #1e293b; margin-bottom: 20px; font-weight: 600; }
+					.message { font-size: 16px; color: #475569; margin-bottom: 30px; line-height: 1.6; }
+					.footer { background: #f8fafc; padding: 25px; text-align: center; border-top: 1px solid #e2e8f0; }
+					.footer-text { color: #64748b; font-size: 14px; margin: 4px 0; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h1>✅ Admin Account Activated</h1>
+					</div>
+					<div class="content">
+						<div class="greeting">Hello ${admin.name},</div>
+						<div class="message">
+							Your <strong>administrator account</strong> has been successfully <strong>verified</strong> and is now <strong>active</strong>.<br><br>
+							You now have full access to manage users, view analytics, and oversee platform operations.<br><br>
+							If you did not request this verification, please contact our support team immediately.
+						</div>
+					</div>
+					<div class="footer">
+						<p class="footer-text">This email was sent by <strong>Link Bed Sides Admin Portal</strong>.</p>
+						<p class="footer-text">Need assistance? Contact us at <a href="mailto:support@linkbedsides.com">support@linkbedsides.com</a></p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`,
+	},
+
+	adminAccountDeactivated: {
+		subject: 'Your Admin Account Has Been Deactivated',
+		text: 'Your administrator account for Link Bed Sides has been deactivated. Please contact support if this was unexpected.',
+		html: (admin: { name: string }) => `
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Admin Account Deactivated</title>
+				<style>
+					body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #334155; margin: 0; }
+					.container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+					.header { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 30px; text-align: center; }
+					.header h1 { color: #fff; font-size: 24px; font-weight: 700; margin: 0; }
+					.content { padding: 40px 30px; }
+					.greeting { font-size: 18px; color: #1e293b; margin-bottom: 20px; font-weight: 600; }
+					.message { font-size: 16px; color: #475569; margin-bottom: 30px; line-height: 1.6; }
+					.footer { background: #f8fafc; padding: 25px; text-align: center; border-top: 1px solid #e2e8f0; }
+					.footer-text { color: #64748b; font-size: 14px; margin: 4px 0; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h1>⚠️ Admin Account Deactivated</h1>
+					</div>
+					<div class="content">
+						<div class="greeting">Hello ${admin.name},</div>
+						<div class="message">
+							We wanted to let you know that your <strong>administrator account</strong> has been <strong>deactivated</strong> and access to the Link Bed Sides Admin Portal is temporarily disabled.<br><br>
+							This action may have been taken due to policy changes, security reasons, or by request from a system administrator.<br><br>
+							If you believe this is a mistake or wish to appeal this action, please contact our support team as soon as possible.
+						</div>
+					</div>
+					<div class="footer">
+						<p class="footer-text">This email was sent by <strong>Link Bed Sides Admin Portal</strong>.</p>
+						<p class="footer-text">Need assistance? Contact us at <a href="mailto:support@linkbedsides.com">support@linkbedsides.com</a></p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`,
+	},
 };
 
 // SMS Notification Templates
