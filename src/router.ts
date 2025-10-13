@@ -25,6 +25,7 @@ import { sendNormalized } from './utils/http-response';
 import logger from './utils/logger';
 import { privacy } from './utils/privacy';
 import path from 'path';
+import fs from 'fs';
 
 const router = express.Router();
 
@@ -327,8 +328,37 @@ router.get( `${API_PREFIX}/dashboard/stats`, async ( req, res, next ) => {
 	}
 } );
 
-router.get('/download/app-release.apk', (req, res) => {
-	res.download(path.join(__dirname, 'public/app-release.apk'));
+router.get("/download/app-release.apk", (req: Request, res: Response) => {
+	const filePath = path.join(__dirname, "public", "app-release.apk");
+
+	fs.stat(filePath, (err, stats) => {
+		if (err) {
+			console.error("File not found:", err);
+			res.status(404).json({ message: "File not found" });
+			return;
+		}
+
+		res.setHeader("Content-Type", "application/vnd.android.package-archive");
+		res.setHeader(
+			"Content-Disposition",
+			'attachment; filename="app-release.apk"'
+		);
+		res.setHeader("Content-Length", stats.size.toString());
+
+		const fileStream = fs.createReadStream(filePath);
+		fileStream.pipe(res);
+
+		fileStream.on("error", (streamErr) => {
+			console.error("Stream error:", streamErr);
+			if (!res.headersSent) {
+				res.status(500).end("Error streaming file");
+			}
+		});
+
+		return;
+	});
+
+	return;
 });
 
 
