@@ -4,6 +4,7 @@
 *.lock
 package-lock.json
 *.sh
+*.apk
 
 /dist
 /build

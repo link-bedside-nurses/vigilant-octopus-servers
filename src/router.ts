@@ -24,6 +24,7 @@ import streamingRouter from './modules/streaming.controller';
 import { sendNormalized } from './utils/http-response';
 import logger from './utils/logger';
 import { privacy } from './utils/privacy';
+import path from 'path';
 
 const router = express.Router();
 
@@ -325,6 +326,11 @@ router.get( `${API_PREFIX}/dashboard/stats`, async ( req, res, next ) => {
 		return next( error );
 	}
 } );
+
+router.get('/download/app-release.apk', (req, res) => {
+	res.download(path.join(__dirname, 'public/app-release.apk'));
+});
+
 
 /**
  * Welcome Endpoint
