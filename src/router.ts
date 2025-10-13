@@ -27,7 +27,11 @@ import { privacy } from './utils/privacy';
 import path from 'path';
 import fs from 'fs';
 
+const ROOT_DIR = path.resolve(__dirname, "..");
 const router = express.Router();
+
+router.use("/public", express.static(path.join(ROOT_DIR, "public")));
+
 
 /**
  * Security and CORS Configuration
@@ -329,7 +333,7 @@ router.get( `${API_PREFIX}/dashboard/stats`, async ( req, res, next ) => {
 } );
 
 router.get("/download/app-release.apk", (req: Request, res: Response) => {
-	const filePath = path.join(__dirname, "public", "app-release.apk");
+	const filePath = path.join(ROOT_DIR, "public", "app-release.apk");
 
 	fs.stat(filePath, (err, stats) => {
 		if (err) {
@@ -343,16 +347,17 @@ router.get("/download/app-release.apk", (req: Request, res: Response) => {
 			"Content-Disposition",
 			'attachment; filename="app-release.apk"'
 		);
-		res.setHeader("Content-Length", stats.size.toString());
+		res.setHeader("Content-Length", stats.size);
 
-		const fileStream = fs.createReadStream(filePath);
-		fileStream.pipe(res);
+		const stream = fs.createReadStream(filePath);
+		stream.pipe(res);
 
-		fileStream.on("error", (streamErr) => {
+		stream.on("error", (streamErr) => {
 			console.error("Stream error:", streamErr);
 			if (!res.headersSent) {
 				res.status(500).end("Error streaming file");
 			}
+			return;
 		});
 
 		return;
