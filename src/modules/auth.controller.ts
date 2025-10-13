@@ -199,20 +199,6 @@ router.post( '/patient/set-name', async ( req: Request, res: Response, _next: Ne
 	}
 } );
 
-// POST /auth/patient/signup
-router.post( '/patient/signup', async ( _req: Request, res: Response, next: NextFunction ) => {
-	try {
-		return sendNormalized(
-			res,
-			StatusCodes.METHOD_NOT_ALLOWED,
-			null,
-			'Please use the OTP-based signin flow for new patient registration'
-		);
-	} catch ( error ) {
-		return next( error );
-	}
-} );
-
 // Admin Authentication Routes
 
 // POST /auth/admin/signin
