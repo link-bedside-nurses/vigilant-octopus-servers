@@ -197,3 +197,38 @@ export const WebhookPayloadSchema = z.object({
 export type InitiatePaymentDto = z.infer<typeof InitiatePaymentSchema>;
 export type PaymentQueryDto = z.infer<typeof PaymentQuerySchema>;
 export type WebhookPayloadDto = z.infer<typeof WebhookPayloadSchema>;
+
+// Nurse Authentication Schemas
+export const NursePhoneAuthSchema = z.object({
+	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid Uganda phone number'),
+});
+
+export const NurseOTPVerificationSchema = z.object({
+	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid Uganda phone number'),
+	otp: z.string().length(5),
+});
+
+export const NurseRegistrationSchema = z.object({
+	firstName: z.string().min(2, 'First name must be at least 2 characters'),
+	lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+	phone: z.string().regex(/^(\+256|256|0)([37][0-9]{8})$/, 'Not a valid Uganda phone number'),
+	email: z.string().email().optional(),
+});
+
+export const NurseProfileUpdateSchema = z.object({
+	firstName: z.string().min(2).optional(),
+	lastName: z.string().min(2).optional(),
+	email: z.string().email().optional(),
+});
+
+export const QualificationSchema = z.object({
+	type: z.enum(['certification', 'cv', 'other']),
+	title: z.string().min(2, 'Title must be at least 2 characters'),
+	description: z.string().optional(),
+});
+
+export type NursePhoneAuthDto = z.infer<typeof NursePhoneAuthSchema>;
+export type NurseOTPVerificationDto = z.infer<typeof NurseOTPVerificationSchema>;
+export type NurseRegistrationDto = z.infer<typeof NurseRegistrationSchema>;
+export type NurseProfileUpdateDto = z.infer<typeof NurseProfileUpdateSchema>;
+export type QualificationDto = z.infer<typeof QualificationSchema>;

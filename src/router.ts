@@ -5,7 +5,9 @@ import helmet from 'helmet';
 import { StatusCodes } from 'http-status-codes';
 // import responseTime from 'response-time';
 
+import fs from 'fs';
 import morgan from 'morgan';
+import path from 'path';
 import responseTime from 'response-time';
 import envars from './config/env-vars';
 import { db, healthCheck } from './database';
@@ -17,6 +19,8 @@ import authRouter from './modules/auth.controller';
 import dashboardRouter from './modules/dashboard.controller';
 import emailRouter from './modules/email.controller';
 import messagingRouter from './modules/messaging.controller';
+import nurseAuthRouter from './modules/nurse-auth.controller';
+import nursePortalRouter from './modules/nurse-portal.controller';
 import nurseRouter from './modules/nurses.controller';
 import patientRouter from './modules/patients.controller';
 import paymentsRouter from './modules/payments.controller';
@@ -24,22 +28,19 @@ import streamingRouter from './modules/streaming.controller';
 import { sendNormalized } from './utils/http-response';
 import logger from './utils/logger';
 import { privacy } from './utils/privacy';
-import path from 'path';
-import fs from 'fs';
 
-const ROOT_DIR = path.resolve(__dirname, "..");
+const ROOT_DIR = path.resolve(__dirname, '..');
 const router = express.Router();
 
-router.use("/public", express.static(path.join(ROOT_DIR, "public")));
-
+router.use('/public', express.static(path.join(ROOT_DIR, 'public')));
 
 /**
  * Security and CORS Configuration
  */
 const corsOptions = {
-	origin: ( origin: string | undefined, callback: ( err: Error | null, allow?: boolean ) => void ) => {
+	origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
 		// Allow requests with no origin (like mobile apps or curl requests)
-		if ( !origin ) return callback( null, true );
+		if (!origin) return callback(null, true);
 
 		const allowedOrigins = [
 			'http://localhost:3000',
@@ -52,18 +53,18 @@ const corsOptions = {
 		];
 
 		// Add production origins here
-		if ( envars.NODE_ENV === 'production' ) {
+		if (envars.NODE_ENV === 'production') {
 			allowedOrigins.push(
 				'https://linkbedsides.ianbalijawa.com',
 				'https://www.linkbedsides.ianbalijawa.com'
 			);
 		}
 
-		if ( allowedOrigins.includes( origin ) ) {
-			callback( null, true );
+		if (allowedOrigins.includes(origin)) {
+			callback(null, true);
 		} else {
-			logger.warn( `CORS blocked request from origin: ${origin}` );
-			callback( new Error( 'Not allowed by CORS' ) );
+			logger.warn(`CORS blocked request from origin: ${origin}`);
+			callback(new Error('Not allowed by CORS'));
 		}
 	},
 	credentials: true,
@@ -76,50 +77,50 @@ const corsOptions = {
 /**
  * Rate Limiting Configuration
  */
-const createRateLimiter = ( windowMs: number, max: number, message?: string ) => {
-	return rateLimit( {
+const createRateLimiter = (windowMs: number, max: number, message?: string) => {
+	return rateLimit({
 		windowMs,
 		max,
 		message: {
 			error: message || 'Too many requests from this IP, please try again later.',
-			retryAfter: Math.ceil( windowMs / 1000 ),
+			retryAfter: Math.ceil(windowMs / 1000),
 		},
 		standardHeaders: true,
 		legacyHeaders: false,
-		keyGenerator: ( req ) => {
+		keyGenerator: (req) => {
 			// Use IP address or user ID if available
 			return (
-				( req.headers['x-forwarded-for'] as string ) ||
+				(req.headers['x-forwarded-for'] as string) ||
 				req.ip ||
 				req.socket.remoteAddress ||
 				'unknown'
 			);
 		},
-		handler: ( req, res ) => {
-			logger.warn( `Rate limit exceeded for IP: ${req.ip}` );
-			res.status( StatusCodes.TOO_MANY_REQUESTS ).json( {
+		handler: (req, res) => {
+			logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
+			res.status(StatusCodes.TOO_MANY_REQUESTS).json({
 				error: 'Too many requests',
-				retryAfter: Math.ceil( windowMs / 1000 ),
+				retryAfter: Math.ceil(windowMs / 1000),
 				timestamp: new Date().toISOString(),
-			} );
+			});
 		},
-	} );
+	});
 };
 
 // Different rate limits for different endpoints
-const generalLimiter = createRateLimiter( 15 * 60 * 1000, 100 ); // 100 requests per 15 minutes
-const authLimiter = createRateLimiter( 15 * 60 * 1000, 50 ); // 50 requests per 15 minutes for auth
-const apiLimiter = createRateLimiter( 15 * 60 * 1000, 1000 ); // 1000 requests per 15 minutes for API
+const generalLimiter = createRateLimiter(15 * 60 * 1000, 100); // 100 requests per 15 minutes
+const authLimiter = createRateLimiter(15 * 60 * 1000, 50); // 50 requests per 15 minutes for auth
+const apiLimiter = createRateLimiter(15 * 60 * 1000, 1000); // 1000 requests per 15 minutes for API
 
 /**
  * Request ID Middleware
  */
-const requestIdMiddleware = ( req: Request, res: Response, next: NextFunction ) => {
+const requestIdMiddleware = (req: Request, res: Response, next: NextFunction) => {
 	const requestId =
-		( req.headers['x-request-id'] as string ) ||
-		`req_${Date.now()}_${Math.random().toString( 36 ).substring( 2, 9 )}`;
+		(req.headers['x-request-id'] as string) ||
+		`req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 	req.headers['x-request-id'] = requestId;
-	res.setHeader( 'X-Request-ID', requestId );
+	res.setHeader('X-Request-ID', requestId);
 	next();
 };
 
@@ -127,7 +128,7 @@ const requestIdMiddleware = ( req: Request, res: Response, next: NextFunction ) 
  * Initialize Middlewares
  */
 router.use(
-	helmet( {
+	helmet({
 		contentSecurityPolicy: {
 			directives: {
 				defaultSrc: ["'self'"],
@@ -137,20 +138,20 @@ router.use(
 			},
 		},
 		crossOriginEmbedderPolicy: false,
-	} )
+	})
 );
 
-router.use( cors( corsOptions ) );
-router.use( requestIdMiddleware );
-router.use( responseTime() );
+router.use(cors(corsOptions));
+router.use(requestIdMiddleware);
+router.use(responseTime());
 
 // Morgan logging with custom format
 router.use(
-	morgan( 'dev', {
+	morgan('dev', {
 		stream: {
-			write: ( message: string ) => logger.info( message.trim() ),
+			write: (message: string) => logger.info(message.trim()),
 		},
-	} )
+	})
 );
 
 const API_PREFIX = '/api/v1';
@@ -158,7 +159,7 @@ const API_PREFIX = '/api/v1';
 /**
  * Health Check Endpoint
  */
-router.get( `${API_PREFIX}/health`, async ( req: Request, res: Response ) => {
+router.get(`${API_PREFIX}/health`, async (req: Request, res: Response) => {
 	try {
 		const startTime = Date.now();
 		const dbHealth = await healthCheck();
@@ -169,11 +170,11 @@ router.get( `${API_PREFIX}/health`, async ( req: Request, res: Response ) => {
 			error: 'Redis not initialized',
 		};
 		try {
-			if ( ( global as any ).redis ) {
-				await ( global as any ).redis.ping();
+			if ((global as any).redis) {
+				await (global as any).redis.ping();
 				redisHealth = { status: 'healthy' };
 			}
-		} catch ( error ) {
+		} catch (error) {
 			redisHealth = {
 				status: 'unhealthy',
 				error: error instanceof Error ? error.message : 'Unknown Redis error',
@@ -205,9 +206,9 @@ router.get( `${API_PREFIX}/health`, async ( req: Request, res: Response ) => {
 
 		const statusCode =
 			healthStatus.status === 'healthy' ? StatusCodes.OK : StatusCodes.SERVICE_UNAVAILABLE;
-		return sendNormalized( res, statusCode, healthStatus, 'Fetched server health' );
-	} catch ( error ) {
-		logger.error( 'Health check failed:', error );
+		return sendNormalized(res, statusCode, healthStatus, 'Fetched server health');
+	} catch (error) {
+		logger.error('Health check failed:', error);
 		return sendNormalized(
 			res,
 			StatusCodes.SERVICE_UNAVAILABLE,
@@ -220,25 +221,27 @@ router.get( `${API_PREFIX}/health`, async ( req: Request, res: Response ) => {
 			'System unhealthy'
 		);
 	}
-} );
+});
 
 /**
  * Privacy Policy Endpoint
  */
-router.get( '/privacy', ( req: Request, res: Response ) => {
-	res.setHeader( 'Content-Type', 'text/html' );
-	res.send( privacy );
-} );
+router.get('/privacy', (req: Request, res: Response) => {
+	res.setHeader('Content-Type', 'text/html');
+	res.send(privacy);
+});
 
 /**
  * API Documentation Endpoint
  */
-router.get( `${API_PREFIX}/docs`, ( req: Request, res: Response ) => {
-	res.json( {
+router.get(`${API_PREFIX}/docs`, (req: Request, res: Response) => {
+	res.json({
 		message: 'API Documentation',
 		version: '1.0.0',
 		endpoints: {
 			auth: `${API_PREFIX}/auth`,
+			nurseAuth: `${API_PREFIX}/nurse-auth`,
+			nursePortal: `${API_PREFIX}/nurse-portal`,
 			appointments: `${API_PREFIX}/appointments`,
 			nurses: `${API_PREFIX}/nurses`,
 			patients: `${API_PREFIX}/patients`,
@@ -252,39 +255,41 @@ router.get( `${API_PREFIX}/docs`, ( req: Request, res: Response ) => {
 		privacy: '/privacy',
 		timestamp: new Date().toISOString(),
 		requestId: req.headers['x-request-id'],
-	} );
-} );
+	});
+});
 
 /**
  * Account Deletion Routes (Public)
  */
-router.use( '/account-deletion', generalLimiter, accountDeletionRouter );
+router.use('/account-deletion', generalLimiter, accountDeletionRouter);
 
 /**
  * API Routes with Versioning
  */
 
 // Apply rate limiting to API routes
-router.use( API_PREFIX, apiLimiter );
+router.use(API_PREFIX, apiLimiter);
 
 // Auth routes with stricter rate limiting
-router.use( `${API_PREFIX}/auth`, authLimiter, authRouter );
+router.use(`${API_PREFIX}/auth`, authLimiter, authRouter);
+router.use(`${API_PREFIX}/nurse-auth`, authLimiter, nurseAuthRouter);
 
 // Protected API routes
-router.use( `${API_PREFIX}/appointments`, appointmentRouter );
-router.use( `${API_PREFIX}/nurses`, nurseRouter );
-router.use( `${API_PREFIX}/patients`, patientRouter );
-router.use( `${API_PREFIX}/payments`, paymentsRouter );
-router.use( `${API_PREFIX}/admins`, adminRouter );
-router.use( `${API_PREFIX}/email`, emailRouter );
-router.use( `${API_PREFIX}/messaging`, messagingRouter );
-router.use( `${API_PREFIX}/dashboard`, dashboardRouter );
-router.use( `${API_PREFIX}/stream`, streamingRouter );
+router.use(`${API_PREFIX}/appointments`, appointmentRouter);
+router.use(`${API_PREFIX}/nurses`, nurseRouter);
+router.use(`${API_PREFIX}/nurse-portal`, nursePortalRouter);
+router.use(`${API_PREFIX}/patients`, patientRouter);
+router.use(`${API_PREFIX}/payments`, paymentsRouter);
+router.use(`${API_PREFIX}/admins`, adminRouter);
+router.use(`${API_PREFIX}/email`, emailRouter);
+router.use(`${API_PREFIX}/messaging`, messagingRouter);
+router.use(`${API_PREFIX}/dashboard`, dashboardRouter);
+router.use(`${API_PREFIX}/stream`, streamingRouter);
 
 /**
  * Dashboard Stats Endpoint
  */
-router.get( `${API_PREFIX}/dashboard/stats`, async ( req, res, next ) => {
+router.get(`${API_PREFIX}/dashboard/stats`, async (req, res, next) => {
 	try {
 		const [
 			totalPatients,
@@ -296,23 +301,23 @@ router.get( `${API_PREFIX}/dashboard/stats`, async ( req, res, next ) => {
 			verifiedNurses,
 			unverifiedNurses,
 			totalRevenueAgg,
-		] = await Promise.all( [
+		] = await Promise.all([
 			db.patients.countDocuments(),
 			db.nurses.countDocuments(),
 			db.appointments.countDocuments(),
 			db.payments.countDocuments(),
-			db.appointments.countDocuments( { status: 'completed' } ),
-			db.appointments.countDocuments( { status: 'pending' } ),
-			db.nurses.countDocuments( { isVerified: true } ),
-			db.nurses.countDocuments( { isVerified: false } ),
-			db.payments.aggregate( [
+			db.appointments.countDocuments({ status: 'completed' }),
+			db.appointments.countDocuments({ status: 'pending' }),
+			db.nurses.countDocuments({ isVerified: true }),
+			db.nurses.countDocuments({ isVerified: false }),
+			db.payments.aggregate([
 				{ $match: { status: 'SUCCESSFUL' } },
 				{ $group: { _id: null, total: { $sum: '$amount' } } },
-			] ),
-		] );
+			]),
+		]);
 
 		const totalRevenue =
-			Array.isArray( totalRevenueAgg ) && totalRevenueAgg[0] ? totalRevenueAgg[0].total : 0;
+			Array.isArray(totalRevenueAgg) && totalRevenueAgg[0] ? totalRevenueAgg[0].total : 0;
 
 		const stats = {
 			totalPatients,
@@ -326,36 +331,33 @@ router.get( `${API_PREFIX}/dashboard/stats`, async ( req, res, next ) => {
 			totalRevenue,
 		};
 
-		return sendNormalized( res, StatusCodes.OK, stats, 'Stats retrieved' );
-	} catch ( error ) {
-		return next( error );
+		return sendNormalized(res, StatusCodes.OK, stats, 'Stats retrieved');
+	} catch (error) {
+		return next(error);
 	}
-} );
+});
 
-router.get("/download/app-release.apk", (req: Request, res: Response) => {
-	const filePath = path.join(ROOT_DIR, "public", "app-release.apk");
+router.get('/download/app-release.apk', (req: Request, res: Response) => {
+	const filePath = path.join(ROOT_DIR, 'public', 'app-release.apk');
 
 	fs.stat(filePath, (err, stats) => {
 		if (err) {
-			console.error("File not found:", err);
-			res.status(404).json({ message: "File not found" });
+			console.error('File not found:', err);
+			res.status(404).json({ message: 'File not found' });
 			return;
 		}
 
-		res.setHeader("Content-Type", "application/vnd.android.package-archive");
-		res.setHeader(
-			"Content-Disposition",
-			'attachment; filename="app-release.apk"'
-		);
-		res.setHeader("Content-Length", stats.size);
+		res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+		res.setHeader('Content-Disposition', 'attachment; filename="app-release.apk"');
+		res.setHeader('Content-Length', stats.size);
 
 		const stream = fs.createReadStream(filePath);
 		stream.pipe(res);
 
-		stream.on("error", (streamErr) => {
-			console.error("Stream error:", streamErr);
+		stream.on('error', (streamErr) => {
+			console.error('Stream error:', streamErr);
 			if (!res.headersSent) {
-				res.status(500).end("Error streaming file");
+				res.status(500).end('Error streaming file');
 			}
 			return;
 		});
@@ -366,20 +368,24 @@ router.get("/download/app-release.apk", (req: Request, res: Response) => {
 	return;
 });
 
-
 /**
  * Welcome Endpoint
  */
-router.get( `/`, async ( req, res, next ) => {
-	return sendNormalized( res, StatusCodes.OK, { message: 'Welcome to the LinkBedSides API' }, 'Welcome to the LinkBedSides API' );
-} );
+router.get(`/`, async (req, res, next) => {
+	return sendNormalized(
+		res,
+		StatusCodes.OK,
+		{ message: 'Welcome to the LinkBedSides API' },
+		'Welcome to the LinkBedSides API'
+	);
+});
 
 /**
  * 404 Handler
  */
-router.use( '*', ( req: Request, res: Response ) => {
-	logger.warn( `Route not found: ${req.method} ${req.originalUrl}` );
-	res.status( StatusCodes.NOT_FOUND ).json( {
+router.use('*', (req: Request, res: Response) => {
+	logger.warn(`Route not found: ${req.method} ${req.originalUrl}`);
+	res.status(StatusCodes.NOT_FOUND).json({
 		error: 'Route not found',
 		message: `Cannot ${req.method} ${req.originalUrl}`,
 		timestamp: new Date().toISOString(),
@@ -389,12 +395,12 @@ router.use( '*', ( req: Request, res: Response ) => {
 			'Verify the HTTP method',
 			'Consult the API documentation at /api/v1/docs',
 		],
-	} );
-} );
+	});
+});
 
 /**
  * Error Handling Middleware (must be last)
  */
-router.use( errorMiddleware );
+router.use(errorMiddleware);
 
 export default router;
