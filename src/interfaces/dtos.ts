@@ -70,8 +70,20 @@ export const AdminSigninSchema = z.object({
 
 export const AdminSignupSchema = z.object({
 	email: z.string().email(),
-	password: z.string().min(8),
+	firstName: z.string().min(2).optional(),
+	lastName: z.string().min(2).optional(),
 });
+
+export const AdminSetPasswordSchema = z
+	.object({
+		token: z.string().min(32),
+		password: z.string().min(8),
+		confirmPassword: z.string().min(8),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Passwords don't match",
+		path: ['confirmPassword'],
+	});
 
 export const AdminOTPVerificationSchema = z.object({
 	email: z.string().email(),
@@ -136,6 +148,7 @@ export type PatientPhoneAuthDto = z.infer<typeof PatientPhoneAuthSchema>;
 export type PatientOTPVerificationDto = z.infer<typeof PatientOTPVerificationSchema>;
 export type AdminSigninDto = z.infer<typeof AdminSigninSchema>;
 export type AdminSignupDto = z.infer<typeof AdminSignupSchema>;
+export type AdminSetPasswordDto = z.infer<typeof AdminSetPasswordSchema>;
 export type AdminOTPVerificationDto = z.infer<typeof AdminOTPVerificationSchema>;
 export type AdminPasswordResetRequestDto = z.infer<typeof AdminPasswordResetRequestSchema>;
 export type AdminPasswordResetDto = z.infer<typeof AdminPasswordResetSchema>;

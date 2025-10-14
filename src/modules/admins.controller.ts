@@ -244,7 +244,9 @@ router.patch('/:id/activate', async (req: Request, res: Response, next: NextFunc
 				template: {
 					subject: NOTIFICATION_TEMPLATES.adminAccountActivated.subject,
 					text: NOTIFICATION_TEMPLATES.adminAccountActivated.text,
-					html: NOTIFICATION_TEMPLATES.adminAccountActivated.html({ name: admin.firstName }),
+					html: NOTIFICATION_TEMPLATES.adminAccountActivated.html({
+						name: admin.firstName || 'Admin',
+					}),
 				},
 			});
 		}
@@ -278,7 +280,9 @@ router.patch('/:id/deactivate', async (req: Request, res: Response, next: NextFu
 				template: {
 					subject: NOTIFICATION_TEMPLATES.adminAccountDeactivated.subject,
 					text: NOTIFICATION_TEMPLATES.adminAccountDeactivated.text,
-					html: NOTIFICATION_TEMPLATES.adminAccountDeactivated.html({ name: admin.firstName }),
+					html: NOTIFICATION_TEMPLATES.adminAccountDeactivated.html({
+						name: admin.firstName || 'Admin',
+					}),
 				},
 			});
 		}

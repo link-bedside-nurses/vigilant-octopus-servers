@@ -28,8 +28,8 @@ export class Admin {
 	})
 	email!: string;
 
-	@prop({ type: String, required: true })
-	password!: string;
+	@prop({ type: String, required: false })
+	password?: string;
 
 	@prop({ type: Boolean, required: false, default: false })
 	isEmailVerified?: boolean;
@@ -37,11 +37,17 @@ export class Admin {
 	@prop({ type: Boolean, required: false, default: false })
 	isActive?: boolean;
 
-	@prop({ type: String, required: true, trim: true, index: true })
-	firstName!: string;
+	@prop({ type: Boolean, required: false, default: false })
+	isSuperAdmin?: boolean;
 
-	@prop({ type: String, required: true, trim: true, index: true })
-	lastName!: string;
+	@prop({ type: Boolean, required: false, default: false })
+	isPasswordSet?: boolean;
+
+	@prop({ type: String, required: false, trim: true, index: true })
+	firstName?: string;
+
+	@prop({ type: String, required: false, trim: true, index: true })
+	lastName?: string;
 
 	// Account deletion fields (Google Play Store compliance)
 	@prop({ type: Boolean, required: false, default: false })

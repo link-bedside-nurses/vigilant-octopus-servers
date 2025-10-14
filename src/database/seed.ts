@@ -91,15 +91,34 @@ export async function seedDatabase() {
 
 async function seedAdmins() {
 	const admins = [];
-	for (let i = 0; i < 5; i++) {
+
+	// Create ONE super admin
+	admins.push({
+		email: 'superadmin@linkbedside.com',
+		password: await Password.hash('SuperAdmin@123'),
+		isEmailVerified: true,
+		isActive: true,
+		isSuperAdmin: true,
+		isPasswordSet: true,
+		firstName: 'Super',
+		lastName: 'Admin',
+	});
+
+	// Create 4 regular admins with varying states
+	for (let i = 0; i < 4; i++) {
+		const isPasswordSet = faker.datatype.boolean();
 		admins.push({
 			email: faker.internet.email(),
+			password: isPasswordSet ? await Password.hash('password') : undefined,
+			isEmailVerified: isPasswordSet,
+			isActive: isPasswordSet && faker.datatype.boolean(),
+			isSuperAdmin: false,
+			isPasswordSet: isPasswordSet,
 			firstName: faker.person.firstName(),
 			lastName: faker.person.lastName(),
-			password: await Password.hash('password'),
-			isEmailVerified: true,
 		});
 	}
+
 	return await db.admins.insertMany(admins);
 }
 
