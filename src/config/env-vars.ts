@@ -35,15 +35,11 @@ const env = envalid.cleanEnv(process.env, {
 	REDIS_PORT: envalid.str(),
 	REDIS_PASSWORD: envalid.str(),
 
-	// MOMO
-	MOMO_CALLBACK_HOST: envalid.str(),
-	X_REFERENCE_ID: envalid.str(),
-	API_KEY: envalid.str(),
-	OCP_APIM_SUBSCRIPTION_KEY: envalid.str(),
-
-	// Airtel
-	AIRTEL_MONEY_CLIENT_ID: envalid.str(),
-	AIRTEL_MONEY_CLIENT_SECRET_KEY: envalid.str(),
+	// MarzPay Payment Gateway
+	MARZ_PAY_BASE_URL: envalid.str({ default: 'https://wallet.wearemarz.com/api/v1' }),
+	MARZ_PAY_API_KEY: envalid.str(),
+	MARZ_PAY_API_SECRET: envalid.str(),
+	APP_URL: envalid.str(),
 });
 
 const envars = Object.freeze({
@@ -62,12 +58,10 @@ const envars = Object.freeze({
 	SMS_USERNAME: env.SMS_USERNAME,
 	SMS_PASSWORD: env.SMS_PASSWORD,
 	SMS_SENDER_ID: env.SMS_SENDER_ID,
-	MOMO_CALLBACK_HOST: env.MOMO_CALLBACK_HOST,
-	X_REFERENCE_ID: env.X_REFERENCE_ID,
-	API_KEY: env.API_KEY,
-	OCP_APIM_SUBSCRIPTION_KEY: env.OCP_APIM_SUBSCRIPTION_KEY,
-	AIRTEL_MONEY_CLIENT_ID: env.AIRTEL_MONEY_CLIENT_ID,
-	AIRTEL_MONEY_CLIENT_SECRET_KEY: env.AIRTEL_MONEY_CLIENT_SECRET_KEY,
+	MARZ_PAY_BASE_URL: env.MARZ_PAY_BASE_URL,
+	MARZ_PAY_API_KEY: env.MARZ_PAY_API_KEY,
+	MARZ_PAY_API_SECRET: env.MARZ_PAY_API_SECRET,
+	APP_URL: env.APP_URL,
 });
 
 export default envars;

@@ -2,6 +2,20 @@ import { modelOptions, mongoose, prop, Ref, Severity } from '@typegoose/typegoos
 import { Appointment } from './Appointment';
 import { Patient } from './Patient';
 
+export enum PaymentStatus {
+	PENDING = 'PENDING',
+	PROCESSING = 'PROCESSING',
+	SUCCESSFUL = 'SUCCESSFUL',
+	FAILED = 'FAILED',
+	CANCELLED = 'CANCELLED',
+	SANDBOX = 'SANDBOX',
+}
+
+export enum MobileProvider {
+	MTN = 'MTN',
+	AIRTEL = 'AIRTEL',
+}
+
 @modelOptions({
 	schemaOptions: {
 		id: false,
@@ -22,10 +36,10 @@ import { Patient } from './Patient';
 export class Payment {
 	@prop({
 		required: true,
-		type: mongoose.Document,
-		ref: Appointment,
+		type: mongoose.Types.ObjectId,
+		ref: () => Appointment,
 	})
-	appointment!: Appointment;
+	appointment!: Ref<Appointment>;
 
 	@prop({ ref: () => Patient, required: true })
 	patient!: Ref<Patient>;
@@ -33,21 +47,70 @@ export class Payment {
 	@prop({ required: true })
 	amount!: number;
 
-	@prop({ required: true })
-	referenceId!: string;
+	@prop()
+	amountFormatted?: string;
 
-	@prop({ required: true, enum: ['PENDING', 'SUCCESSFUL', 'FAILED'] })
-	status!: string;
+	@prop({ default: 'UGX' })
+	currency?: string;
 
-	@prop({ required: true, enum: ['MTN', 'AIRTEL'] })
-	paymentMethod!: string;
+	@prop({ required: true, unique: true })
+	reference!: string;
+
+	@prop()
+	externalUuid?: string;
+
+	@prop()
+	providerReference?: string;
+
+	@prop({
+		required: true,
+		enum: Object.values(PaymentStatus),
+		default: PaymentStatus.PENDING,
+	})
+	status!: PaymentStatus;
+
+	@prop({
+		required: true,
+		enum: Object.values(MobileProvider),
+	})
+	paymentMethod!: MobileProvider;
 
 	@prop()
 	transactionId?: string;
 
 	@prop()
+	phoneNumber?: string;
+
+	@prop()
 	failureReason?: string;
 
-	@prop({ type: String, required: true })
-	comment!: string;
+	@prop({ type: String })
+	description?: string;
+
+	@prop()
+	callbackUrl?: string;
+
+	@prop({ default: 'UG' })
+	country?: string;
+
+	@prop({ default: 'live' })
+	mode?: string;
+
+	@prop()
+	initiatedAt?: Date;
+
+	@prop()
+	estimatedSettlement?: Date;
+
+	@prop()
+	completedAt?: Date;
+
+	@prop({ type: mongoose.Schema.Types.Mixed })
+	apiResponse?: any;
+
+	@prop({ type: mongoose.Schema.Types.Mixed })
+	webhookData?: any;
+
+	@prop({ default: 0 })
+	webhookAttempts?: number;
 }

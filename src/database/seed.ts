@@ -1,9 +1,11 @@
 import { faker } from '@faker-js/faker';
 import * as geolib from 'geolib';
+import { v4 as uuidv4 } from 'uuid';
 import { db } from '.';
 import { APPOINTMENT_STATUSES } from '../interfaces';
 import logger from '../utils/logger';
 import { Password } from '../utils/password';
+import { MobileProvider, PaymentStatus } from './models/Payment';
 
 // Center coordinates (Kampala)
 const centerCoords = {
@@ -39,23 +41,23 @@ export async function seedDatabase() {
 
 		// Seed admins
 		const admins = await seedAdmins();
-		logger.debug('✓ Admins seeded' + admins.length);
+		logger.debug('✓ Admins seeded ' + admins.length);
 
 		// Seed nurses
 		const nurses = await seedNurses();
-		logger.debug('✓ Nurses seeded' + nurses.length);
+		logger.debug('✓ Nurses seeded ' + nurses.length);
 
 		// Seed patients
 		const patients = await seedPatients();
-		logger.debug('✓ Patients seeded' + patients.length);
+		logger.debug('✓ Patients seeded ' + patients.length);
 
 		// Seed appointments
 		const appointments = await seedAppointments(patients, nurses);
-		logger.debug('✓ Appointments seeded' + appointments.length);
+		logger.debug('✓ Appointments seeded ' + appointments.length);
 
 		// Seed payments
 		const payments = await seedPayments(appointments, patients);
-		logger.debug('✓ Payments seeded' + payments.length);
+		logger.debug('✓ Payments seeded ' + payments.length);
 
 		// Map appointmentId to paymentIds
 		const appointmentPaymentsMap = new Map();
@@ -92,6 +94,8 @@ async function seedAdmins() {
 	for (let i = 0; i < 5; i++) {
 		admins.push({
 			email: faker.internet.email(),
+			firstName: faker.person.firstName(),
+			lastName: faker.person.lastName(),
 			password: await Password.hash('password'),
 			isEmailVerified: true,
 		});
@@ -173,20 +177,20 @@ async function seedNurses() {
 }
 
 async function seedPatients() {
-    const patients = [];
-    for (let i = 0; i < 100; i++) {
-        patients.push({
-            phone: `25677${faker.string.numeric(7)}`,
-            name: `${faker.person.firstName()} ${faker.person.lastName()}`,
-            isPhoneVerified: true,
-        });
-    }
-    return await db.patients.insertMany(patients);
+	const patients = [];
+	for (let i = 0; i < 100; i++) {
+		patients.push({
+			phone: `25677${faker.string.numeric(7)}`,
+			name: `${faker.person.firstName()} ${faker.person.lastName()}`,
+			isPhoneVerified: true,
+		});
+	}
+	return await db.patients.insertMany(patients);
 }
 
 async function seedAppointments(patients: any[], nurses: any[]) {
-    const appointments = [];
-    const symptoms = ['Fever', 'Cough', 'Fatigue', 'Headache', 'Body ache', 'Nausea'];
+	const appointments = [];
+	const symptoms = ['Fever', 'Cough', 'Fatigue', 'Headache', 'Body ache', 'Nausea'];
 
 	for (let i = 0; i < 200; i++) {
 		const patient = faker.helpers.arrayElement(patients);
@@ -218,15 +222,15 @@ async function seedAppointments(patients: any[], nurses: any[]) {
 		}
 
 		const appointmentDate = faker.date.recent({ days: 30 });
-        const appointment: any = {
-            patient: patient._id,
-            symptoms: faker.helpers.arrayElements(symptoms, { min: 1, max: 3 }),
-            status,
-            date: appointmentDate,
-            description: faker.lorem.sentence(),
-            // Assign a random location to appointments to simulate scheduling coordinates
-            location: generateRandomLocation(centerCoords),
-        };
+		const appointment: any = {
+			patient: patient._id,
+			symptoms: faker.helpers.arrayElements(symptoms, { min: 1, max: 3 }),
+			status,
+			date: appointmentDate,
+			description: faker.lorem.sentence(),
+			// Assign a random location to appointments to simulate scheduling coordinates
+			location: generateRandomLocation(centerCoords),
+		};
 
 		// Only add nurse-related fields if nurse is assigned
 		if (nurse) {
@@ -268,23 +272,62 @@ async function seedAppointments(patients: any[], nurses: any[]) {
 
 async function seedPayments(appointments: any[], patients: any[]) {
 	const payments = [];
-	const paymentMethods = ['MTN', 'AIRTEL'];
-	const statuses = ['PENDING', 'SUCCESSFUL', 'FAILED'];
+	const paymentMethods = [MobileProvider.MTN, MobileProvider.AIRTEL];
+	const statuses = [
+		PaymentStatus.PENDING,
+		PaymentStatus.SUCCESSFUL,
+		PaymentStatus.FAILED,
+		PaymentStatus.PROCESSING,
+	];
 
 	for (let i = 0; i < appointments.length; i++) {
 		if (faker.number.int({ min: 1, max: 100 }) <= 70) {
 			// 70% of appointments have payments
 			const appointment = appointments[i];
 			const patientId = appointment.patient;
+			const patient = patients.find((p) => p._id.toString() === patientId.toString());
+			const status = faker.helpers.arrayElement(statuses);
+			const amount = faker.number.int({ min: 20000, max: 100000 });
+			const initiatedDate = faker.date.between({
+				from: appointment.date,
+				to: new Date(),
+			});
+
 			payments.push({
 				appointment: appointment._id,
 				patient: patientId,
-				amount: faker.number.int({ min: 20000, max: 100000 }),
-				referenceId: faker.string.alphanumeric(10).toUpperCase(),
-				status: faker.helpers.arrayElement(statuses),
+				amount,
+				amountFormatted: new Intl.NumberFormat('en-UG', {
+					style: 'decimal',
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+				}).format(amount),
+				currency: 'UGX',
+				reference: uuidv4(),
+				externalUuid: uuidv4(),
+				providerReference:
+					status === PaymentStatus.SUCCESSFUL
+						? faker.string.alphanumeric(15).toUpperCase()
+						: undefined,
+				phoneNumber: patient?.phone || `+256${faker.string.numeric(9)}`,
+				status,
 				paymentMethod: faker.helpers.arrayElement(paymentMethods),
-				comment: faker.lorem.sentence(),
-				transactionId: faker.string.alphanumeric(15).toUpperCase(),
+				description: faker.lorem.sentence(),
+				transactionId:
+					status === PaymentStatus.SUCCESSFUL
+						? faker.string.alphanumeric(15).toUpperCase()
+						: undefined,
+				callbackUrl: 'http://localhost:3000/api/v1/payments/webhooks/collection',
+				country: 'UG',
+				mode: 'live',
+				initiatedAt: initiatedDate,
+				estimatedSettlement: faker.date.soon({ days: 1, refDate: initiatedDate }),
+				completedAt:
+					status === PaymentStatus.SUCCESSFUL || status === PaymentStatus.FAILED
+						? faker.date.between({ from: initiatedDate, to: new Date() })
+						: undefined,
+				failureReason: status === PaymentStatus.FAILED ? faker.lorem.sentence() : undefined,
+				webhookAttempts: faker.number.int({ min: 0, max: 3 }),
 			});
 		}
 	}
