@@ -5,6 +5,7 @@
 package-lock.json
 *.sh
 *.apk
+uploads/
 
 /dist
 /build

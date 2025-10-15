@@ -6,12 +6,11 @@ import crypto from 'crypto';
 import envars from '../config/env-vars';
 
 export interface DiskUploadResult {
-  url: string; // stored filename
-  streamingUrl: string; // server streaming endpoint for this file
+  url: string;
   publicId: string; // unique filename
   filename: string; // original name
-  path: string; // absolute disk path
-  size: number; // bytes
+  path: string;
+  size: number;
   mimeType: string;
   hash: string; // sha256 of content
 }
@@ -35,17 +34,16 @@ export class DiskStorageService {
 
     await writeFile(filePath, file.buffer);
 
-    const url = uniqueFilename;
-    const streamingUrl = this.generateStreamingUrl(uniqueFilename);
+    const filename = uniqueFilename;
+    const url = this.generateURL(uniqueFilename);
     const mimeType = this.getMimeType(fileExtension);
     const fileSize = file.size;
     const fileHash = this.generateFileHash(file.buffer);
 
     return {
-      url,
-      streamingUrl,
+      filename,
       publicId: uniqueFilename,
-      filename: file.originalname,
+      url,
       path: filePath,
       size: fileSize,
       mimeType,
@@ -75,7 +73,7 @@ export class DiskStorageService {
     return join(this.uploadsDir, publicId);
   }
 
-  public generateStreamingUrl(publicId: string): string {
+  public generateURL(publicId: string): string {
     const extension = extname(publicId).toLowerCase();
     const mediaType = this.determineMediaType(extension);
 

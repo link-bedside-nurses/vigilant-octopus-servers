@@ -191,7 +191,7 @@ router.post(
 			nurse.profilePicture = {
 				publicId: uploadResult.publicId,
 				url: uploadResult.url,
-				streamingUrl: uploadResult.streamingUrl,
+				filename: uploadResult.filename,
 				mimeType: uploadResult.mimeType,
 				size: uploadResult.size,
 				uploadedAt: new Date(),
@@ -293,7 +293,7 @@ router.post(
 					document: {
 						publicId: uploadResult.publicId,
 						url: uploadResult.url,
-						streamingUrl: uploadResult.streamingUrl,
+						filename: uploadResult.filename,
 						mimeType: uploadResult.mimeType,
 						size: uploadResult.size,
 						uploadedAt: new Date(),

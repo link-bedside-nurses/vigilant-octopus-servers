@@ -3,8 +3,8 @@ import { index, modelOptions, prop, Severity } from '@typegoose/typegoose';
 // Document interface for Disk storage with streaming
 export interface DiskDocument {
     publicId: string;
-    url: string; // stored filename
-    streamingUrl: string; // generated streaming endpoint
+	url: string;
+	filename: string;
     mimeType: string;
     size: number;
     uploadedAt: Date;

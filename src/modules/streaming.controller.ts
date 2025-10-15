@@ -115,7 +115,7 @@ router.get('/info/:filename', (req: Request, res: Response) => {
     filename,
     size: stat.size,
     mimeType: ext,
-    streamingUrl: diskStorageService.generateStreamingUrl(filename),
+    url: diskStorageService.generateURL(filename),
   });
   return;
 });

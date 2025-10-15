@@ -62,7 +62,7 @@ class FileUploadService {
 			nurse.profilePicture = {
 				publicId: result.publicId,
 				url: result.url,
-				streamingUrl: result.streamingUrl,
+				filename: result.filename,
 				mimeType: result.mimeType,
 				size: result.size,
 				uploadedAt: new Date(),
@@ -129,7 +129,7 @@ class FileUploadService {
 				front: {
 					publicId: frontResult.publicId,
 					url: frontResult.url,
-					streamingUrl: frontResult.streamingUrl,
+					filename: frontResult.filename,
 					mimeType: frontResult.mimeType,
 					size: frontResult.size,
 					uploadedAt: new Date(),
@@ -139,7 +139,7 @@ class FileUploadService {
 				back: {
 					publicId: backResult.publicId,
 					url: backResult.url,
-					streamingUrl: backResult.streamingUrl,
+					filename: backResult.filename,
 					mimeType: backResult.mimeType,
 					size: backResult.size,
 					uploadedAt: new Date(),
@@ -202,7 +202,7 @@ class FileUploadService {
 				document: {
 					publicId: result.publicId,
 					url: result.url,
-					streamingUrl: result.streamingUrl,
+					filename: result.filename,
 					mimeType: result.mimeType,
 					size: result.size,
 					uploadedAt: new Date(),
@@ -315,7 +315,7 @@ class FileUploadService {
 				documents: {
 					profilePicture: nurse.profilePicture
 						? {
-							url: nurse.profilePicture.streamingUrl,
+							url: nurse.profilePicture.url,
 							size: nurse.profilePicture.size,
 							uploadedAt: nurse.profilePicture.uploadedAt,
 						}
@@ -323,12 +323,12 @@ class FileUploadService {
 					nationalId: nurse.nationalId
 						? {
 							front: {
-								url: nurse.nationalId.front.streamingUrl,
+								url: nurse.nationalId.front.url,
 								size: nurse.nationalId.front.size,
 								uploadedAt: nurse.nationalId.front.uploadedAt,
 							},
 							back: {
-								url: nurse.nationalId.back.streamingUrl,
+								url: nurse.nationalId.back.url,
 								size: nurse.nationalId.back.size,
 								uploadedAt: nurse.nationalId.back.uploadedAt,
 							},
@@ -340,7 +340,7 @@ class FileUploadService {
 							type: q.type,
 							title: q.title,
 							description: q.description,
-							url: q.document.streamingUrl,
+							url: q.document.url,
 							size: q.document.size,
 							uploadedAt: q.uploadedAt,
 						})) || [],

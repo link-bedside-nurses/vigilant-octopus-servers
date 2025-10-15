@@ -80,7 +80,7 @@ router.post(
 			const profilePicture: DiskDocument = {
 				publicId: profilePictureResult.publicId,
 				url: profilePictureResult.url,
-				streamingUrl: profilePictureResult.streamingUrl,
+				filename: profilePictureResult.filename,
 				mimeType: profilePictureResult.mimeType,
 				size: profilePictureResult.size,
 				uploadedAt: new Date(),
@@ -94,7 +94,7 @@ router.post(
 			const nationalIdFront: DiskDocument = {
 				publicId: nationalIdFrontResult.publicId,
 				url: nationalIdFrontResult.url,
-				streamingUrl: nationalIdFrontResult.streamingUrl,
+				filename: nationalIdFrontResult.filename,
 				mimeType: nationalIdFrontResult.mimeType,
 				size: nationalIdFrontResult.size,
 				uploadedAt: new Date(),
@@ -108,7 +108,7 @@ router.post(
 			const nationalIdBack: DiskDocument = {
 				publicId: nationalIdBackResult.publicId,
 				url: nationalIdBackResult.url,
-				streamingUrl: nationalIdBackResult.streamingUrl,
+				filename: nationalIdBackResult.filename,
 				mimeType: nationalIdBackResult.mimeType,
 				size: nationalIdBackResult.size,
 				uploadedAt: new Date(),
@@ -173,7 +173,7 @@ router.post(
 					document: {
 						publicId: uploadResult.publicId,
 						url: uploadResult.url,
-						streamingUrl: uploadResult.streamingUrl,
+						filename: uploadResult.filename,
 						mimeType: uploadResult.mimeType,
 						size: uploadResult.size,
 						uploadedAt: new Date(),

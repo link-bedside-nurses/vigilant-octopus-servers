@@ -374,8 +374,8 @@ class MessagingService {
 		try {
 			logger.info(`Sending password setup email to ${email}`);
 
-			const appUrl = process.env.APP_URL || 'http://localhost:3000';
-			const setupLink = `${appUrl}/admin/set-password?token=${token}`;
+			const appUrl = envars.APP_URL || 'http://localhost:3000';
+			const setupLink = `${appUrl}/set-password?token=${token}`;
 			const expiryMinutes = Math.floor((expiresAt.getTime() - Date.now()) / 60000);
 
 			const subject = 'Set Up Your Admin Account Password';
@@ -392,7 +392,7 @@ class MessagingService {
 		.container { max-width: 600px; margin: 0 auto; padding: 20px; }
 		.header { background-color: #4F46E5; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
 		.content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }
-		.button { display: inline-block; padding: 12px 30px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+		.button { display: inline-block; color:#f9f9f9; padding: 12px 30px; background-color: #4F46E5; text-decoration: none; border-radius: 5px; margin: 20px 0; }
 		.warning { background-color: #FEF3C7; padding: 15px; border-left: 4px solid #F59E0B; margin: 20px 0; }
 		.footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
 	</style>
@@ -462,7 +462,7 @@ class MessagingService {
 		try {
 			logger.info(`Sending account activation email to ${email}`);
 
-			const appUrl = process.env.APP_URL || 'http://localhost:3000';
+			const appUrl = envars.APP_URL || 'http://localhost:3000';
 			const signinLink = `${appUrl}/admin/signin`;
 
 			const subject = 'Your Admin Account Has Been Activated';
