@@ -3,6 +3,7 @@ import { db } from '../database';
 import { MobileProvider, PaymentStatus } from '../database/models/Payment';
 import logger from '../utils/logger';
 import { ICreateCollectionRequest, MarzPayService, TransactionStatus } from './marzpay.service';
+import envars from '../config/env-vars';
 
 /**
  * Payment limits in UGX
@@ -48,7 +49,7 @@ export class CollectionService {
 
 	constructor() {
 		this.marzPayService = MarzPayService.getInstance();
-		this.callbackBaseUrl = process.env.APP_URL || 'http://localhost:3000';
+		this.callbackBaseUrl = envars.APP_URL;
 	}
 
 	/**
@@ -78,13 +79,13 @@ export class CollectionService {
 			}
 
 			// Verify patient exists
-			const patient = await db.patients.findById(dto.patientId);
+			const patient = await db.patients.findById(appointment.patient.toString());
 			if (!patient) {
 				throw new Error(ERROR_MESSAGES.PATIENT_NOT_FOUND);
 			}
 
 			// Check if appointment belongs to patient
-			if (appointment.patient.toString() !== dto.patientId) {
+			if (appointment.patient.toString() !== patient._id.toString()) {
 				throw new Error('Appointment does not belong to patient');
 			}
 
@@ -126,7 +127,7 @@ export class CollectionService {
 			// Create payment record
 			const payment = await db.payments.create({
 				appointment: dto.appointmentId,
-				patient: dto.patientId,
+				patient: patient._id,
 				amount: dto.amount,
 				amountFormatted: this.marzPayService.formatAmount(dto.amount),
 				currency: response.data.collection.amount.currency,
@@ -218,7 +219,7 @@ export class CollectionService {
 	async findAll(filters: {
 		status?: PaymentStatus;
 		paymentMethod?: MobileProvider;
-		patientId?: string;
+		patient?: string;
 		appointmentId?: string;
 		page?: number;
 		limit?: number;
@@ -237,8 +238,8 @@ export class CollectionService {
 			query.paymentMethod = filters.paymentMethod;
 		}
 
-		if (filters.patientId) {
-			query.patient = filters.patientId;
+		if (filters.patient) {
+			query.patient = filters.patient;
 		}
 
 		if (filters.appointmentId) {
@@ -346,11 +347,11 @@ export class CollectionService {
 	/**
 	 * Get payment statistics
 	 */
-	async getStatistics(filters: { patientId?: string; appointmentId?: string } = {}) {
+	async getStatistics(filters: { patient?: string; appointmentId?: string } = {}) {
 		const query: any = {};
 
-		if (filters.patientId) {
-			query.patient = filters.patientId;
+		if (filters.patient) {
+			query.patient = filters.patient;
 		}
 
 		if (filters.appointmentId) {

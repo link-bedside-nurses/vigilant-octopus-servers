@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import FormData from 'form-data';
+import envars from '../config/env-vars';
 import logger from '../utils/logger';
 
 /**
@@ -103,10 +104,10 @@ export class MarzPayService {
 	private static instance: MarzPayService;
 
 	private constructor() {
-		this.baseUrl = process.env.MARZ_PAY_BASE_URL || 'https://wallet.wearemarz.com/api/v1';
+		this.baseUrl = envars.MARZ_PAY_BASE_URL;
 
-		const apiKey = process.env.MARZ_PAY_API_KEY;
-		const apiSecret = process.env.MARZ_PAY_API_SECRET;
+		const apiKey = envars.MARZ_PAY_API_KEY;
+		const apiSecret = envars.MARZ_PAY_API_SECRET;
 
 		// Create Basic Auth credentials
 		if (apiKey && apiSecret) {

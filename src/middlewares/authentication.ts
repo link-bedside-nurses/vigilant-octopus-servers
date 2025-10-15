@@ -28,8 +28,9 @@ export default async function authenticate(request: Request, res: Response, next
 		// check if the user with this id exists
 		const patient = await db.patients.findById(decoded.id);
 		const admin = await db.admins.findById(decoded.id);
+		const nurse = await db.nurses.findById(decoded.id);
 
-		if (!patient && !admin) {
+		if (!patient && !admin && !nurse) {
 			logger.info('user not found');
 			return next(new HTTPException('User not found!', StatusCodes.UNAUTHORIZED));
 		}
@@ -50,6 +51,12 @@ export default async function authenticate(request: Request, res: Response, next
 				id: decoded.id,
 				email: admin.email,
 				type: 'admin',
+			};
+		} else if (nurse) {
+			request.account = {
+				id: decoded.id,
+				phone: nurse.phone,
+				type: 'nurse',
 			};
 		}
 

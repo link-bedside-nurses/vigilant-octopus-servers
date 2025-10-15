@@ -177,7 +177,7 @@ router.get(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const collectionService = new CollectionService();
-			const result = await collectionService.findAll({ patientId: req.params.id });
+			const result = await collectionService.findAll({ patient: req.params.id });
 			return sendNormalized(res, StatusCodes.OK, result.data, 'Payments retrieved successfully');
 		} catch (err) {
 			return next(err);
@@ -206,7 +206,7 @@ router.get('/statistics', async (req: Request, res: Response, next: NextFunction
 		const { patientId, appointmentId } = req.query;
 		const collectionService = new CollectionService();
 		const stats = await collectionService.getStatistics({
-			patientId: patientId as string,
+			patient: patientId as string,
 			appointmentId: appointmentId as string,
 		});
 		return sendNormalized(res, StatusCodes.OK, stats, 'Payment statistics retrieved successfully');
