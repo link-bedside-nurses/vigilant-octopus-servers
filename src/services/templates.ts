@@ -251,19 +251,6 @@ export const NOTIFICATION_TEMPLATES = {
 						`
 								: ''
 						}
-
-						<div class="action-section">
-							<div class="action-title">⏰ Action Required</div>
-							<div class="action-text">
-								Please confirm your availability within 2 hours to ensure timely patient care.
-							</div>
-							<a href="${process.env.APP_URL}/appointments/${appointment.id}/confirm" class="cta-button">
-								✅ Confirm Appointment
-							</a>
-							<a href="${process.env.APP_URL}/appointments/${appointment.id}/decline" class="cta-secondary">
-								❌ Decline Assignment
-							</a>
-						</div>
 					</div>
 
 					<div class="footer">
