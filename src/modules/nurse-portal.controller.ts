@@ -13,6 +13,7 @@ import {
 import { CollectionService } from '../payments/collection.service';
 import { diskStorageService } from '../services/disk-storage';
 import { sendNormalized } from '../utils/http-response';
+import { APPOINTMENT_STATUSES } from '../interfaces';
 
 const router = Router();
 
@@ -477,13 +478,13 @@ router.patch(
 				return sendNormalized(res, StatusCodes.BAD_REQUEST, null, 'Status is required');
 			}
 
-			const allowedStatuses = ['in_progress', 'completed'];
+			const allowedStatuses = Object.values(APPOINTMENT_STATUSES);
 			if (!allowedStatuses.includes(status)) {
 				return sendNormalized(
 					res,
 					StatusCodes.BAD_REQUEST,
 					null,
-					'Invalid status. Allowed: in_progress, completed'
+					'Invalid status. Allowed: ' + allowedStatuses.join(', ')
 				);
 			}
 

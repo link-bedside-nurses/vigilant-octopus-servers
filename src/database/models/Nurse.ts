@@ -1,4 +1,5 @@
 import { index, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { DOCUMENT_VERIFICATION_STATUS } from '../../interfaces';
 
 // Document interface for Disk storage with streaming
 export interface DiskDocument {
@@ -86,8 +87,8 @@ export class Nurse {
 	@prop({
 		type: String,
 		required: false,
-		default: 'pending',
-		enum: ['pending', 'verified', 'rejected'],
+		default: DOCUMENT_VERIFICATION_STATUS.PENDING,
+		enum: Object.values(DOCUMENT_VERIFICATION_STATUS),
 	})
 	documentVerificationStatus?: string;
 

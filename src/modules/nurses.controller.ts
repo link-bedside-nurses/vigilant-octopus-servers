@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { db } from '../database';
-import { APPOINTMENT_STATUSES } from '../interfaces';
+import { APPOINTMENT_STATUSES, DOCUMENT_VERIFICATION_STATUS } from '../interfaces';
 import authenticate from '../middlewares/authentication';
 import { ChannelType, messagingService } from '../services/messaging';
 import { sendNormalized } from '../utils/http-response';
@@ -156,12 +156,12 @@ router.patch(
 			const { id } = req.params;
 			const { status } = req.body;
 
-			if (!['pending', 'verified', 'rejected'].includes(status)) {
+			if (!Object.values(DOCUMENT_VERIFICATION_STATUS).includes(status)) {
 				return sendNormalized(
 					res,
 					StatusCodes.BAD_REQUEST,
 					null,
-					'Invalid status. Must be pending, verified, or rejected'
+					'Invalid status. Must be ' + Object.values(DOCUMENT_VERIFICATION_STATUS).join(', ')
 				);
 			}
 
@@ -170,13 +170,13 @@ router.patch(
 			};
 
 			// If documents are verified, also set isVerified to true
-			if (status === 'verified') {
+			if (status === DOCUMENT_VERIFICATION_STATUS.VERIFIED) {
 				updateData.isVerified = true;
 				updateData.isActive = true; // Auto-activate when verified
 			}
 
 			// If documents are rejected, set isVerified to false
-			if (status === 'rejected') {
+			if (status === DOCUMENT_VERIFICATION_STATUS.REJECTED) {
 				updateData.isVerified = false;
 				updateData.isActive = false; // Deactivate when rejected
 			}
@@ -189,7 +189,7 @@ router.patch(
 
 			// Send notification based on status
 			if (nurse.email) {
-				if (status === 'verified') {
+				if (status === DOCUMENT_VERIFICATION_STATUS.VERIFIED) {
 					await messagingService.sendNotification(nurse.email, '', {
 						channel: ChannelType.EMAIL,
 						template: {
@@ -198,7 +198,7 @@ router.patch(
 							html: `<p>Hello ${nurse.firstName},</p><p>Your documents have been verified and your account has been activated. You can now sign in to the LinkBedside Nurses portal.</p>`,
 						},
 					});
-				} else if (status === 'rejected') {
+				} else if (status === DOCUMENT_VERIFICATION_STATUS.REJECTED) {
 					await messagingService.sendNotification(nurse.email, '', {
 						channel: ChannelType.EMAIL,
 						template: {
