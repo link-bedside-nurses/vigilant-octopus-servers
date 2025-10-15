@@ -228,6 +228,7 @@ router.get('/:id/appointments', async (req: Request, res: Response, next: NextFu
 		const appointments = await db.appointments
 			.find(query)
 			.populate('patient')
+			.populate('nurse')
 			.populate('payments')
 			.sort({ date: -1 });
 
