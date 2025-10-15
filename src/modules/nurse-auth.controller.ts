@@ -300,11 +300,8 @@ router.post('/signin', async (req: Request, res: Response, next: NextFunction) =
 			{
 				message: 'OTP sent to your phone number',
 				expiresAt: otpResult.expiresAt,
-				nurse: {
-					id: nurse.id,
-					firstName: nurse.firstName,
-					lastName: nurse.lastName,
-					phone: nurse.phone,
+				user: {
+					...nurse,
 				},
 			},
 			'Check your phone for OTP'
@@ -380,16 +377,22 @@ router.post('/verify-otp', async (req: Request, res: Response, next: NextFunctio
 			res,
 			StatusCodes.OK,
 			{
-				nurse: {
-					id: nurse.id,
+				user: {
+					phone: nurse.phone,
 					firstName: nurse.firstName,
 					lastName: nurse.lastName,
-					phone: nurse.phone,
 					email: nurse.email,
-					profilePicture: nurse.profilePicture,
 					isActive: nurse.isActive,
 					isVerified: nurse.isVerified,
+					profilePicture: nurse.profilePicture,
+					nationalId: nurse.nationalId,
+					qualifications: nurse.qualifications,
 					documentVerificationStatus: nurse.documentVerificationStatus,
+					markedForDeletion: nurse.markedForDeletion,
+					deletionConfirmed: nurse.deletionConfirmed,
+					createdAt: nurse.get('createdAt')?.toISOString?.() ?? null,
+					updatedAt: nurse.get('updatedAt')?.toISOString?.() ?? null,
+					id: nurse.id,
 				},
 				accessToken,
 			},

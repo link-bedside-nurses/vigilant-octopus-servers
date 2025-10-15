@@ -28,6 +28,7 @@ import streamingRouter from './modules/streaming.controller';
 import { sendNormalized } from './utils/http-response';
 import logger from './utils/logger';
 import { privacy } from './utils/privacy';
+import app from './server';
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const router = express.Router();
@@ -127,19 +128,23 @@ const requestIdMiddleware = (req: Request, res: Response, next: NextFunction) =>
 /**
  * Initialize Middlewares
  */
+
 router.use(
 	helmet({
+		crossOriginEmbedderPolicy: false,
 		contentSecurityPolicy: {
 			directives: {
 				defaultSrc: ["'self'"],
 				styleSrc: ["'self'", "'unsafe-inline'"],
 				scriptSrc: ["'self'"],
 				imgSrc: ["'self'", 'data:', 'https:'],
+				mediaSrc: ["'self'", 'blob:', 'data:'],
+				connectSrc: ["'self'", 'ws:', 'wss:'],
 			},
 		},
-		crossOriginEmbedderPolicy: false,
 	})
 );
+router.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 
 router.use(cors(corsOptions));
 router.use(requestIdMiddleware);
