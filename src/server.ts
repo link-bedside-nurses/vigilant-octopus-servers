@@ -26,9 +26,9 @@ const initializeRedis = async (): Promise<void> => {
 		logger.info('🔄 Initializing Redis connection...');
 
 		redis = new Redis({
-			host: process.env.REDIS_HOST || '127.0.0.1',
-			port: parseInt(process.env.REDIS_PORT || '6379'),
-			password: process.env.REDIS_PASSWORD,
+			host: envars.REDIS_HOST || '127.0.0.1',
+			port: parseInt(envars.REDIS_PORT || '6379'),
+			password: envars.REDIS_PASSWORD,
 			maxRetriesPerRequest: 3,
 			connectTimeout: 10000,
 			lazyConnect: true,

@@ -40,6 +40,11 @@ const env = envalid.cleanEnv(process.env, {
 	MARZ_PAY_API_KEY: envalid.str(),
 	MARZ_PAY_API_SECRET: envalid.str(),
 	APP_URL: envalid.str(),
+
+	// Support Phone
+	SUPPORT_PHONE: envalid.str(),
+	EMERGENCY_PHONE: envalid.str(),
+	APP_DOWNLOAD_URL: envalid.str(),
 });
 
 const envars = Object.freeze({
@@ -62,6 +67,12 @@ const envars = Object.freeze({
 	MARZ_PAY_API_KEY: env.MARZ_PAY_API_KEY,
 	MARZ_PAY_API_SECRET: env.MARZ_PAY_API_SECRET,
 	APP_URL: env.APP_URL,
+	REDIS_HOST: env.REDIS_HOST,
+	REDIS_PORT: env.REDIS_PORT,
+	REDIS_PASSWORD: env.REDIS_PASSWORD,
+	SUPPORT_PHONE: env.SUPPORT_PHONE,
+	EMERGENCY_PHONE: env.EMERGENCY_PHONE,
+	APP_DOWNLOAD_URL: env.APP_DOWNLOAD_URL,
 });
 
 export default envars;

@@ -1,6 +1,7 @@
+import envars from '../config/env-vars';
 import winston from 'winston';
 
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = envars.NODE_ENV !== 'production';
 
 const loggerInstance = winston.createLogger({
 	level: isDev ? 'debug' : 'info',

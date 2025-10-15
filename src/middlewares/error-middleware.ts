@@ -4,6 +4,7 @@ import { ZodError } from 'zod';
 import HTTPException from '../utils/exception';
 import { normalizedResponse } from '../utils/http-response';
 import logger from '../utils/logger';
+import envars from '../config/env-vars';
 
 // Error types for better categorization
 export enum ErrorType {
@@ -211,7 +212,7 @@ function handleUnknownError(error: ExtendedError): {
 	return {
 		statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
 		message:
-			process.env.NODE_ENV === 'production'
+			envars.NODE_ENV === 'production'
 				? 'An unexpected error occurred. Please try again later.'
 				: error.message,
 		errorType: ErrorType.UNKNOWN,
@@ -242,7 +243,7 @@ export default function errorMiddleware(
 		error: {
 			name: error.name,
 			message: error.message,
-			stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+			stack: envars.NODE_ENV === 'development' ? error.stack : undefined,
 		},
 	});
 
@@ -295,7 +296,7 @@ export default function errorMiddleware(
 	);
 
 	// Add additional error information in development
-	if (process.env.NODE_ENV === 'development') {
+	if (envars.NODE_ENV === 'development') {
 		httpResponse.error = {
 			...httpResponse.error,
 			// @ts-ignore
