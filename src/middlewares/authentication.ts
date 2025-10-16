@@ -47,6 +47,11 @@ export default async function authenticate(request: Request, res: Response, next
 			if (!admin.isEmailVerified) {
 				return next(new HTTPException('Email not verified', StatusCodes.FORBIDDEN));
 			}
+
+			if (!admin.isActive) {
+				return next(new HTTPException('Account Inactive', StatusCodes.FORBIDDEN));
+			}
+
 			request.account = {
 				id: decoded.id,
 				email: admin.email,

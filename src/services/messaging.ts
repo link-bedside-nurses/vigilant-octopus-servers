@@ -90,7 +90,7 @@ export interface OTPResult {
 class MessagingService {
 	private static instance: MessagingService;
 
-	private constructor() {}
+	private constructor() { }
 
 	public static getInstance(): MessagingService {
 		if (!MessagingService.instance) {
