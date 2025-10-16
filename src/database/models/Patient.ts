@@ -68,6 +68,9 @@ export class Patient {
 	@prop( { type: Boolean, required: false, default: false } )
 	isPhoneVerified?: boolean;
 
+	@prop({ type: Boolean, required: false, default: false })
+	isBanned?: boolean;
+
 	// Account deletion fields (Google Play Store compliance)
 	@prop( { type: Boolean, required: false, default: false } )
 	markedForDeletion?: boolean;

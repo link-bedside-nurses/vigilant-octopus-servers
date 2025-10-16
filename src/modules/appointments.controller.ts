@@ -44,38 +44,207 @@ router.get( '/', async ( _req: Request, res: Response, next: NextFunction ) => {
 	}
 } );
 
-// POST /appointments - schedule appointment
-router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
+router.get('/current-appointment', async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const result = AppointmentCreateSchema.safeParse( req.body );
+		// Verify authentication
+		const patientId = req.account?.id;
+		const accountType = req.account?.type;
 
-		console.log(req.body)
-
-		console.log( JSON.stringify( result ) );
-
-		if ( !result.success ) {
-			return sendNormalized( res, StatusCodes.BAD_REQUEST, null, result.error.issues[0].message );
+		if (!patientId || accountType !== 'patient') {
+			return sendNormalized(
+				res,
+				StatusCodes.UNAUTHORIZED,
+				null,
+				'Patient authentication required'
+			);
 		}
-        const { patient, symptoms, description, date, location, coordinates } = result.data;
-        const appointmentData: any = {
-            patient,
-            symptoms,
-            description,
-        };
-        if ( date ) appointmentData.date = date;
-        // Backward compatibility: accept either `location` or raw `coordinates`
-        if ( location ) {
-            appointmentData.location = location;
-        } else if ( coordinates ) {
-            appointmentData.location = { type: 'Point', coordinates };
-        }
-        const resultDoc = await db.appointments.create( appointmentData );
-		const populated = await ( await resultDoc.populate( 'patient' ) ).populate( 'nurse' );
-		return sendNormalized( res, StatusCodes.OK, populated, 'Appointment scheduled successfully' );
-	} catch ( err ) {
-		return next( err );
+
+		// Verify patient exists
+		const patient = await db.patients.findById(patientId);
+		if (!patient) {
+			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Patient not found');
+		}
+
+
+		// Get most recent appointment for the patient
+		const mostRecentAppointment = await db.appointments
+			.findOne({ patient: patientId })
+			.sort({ createdAt: -1 })
+			.populate('nurse')
+			.populate('payments').populate('patient');
+
+		console.log(mostRecentAppointment);
+
+		return sendNormalized(
+			res,
+			StatusCodes.OK,
+			mostRecentAppointment,
+			'Fetched most recent appointment successfully'
+		);
+	} catch (err) {
+		return next(err);
 	}
-} );
+});
+
+// POST /appointments - schedule appointment
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+	// Start a MongoDB session for transaction
+	const session = await mongoose.startSession();
+	session.startTransaction();
+
+	try {
+		// Validate request body
+		const result = AppointmentCreateSchema.safeParse(req.body);
+
+		if (!result.success) {
+			await session.abortTransaction();
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				result.error.issues[0].message
+			);
+		}
+
+		const { patient, symptoms, description, date, location, coordinates } = result.data;
+
+		// Verify patient exists
+		const patientDoc = await db.patients.findById(patient).session(session);
+		if (!patientDoc) {
+			await session.abortTransaction();
+			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Patient not found');
+		}
+
+		// Check if patient is banned
+		if ((patientDoc as any).isBanned === true) {
+			await session.abortTransaction();
+			return sendNormalized(
+				res,
+				StatusCodes.FORBIDDEN,
+				null,
+				'Patient account is banned and cannot schedule appointments'
+			);
+		}
+
+		// SECURITY CHECK: Verify the requesting user is the patient or an admin
+		const requesterId = req.account?.id;
+		const requesterType = req.account?.type;
+
+		if (requesterType !== 'admin' && requesterId !== patient) {
+			await session.abortTransaction();
+			return sendNormalized(
+				res,
+				StatusCodes.FORBIDDEN,
+				null,
+				'You can only schedule appointments for yourself'
+			);
+		}
+
+		// Check for existing active appointments (PENDING or IN_PROGRESS)
+		const existingActiveAppointments = await db.appointments
+			.find({
+				patient,
+				status: { $in: [APPOINTMENT_STATUSES.PENDING, APPOINTMENT_STATUSES.IN_PROGRESS] },
+			})
+			.session(session);
+
+		if (existingActiveAppointments.length > 0) {
+			// Cancel all existing pending appointments
+			const cancelledCount = await db.appointments.updateMany(
+				{
+					patient,
+					status: APPOINTMENT_STATUSES.PENDING,
+				},
+				{
+					$set: {
+						status: APPOINTMENT_STATUSES.CANCELLED,
+						cancelledAt: new Date(),
+						cancellationReason:
+							'Automatically cancelled due to new appointment scheduling',
+						cancelledBy: requesterId,
+					},
+				},
+				{ session }
+			);
+
+			console.log(`Cancelled ${cancelledCount.modifiedCount} pending appointments for patient ${patient}`);
+
+			// Check if there are any IN_PROGRESS appointments
+			const inProgressAppointment = existingActiveAppointments.find(
+				(apt) => apt.status === APPOINTMENT_STATUSES.IN_PROGRESS
+			);
+
+			if (inProgressAppointment) {
+				await session.abortTransaction();
+				return sendNormalized(
+					res,
+					StatusCodes.CONFLICT,
+					{
+						existingAppointment: inProgressAppointment,
+						message: 'You have an appointment currently in progress',
+					},
+					'Cannot schedule a new appointment while one is in progress. Please wait for the current appointment to complete.'
+				);
+			}
+		}
+
+		// Prepare appointment data
+		const appointmentData: any = {
+			patient,
+			symptoms,
+			description,
+			status: APPOINTMENT_STATUSES.PENDING,
+		};
+
+		if (date) appointmentData.date = date;
+
+		// Backward compatibility: accept either `location` or raw `coordinates`
+		if (location) {
+			appointmentData.location = location;
+		} else if (coordinates) {
+			appointmentData.location = { type: 'Point', coordinates };
+		}
+
+		// Validate location data exists
+		if (!appointmentData.location) {
+			await session.abortTransaction();
+			return sendNormalized(
+				res,
+				StatusCodes.BAD_REQUEST,
+				null,
+				'Location is required for appointment scheduling'
+			);
+		}
+
+		// Create the new appointment
+		const [resultDoc] = await db.appointments.create([appointmentData], { session });
+
+		// Commit the transaction
+		await session.commitTransaction();
+
+		// Populate the created appointment
+		const populated = await db.appointments
+			.findById(resultDoc._id)
+			.populate('patient')
+			.populate('nurse')
+			.populate('payments');
+
+		return sendNormalized(
+			res,
+			StatusCodes.CREATED,
+			populated,
+			'Appointment scheduled successfully. Any previous pending appointments have been cancelled.'
+		);
+	} catch (err) {
+		// Rollback transaction on error
+		await session.abortTransaction();
+		console.error('Error scheduling appointment:', err);
+		return next(err);
+	} finally {
+		// End the session
+		session.endSession();
+	}
+});
 
 // POST /appointments/history - get appointments history
 router.post( '/history', async ( req: Request, res: Response, next: NextFunction ) => {
