@@ -49,7 +49,7 @@ export class CollectionService {
 
 	constructor() {
 		this.marzPayService = MarzPayService.getInstance();
-		this.callbackBaseUrl = envars.APP_URL;
+		this.callbackBaseUrl = envars.NODE_ENV === 'production' ? envars.APP_URL_PROD : envars.APP_URL_DEV;
 	}
 
 	/**

@@ -1,5 +1,8 @@
 import envars from "../config/env-vars";
 
+const APP_URL = envars.NODE_ENV === 'production' ? envars.APP_URL_PROD : envars.APP_URL_DEV;
+
+
 // Modern notification templates
 export const NOTIFICATION_TEMPLATES = {
 	nurseAssignment: {
@@ -567,7 +570,7 @@ export const NOTIFICATION_TEMPLATES = {
 							<a href="tel:${nurse.phone || '+1234567890'}" class="contact-button">
 								📞 Contact Your Nurse
 							</a>
-							<a href="${envars.APP_URL}/appointments/${appointment.id}" class="contact-button">
+							<a href="${APP_URL}/appointments/${appointment.id}" class="contact-button">
 								📱 View Appointment
 							</a>
 						</div>
@@ -922,7 +925,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`🏥 NEW ASSIGNMENT\n\nHi ${nurse.firstName}, you've been assigned to:\n\n👤 Patient: ${appointment.patient.name}\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n📍 ${appointment.location || 'Patient Home'}\n\n⏰ CONFIRM within 2 hours\n\nConfirm: ${envars.APP_URL}/confirm/${appointment.id}\nDecline: ${envars.APP_URL}/decline/${appointment.id}\n\n- Link Bed Sides`,
+			`🏥 NEW ASSIGNMENT\n\nHi ${nurse.firstName}, you've been assigned to:\n\n👤 Patient: ${appointment.patient.name}\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n📍 ${appointment.location || 'Patient Home'}\n\n⏰ CONFIRM within 2 hours\n\nConfirm: ${APP_URL}/confirm/${appointment.id}\nDecline: ${APP_URL}/decline/${appointment.id}\n\n- Link Bed Sides`,
 
 		reminder: (
 			appointment: {
@@ -933,7 +936,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`⚠️ REMINDER\n\nHi ${nurse.firstName}, please confirm your assignment for ${appointment.patient.name} on ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.\n\n⏰ ${Math.floor((new Date(appointment.confirmBy).getTime() - new Date().getTime()) / (1000 * 60))} minutes left to confirm\n\nConfirm now: ${envars.APP_URL}/confirm/${appointment.id}\n\n- Link Bed Sides`,
+			`⚠️ REMINDER\n\nHi ${nurse.firstName}, please confirm your assignment for ${appointment.patient.name} on ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.\n\n⏰ ${Math.floor((new Date(appointment.confirmBy).getTime() - new Date().getTime()) / (1000 * 60))} minutes left to confirm\n\nConfirm now: ${APP_URL}/confirm/${appointment.id}\n\n- Link Bed Sides`,
 
 		confirmed: (
 			appointment: {
@@ -943,7 +946,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`✅ CONFIRMED\n\nThank you ${nurse.firstName}! Your assignment is confirmed:\n\n👤 ${appointment.patient.name}\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\nPatient contact: ${appointment.patient.phone}\nView details: ${envars.APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
+			`✅ CONFIRMED\n\nThank you ${nurse.firstName}! Your assignment is confirmed:\n\n👤 ${appointment.patient.name}\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\nPatient contact: ${appointment.patient.phone}\nView details: ${APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
 
 		dayBeforeReminder: (
 			appointment: {
@@ -954,7 +957,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`📅 TOMORROW\n\nHi ${nurse.firstName}, reminder for your appointment:\n\n👤 ${appointment.patient.name}\n🕐 ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n📍 ${appointment.location || 'Patient Home'}\n\nPatient: ${appointment.patient.phone}\nDetails: ${envars.APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
+			`📅 TOMORROW\n\nHi ${nurse.firstName}, reminder for your appointment:\n\n👤 ${appointment.patient.name}\n🕐 ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n📍 ${appointment.location || 'Patient Home'}\n\nPatient: ${appointment.patient.phone}\nDetails: ${APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
 
 		finalReminder: (
 			appointment: {
@@ -972,7 +975,7 @@ const SMS_TEMPLATES = {
 			appointment: { patient: { name: string }; date: string | number | Date; id: string },
 			nurse: { firstName: string; lastName: string }
 		) =>
-			`🎉 NURSE ASSIGNED\n\nHi ${appointment.patient.name}, great news!\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} has been assigned to your appointment\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\n📞 Your nurse will call you within 2 hours to confirm details.\n\nView appointment: ${envars.APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
+			`🎉 NURSE ASSIGNED\n\nHi ${appointment.patient.name}, great news!\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} has been assigned to your appointment\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\n📞 Your nurse will call you within 2 hours to confirm details.\n\nView appointment: ${APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
 
 		appointmentConfirmed: (
 			appointment: { patient: { name: string }; date: string | number | Date },
@@ -1002,7 +1005,7 @@ const SMS_TEMPLATES = {
 			appointment: { patient: { name: string }; id: string },
 			nurse: { firstName: string; lastName: string }
 		) =>
-			`✅ VISIT COMPLETED\n\nHi ${appointment.patient.name},\n\nThank you for choosing Link Bed Sides! Your visit with ${nurse.firstName} ${nurse.lastName} is complete.\n\n📋 Visit summary and care notes are available in your app.\n\nRate your experience: ${envars.APP_URL}/rate/${appointment.id}\n\n- Link Bed Sides`,
+			`✅ VISIT COMPLETED\n\nHi ${appointment.patient.name},\n\nThank you for choosing Link Bed Sides! Your visit with ${nurse.firstName} ${nurse.lastName} is complete.\n\n📋 Visit summary and care notes are available in your app.\n\nRate your experience: ${APP_URL}/rate/${appointment.id}\n\n- Link Bed Sides`,
 	},
 
 	emergency: {
@@ -1024,13 +1027,13 @@ const SMS_TEMPLATES = {
 			`🎉 WELCOME TO LINK BED SIDES!\n\nHi ${nurse.firstName},\n\nYour nurse account is now active. You'll start receiving appointment assignments based on your availability.\n\n📱 Download our app: ${envars.APP_DOWNLOAD_URL}\n\nQuestions? Call: ${envars.SUPPORT_PHONE || '+256-XXX-XXXX'}\n\n- Link Bed Sides Team`,
 
 		patientWelcome: (patient: { firstName: string }) =>
-			`🏥 WELCOME TO LINK BED SIDES!\n\nHi ${patient.firstName},\n\nYour account is ready! You can now book home healthcare visits with qualified nurses.\n\n📱 Book your first appointment: ${envars.APP_URL}/book\n\nNeed help? Call: ${envars.SUPPORT_PHONE || '+256-XXX-XXXX'}\n\n- Link Bed Sides Team`,
+			`🏥 WELCOME TO LINK BED SIDES!\n\nHi ${patient.firstName},\n\nYour account is ready! You can now book home healthcare visits with qualified nurses.\n\n📱 Book your first appointment: ${APP_URL}/book\n\nNeed help? Call: ${envars.SUPPORT_PHONE || '+256-XXX-XXXX'}\n\n- Link Bed Sides Team`,
 
 		paymentConfirmed: (
 			appointment: { patient: { name: string }; date: string | number | Date; id: string },
 			amount: any
 		) =>
-			`💳 PAYMENT CONFIRMED\n\nHi ${appointment.patient.name},\n\nWe received your payment of ${amount} for the appointment on ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.\n\nReceipt: ${envars.APP_URL}/receipt/${appointment.id}\n\n- Link Bed Sides`,
+			`💳 PAYMENT CONFIRMED\n\nHi ${appointment.patient.name},\n\nWe received your payment of ${amount} for the appointment on ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.\n\nReceipt: ${APP_URL}/receipt/${appointment.id}\n\n- Link Bed Sides`,
 	},
 
 	nurseVerification: (nurse: { firstName: string }) =>

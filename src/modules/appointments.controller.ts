@@ -116,7 +116,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 		}
 
 		// Check if patient is banned
-		if ((patientDoc as any).isBanned === true) {
+		if (patientDoc.isBanned === true) {
 			await session.abortTransaction();
 			return sendNormalized(
 				res,

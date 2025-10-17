@@ -4,7 +4,8 @@ const env = envalid.cleanEnv(process.env, {
 	// Process
 	NODE_ENV: envalid.str({ choices: ['development', 'production'] }),
 	PORT: envalid.num(),
-	HOST: envalid.str(),
+	HOST_DEV: envalid.str(),
+	HOST_PROD: envalid.str(),
 
 	// Database
 	DATABASE_URL: envalid.str(),
@@ -39,7 +40,8 @@ const env = envalid.cleanEnv(process.env, {
 	MARZ_PAY_BASE_URL: envalid.str({ default: 'https://wallet.wearemarz.com/api/v1' }),
 	MARZ_PAY_API_KEY: envalid.str(),
 	MARZ_PAY_API_SECRET: envalid.str(),
-	APP_URL: envalid.str(),
+	APP_URL_DEV: envalid.str(),
+	APP_URL_PROD: envalid.str(),
 
 	// Support Phone
 	SUPPORT_PHONE: envalid.str(),
@@ -50,7 +52,8 @@ const env = envalid.cleanEnv(process.env, {
 const envars = Object.freeze({
 	NODE_ENV: env.NODE_ENV,
 	PORT: env.PORT,
-	HOST: env.HOST,
+	HOST_DEV: env.HOST_DEV,
+	HOST_PROD: env.HOST_PROD,
 	DATABASE_URL: env.DATABASE_URL,
 	DATABASE_NAME: env.DATABASE_NAME,
 	SEED_DATABASE: env.SEED_DATABASE,
@@ -66,7 +69,8 @@ const envars = Object.freeze({
 	MARZ_PAY_BASE_URL: env.MARZ_PAY_BASE_URL,
 	MARZ_PAY_API_KEY: env.MARZ_PAY_API_KEY,
 	MARZ_PAY_API_SECRET: env.MARZ_PAY_API_SECRET,
-	APP_URL: env.APP_URL,
+	APP_URL_DEV: env.APP_URL_DEV,
+	APP_URL_PROD: env.APP_URL_PROD,
 	REDIS_HOST: env.REDIS_HOST,
 	REDIS_PORT: env.REDIS_PORT,
 	REDIS_PASSWORD: env.REDIS_PASSWORD,

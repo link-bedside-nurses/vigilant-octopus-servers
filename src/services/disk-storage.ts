@@ -17,7 +17,7 @@ export interface DiskUploadResult {
 
 export class DiskStorageService {
   private readonly uploadsDir = resolve(process.cwd(), 'uploads');
-  private readonly baseUrl = envars.HOST || `http://127.0.0.1:${envars.PORT}`;
+  private readonly baseUrl = envars.NODE_ENV === 'production' ? envars.HOST_PROD : envars.HOST_DEV;
 
   private async ensureUploadsDirectory(): Promise<void> {
     if (!existsSync(this.uploadsDir)) {
