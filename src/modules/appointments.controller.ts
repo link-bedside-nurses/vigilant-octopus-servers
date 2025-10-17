@@ -88,16 +88,11 @@ router.get('/current-appointment', async (req: Request, res: Response, next: Nex
 
 // POST /appointments - schedule appointment
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
-	// Start a MongoDB session for transaction
-	const session = await mongoose.startSession();
-	session.startTransaction();
-
 	try {
 		// Validate request body
 		const result = AppointmentCreateSchema.safeParse(req.body);
 
 		if (!result.success) {
-			await session.abortTransaction();
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -109,15 +104,13 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 		const { patient, symptoms, description, date, location, coordinates } = result.data;
 
 		// Verify patient exists
-		const patientDoc = await db.patients.findById(patient).session(session);
+		const patientDoc = await db.patients.findById(patient);
 		if (!patientDoc) {
-			await session.abortTransaction();
 			return sendNormalized(res, StatusCodes.NOT_FOUND, null, 'Patient not found');
 		}
 
 		// Check if patient is banned
 		if (patientDoc.isBanned === true) {
-			await session.abortTransaction();
 			return sendNormalized(
 				res,
 				StatusCodes.FORBIDDEN,
@@ -131,7 +124,6 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 		const requesterType = req.account?.type;
 
 		if (requesterType !== 'admin' && requesterId !== patient) {
-			await session.abortTransaction();
 			return sendNormalized(
 				res,
 				StatusCodes.FORBIDDEN,
@@ -141,14 +133,29 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 		}
 
 		// Check for existing active appointments (PENDING or IN_PROGRESS)
-		const existingActiveAppointments = await db.appointments
-			.find({
-				patient,
-				status: { $in: [APPOINTMENT_STATUSES.PENDING, APPOINTMENT_STATUSES.IN_PROGRESS] },
-			})
-			.session(session);
+		const existingActiveAppointments = await db.appointments.find({
+			patient,
+			status: { $in: [APPOINTMENT_STATUSES.PENDING, APPOINTMENT_STATUSES.IN_PROGRESS] },
+		});
 
 		if (existingActiveAppointments.length > 0) {
+			// Check if there are any IN_PROGRESS appointments
+			const inProgressAppointment = existingActiveAppointments.find(
+				(apt) => apt.status === APPOINTMENT_STATUSES.IN_PROGRESS
+			);
+
+			if (inProgressAppointment) {
+				return sendNormalized(
+					res,
+					StatusCodes.CONFLICT,
+					{
+						existingAppointment: inProgressAppointment,
+						message: 'You have an appointment currently in progress',
+					},
+					'Cannot schedule a new appointment while one is in progress. Please wait for the current appointment to complete.'
+				);
+			}
+
 			// Cancel all existing pending appointments
 			const cancelledCount = await db.appointments.updateMany(
 				{
@@ -163,29 +170,10 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 							'Automatically cancelled due to new appointment scheduling',
 						cancelledBy: requesterId,
 					},
-				},
-				{ session }
+				}
 			);
 
 			console.log(`Cancelled ${cancelledCount.modifiedCount} pending appointments for patient ${patient}`);
-
-			// Check if there are any IN_PROGRESS appointments
-			const inProgressAppointment = existingActiveAppointments.find(
-				(apt) => apt.status === APPOINTMENT_STATUSES.IN_PROGRESS
-			);
-
-			if (inProgressAppointment) {
-				await session.abortTransaction();
-				return sendNormalized(
-					res,
-					StatusCodes.CONFLICT,
-					{
-						existingAppointment: inProgressAppointment,
-						message: 'You have an appointment currently in progress',
-					},
-					'Cannot schedule a new appointment while one is in progress. Please wait for the current appointment to complete.'
-				);
-			}
 		}
 
 		// Prepare appointment data
@@ -207,7 +195,6 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
 		// Validate location data exists
 		if (!appointmentData.location) {
-			await session.abortTransaction();
 			return sendNormalized(
 				res,
 				StatusCodes.BAD_REQUEST,
@@ -217,10 +204,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 		}
 
 		// Create the new appointment
-		const [resultDoc] = await db.appointments.create([appointmentData], { session });
-
-		// Commit the transaction
-		await session.commitTransaction();
+		const resultDoc = await db.appointments.create(appointmentData);
 
 		// Populate the created appointment
 		const populated = await db.appointments
@@ -236,13 +220,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 			'Appointment scheduled successfully. Any previous pending appointments have been cancelled.'
 		);
 	} catch (err) {
-		// Rollback transaction on error
-		await session.abortTransaction();
 		console.error('Error scheduling appointment:', err);
 		return next(err);
-	} finally {
-		// End the session
-		session.endSession();
 	}
 });
 
