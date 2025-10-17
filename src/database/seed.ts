@@ -6,6 +6,7 @@ import { APPOINTMENT_STATUSES } from '../interfaces';
 import logger from '../utils/logger';
 import { Password } from '../utils/password';
 import { MobileProvider, PaymentStatus } from './models/Payment';
+import envars from '../config/env-vars';
 
 // Center coordinates (Kampala)
 const centerCoords = {
@@ -336,7 +337,7 @@ async function seedPayments(appointments: any[], patients: any[]) {
 					status === PaymentStatus.SUCCESSFUL
 						? faker.string.alphanumeric(15).toUpperCase()
 						: undefined,
-				callbackUrl: 'http://localhost:3000/api/v1/payments/webhooks/collection',
+				callbackUrl: envars.NODE_ENV === 'production' ? envars.APP_URL_PROD : envars.APP_URL_DEV + '/api/v1/payments/webhooks/collection',
 				country: 'UG',
 				mode: 'live',
 				initiatedAt: initiatedDate,
