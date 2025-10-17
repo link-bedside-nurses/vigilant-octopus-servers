@@ -1,49 +1,30 @@
 import * as envalid from 'envalid';
 
 const env = envalid.cleanEnv(process.env, {
-	// Process
 	NODE_ENV: envalid.str({ choices: ['development', 'production'] }),
 	PORT: envalid.num(),
 	HOST_DEV: envalid.str(),
 	HOST_PROD: envalid.str(),
-
-	// Database
 	DATABASE_URL: envalid.str(),
 	DATABASE_NAME: envalid.str(),
 	SEED_DATABASE: envalid.bool(),
-
-	// App Auth
 	ACCESS_TOKEN_SECRET: envalid.str(),
-
-	// Email
 	APP_PASSWORD: envalid.str(),
 	SENDER_EMAIL: envalid.str(),
 	RECIPIENT_EMAIL: envalid.str(),
-
-	// SMS Sender (optional, used for phone normalization)
 	FROM_SMS_PHONE: envalid.str({ default: '' }),
-
-	// OTP expiry configuration (seconds)
 	OTP_EXPIRY_SECONDS: envalid.num({ default: 300 }),
-
-	// EgoSMS Provider
 	SMS_USERNAME: envalid.str(),
 	SMS_PASSWORD: envalid.str(),
 	SMS_SENDER_ID: envalid.str(),
-
-	// REDIS
 	REDIS_HOST: envalid.str(),
 	REDIS_PORT: envalid.str(),
 	REDIS_PASSWORD: envalid.str(),
-
-	// MarzPay Payment Gateway
 	MARZ_PAY_BASE_URL: envalid.str({ default: 'https://wallet.wearemarz.com/api/v1' }),
 	MARZ_PAY_API_KEY: envalid.str(),
 	MARZ_PAY_API_SECRET: envalid.str(),
 	APP_URL_DEV: envalid.str(),
 	APP_URL_PROD: envalid.str(),
-
-	// Support Phone
 	SUPPORT_PHONE: envalid.str(),
 	EMERGENCY_PHONE: envalid.str(),
 	APP_DOWNLOAD_URL: envalid.str(),
