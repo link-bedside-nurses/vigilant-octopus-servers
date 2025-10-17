@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { z } from 'zod';
 import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
+import { ScheduleAppointmentSchema } from '../interfaces/dtos';
 import authenticate from '../middlewares/authentication';
 import { validateObjectID } from '../middlewares/validate-objectid';
 import { handleAssignmentResponse, nurseAssignmentService } from '../services/nurse-assignment';
@@ -12,22 +13,7 @@ import { sendNormalized } from '../utils/http-response';
 const router = Router();
 router.use( authenticate );
 
-// Zod schema for appointment creation
-const GeoJSONLocationSchema = z.object( {
-    type: z.literal( 'Point' ),
-    coordinates: z.tuple( [z.number().min( -180 ).max( 180 ), z.number().min( -90 ).max( 90 )] ),
-} );
-
-const AppointmentCreateSchema = z.object( {
-    patient: z.string(),
-    symptoms: z.array( z.string() ).min( 1, 'At least one symptom is required' ),
-    description: z.string().optional(),
-    date: z.coerce.date().optional(),
-    location: GeoJSONLocationSchema.optional(),
-    coordinates: z
-        .tuple( [z.number().min( -180 ).max( 180 ), z.number().min( -90 ).max( 90 )] )
-        .optional(),
-} );
+// Using the standardized schema from DTOs
 
 // GET /appointments - get all appointments
 router.get( '/', async ( _req: Request, res: Response, next: NextFunction ) => {
@@ -90,7 +76,7 @@ router.get('/current-appointment', async (req: Request, res: Response, next: Nex
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		// Validate request body
-		const result = AppointmentCreateSchema.safeParse(req.body);
+		const result = ScheduleAppointmentSchema.safeParse(req.body);
 
 		if (!result.success) {
 			return sendNormalized(
@@ -101,7 +87,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 			);
 		}
 
-		const { patient, symptoms, description, date, location, coordinates } = result.data;
+		const { patient, symptoms, description, date, location, coordinates, nurse } = result.data;
 
 		// Verify patient exists
 		const patientDoc = await db.patients.findById(patient);
@@ -185,6 +171,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 		};
 
 		if (date) appointmentData.date = date;
+		if (nurse) appointmentData.nurse = nurse;
 
 		// Backward compatibility: accept either `location` or raw `coordinates`
 		if (location) {

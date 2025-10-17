@@ -40,9 +40,12 @@ export const ScheduleAppointmentSchema = z.object({
 	symptoms: z.array(z.string()).min(1),
 	date: z.coerce.date().optional(),
 	description: z.string().optional(),
-	// Optional location collection at scheduling time
+	// Location is required - either as GeoJSON or raw coordinates
 	location: GeoJSONLocationSchema.optional(),
 	coordinates: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]).optional(),
+}).refine((data) => data.location || data.coordinates, {
+	message: "Either location or coordinates is required",
+	path: ["location"],
 });
 
 export const RescheduleAppointmentSchema = z.object({
