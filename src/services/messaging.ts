@@ -374,7 +374,7 @@ class MessagingService {
 		try {
 			logger.info(`Sending password setup email to ${email}`);
 
-			const appUrl = envars.NODE_ENV === 'production' ? envars.APP_URL_PROD : envars.APP_URL_DEV;
+			const appUrl = envars.APP_URL;
 			const setupLink = `${appUrl}/set-password?token=${token}`;
 			const expiryMinutes = Math.floor((expiresAt.getTime() - Date.now()) / 60000);
 
@@ -462,7 +462,7 @@ class MessagingService {
 		try {
 			logger.info(`Sending account activation email to ${email}`);
 
-			const appUrl = envars.NODE_ENV === 'production' ? envars.APP_URL_PROD : envars.APP_URL_DEV;
+			const appUrl = envars.APP_URL;
 			const signinLink = `${appUrl}/admin/signin`;
 
 			const subject = 'Your Admin Account Has Been Activated';

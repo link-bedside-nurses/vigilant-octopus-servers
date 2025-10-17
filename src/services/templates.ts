@@ -1,6 +1,6 @@
 import envars from "../config/env-vars";
 
-const APP_URL = envars.NODE_ENV === 'production' ? envars.APP_URL_PROD : envars.APP_URL_DEV;
+const APP_URL = envars.APP_URL;
 
 
 // Modern notification templates
