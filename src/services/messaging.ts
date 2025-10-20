@@ -375,60 +375,60 @@ class MessagingService {
 			logger.info(`Sending password setup email to ${email}`);
 
 			const appUrl = envars.APP_URL;
-			const setupLink = `${appUrl}/set-password?token=${token}`;
+			const setupLink = `${appUrl}/auth/set-password?token=${token}`;
 			const expiryMinutes = Math.floor((expiresAt.getTime() - Date.now()) / 60000);
 
 			const subject = 'Set Up Your Admin Account Password';
 			const text = `Welcome to LinkBedside Nurses Admin Portal!\n\nYou have been invited to join as an administrator. Please set up your password by clicking the link below:\n\n${setupLink}\n\nThis link will expire in ${expiryMinutes} minutes.\n\nAfter setting your password, your account will need to be activated by a super administrator before you can sign in.\n\nIf you did not request this, please ignore this email.`;
 
 			const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<style>
-		body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-		.container { max-width: 600px; margin: 0 auto; padding: 20px; }
-		.header { background-color: #4F46E5; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
-		.content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }
-		.button { display: inline-block; color:#f9f9f9; padding: 12px 30px; background-color: #4F46E5; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-		.warning { background-color: #FEF3C7; padding: 15px; border-left: 4px solid #F59E0B; margin: 20px 0; }
-		.footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-	</style>
-</head>
-<body>
-	<div class="container">
-		<div class="header">
-			<h1>Welcome to LinkBedside Nurses</h1>
-		</div>
-		<div class="content">
-			<h2>Set Up Your Admin Account</h2>
-			<p>You have been invited to join the LinkBedside Nurses Admin Portal as an administrator.</p>
-			<p>To get started, please set up your password by clicking the button below:</p>
-			<div style="text-align: center;">
-				<a href="${setupLink}" class="button">Set Up Password</a>
-			</div>
-			<p>Or copy and paste this link into your browser:</p>
-			<p style="word-break: break-all; background-color: #e5e7eb; padding: 10px; border-radius: 3px;">${setupLink}</p>
-			<div class="warning">
-				<strong>⏰ Important:</strong> This link will expire in <strong>${expiryMinutes} minutes</strong>.
-			</div>
-			<p><strong>Next Steps:</strong></p>
-			<ol>
-				<li>Click the link above to set your password</li>
-				<li>Wait for a super administrator to activate your account</li>
-				<li>Once activated, you can sign in and start managing the system</li>
-			</ol>
-			<p>If you did not request this account, please ignore this email.</p>
-		</div>
-		<div class="footer">
-			<p>© ${new Date().getFullYear()} LinkBedside Nurses. All rights reserved.</p>
-		</div>
-	</div>
-</body>
-</html>
-			`;
+								<!DOCTYPE html>
+								<html>
+								<head>
+									<meta charset="UTF-8">
+									<meta name="viewport" content="width=device-width, initial-scale=1.0">
+									<style>
+										body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+										.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+										.header { background-color: #4F46E5; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+										.content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }
+										.button { display: inline-block; color:#f9f9f9; padding: 12px 30px; background-color: #4F46E5; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+										.warning { background-color: #FEF3C7; padding: 15px; border-left: 4px solid #F59E0B; margin: 20px 0; }
+										.footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+									</style>
+								</head>
+								<body>
+									<div class="container">
+										<div class="header">
+											<h1>Welcome to LinkBedside Nurses</h1>
+										</div>
+										<div class="content">
+											<h2>Set Up Your Admin Account</h2>
+											<p>You have been invited to join the LinkBedside Nurses Admin Portal as an administrator.</p>
+											<p>To get started, please set up your password by clicking the button below:</p>
+											<div style="text-align: center;">
+												<a href="${setupLink}" class="button">Set Up Password</a>
+											</div>
+											<p>Or copy and paste this link into your browser:</p>
+											<p style="word-break: break-all; background-color: #e5e7eb; padding: 10px; border-radius: 3px;">${setupLink}</p>
+											<div class="warning">
+												<strong>⏰ Important:</strong> This link will expire in <strong>${expiryMinutes} minutes</strong>.
+											</div>
+											<p><strong>Next Steps:</strong></p>
+											<ol>
+												<li>Click the link above to set your password</li>
+												<li>Wait for a super administrator to activate your account</li>
+												<li>Once activated, you can sign in and start managing the system</li>
+											</ol>
+											<p>If you did not request this account, please ignore this email.</p>
+										</div>
+										<div class="footer">
+											<p>© ${new Date().getFullYear()} LinkBedside Nurses. All rights reserved.</p>
+										</div>
+									</div>
+								</body>
+								</html>
+								`;
 
 			const result = await this.sendEmail(email, subject, text, htmlContent);
 
@@ -493,7 +493,7 @@ class MessagingService {
 		<div class="content">
 			<h2>${greeting},</h2>
 			<div class="success">
-				<strong>✅ Good news!</strong> Your administrator account has been activated.
+				<strong>Good news!</strong> Your administrator account has been activated.
 			</div>
 			<p>You can now sign in to the LinkBedside Nurses Admin Portal and start managing the system.</p>
 			<div style="text-align: center;">

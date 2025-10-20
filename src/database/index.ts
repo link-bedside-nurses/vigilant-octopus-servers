@@ -51,7 +51,7 @@ export async function connectToDatabase(): Promise<void> {
 		isConnected = true;
 		connectionRetries = 0;
 
-		logger.info( `✅ Connected to database: ${connection.connection.db.databaseName}` );
+		logger.info(`Connected to database: ${connection.connection.db.databaseName}`);
 
 		setupConnectionListeners();
 
@@ -59,22 +59,22 @@ export async function connectToDatabase(): Promise<void> {
 			try {
 				logger.info( '🌱 Starting database seeding...' );
 				await seedDatabase();
-				logger.info( '✅ Database seeding completed' );
+				logger.info('Database seeding completed');
 			} catch ( error ) {
-				logger.error( '❌ Database seeding failed:' + error );
+				logger.error('Database seeding failed:' + error);
 			}
 		}
 	} catch ( error ) {
 		connectionRetries++;
 		logger.error(
-			`❌ Database connection failed (attempt ${connectionRetries}/${MAX_RETRIES}): ${error}`
+			`Database connection failed (attempt ${connectionRetries}/${MAX_RETRIES}): ${error}`
 		);
 
 		if ( connectionRetries < MAX_RETRIES ) {
-			logger.info( `🔄 Retrying connection in 5 seconds...` );
+			logger.info(`Retrying connection in 5 seconds...`);
 			setTimeout( () => connectToDatabase(), 5000 );
 		} else {
-			logger.error( '❌ Max connection retries reached. Exiting...' );
+			logger.error('Max connection retries reached. Exiting...');
 			process.exit( 1 );
 		}
 	}
@@ -88,10 +88,10 @@ export async function disconnectFromDatabase(): Promise<void> {
 		if ( mongoose.connection.readyState !== 0 ) {
 			await mongoose.connection.close();
 			isConnected = false;
-			logger.info( '✅ Disconnected from database' );
+			logger.info('Disconnected from database');
 		}
 	} catch ( error ) {
-		logger.error( '❌ Error disconnecting from database:', error );
+		logger.error('Error disconnecting from database:', error);
 		throw error;
 	}
 }
@@ -101,11 +101,11 @@ export async function disconnectFromDatabase(): Promise<void> {
  */
 function setupConnectionListeners(): void {
 	mongoose.connection.on( 'connected', () => {
-		logger.info( '✅ MongoDB connected' );
+		logger.info('MongoDB connected');
 	} );
 
 	mongoose.connection.on( 'error', ( error ) => {
-		logger.error( '❌ MongoDB connection error:', error );
+		logger.error('MongoDB connection error:', error);
 		isConnected = false;
 	} );
 
@@ -115,19 +115,19 @@ function setupConnectionListeners(): void {
 	} );
 
 	mongoose.connection.on( 'reconnected', () => {
-		logger.info( '🔄 MongoDB reconnected' );
+		logger.info('MongoDB reconnected');
 		isConnected = true;
 	} );
 
 	// Graceful shutdown
 	process.on( 'SIGINT', async () => {
-		logger.info( '🛑 Received SIGINT. Closing database connection...' );
+		logger.info('Received SIGINT. Closing database connection...');
 		await disconnectFromDatabase();
 		process.exit( 0 );
 	} );
 
 	process.on( 'SIGTERM', async () => {
-		logger.info( '🛑 Received SIGTERM. Closing database connection...' );
+		logger.info('Received SIGTERM. Closing database connection...');
 		await disconnectFromDatabase();
 		process.exit( 0 );
 	} );

@@ -6,7 +6,7 @@ import { db } from '../database';
 import { APPOINTMENT_STATUSES } from '../interfaces';
 import { ScheduleAppointmentSchema } from '../interfaces/dtos';
 import authenticate from '../middlewares/authentication';
-import { validateObjectID } from '../middlewares/validate-objectid';
+import { validateObjectId } from '../middlewares/validate-objectid';
 import { handleAssignmentResponse, nurseAssignmentService } from '../services/nurse-assignment';
 import { sendNormalized } from '../utils/http-response';
 
@@ -296,7 +296,7 @@ router.get( '/available-nurses', async ( req: Request, res: Response, next: Next
  */
 router.get(
 	'/nurse/:nurseId',
-	validateObjectID,
+	validateObjectId,
 	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const accountType = req.account?.type;
@@ -327,7 +327,7 @@ router.get(
 );
 
 // GET /appointments/:id - get appointment by id (must come after specific routes)
-router.get( '/:id', validateObjectID, async ( req: Request, res: Response, next: NextFunction ) => {
+router.get('/:id', validateObjectId, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const appointment = await db.appointments
 			.findById( req.params.id )
@@ -345,7 +345,7 @@ router.get( '/:id', validateObjectID, async ( req: Request, res: Response, next:
 // PATCH /appointments/:id/update - update appointment status
 router.patch(
 	'/:id/update',
-	validateObjectID,
+	validateObjectId,
 	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { status } = req.body;
@@ -369,7 +369,7 @@ router.patch(
 // PATCH /appointments/:id/reschedule - reschedule appointment
 router.patch(
 	'/:id/reschedule',
-	validateObjectID,
+	validateObjectId,
 	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { date } = req.body;
@@ -393,7 +393,7 @@ router.patch(
 // PATCH /appointments/:id/confirm - confirm appointment
 router.patch(
 	'/:id/confirm',
-	validateObjectID,
+	validateObjectId,
 	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const appointment = await db.appointments.findByIdAndUpdate(
@@ -411,7 +411,7 @@ router.patch(
 // PATCH /appointments/:id/cancel - cancel appointment
 router.patch(
 	'/:id/cancel',
-	validateObjectID,
+	validateObjectId,
 	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const { reason } = req.body;
@@ -440,7 +440,7 @@ router.patch(
  */
 router.post(
 	'/:id/assign-nurse',
-	validateObjectID,
+	validateObjectId,
 	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const accountType = req.account?.type;
@@ -478,7 +478,7 @@ router.post(
  */
 router.post(
 	'/:id/reassign-nurse',
-	validateObjectID,
+	validateObjectId,
 	async ( req: Request, res: Response, next: NextFunction ) => {
 		try {
 			const accountType = req.account?.type;
@@ -508,7 +508,7 @@ router.post(
 );
 
 // DELETE /appointments/:id - delete appointment
-router.delete( '/:id', validateObjectID, async ( req: Request, res: Response, next: NextFunction ) => {
+router.delete('/:id', validateObjectId, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const appointment = await db.appointments.findByIdAndDelete( req.params.id );
 		return sendNormalized( res, StatusCodes.OK, appointment, 'Appointment deleted successfully' );

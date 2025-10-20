@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { db } from '../database';
 import { PaymentStatus } from '../database/models/Payment';
 import authenticate from '../middlewares/authentication';
-import { validateObjectID } from '../middlewares/validate-objectid';
+import { validateObjectId } from '../middlewares/validate-objectid';
 import { CollectionService } from '../payments/collection.service';
 import { MarzPayService } from '../payments/marzpay.service';
 import { IWebhookPayload, WebhookService } from '../payments/webhook.service';
@@ -56,7 +56,7 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
 // POST /payments/patient/:id/initiate - initiate payment from patient
 router.post(
 	'/patient/:id/initiate',
-	validateObjectID,
+	validateObjectId,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const result = InitiatePaymentSchema.safeParse(req.body);
@@ -129,7 +129,7 @@ router.post(
 // GET /payments/nurses/:id/earnings - get nurse earnings
 router.get(
 	'/nurses/:id/earnings',
-	validateObjectID,
+	validateObjectId,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const payments = await db.payments.aggregate([
@@ -173,7 +173,7 @@ router.get(
 // GET /payments/patients/:id/payments - get payments by patient
 router.get(
 	'/patients/:id/payments',
-	validateObjectID,
+	validateObjectId,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const collectionService = new CollectionService();
@@ -188,7 +188,7 @@ router.get(
 // GET /payments/appointments/:id/payments - get payments by appointment
 router.get(
 	'/appointments/:id/payments',
-	validateObjectID,
+	validateObjectId,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const collectionService = new CollectionService();
@@ -227,7 +227,7 @@ router.get('/generate-reference', async (_req: Request, res: Response, next: Nex
 });
 
 // GET /payments/:id - get payment by id
-router.get('/:id', validateObjectID, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id', validateObjectId, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const collectionService = new CollectionService();
 		const payment = await collectionService.findById(req.params.id);
@@ -243,7 +243,7 @@ router.get('/:id', validateObjectID, async (req: Request, res: Response, next: N
 // GET /payments/:id/status - check payment status and refresh from API
 router.get(
 	'/:id/status',
-	validateObjectID,
+	validateObjectId,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const collectionService = new CollectionService();
@@ -261,7 +261,7 @@ router.get(
 // POST /payments/:id/cancel - cancel a pending payment
 router.post(
 	'/:id/cancel',
-	validateObjectID,
+	validateObjectId,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const collectionService = new CollectionService();

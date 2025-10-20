@@ -847,7 +847,7 @@ export const NOTIFICATION_TEMPLATES = {
 			<body>
 				<div class="container">
 					<div class="header">
-						<h1>✅ Admin Account Activated</h1>
+						<h1>Admin Account Activated</h1>
 					</div>
 					<div class="content">
 						<div class="greeting">Hello ${admin.name},</div>
@@ -946,7 +946,7 @@ const SMS_TEMPLATES = {
 			},
 			nurse: { firstName: string }
 		) =>
-			`✅ CONFIRMED\n\nThank you ${nurse.firstName}! Your assignment is confirmed:\n\n👤 ${appointment.patient.name}\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\nPatient contact: ${appointment.patient.phone}\nView details: ${APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
+			`CONFIRMED\n\nThank you ${nurse.firstName}! Your assignment is confirmed:\n\n👤 ${appointment.patient.name}\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\nPatient contact: ${appointment.patient.phone}\nView details: ${APP_URL}/appointments/${appointment.id}\n\n- Link Bed Sides`,
 
 		dayBeforeReminder: (
 			appointment: {
@@ -981,7 +981,7 @@ const SMS_TEMPLATES = {
 			appointment: { patient: { name: string }; date: string | number | Date },
 			nurse: { firstName: string; lastName: string; phone: string }
 		) =>
-			`✅ APPOINTMENT CONFIRMED\n\nHi ${appointment.patient.name},\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} confirmed your appointment:\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\nNurse contact: ${nurse.phone || 'Available in app'}\n\n- Link Bed Sides`,
+			`APPOINTMENT CONFIRMED\n\nHi ${appointment.patient.name},\n\n👩‍⚕️ ${nurse.firstName} ${nurse.lastName} confirmed your appointment:\n📅 ${new Date(appointment.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at ${new Date(appointment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}\n\nNurse contact: ${nurse.phone || 'Available in app'}\n\n- Link Bed Sides`,
 
 		dayBeforeReminder: (
 			appointment: { patient: { name: string }; date: string | number | Date; location: any },
@@ -1005,7 +1005,7 @@ const SMS_TEMPLATES = {
 			appointment: { patient: { name: string }; id: string },
 			nurse: { firstName: string; lastName: string }
 		) =>
-			`✅ VISIT COMPLETED\n\nHi ${appointment.patient.name},\n\nThank you for choosing Link Bed Sides! Your visit with ${nurse.firstName} ${nurse.lastName} is complete.\n\n📋 Visit summary and care notes are available in your app.\n\nRate your experience: ${APP_URL}/rate/${appointment.id}\n\n- Link Bed Sides`,
+			`VISIT COMPLETED\n\nHi ${appointment.patient.name},\n\nThank you for choosing Link Bed Sides! Your visit with ${nurse.firstName} ${nurse.lastName} is complete.\n\n📋 Visit summary and care notes are available in your app.\n\nRate your experience: ${APP_URL}/rate/${appointment.id}\n\n- Link Bed Sides`,
 	},
 
 	emergency: {
@@ -1037,7 +1037,7 @@ const SMS_TEMPLATES = {
 	},
 
 	nurseVerification: (nurse: { firstName: string }) =>
-		`✅ Hi ${nurse.firstName}, your Link Bed Sides account is now VERIFIED and active! You can now receive assignments. Welcome aboard!`,
+		`Hi ${nurse.firstName}, your Link Bed Sides account is now VERIFIED and active! You can now receive assignments. Welcome aboard!`,
 
 	nurseBan: (nurse: { firstName: string }) =>
 		`🚫 Hi ${nurse.firstName}, your Link Bed Sides account has been BANNED. Access revoked. Contact support if you believe this is a mistake.`,
@@ -1046,7 +1046,7 @@ const SMS_TEMPLATES = {
 		`🚫 Hi ${patient.name}, your Link Bed Sides account has been BANNED. Access revoked. Contact support if you believe this is a mistake.`,
 
 	patientVerification: (patient: { name: string }) =>
-		`✅ Hi ${patient.name}, your Link Bed Sides account is now VERIFIED and active! You can now book appointments. Welcome!`,
+		`Hi ${patient.name}, your Link Bed Sides account is now VERIFIED and active! You can now book appointments. Welcome!`,
 };
 
 // Helper function to get character count

@@ -32,13 +32,13 @@ export async function seedDatabase() {
 		logger.debug('Starting database seeding...');
 
 		// Clear all collections
-		await Promise.all([
-			db.admins.deleteMany({}),
-			db.nurses.deleteMany({}),
-			db.patients.deleteMany({}),
-			db.appointments.deleteMany({}),
-			db.payments.deleteMany({}),
-		]);
+		// await Promise.all([
+		// 	db.admins.deleteMany({}),
+		// 	db.nurses.deleteMany({}),
+		// 	db.patients.deleteMany({}),
+		// 	db.appointments.deleteMany({}),
+		// 	db.payments.deleteMany({}),
+		// ]);
 
 		// Seed admins
 		const admins = await seedAdmins();
@@ -94,16 +94,16 @@ async function seedAdmins() {
 	const admins = [];
 
 	// Create ONE super admin
-	admins.push({
-		email: 'superadmin@linkbedside.com',
-		password: await Password.hash('SuperAdmin@123'),
-		isEmailVerified: true,
-		isActive: true,
-		isSuperAdmin: true,
-		isPasswordSet: true,
-		firstName: 'Super',
-		lastName: 'Admin',
-	});
+	// admins.push({
+	// 	email: 'superadmin@linkbedside.com',
+	// 	password: await Password.hash('SuperAdmin@123'),
+	// 	isEmailVerified: true,
+	// 	isActive: true,
+	// 	isSuperAdmin: true,
+	// 	isPasswordSet: true,
+	// 	firstName: 'Super',
+	// 	lastName: 'Admin',
+	// });
 
 	// Create 4 regular admins with varying states
 	for (let i = 0; i < 4; i++) {
@@ -127,7 +127,7 @@ async function seedNurses() {
 	const nurses = [];
 	const qualificationTypes = ['certification', 'cv', 'other'];
 	const docFormats = ['jpg', 'png', 'pdf', 'docx'];
-	for (let i = 0; i < 50; i++) {
+	for (let i = 0; i < 5000; i++) {
 		const profilePicture = {
 			publicId: faker.string.uuid(),
 			url: faker.image.avatar(),
@@ -198,7 +198,7 @@ async function seedNurses() {
 
 async function seedPatients() {
 	const patients = [];
-	for (let i = 0; i < 100; i++) {
+	for (let i = 0; i < 1000; i++) {
 		patients.push({
 			phone: `25677${faker.string.numeric(7)}`,
 			name: `${faker.person.firstName()} ${faker.person.lastName()}`,
@@ -212,7 +212,7 @@ async function seedAppointments(patients: any[], nurses: any[]) {
 	const appointments = [];
 	const symptoms = ['Fever', 'Cough', 'Fatigue', 'Headache', 'Body ache', 'Nausea'];
 
-	for (let i = 0; i < 200; i++) {
+	for (let i = 0; i < 5000; i++) {
 		const patient = faker.helpers.arrayElement(patients);
 
 		// 40% chance of not having a nurse assigned
@@ -337,7 +337,7 @@ async function seedPayments(appointments: any[], patients: any[]) {
 					status === PaymentStatus.SUCCESSFUL
 						? faker.string.alphanumeric(15).toUpperCase()
 						: undefined,
-				callbackUrl: envars.APP_URL + '/api/v1/payments/webhooks/collection',
+				callbackUrl: envars.HOST + '/payments/webhooks/collection',
 				country: 'UG',
 				mode: 'live',
 				initiatedAt: initiatedDate,

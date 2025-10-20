@@ -23,7 +23,7 @@ let redis: Redis;
 
 const initializeRedis = async (): Promise<void> => {
 	try {
-		logger.info('🔄 Initializing Redis connection...');
+		logger.info('Initializing Redis connection...');
 
 		redis = new Redis({
 			host: envars.REDIS_HOST || '127.0.0.1',
@@ -39,29 +39,29 @@ const initializeRedis = async (): Promise<void> => {
 		});
 
 		redis.on('connect', () => {
-			logger.info('✅ Connected to Redis');
+			logger.info('Connected to Redis');
 		});
 
 		redis.on('ready', () => {
-			logger.info('✅ Redis is ready to accept connections');
+			logger.info('Redis is ready to accept connections');
 		});
 
 		redis.on('close', () => {
-			logger.warn('⚠️ Redis connection closed');
+			logger.warn('Redis connection closed');
 		});
 
 		redis.on('reconnecting', () => {
-			logger.info('🔄 Reconnecting to Redis...');
+			logger.info('Reconnecting to Redis...');
 		});
 
 		// Test the connection
 		await redis.ping();
-		logger.info('✅ Redis ping successful');
+		logger.info('Redis ping successful');
 
 		// Make redis available globally
 		(global as any).redis = redis;
 	} catch (error) {
-		logger.error('❌ Failed to initialize Redis:', error);
+		logger.error('Failed to initialize Redis:', error);
 		throw error;
 	}
 };
@@ -186,44 +186,44 @@ class App {
 		}
 
 		this.isShuttingDown = true;
-		logger.info(`🛑 Received ${signal}. Starting graceful shutdown...`);
+		logger.info(`Received ${signal}. Starting graceful shutdown...`);
 
 		try {
 			// Stop accepting new connections
 			this.server.close((error) => {
 				if (error) {
-					logger.error('❌ Failed to close server:', error);
+					logger.error('Failed to close server:', error);
 				} else {
-					logger.info('✅ Server closed successfully');
+					logger.info('Server closed successfully');
 				}
 			});
 
 			// Stop the cron job if it exists
 			if (this.accountDeletionCronJob) {
 				this.accountDeletionCronJob.stop();
-				logger.info('✅ Account deletion cron job stopped');
+				logger.info('Account deletion cron job stopped');
 			}
 
 			// Close Redis connection
 			if (redis) {
 				await redis.quit();
-				logger.info('✅ Redis connection closed');
+				logger.info('Redis connection closed');
 			}
 
 			// Disconnect from database
 			await disconnectFromDatabase();
-			logger.info('✅ Database disconnected');
+			logger.info('Database disconnected');
 
 			// Force exit after 10 seconds if graceful shutdown fails
 			setTimeout(() => {
-				logger.error('❌ Forced shutdown after timeout');
+				logger.error('Forced shutdown after timeout');
 				process.exit(1);
 			}, 10000);
 
-			logger.info('✅ Graceful shutdown completed');
+			logger.info('Graceful shutdown completed');
 			process.exit(0);
 		} catch (error) {
-			logger.error('❌ Error during graceful shutdown:', error);
+			logger.error('Error during graceful shutdown:', error);
 			process.exit(1);
 		}
 	}
@@ -243,14 +243,14 @@ class App {
 
 			// Start the server
 			this.server.listen(envars.PORT, () => {
-				logger.info(`🚀 Server started successfully`);
-				logger.info(`📍 Environment: ${envars.NODE_ENV}`);
-				logger.info(`🌐 Server URL: http://127.0.0.1:${envars.PORT}`);
-				logger.info(`📊 Health Check: http://127.0.0.1:${envars.PORT}/health`);
-				logger.info(`📝 API Documentation: http://127.0.0.1:${envars.PORT}/api/v1/docs`);
+				logger.info(`Server started successfully`);
+				logger.info(`Environment: ${envars.NODE_ENV}`);
+				logger.info(`Server URL: http://127.0.0.1:${envars.PORT}`);
+				logger.info(`Health Check: http://127.0.0.1:${envars.PORT}/health`);
+				logger.info(`API Documentation: http://127.0.0.1:${envars.PORT}/api/v1/docs`);
 			});
 		} catch (error) {
-			logger.error('❌ Failed to start server:', error);
+			logger.error('Failed to start server:', error);
 			process.exit(1);
 		}
 	}
@@ -275,7 +275,7 @@ const app = new App();
 
 // Start the application
 app.start().catch((error) => {
-	logger.error('❌ Failed to initialize application:' + error);
+	logger.error('Failed to initialize application:' + error);
 	process.exit(1);
 });
 

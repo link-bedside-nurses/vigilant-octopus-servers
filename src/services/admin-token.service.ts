@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import logger from '../utils/logger';
 
 // Use the global Redis instance from server.ts
-const getRedis = (): Redis => {
+const redis = (): Redis => {
 	if (!(global as any).redis) {
 		throw new Error('Redis not initialized. Make sure the server has started.');
 	}
@@ -47,7 +47,7 @@ class AdminTokenService {
 			const key = `admin:password-setup:${token}`;
 
 			// Store email associated with token
-			await getRedis().setex(key, expiryTime, email);
+			await redis().setex(key, expiryTime, email);
 
 			logger.info(`Password setup token created for ${email}, expires in ${expiryTime} seconds`);
 
@@ -67,7 +67,7 @@ class AdminTokenService {
 	public async verifyPasswordSetupToken(token: string): Promise<string | null> {
 		try {
 			const key = `admin:password-setup:${token}`;
-			const email = await getRedis().get(key);
+			const email = await redis().get(key);
 
 			if (!email) {
 				logger.warn(`Invalid or expired password setup token: ${token}`);
@@ -87,7 +87,7 @@ class AdminTokenService {
 	public async invalidatePasswordSetupToken(token: string): Promise<void> {
 		try {
 			const key = `admin:password-setup:${token}`;
-			await getRedis().del(key);
+			await redis().del(key);
 			logger.info(`Password setup token invalidated: ${token}`);
 		} catch (error) {
 			logger.error(`Failed to invalidate password setup token:`, error);
@@ -106,7 +106,7 @@ class AdminTokenService {
 			const key = `admin:activation:${token}`;
 
 			// Store admin ID associated with token
-			await getRedis().setex(key, expiryTime, adminId);
+			await redis().setex(key, expiryTime, adminId);
 
 			logger.info(`Activation token created for admin ${adminId}, expires in ${expiryTime} seconds`);
 
@@ -126,7 +126,7 @@ class AdminTokenService {
 	public async verifyActivationToken(token: string): Promise<string | null> {
 		try {
 			const key = `admin:activation:${token}`;
-			const adminId = await getRedis().get(key);
+			const adminId = await redis().get(key);
 
 			if (!adminId) {
 				logger.warn(`Invalid or expired activation token: ${token}`);
@@ -146,7 +146,7 @@ class AdminTokenService {
 	public async invalidateActivationToken(token: string): Promise<void> {
 		try {
 			const key = `admin:activation:${token}`;
-			await getRedis().del(key);
+			await redis().del(key);
 			logger.info(`Activation token invalidated: ${token}`);
 		} catch (error) {
 			logger.error(`Failed to invalidate activation token:`, error);
@@ -159,7 +159,7 @@ class AdminTokenService {
 	public async tokenExists(token: string, type: 'password-setup' | 'activation'): Promise<boolean> {
 		try {
 			const key = `admin:${type}:${token}`;
-			const exists = await getRedis().exists(key);
+			const exists = await redis().exists(key);
 			return exists === 1;
 		} catch (error) {
 			logger.error(`Failed to check token existence:`, error);
@@ -173,7 +173,7 @@ class AdminTokenService {
 	public async getTokenTTL(token: string, type: 'password-setup' | 'activation'): Promise<number> {
 		try {
 			const key = `admin:${type}:${token}`;
-			const ttl = await getRedis().ttl(key);
+			const ttl = await redis().ttl(key);
 			return ttl > 0 ? ttl : 0;
 		} catch (error) {
 			logger.error(`Failed to get token TTL:`, error);
